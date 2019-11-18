@@ -8,7 +8,7 @@ if nargin < 3 || isempty(betafn)
     betafn = 'beta.nii.gz';
 end
 if nargin < 4 || isempty(thmin)
-    thmin = 0;
+    thmin = 0.1;
 end
 
 % load FreeSurfer set up
