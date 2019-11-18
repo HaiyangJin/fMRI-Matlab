@@ -3,6 +3,11 @@ function hemi = fs_hemi(filename)
 %
 % Created by Haiyang Jin (18/11/2019)
 
+if contains(filename, filesep)
+    [~, fn, ext] = fileparts(filename);
+    filename = [fn, ext];
+end
+
 if contains(filename, 'lh')
     hemi = 'lh';
 elseif contains(filename, 'rh')
