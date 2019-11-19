@@ -18,7 +18,7 @@ onecell = importdata(filename, ' ');
 fivecell = arrayfun(@(x) strsplit(x{1}), onecell, 'UniformOutput', false);
 
 % convert it to one cell vector
-cellTran = reshape([fivecell{1:end}], 5, 17);
+cellTran = reshape([fivecell{1:end}], 5, []);
 
 tableNames = {'OnsetTime', 'Condition', 'Duration', 'Weight', 'Label'};
 
