@@ -53,6 +53,5 @@ roisize = tempdata(4);
 
 % delete the temporary file
 delete(tempout);
-% dos(['rm ' tempout]);
 
 end
