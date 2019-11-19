@@ -1,4 +1,4 @@
-function tableout = fs_readpar(filename, removeFix)
+function tableout = fs_readpar(filename)
 % This functions read the paradigm file into matlab as a table
 % (Probably too complicated. Needed to be update later.
 %
@@ -9,10 +9,6 @@ if ~isempty(filename)
     if ~strcmp(ext, '.par')
         error('The extension of the filename is not "par".');
     end
-end
-
-if ~exist('removeFix', 'var') || isempty(removeFix) 
-    removeFix = 0;
 end
 
 % load the *.par as a one-dimentional cell
@@ -35,8 +31,9 @@ tableout.Condition = str2double(tableout.Condition);
 tableout.Duration = str2double(tableout.Duration);
 tableout.Weight = str2double(tableout.Weight);
 
-if removeFix
-    tableout = tableout(tableout.Label ~= "NULL", :);
-end
+tableout = tableout(tableout.Label ~= "NULL", :);
+
+tableout = sortrows(tableout, 'Condition');
+
 
 end
