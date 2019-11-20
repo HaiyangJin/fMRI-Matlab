@@ -1,4 +1,4 @@
-function tableout = fs_readpar(filename)
+function tableout = fs_readpar(filename, removeOnset)
 % This functions read the paradigm file into matlab as a table
 % (Probably too complicated. Needed to be update later.
 %
@@ -9,6 +9,11 @@ if ~isempty(filename)
     if ~strcmp(ext, '.par')
         error('The extension of the filename is not "par".');
     end
+end
+
+% by default, the OnsetTime will be removed
+if nargin < 2 || isempty(removeOnset)
+    removeOnset = 1;
 end
 
 % load the *.par as a one-dimentional cell
@@ -23,17 +28,20 @@ cellTran = reshape([fivecell{1:end}], 5, []);
 tableNames = {'OnsetTime', 'Condition', 'Duration', 'Weight', 'Label'};
 
 % Convert it to table
-tableout = cell2table(cellTran', 'VariableNames', tableNames);
+tmptable = cell2table(cellTran', 'VariableNames', tableNames);
+tmptable = tmptable(tmptable.Label ~= "NULL", :);  % remove the baseline
 
-% convert strings to numbers
-tableout.OnsetTime = str2double(tableout.OnsetTime);
-tableout.Condition = str2double(tableout.Condition);
-tableout.Duration = str2double(tableout.Duration);
-tableout.Weight = str2double(tableout.Weight);
+% Create the output table
+tableout = table;
+if ~removeOnset
+    tableout.OnsetTime = str2double(tmptable.OnsetTime);
+    tableout.Duration = str2double(tmptable.Duration);
+end
+tableout.Condition = str2double(tmptable.Condition);
+tableout.Weight = str2double(tmptable.Weight);
+tableout.Label = tmptable.Label;
 
-tableout = tableout(tableout.Label ~= "NULL", :);
-
-tableout = sortrows(tableout, 'Condition');
-
+tableout = unique(tableout, 'rows'); % remove duplicated rows
+tableout = sortrows(tableout, 'Condition'); % sort rows by condition code
 
 end
