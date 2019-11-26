@@ -1,15 +1,17 @@
-function fs_cosmo_map2label(dt_searchligh, filename, vert_coordi, subjCode)
+function fs_cosmo_map2label(dt, filename, vert_coordi, subjCode)
 % This function convert the surface dataset in CoSMoMVPA to label file in
 % FreeSurfer.
 %
 % Created by Haiyang Jin (25/11/2019)
+
+% dt only refers to the dt obtained from searchlight analyses for surface.
 
 [~, fn, ext] = fileparts(filename);
 if ~strcmp(ext, '.label')
     filename = [filename '.label'];
 end
 
-acc = dt_searchligh.samples;
+acc = dt.samples;
 nver = numel(acc);
 
 fid = fopen(filename, 'w');
