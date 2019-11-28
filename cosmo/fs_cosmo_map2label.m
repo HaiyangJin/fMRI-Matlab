@@ -22,5 +22,5 @@ for vID = 1:nver
         vert_coordi(vID, 2), vert_coordi(vID, 3), acc(vID));  
 end
 fclose(fid);
-fprintf('Saved %s label for %s.\n', fn, subjCode);
+fprintf('Saved %s label for %s.\n', [fn ext], subjCode);
 end
