@@ -1,4 +1,4 @@
-function tableout = fs_readpar(filename, removeOnset)
+function [tableout, nCondition] = fs_readpar(filename, removeOnset)
 % This functions read the paradigm file into matlab as a table
 % (Probably too complicated. Needed to be update later.
 %
@@ -43,5 +43,7 @@ tableout.Label = tmptable.Label;
 
 tableout = unique(tableout, 'rows'); % remove duplicated rows
 tableout = sortrows(tableout, 'Condition'); % sort rows by condition code
+
+nCondition = size(tableout, 1);
 
 end
