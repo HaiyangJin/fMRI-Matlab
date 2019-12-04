@@ -77,8 +77,15 @@ end
 
 % the camera angle
 isLeft = strcmp(hemi, 'lh');
-angle = 240 + 60 * isLeft;
-fscmd_camera = sprintf(' -cam dolly 1.5 elevation %d', angle);
+if contains(fn_label, 'o-vs-scr')
+    angle = 180 * ~isLeft;
+    fscmd_angle = sprintf('azimuth %d', angle); % camera angle for LOC
+else
+    angle = 240 + 60 * isLeft;
+    fscmd_angle = sprintf('elevation %d', angle);
+end
+fscmd_camera = [' -cam dolly 1.5 ' fscmd_angle];
+
 
 % the filename of the screenshot
 name_labels = sprintf(repmat('%s:', 1, nLabel), fn_label{:});
