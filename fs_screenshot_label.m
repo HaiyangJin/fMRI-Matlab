@@ -31,7 +31,7 @@ end
 
 % colors used for labels
 if nargin < 5 || isempty(color_label)
-    color_label = {'#FFFFFF', '#33cc33'}; % white, green
+    color_label = {'#FFFFFF', '#33cc33', '#0000FF', '#FFFF00'}; % white, green, blue, yellow
 end
 
 % FreeSurfer setup 
