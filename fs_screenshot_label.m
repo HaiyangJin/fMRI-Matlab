@@ -76,7 +76,7 @@ for iLabel = 1:nLabel
     color_thelabel = color_label{iLabel};
     
     % make sure there is the label for this subject
-    isAvailable = fw_checklabel(theLabel, subjCode);
+    isAvailable = fs_checklabel(theLabel, subjCode);
     if ~isAvailable
         isok = 0;
         warning('Cannot find label %s for subject %s.\n', theLabel, subjCode);
