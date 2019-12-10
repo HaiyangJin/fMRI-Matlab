@@ -6,17 +6,31 @@ function isok = fs_screenshot_label(subjCode, fn_label, path_output, file_overla
 % 
 % Created by Haiyang Jin (28/11/2019)
 % Updated by Haiyang Jin (1/12/2019) Plot multiple labels (same hemisphere)
+% Updated by Haiyang Jin (10/12/2019) could plot overlay only witout labels
 
 isok = 1;
 
-% number of labels 
-if ischar(fn_label)
+%% Obtain information from input arguments
+% determine if there is label information to be shown
+% if there is label information, 
+if ischar(fn_label) && length(fn_label) < 3 % if only contains info of hemi
+    hemi = fn_label;
+    fn_label = '';
+elseif ischar(fn_label) % if only one label but it is char
     fn_label = {fn_label};
+    hemi = fs_hemi(fn_label);
+else % 
+    % make sure all labels are for the same hemisphere
+    [hemi, nHemi] = fs_hemi_multi(fn_label);
+    if nHemi ~= 1
+        error('Please make sure all labels used are for the same hemisphere.');
+    end
 end
 nLabel = numel(fn_label); % number of labels for visualization
 
+
 if nargin < 3 || isempty(path_output)
-    path_output = '.';
+    path_output = fullfile('.', 'Label_Screenshots');
 end
 if ~exist(path_output, 'dir'); mkdir(path_output); end % create the folder if necessary
 
@@ -34,14 +48,9 @@ if nargin < 5 || isempty(color_label)
     color_label = {'#FFFFFF', '#33cc33', '#0000FF', '#FFFF00'}; % white, green, blue, yellow
 end
 
+%% Create commands for each "section"
 % FreeSurfer setup 
 FS = fs_setup;
-
-% make sure all labels are for the same hemisphere
-[hemi, nHemi] = fs_hemi_multi(fn_label);
-if nHemi ~= 1
-    error('Please make sure all labels used are for the same hemisphere.');
-end
 
 % surface files and the annotation file
 subjPath = fullfile(FS.subjects, subjCode);
@@ -88,12 +97,18 @@ fscmd_camera = [' -cam dolly 1.5 ' fscmd_angle];
 
 
 % the filename of the screenshot
-name_labels = sprintf(repmat('%s:', 1, nLabel), fn_label{:});
-name_labels = erase(name_labels, {'roi.', '.label'}); % shorten filenames
+if isempty(fn_label)
+    name_labels = '';
+else
+    name_labels = sprintf(repmat('%s:', 1, nLabel), fn_label{:});
+    name_labels = erase(name_labels, {'roi.', '.label'}); % shorten filenames
+end
+
 fn_output = sprintf('%s%s.png', name_labels, subjCode);
 file_output = fullfile(path_output, fn_output);
 fscmd_output = sprintf(' -ss %s', file_output); %
 
+%% combine the commands and run 
 % combine the command together
 fscmd = [fscmd_surf fscmd_label fscmd_overlay fscmd_camera fscmd_output];
 
