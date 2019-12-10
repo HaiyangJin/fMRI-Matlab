@@ -1,21 +1,25 @@
-function fs_fun_screenshot_label(projStr, labelList, output_path)
+function fs_fun_screenshot_label(projStr, labelList, whichOverlay, output_path)
 % This function gets the screenshots of labels with overlays.
 %
 % Inputs:
 %    projStr           the proejct structure (e.g., FW)
 %    labelList         a list of label names
+%    whichOverlay      show overlay of the contrast of which label
 %    output_path       where the labels to be saved
 % Output:
 %    screenshots in the folder
 %
 % Created by Haiyang Jin (10/12/2019)
 
-if nargin < 3 || isempty(output_path)
+if nargin < 3 || isempty(whichOverlay)
+    whichOverlay = 0;  % do not show overlay by default
+end
+if nargin < 4 || isempty(output_path)
     output_path = '';
 end
 
 % number of labels
-nLabels = numel(labelList);
+nLabels = size(labelList, 1);
 
 % functional information about the structure
 subjList = projStr.subjList;
@@ -26,12 +30,32 @@ f_single = waitbar(0, 'Generating screenshots for labels...');
 
 for iLabel = 1:nLabels
     
-    thisLabel = labelList{iLabel};
-    hemi = fs_hemi(thisLabel);
+    theLabel = labelList(iLabel, :);
+    [hemi, nHemi] = fs_hemi_multi(theLabel);
+    
+    % move to next loop if the labels are not for the same hemisphere
+    if nHemi ~= 1
+        continue;
+    end
+    
+    % determine which label and which label to show
+    if numel(theLabel) == 1
+        whichLabel = 1;
+        whichContrast = 1;
+    elseif numel(theLabel) > 1
+        if ~whichOverlay
+            whichLabel = 1;
+            whichContrast = 0;
+        else
+            whichLabel = whichOverlay;
+            whichContrast = whichOverlay;
+        end
+    end
     
     % get the contrast name from the label name
-    conStrPosition = strfind(thisLabel, '.');
-    theContrast = thisLabel(conStrPosition(3)+1:conStrPosition(4)-1);
+    labelName = theLabel{whichLabel};
+    conStrPosition = strfind(labelName, '.');
+    theContrast = labelName(conStrPosition(3)+1:conStrPosition(4)-1);
     
     for iSubj = 1:nSubj
         
@@ -42,7 +66,7 @@ for iLabel = 1:nLabels
         % waitbar
         progress = ((iLabel-1) * nSubj + iSubj) / (nLabels * nSubj);
         wait_msg = sprintf('Label: %s  SubjCode: %s \n%0.2f%% finished...', ...
-            strrep(thisLabel, '_', '\_'), strrep(subjCode, '_', '\_'), progress*100);
+            strrep(labelName, '_', '\_'), strrep(subjCode, '_', '\_'), progress*100);
         waitbar(progress, f_single, wait_msg);
         
         % other information for screenshots
@@ -51,12 +75,14 @@ for iLabel = 1:nLabels
             analysis, theContrast, 'sig.nii.gz'); % the overlay file
         
         % skip if the overlay file is not available
-        if ~exist(file_overlay, 'file')
+        if ~whichContrast
+            file_overlay = '';
+        elseif ~exist(file_overlay, 'file')
             continue
         end
             
         % create the screenshot
-        fs_screenshot_label(subjCode, thisLabel, output_path, file_overlay);
+        fs_screenshot_label(subjCode, theLabel, output_path, file_overlay, whichContrast);
 
     end
     

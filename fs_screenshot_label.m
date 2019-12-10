@@ -1,4 +1,4 @@
-function isok = fs_screenshot_label(subjCode, fn_label, output_path, file_overlay, color_label)
+function isok = fs_screenshot_label(subjCode, fn_label, output_path, file_overlay, whichContrast, color_label)
 % This function takes the screenshot of the label based with specific 
 % contrast if there is. 
 %
@@ -44,8 +44,12 @@ else
         file_overlay);
 end
 
+if nargin < 5 || isempty(whichContrast)
+    whichContrast = 0;
+end
+
 % colors used for labels
-if nargin < 5 || isempty(color_label)
+if nargin < 6 || isempty(color_label)
     color_label = {'#FFFFFF', '#33cc33', '#0000FF', '#FFFF00'}; % white, green, blue, yellow
 end
 
@@ -105,7 +109,7 @@ else
     name_labels = erase(name_labels, {'roi.', '.label'}); % shorten filenames
 end
 
-fn_output = sprintf('%s%s.png', name_labels, subjCode);
+fn_output = sprintf('%s%s_%d.png', name_labels, subjCode, whichContrast);
 file_output = fullfile(output_path, fn_output);
 fscmd_output = sprintf(' -ss %s', file_output); %
 
