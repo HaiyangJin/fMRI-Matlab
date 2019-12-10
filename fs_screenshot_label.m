@@ -1,4 +1,4 @@
-function isok = fs_screenshot_label(subjCode, fn_label, path_output, file_overlay, color_label)
+function isok = fs_screenshot_label(subjCode, fn_label, output_path, file_overlay, color_label)
 % This function takes the screenshot of the label based with specific 
 % contrast if there is. 
 %
@@ -29,10 +29,11 @@ end
 nLabel = numel(fn_label); % number of labels for visualization
 
 
-if nargin < 3 || isempty(path_output)
-    path_output = fullfile('.', 'Label_Screenshots');
+if nargin < 3 || isempty(output_path)
+    output_path = fullfile('.');
 end
-if ~exist(path_output, 'dir'); mkdir(path_output); end % create the folder if necessary
+output_path = fullfile(output_path, 'Label_Screenshots');
+if ~exist(output_path, 'dir'); mkdir(output_path); end % create the folder if necessary
 
 % create the freesurfer commands for the functional data
 if nargin < 4 || isempty(file_overlay)
@@ -105,7 +106,7 @@ else
 end
 
 fn_output = sprintf('%s%s.png', name_labels, subjCode);
-file_output = fullfile(path_output, fn_output);
+file_output = fullfile(output_path, fn_output);
 fscmd_output = sprintf(' -ss %s', file_output); %
 
 %% combine the commands and run 

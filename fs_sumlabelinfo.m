@@ -14,8 +14,9 @@ function [labelSumTable, labelSumLongTable] = fs_sumlabelinfo(labelNames, output
 % Created by Haiyang Jin (9/12/2019)
 
 if nargin < 2 || isempty(outputPath)
-    outputPath = fullfile('.', 'Label_Summary');
+    outputPath = fullfile('.');
 end
+outputPath = fullfile(outputPath, 'Label_Summary');
 if ~exist(outputPath, 'dir'); mkdir(outputPath); end
 
 % FreeSurfer setup
