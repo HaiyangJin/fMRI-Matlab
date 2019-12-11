@@ -90,26 +90,17 @@ for iLabel = 1:nLabel
 end
 
 % the camera angle
-isLeft = strcmp(hemi, 'lh');
-if contains(fn_label, 'o-vs-scr')
-    angle = 180 * ~isLeft;
-    fscmd_angle = sprintf('azimuth %d', angle); % camera angle for LOC
-else
-    angle = 240 + 60 * isLeft;
-    fscmd_angle = sprintf('elevation %d', angle);
-end
-fscmd_camera = [' -cam dolly 1.5 ' fscmd_angle];
-
+fscmd_camera = fs_camangle(contrast, hemi);
 
 % the filename of the screenshot
-if isempty(fn_label)
+if isempty(label_fn)
     name_labels = '';
 else
-    name_labels = sprintf(repmat('%s:', 1, nLabel), fn_label{:});
+    name_labels = sprintf(repmat('%s:', 1, nLabel), label_fn{:});
     name_labels = erase(name_labels, {'roi.', '.label'}); % shorten filenames
 end
 
-fn_output = sprintf('%s%s_%d.png', name_labels, subjCode, whichContrast);
+fn_output = sprintf('%s%s_%d.png', name_labels, subjCode, whichOverlay);
 file_output = fullfile(output_path, fn_output);
 fscmd_output = sprintf(' -ss %s', file_output); %
 
