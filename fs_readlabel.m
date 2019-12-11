@@ -6,7 +6,7 @@ function [dataMatrix, nVer] = fs_readlabel(file_label)
 % throw error if cannot find the label
 if ~exist(file_label, 'file')
     [path, fn, ext] = fileparts(file_label);
-    error('Cannot find the label ""%s"" at ""%s""', [fn ext], path);
+    error('Cannot find the label "%s" at "%s"', [fn ext], path);
 end
 
 labelMatrix = importdata(file_label, ' ', 2); % read the label file
