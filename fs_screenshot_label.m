@@ -1,8 +1,16 @@
-function isok = fs_screenshot_label(subjCode, fn_label, output_path, file_overlay, whichContrast, color_label)
+function isok = fs_screenshot_label(subjCode, label_fn, output_path, overlay_file, color_label)
 % This function takes the screenshot of the label based with specific 
 % contrast if there is. 
 %
-% file_overlay: the functional file (beta, or sig file)
+% Inputs:
+%    subjCode           subject code in $SUBJECTS_DIR
+%    label_fn           a list (cell) of label names
+%    output_path        where the screenshots will be saved
+%    overlay_file       the overlay file to be displayed
+%    color_label        colors used for each label in order
+% Output:
+%    isok               if all labels in "label_fn" are available for this subjCode
+%    screenshots of labels saved in output_path
 % 
 % Created by Haiyang Jin (28/11/2019)
 % Updated by Haiyang Jin (1/12/2019) Plot multiple labels (same hemisphere)
@@ -13,21 +21,20 @@ isok = 1;
 %% Obtain information from input arguments
 % determine if there is label information to be shown
 % if there is label information, 
-if ischar(fn_label) && length(fn_label) < 3 % if only contains info of hemi
-    hemi = fn_label;
-    fn_label = '';
-elseif ischar(fn_label) % if only one label but it is char
-    fn_label = {fn_label};
-    hemi = fs_hemi(fn_label);
+if ischar(label_fn) && length(label_fn) < 3 % if only contains info of hemi
+    hemi = label_fn;
+    label_fn = '';
+elseif ischar(label_fn) % if only one label but it is char
+    label_fn = {label_fn};
+    hemi = fs_hemi(label_fn);
 else % 
     % make sure all labels are for the same hemisphere
-    [hemi, nHemi] = fs_hemi_multi(fn_label);
+    [hemi, nHemi] = fs_hemi_multi(label_fn);
     if nHemi ~= 1
         error('Please make sure all labels used are for the same hemisphere.');
     end
 end
-nLabel = numel(fn_label); % number of labels for visualization
-
+nLabel = numel(label_fn); % number of labels for visualization
 
 if nargin < 3 || isempty(output_path)
     output_path = fullfile('.');
@@ -36,22 +43,28 @@ output_path = fullfile(output_path, 'Label_Screenshots');
 if ~exist(output_path, 'dir'); mkdir(output_path); end % create the folder if necessary
 
 % create the freesurfer commands for the functional data
-if nargin < 4 || isempty(file_overlay)
+if nargin < 4 || isempty(overlay_file)
     fscmd_overlay = '';
 else
     fscmd_overlay = sprintf([':overlay=%s:overlay_threshold=2,4 '...
         '-colorscale'],...
-        file_overlay);
+        overlay_file);
 end
-
-if nargin < 5 || isempty(whichContrast)
-    whichContrast = 0;
+% detect which overlay is shown 
+contrasts = fs_label2contrast(label_fn);
+whichOverlay = find(cellfun(@(x) contains(overlay_file, x), contrasts), 1);
+if isempty(whichOverlay)
+    whichOverlay = 0; 
+    contrast = contrasts{1};
+else
+    contrast = contrasts{whichOverlay};
 end
 
 % colors used for labels
-if nargin < 6 || isempty(color_label)
+if nargin < 5 || isempty(color_label)
     color_label = {'#FFFFFF', '#33cc33', '#0000FF', '#FFFF00'}; % white, green, blue, yellow
 end
+
 
 %% Create commands for each "section"
 % FreeSurfer setup 
@@ -71,7 +84,7 @@ fscmd_surf = sprintf(['freeview -f %s:'... % the ?h.inflated file
 fscmd_label = '';
 for iLabel = 1:nLabel
     
-    theLabel = fn_label{iLabel};
+    theLabel = label_fn{iLabel};
     file_thelabel = fullfile(subjPath, 'label', theLabel); % label file
     color_thelabel = color_label{iLabel};
     

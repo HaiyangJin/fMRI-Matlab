@@ -1,4 +1,4 @@
-function fs_fun_screenshot_label(projStr, labelList, whichOverlay, output_path)
+function fs_fun_screenshot_label(projStr, labelList, output_path, whichOverlay)
 % This function gets the screenshots of labels with overlays.
 %
 % Inputs:
@@ -11,11 +11,12 @@ function fs_fun_screenshot_label(projStr, labelList, whichOverlay, output_path)
 %
 % Created by Haiyang Jin (10/12/2019)
 
-if nargin < 3 || isempty(whichOverlay)
-    whichOverlay = 0;  % do not show overlay by default
-end
-if nargin < 4 || isempty(output_path)
+
+if nargin < 3 
     output_path = '';
+end
+if nargin < 4 
+    whichOverlay = 1; % show the overlay of the first label by default
 end
 
 % number of labels
@@ -37,25 +38,15 @@ for iLabel = 1:nLabels
     if nHemi ~= 1
         continue;
     end
-    
-    % determine which label and which label to show
-    if numel(theLabel) == 1
-        whichLabel = 1;
-        whichContrast = 1;
-    elseif numel(theLabel) > 1
-        if ~whichOverlay
-            whichLabel = 1;
-            whichContrast = 0;
-        else
-            whichLabel = whichOverlay;
-            whichContrast = whichOverlay;
-        end
-    end
-    
+
     % get the contrast name from the label name
-    labelName = theLabel{whichLabel};
-    conStrPosition = strfind(labelName, '.');
-    theContrast = labelName(conStrPosition(3)+1:conStrPosition(4)-1);
+    if ~whichOverlay
+        labelName = theLabel{1};
+    else
+        labelName = theLabel{whichOverlay};
+    end
+    theContrast = fs_label2contrast(labelName);
+
     
     for iSubj = 1:nSubj
         
@@ -75,14 +66,14 @@ for iLabel = 1:nLabels
             analysis, theContrast, 'sig.nii.gz'); % the overlay file
         
         % skip if the overlay file is not available
-        if ~whichContrast
+        if ~whichOverlay
             file_overlay = '';
         elseif ~exist(file_overlay, 'file')
             continue
         end
             
         % create the screenshot
-        fs_screenshot_label(subjCode, theLabel, output_path, file_overlay, whichContrast);
+        fs_screenshot_label(subjCode, theLabel, output_path, file_overlay);
 
     end
     
