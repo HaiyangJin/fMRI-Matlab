@@ -61,7 +61,7 @@ for iLabel = 1:nLabels
         waitbar(progress, f_single, wait_msg);
         
         % other information for screenshots
-        analysis = sprintf('loc_%s.%s', boldext, hemi); % analysis name
+        analysis = sprintf('loc%s.%s', boldext, hemi); % analysis name
         file_overlay = fullfile(projStr.fMRI, thisBoldSubj, 'bold',...
             analysis, theContrast, 'sig.nii.gz'); % the overlay file
         
