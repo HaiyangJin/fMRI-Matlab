@@ -1,8 +1,10 @@
-function overlap_table = fs_labeloverlap(labelList, subjCode, output_path)
+function overlap_table = fs_labeloverlap(labels, output_path, subjList)
 % This function calcualtes the overlapping between two labels
 %
 % Inputs:
-%   labelList           a list of label names (could be more than 2)
+%   labelList           a list (matrix) of label names (could be more than 
+%                       2). The labels in the same row will be compared
+%                       with each other. (each row is another cell)
 %   subjCode            subject code in $SUBJECTS_DIR
 %   output_path         where the output file will be saved
 % Output
@@ -10,50 +12,73 @@ function overlap_table = fs_labeloverlap(labelList, subjCode, output_path)
 %
 % Created by Haiyang Jin (11/12/2019)
 
-if nargin < 3 || isempty(output_path)
+FS = fs_setup;
+
+if nargin < 2 || isempty(output_path)
     output_path = '.';
 end
 output_path = fullfile(output_path, 'Label_Overlapping');
 if ~exist(output_path, 'dir'); mkdir(output_path); end
 
-nLabel = numel(labelList);
-if nLabel < 2
-    error('The number of labels should be more than one.');
+if nargin < 3 || isempty(subjList)
+    subjList = FS.subjList;
+elseif ischar(subjList)
+    subjList = {subjList};
 end
 
-FS = fs_setup;
-labelPath = fullfile(FS.subjects, subjCode, 'label');
+nSubj = FS.nSubj;
+nLabelGroup = size(labels, 1);
 
-c = nchoosek(1:nLabel, 2); % combination matrix
-nC = size(c, 1); % number of combinations
-
-overlap_str = struct;
 n = 0;
-for iC = 1:nC
+overlap_str = struct;
+
+for iSubj = 1:nSubj
     
-    theseLabel = labelList(c(iC, :));
+    subjCode = subjList{iSubj};
+    labelPath = fullfile(FS.subjects, subjCode, 'label');
     
-    % skip if at least one label is not available
-    if ~fs_checklabel(theseLabel, subjCode)
-        continue;
+    
+    for iLabel = 1:nLabelGroup
+        
+        theseLabels = labels{iLabel, :};
+        
+        nLabel = numel(theseLabels);
+        if nLabel < 2
+            warning('The number of labels should be more than one.');
+            continue;
+        end
+        
+        c = nchoosek(1:nLabel, 2); % combination matrix
+        nC = size(c, 1); % number of combinations
+        
+        for iC = 1:nC
+            
+            theseLabel = theseLabels(c(iC, :));
+            
+            % skip if at least one label is not available
+            if ~fs_checklabel(theseLabel, subjCode)
+                continue;
+            end
+            
+            % load the two label files
+            mat_cell = cellfun(@(x) fs_readlabel(fullfile(labelPath, x)), theseLabel, 'UniformOutput', false);
+            
+            % check if there is overlapping between the two labels
+            mat_label1 = mat_cell{1};
+            mat_label2 = mat_cell{2};
+            isoverlap = ismember(mat_label1, mat_label2);
+            overlapVer = mat_label1(isoverlap(:, 1));
+            nOverVer = numel(overlapVer);
+            
+            % save information to the structure
+            n = n + 1;
+            overlap_str(n).SubjCode = {subjCode};
+            overlap_str(n).Label = theseLabel;
+            overlap_str(n).nOverlapVer = nOverVer;
+            overlap_str(n).OverlapVer = {overlapVer'};
+            
+        end
     end
-    
-    % load the two label files 
-    mat_cell = cellfun(@(x) fs_readlabel(fullfile(labelPath, x)), theseLabel, 'UniformOutput', false);
-    
-    % check if there is overlapping between the two labels
-    mat_label1 = mat_cell{1};
-    mat_label2 = mat_cell{2};
-    isoverlap = ismember(mat_label1, mat_label2);
-    overlapVer = mat_label1(isoverlap(:, 1));
-    nOverVer = numel(overlapVer);
-    
-    % save information to the structure
-    n = n + 1;
-    overlap_str(n).SubjCode = {subjCode};
-    overlap_str(n).Label = theseLabel;
-    overlap_str(n).nOverlapVer = nOverVer;
-    overlap_str(n).OverlapVer = {overlapVer'};
     
 end
 clear n
