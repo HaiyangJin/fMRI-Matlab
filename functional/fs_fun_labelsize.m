@@ -35,9 +35,8 @@ end
 % load project information
 boldext = projStr.boldext;
 
-
 hemi = fs_hemi(label_fn);
-subjCode = fw_subjcode(subjCode_bold);
+subjCode = fs_subjcode(subjCode_bold, projStr.fMRI);
 
 % label file
 labelfile = fullfile(projStr.subjects, subjCode, 'label', label_fn);
