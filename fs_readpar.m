@@ -1,11 +1,11 @@
-function [tableout, nCondition] = fs_readpar(filename, removeOnset)
+function [tableout, nCondition] = fs_readpar(par_file, removeOnset)
 % This functions read the paradigm file into matlab as a table
 % (Probably too complicated. Needed to be update later.
 %
 % Created by Haiyang Jin (16/11/2019)
 
-if ~isempty(filename)
-    [~,~,ext] = fileparts(filename);
+if ~isempty(par_file)
+    [~,~,ext] = fileparts(par_file);
     if ~strcmp(ext, '.par')
         error('The extension of the filename is not "par".');
     end
@@ -17,7 +17,7 @@ if nargin < 2 || isempty(removeOnset)
 end
 
 % load the *.par as a one-dimentional cell
-onecell = importdata(filename, ' ');
+onecell = importdata(par_file, ' ');
 
 % convert it to 1*5 cell in each cell
 fivecell = arrayfun(@(x) strsplit(x{1}), onecell, 'UniformOutput', false);
