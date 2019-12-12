@@ -1,4 +1,4 @@
-function svm_results = fw_searchlight(subjCode_bold, expCode, file_surfcoor, combineHemi, classifier)
+function svm_results = fs_fun_cosmo_searchlight(subjCode_bold, expCode, file_surfcoor, combineHemi, classifier)
 % This function does the searchlight analyses for the faceword project
 % with CoSMoMVPA. Data were analyzed with FreeSurfer.
 %
