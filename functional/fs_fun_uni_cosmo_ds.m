@@ -7,7 +7,8 @@ function [uni_table, ds_subj, uni_info] = fs_fun_uni_cosmo_ds(projStr, ...
 %
 % Inputs:
 %    projStr            Project structure (e.g., fw_projectinfo)
-%    label_fn           the label filename
+%    label_fn           the label filename (or 'lh' or 'rh', then the
+%                       output will be the data for the whole hemisphere)
 %    subjCode_bold      subject code in fMRI folder
 %    output_path        where the outputs from fs_fun_labelsize are saved
 %    run_info           the run name (usually is 'loc' or 'main')
@@ -52,25 +53,33 @@ analysis_ext = sprintf('%s%s', run_info, smooth); % first parts of the analysis 
 fMRI_path = projStr.fMRI;  % where the functional data are saved
 boldPath = fullfile(fMRI_path, subjCode_bold, 'bold'); % the bold folder
 
-hemi = fs_hemi(label_fn);  % which hemisphere
-subjCode = fs_subjcode(subjCode_bold, fMRI_path);  % subjCode in $SUBJECTS_DIR
-
-% warning if the label is not available for that subjCode and finish this
-% function
-if ~fs_checklabel(label_fn, subjCode)
-    warning('Cannot find label "%s" for %s', label_fn, subjCode);
-    uni_info = table;
-    ds_subj = table;
-    uni_table = table;
-    return;
+hemiOnly = any(ismember(label_fn, projStr.hemis));
+if hemiOnly
+    labelsize = 0;
+    talCoor = zeros(1, 3);
+ 
+else
+    % warning if the label is not available for that subjCode and finish this
+    % function
+    subjCode = fs_subjcode(subjCode_bold, fMRI_path);  % subjCode in $SUBJECTS_DIR
+    if ~fs_checklabel(label_fn, subjCode)
+        warning('Cannot find label "%s" for %s', label_fn, subjCode);
+        uni_info = table;
+        ds_subj = table;
+        uni_table = table;
+        return;
+    end
+    
+    % converting the label file to logical matrix
+    dtMatrix = fs_readlabel(label_fn, subjCode);
+    vtxROI = dtMatrix(:, 1);
+    
+    % calculate the size of this label file and save the output
+    [labelsize, talCoor] = fs_fun_labelsize(projStr, subjCode_bold, label_fn, output_path);
+    
 end
 
-% converting the label file to logical matrix
-[dtMatrix, nVertex] = fs_readlabel(label_fn, subjCode);
-vtxROI = dtMatrix(:, 1);
-
-% calculate the size of this label file and save the output
-[labelsize, talCoor] = fs_fun_labelsize(projStr, subjCode_bold, label_fn, output_path);
+hemi = fs_hemi(label_fn);  % which hemisphere
 
 % read the run file
 [runNames, nRun] = fs_fun_readrun(run_fn, projStr, subjCode_bold);
@@ -98,10 +107,15 @@ for iRun = 1:nRun
          'labels', parInfo.Label,...
          'chunks', iRun); % cosmo_fmri_fs_dataset(thisBoldFilename); % with the whole brain
      
-     % apply the mask of the label
-     roiMask = zeros(1, size(ds_run.samples, 2));
-     roiMask(vtxROI) = 1;
-     this_ds = cosmo_slice(ds_run, logical(roiMask), 2); % apply the roi mask to the whole dataset
+     % apply the roi mask to the whole dataset
+     if ~hemiOnly
+         roiMask = zeros(1, size(ds_run.samples, 2));
+         roiMask(vtxROI) = 1;
+     else
+         roiMask = ones(1, size(ds_run.samples, 2));
+     end
+     this_ds = cosmo_slice(ds_run, logical(roiMask), 2); 
+     nVertex = size(this_ds.samples, 2);
         
      % save the dt in a cell for further stacking
      ds_cell(1, iRun) = {this_ds};
