@@ -30,6 +30,7 @@ nPair = size(classPairs, 1);
 
 % empty cell for saving data later
 mvpaCell = cell(nPair, nClass);
+ACC_table = table;
 
 % Run analysis for each pair
 for iPair = 1:nPair
@@ -89,6 +90,10 @@ end
 
 % combine mvpa data with condition information
 nRow = size(ACC_table, 1);
-mvpa_table = [repmat(uni_info, nRow, 1), ACC_table];
+if ~nRow
+    mvpa_table = table;
+else
+    mvpa_table = [repmat(uni_info, nRow, 1), ACC_table];
+end
 
 end
