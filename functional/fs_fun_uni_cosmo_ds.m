@@ -1,5 +1,7 @@
 function [uni_table, ds_subj, uni_info] = fs_fun_uni_cosmo_ds(projStr, ...
     label_fn, subjCode_bold, output_path, run_info, smooth, runSeparate)
+% [uni_table, ds_subj, uni_info] = fs_fun_uni_cosmo_ds(projStr, ...
+%     label_fn, subjCode_bold, output_path, run_info, smooth, runSeparate)
 % This function generates the data table for univariate analyses and the
 % dataset used for CoSMoMVPA for FreeSurfer surface data.
 %
