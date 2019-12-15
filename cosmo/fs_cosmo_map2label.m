@@ -1,26 +1,46 @@
-function fs_cosmo_map2label(dt, filename, vert_coordi, subjCode)
+function fs_cosmo_map2label(dt_cosmo, subjCode, label_fn, vert_coordi)
 % This function convert the surface dataset in CoSMoMVPA to label file in
 % FreeSurfer.
+% 
+% Inputs:
+%    dt_cosmo         results of searchlight in datasets (only refers to the
+%                     dt obtained from searchlight analyses for surface)
+%    subjCode         subject code in $SUBJECTS_DIR
+%    label_fn         the filename of the label to be saved later (without
+%                     path)
+%    vert_coordi      vertex coordinates
+% Output:
+%    a label file saved in the label folder
 %
 % Created by Haiyang Jin (25/11/2019)
+% Updated by Haiyang Jin (15/12/2019)
 
-% dt only refers to the dt obtained from searchlight analyses for surface.
-
-[~, fn, ext] = fileparts(filename);
+% add the extension of '.label' if its is not
+[~, fn, ext] = fileparts(label_fn);
 if ~strcmp(ext, '.label')
-    filename = [filename '.label'];
+    label_fn = [label_fn '.label'];
 end
 
-acc = dt.samples;
-nver = numel(acc);
+% label folder for this subject
+FS = fs_setup;
+label_file = fullfile(FS.subjects, subjCode, 'label', label_fn);
 
-fid = fopen(filename, 'w');
+% classification accuracies for each vertex
+acc = dt_cosmo.samples;
+nVtx = numel(acc);
+
+% open a file for saving the label information
+fid = fopen(label_file, 'w');
+
+% saving information in the label file
 fprintf(fid, '#!ascii label Converted from CosmoMVPA. subject-%s coords=surface\n', subjCode);
-fprintf(fid, '%d\n', nver);
-for vID = 1:nver
-    fprintf(fid, '%d %5.3f %5.3f %5.3f %f\n', vID-1, vert_coordi(vID, 1), ...
-        vert_coordi(vID, 2), vert_coordi(vID, 3), acc(vID));  
+fprintf(fid, '%d\n', nVtx);
+for vtxID = 1:nVtx
+    fprintf(fid, '%d %5.3f %5.3f %5.3f %f\n', vtxID-1, vert_coordi(vtxID, 1), ...
+        vert_coordi(vtxID, 2), vert_coordi(vtxID, 3), acc(vtxID));  
 end
 fclose(fid);
+
 fprintf('Saved %s label for %s.\n', [fn ext], subjCode);
+
 end
