@@ -1,23 +1,25 @@
-function svm_results = fs_fun_cosmo_searchlight(subjCode_bold, expCode, file_surfcoor, combineHemi, classifier)
+function fs_fun_cosmo_searchlight(projStr, file_surfcoor, combineHemi, classPairs, classifier)
 % This function does the searchlight analyses for the faceword project
 % with CoSMoMVPA. Data were analyzed with FreeSurfer.
 %
-% Created by Haiyang (24/11/2019)
-% 
 % Inputs:
 %    subjCode_bold      the name of subject's bold folder
 %    expCode            experiment code (1 or 2)
 %    file_surfcoor      the coordinate file for vertices ('inflated',
-%                       'white', 'pial') 
-%    combineHemi      if the data of two hemispheres will be combined
-%                       (default is no)
+%                       'white', 'pial')
+%    combineHemi        if the data of two hemispheres will be combined
+%                       (default is no) [0: run searchlight for the two
+%                       hemnispheres separately; 1: run searchlight
+%                       anlaysis for the whole brain together; 3: run
+%                       analysis for both 0 and 1.
 %    classifier         classifier function handle
 % Output:
-%    the results will be saved as a label file saved at the subject label
-%    folder ($SUBJECTS_DIR/subjCode/label)
+%    For each hemispheres, the results will be saved as a label file saved
+%    at the subject label folder ($SUBJECTS_DIR/subjCode/label)
+%    For the whole brain, the results will be saved as *.gii
 %
-% subjCode_bold = 'faceword01_self';
-% expCode = 1;
+% Created by Haiyang Jin (24/11/2019)
+% Updated by Haiyang Jin (15/12/2019)
 
 cosmo_warning('once');
 
@@ -27,189 +29,72 @@ end
 if nargin < 4 || isempty(combineHemi)
     combineHemi = 0;
 end
-if nargin < 5 || isempty(classifier)
-    classifier = @cosmo_classify_libsvm;
+if nargin < 5
+    classifier = '';
 end
-
 
 %% Preparation
-FS = fs_setup;
-hemis = FS.hemis;
-nHemi = FS.nHemi;
-fMRIPath = fullfile(FS.subjects, '..', 'Data_fMRI');
+% information from the project
+nHemi = projStr.nHemi;
+fMRIPath = projStr.fMRI;
 
-% check if there is the functional subject folder
-subjPathBold = fullfile(fMRIPath, subjCode_bold);
-if ~exist(subjPathBold, 'dir')
-    error('Cannot find %s in the functional folder (%s).', subjCode_bold, fMRIPath);
-end
+subjList = projStr.subjList;
+nSubj = projStr.nSubj;
 
-% check if there is surface folder
-subjCode = fs_subjcode(subjCode_bold, projStr.fMRI); % subjCode in SUBJECTS_DIR
-subjPath = fullfile(FS.subjects, subjCode);
-if ~exist(subjPath, 'dir')
-    error('Cannot find %s in FreeSurfer subject folder (SUBJECTS_DIR).', subjCode);
-end
-
-% define the pairs for classification
-classifyPairs_E1 = {'face_intact', 'word_intact';
-    'face_intact', 'face_exchange';
-    'word_intact', 'word_exchange';
-    'face_top', 'face_bottom';
-    'word_top', 'word_bottom';
-    };
-
-classifyPairs_E2 = {'Chinese_intact', 'English_intact';
-    'Chinese_intact', 'Chinese_exchange';
-    'Chinese_top', 'Chinese_bottom';
-    'English_intact', 'English_exchange';
-    'English_top', 'English_bottom'};
-
-classExps = {classifyPairs_E1, classifyPairs_E2};
-classifyPairs = classExps{expCode};
-nPairs = size(classifyPairs, 1);
-
-% load vertex and face coordinates
-[vtxCell, faceCell] = fs_cosmo_surfcoor(subjCode, file_surfcoor, combineHemi);
-
-
-%% Load functional data
-% the path to the bold folder
-boldPath = fullfile(fMRIPath, subjCode_bold, 'bold');
-
-% obtain the run names
-runList = importdata(fullfile(boldPath, 'run_Main.txt'))';
-runNames = arrayfun(@(x) sprintf('%03d', x), runList, 'UniformOutput', false);
-nRun = numel(runList);
-
-% Pre-define the cell array for saving ds 
-ds_cell = cell(nRun, nHemi + combineHemi); 
-
-% load functional data for each run separately
-for iRun = 1:nRun
+for iSubj = 1:nSubj
+    %% this subject information
+    % subjCode in fMRI folder
+    subjCode_bold = subjList{iSubj};
+    % subjCode in SUBJECTS_DIR
+    subjCode = fs_subjcode(subjCode_bold, fMRIPath);
     
-    % load data for each hemisphere separately (and combined later)
-    nVertices = 0;
-    for iHemi = 1:nHemi
-        % the bold file
-        analysisName = ['main_sm0_self', num2str(iRun), '.', hemis{iHemi}];
-        thisBoldFilename = fullfile(boldPath, analysisName, 'beta.nii.gz'); %%% here (the functional data file)
+    hemis = projStr.hemis;
+    
+    % load vertex and face coordinates
+    [vtxCell, faceCell] = fs_cosmo_surfcoor(subjCode, file_surfcoor, combineHemi);
+    
+    
+    %% Load functional data (beta.nii.gz)
+    % load the beta.nii.gz for both hemispheres separately
+    [~, ds_surf_cell] = cellfun(@(x) fs_fun_uni_cosmo_ds(projStr, x, subjCode_bold, ...
+        '', 'main', 0, 1), hemis, 'UniformOutput', false);
+    
+    % combine the surface data for the whole brain if needed
+    if ~combineHemi
+        runSearchlight = 1:nHemi;
+    else
+        ds_surf_cell = [ds_surf_cell, fs_cosmo_combinesurface(ds_surf_cell)]; %#ok<AGROW>
+        hemis = [hemis, 'both']; %#ok<AGROW>
         
-        % load paradigm file
-        parFileDir = fullfile(boldPath, runNames{iRun}, 'main.par');
-        parInfo = fs_readpar(parFileDir);
-        
-        % load the nifti from FreeSurfer and add .sa .fa
-        this_ds = fs_cosmo_surface(thisBoldFilename, ...
-            'targets', parInfo.Condition, ...
-            'labels', parInfo.Label, ...
-            'chunks', repmat(iRun, size(parInfo, 1), 1)); 
-                
-        % run if combine data from both hemispheres
-        if combineHemi
-            
-            % update the attribute number for further stack
-            if iHemi == 1
-                nVertices = numel(this_ds.a.fdim.values{1, 1});
-            else
-                this_ds.fa.node_indices = this_ds.fa.node_nidices + nVertices;
-            end
-            
+        if combineHemi == 1
+            % only run searchlight for the whole brain
+            runSearchlight = 3;
+        elseif combineHemi == 3
+            % run searchlight for left, right hemispheres and both together
+            runSearchlight = 1:3;
         end
-        
-        % save the dt in a cell for further stacking
-        ds_cell(iRun, iHemi) = {this_ds};
-        
     end
     
-    if combineHemi
-        % combine the dt for the two hemispheres
-        ds_cell(iRun, 3) = cosmo_stack(ds_cell(iRun, 1:2), 2);
+    
+    %% conduct searchlight for two hemisphere seprately (and the whole brain)
+    for iSL = runSearchlight  % SL = searchlight
+        
+        hemi_info = hemis{iSL}; % hemisphere name
+        
+        %% Surface setting
+        % white, pial, surface for this hemisphere
+        v_inf = vtxCell{iSL};
+        f_inf = faceCell{iSL};
+        surf_def = {v_inf, f_inf};
+        
+        % dataset for this searchlight analysis
+        ds_this = ds_surf_cell{iSL};
+        
+        % run search light analysis
+        fs_cosmo_searchlight(subjCode, ds_this, surf_def, hemi_info, classPairs, classifier);
+        
     end
     
 end
 
-
-%% Set analysis parameters
-% Use the cosmo_cross_validation_measure and set its parameters
-% (classifier and partitions) in a measure_args struct.
-measure = @cosmo_crossvalidation_measure;
-measure_args = struct();
-
-% Define which classifier to use, using a function handle.
-% Alternatives are @cosmo_classify_{svm,nn,naive_bayes}
-measure_args.classifier = classifier; % @cosmo_classify_lda;
-
-%% conduct searchlight for two hemisphere seprately
-for iHemi = 1:2
-    
-    thisHemi = hemis{iHemi}; % hemisphere name
-    
-    % Define the feature neighborhood for each node on the surface
-    % - nbrhood has the neighborhood information
-    % - vo and fo are vertices and faces of the output surface
-    % - out2in is the mapping from output to input surface
-    feature_count = 200;
-    
-    % ds for this hemisphere
-    ds_hemi = cosmo_stack(ds_cell(:, iHemi));
-    
-    %% Surface setting 
-    % white, pial, surface for this hemisphere
-    v_inf = vtxCell{iHemi};
-    f_inf = faceCell{iHemi};
-    surf_def = {v_inf, f_inf};
-    
-    fprintf('\n\nCalcualte the surficial neighborhood for %s (%s):\n',...
-        subjCode,thisHemi);
-    [nbrhood,vo,fo,~]=cosmo_surficial_neighborhood(ds_hemi,surf_def,...
-        'count',feature_count);
-    % print neighborhood
-    fprintf('Searchlight neighborhood definition:\n');
-    cosmo_disp(nbrhood);
-    fprintf('The output surface has %d vertices, %d nodes\n',...
-        size(vo,1), size(fo,1));
-    
-    for iPair = 1:nPairs
-        
-        % define this classification
-        thisPair = classifyPairs(iPair, :);
-        thisPairMask = cosmo_match(ds_hemi.sa.labels, thisPair);
-        
-        % dataset for this classification
-        ds_thisPair = cosmo_slice(ds_hemi, thisPairMask);
-        
-        %% Set partition scheme. odd_even is fast; for publication-quality analysis
-        % nfold_partitioner is recommended.
-        % Alternatives are:
-        % - cosmo_nfold_partitioner    (take-one-chunk-out crossvalidation)
-        % - cosmo_nchoosek_partitioner (take-K-chunks-out  "             ").
-        measure_args.partitions = cosmo_nfold_partitioner(ds_thisPair);
-        
-        % print measure and arguments
-        fprintf('Searchlight measure:\n');
-        cosmo_disp(measure);
-        fprintf('Searchlight measure arguments:\n');
-        cosmo_disp(measure_args);
-        
-        %% Run the searchlight
-        svm_results = cosmo_searchlight(ds_thisPair,nbrhood,measure,measure_args);
-        
-        % print searchlight output
-        fprintf('Dataset output:\n');
-        cosmo_disp(svm_results);
-        
-        %% Save results
-        % store searchlight results
-        output_filename = sprintf('sl.svm.%s.%s-%s', thisHemi, thisPair{1}, thisPair{2});
-        output_fn = fullfile(subjPath, 'label', output_filename);
-%         save([output_fn '.mat'], 'svm_results');
-        fs_cosmo_map2label(svm_results, output_fn, v_inf, subjCode);
-%         cosmo_map2surface(svm_results, [output_fn '.gii'], 'encoding','ASCII');
-%         cosmo_map2surface(svm_results, [output_fn '.niml.dset'], 'encoding', 'ASCII');
-        
-        %% store counts
-        
-        
-    end
 end
