@@ -20,7 +20,7 @@ end
 
 % MVPA settings
 measure = @cosmo_crossvalidation_measure;  % function handle
-args.output = 'fold_predictions';
+measure_args.output = 'fold_predictions';
 
 % remove constant features
 ds_subj = cosmo_remove_useless_data(ds_subj);
@@ -48,16 +48,16 @@ for iPair = 1:nPair
     ds_thisPair = cosmo_slice(ds_subj, thisPairMask);
     
     % set the partitions for this dataset
-    args.partitions = cosmo_nfold_partitioner(ds_thisPair); % leave 1 out
+    measure_args.partitions = cosmo_nfold_partitioner(ds_thisPair); % leave 1 out
     
     for iClass = 1:nClass
         
         tmpMVPA = table;
         % the classifier for this analysis
-        args.classifier = classifiers{iClass};
+        measure_args.classifier = classifiers{iClass};
         thisClassfifier = class_names{iClass};
         
-        predicted_ds = measure(ds_thisPair, args);
+        predicted_ds = measure(ds_thisPair, measure_args);
         
         % calculate the confusion matrix
         thisConMatrix = cosmo_confusion_matrix(predicted_ds);
