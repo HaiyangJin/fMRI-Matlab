@@ -34,6 +34,9 @@ if nargin < 5
 end
 
 %% Preparation
+% waitbar
+wait_f = waitbar(0, 'Loading...   0.00% finished');
+
 % information from the project
 nHemi = projStr.nHemi;
 fMRIPath = projStr.fMRI;
@@ -47,8 +50,13 @@ for iSubj = 1:nSubj
     subjCode_bold = subjList{iSubj};
     % subjCode in SUBJECTS_DIR
     subjCode = fs_subjcode(subjCode_bold, fMRIPath);
-    
     hemis = projStr.hemis;
+    
+    % waitbar
+    progress = iSubj / nSubj * 1/2;
+    progress_msg = sprintf('Loading data for %s.   \n%0.2f%% finished...', ...
+        strrep(subjCode, '_', '\_'), progress*100);
+    waitbar(progress, wait_f, progress_msg);
     
     % load vertex and face coordinates
     [vtxCell, faceCell] = fs_cosmo_surfcoor(subjCode, file_surfcoor, combineHemi);
@@ -81,6 +89,12 @@ for iSubj = 1:nSubj
         
         hemi_info = hemis{iSL}; % hemisphere name
         
+        % waitbar
+        progress = (iSubj + iSL/max(runSearchlight)) / (nSubj * 2);
+        progress_msg = sprintf('Subject: %s.  Hemisphere: %s  \n%0.2f%% finished...', ...
+            strrep(subjCode, '_', '\_'), hemi_info, progress*100);
+        waitbar(progress, wait_f, progress_msg);
+        
         %% Surface setting
         % white, pial, surface for this hemisphere
         v_inf = vtxCell{iSL};
@@ -96,5 +110,7 @@ for iSubj = 1:nSubj
     end
     
 end
+
+close(wait_f); % close the waitbar 
 
 end
