@@ -97,7 +97,7 @@ for iPair = 1:nPairs
     output_fn = sprintf('sl.svm.%s.%s-%s', hemi_info, thisPair{1}, thisPair{2});
     
     if ismember(hemi_info, {'lh', 'rh'})  % save as .label for each hemisphere
-        fs_cosmo_map2label(svm_results, subjCode, output_fn, v_inf);
+        fs_cosmo_map2label(svm_results, subjCode, output_fn, surf_def{1});
     elseif strcmp(hemi_info, 'both')  % save as .gii for the whole brain
         FS = fs_setup;
         output_file = fullfile(FS.subjects, subjCode, 'label', output_fn);
