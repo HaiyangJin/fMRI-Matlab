@@ -1,4 +1,4 @@
-function fs_createfile(file, contents4save)
+function file = fs_createfile(file, contents4save)
 % This function creates new files for FreeSurfer (e.g, sessid, subjectname,
 % runfile).
 %
