@@ -52,7 +52,7 @@ for iLabel = 1:nLabels
         
         % this subject code
         thisBoldSubj = subjList{iSubj};  % bold subjCode
-        subjCode = fs_subjcode(thisBoldSubj, projStr.fMRI); % FS subjCode
+        subjCode = fs_subjcode(thisBoldSubj, projStr.funcPath); % FS subjCode
         
         % waitbar
         progress = ((iLabel-1) * nSubj + iSubj) / (nLabels * nSubj);
@@ -62,7 +62,7 @@ for iLabel = 1:nLabels
         
         % other information for screenshots
         analysis = sprintf('loc%s.%s', boldext, hemi); % analysis name
-        file_overlay = fullfile(projStr.fMRI, thisBoldSubj, 'bold',...
+        file_overlay = fullfile(projStr.funcPath, thisBoldSubj, 'bold',...
             analysis, theContrast, 'sig.nii.gz'); % the overlay file
         
         % skip if the overlay file is not available

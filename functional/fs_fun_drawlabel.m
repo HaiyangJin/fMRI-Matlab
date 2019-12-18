@@ -33,13 +33,13 @@ hemis = projStr.hemis;
 for iSubj = 1:nSubj
     
     thisBoldSubj = subjList{iSubj};
-    subjCode = fs_subjcode(thisBoldSubj, projStr.fMRI);
+    subjCode = fs_subjcode(thisBoldSubj, projStr.funcPath);
     
     for iHemi = 1:projStr.nHemi
         
         hemi = hemis{iHemi};
         
-        file_sig = fullfile(projStr.fMRI, thisBoldSubj, 'bold',...
+        file_sig = fullfile(projStr.funcPath, thisBoldSubj, 'bold',...
             ['loc' boldext '.' hemi], contrast_name, 'sig.nii.gz');
         
         labelname = sprintf('roi.%s.%s.%s.%slabel', ...

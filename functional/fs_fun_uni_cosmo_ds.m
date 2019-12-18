@@ -9,7 +9,7 @@ function [uni_table, ds_subj, uni_info] = fs_fun_uni_cosmo_ds(projStr, ...
 %    projStr            Project structure (obtained from fs_fun_projectinfo)
 %    label_fn           the label filename (or 'lh' or 'rh', then the
 %                       output will be the data for the whole hemisphere)
-%    subjCode_bold      subject code in fMRI folder
+%    subjCode_bold      subject code in functional folder
 %    output_path        where the outputs from fs_fun_labelsize are saved
 %    run_info           the run name (usually is 'loc' or 'main')
 %    runSeparate        gather data for each run separately or not
@@ -50,8 +50,8 @@ run_fn = sprintf('run_%s.txt', run_info);  % run filename
 par_fn = sprintf('%s.par', run_info); % paradigm filename
 analysis_ext = sprintf('%s%s', run_info, smooth); % first parts of the analysis name
 
-fMRI_path = projStr.fMRI;  % where the functional data are saved
-boldPath = fullfile(fMRI_path, subjCode_bold, 'bold'); % the bold folder
+funcPath = projStr.funcPath;  % where the functional data are saved
+boldPath = fullfile(funcPath, subjCode_bold, 'bold'); % the bold folder
 
 hemiOnly = any(ismember(label_fn, projStr.hemis));
 if hemiOnly
@@ -61,7 +61,7 @@ if hemiOnly
 else
     % warning if the label is not available for that subjCode and finish this
     % function
-    subjCode = fs_subjcode(subjCode_bold, fMRI_path);  % subjCode in $SUBJECTS_DIR
+    subjCode = fs_subjcode(subjCode_bold, funcPath);  % subjCode in $SUBJECTS_DIR
     if ~fs_checklabel(label_fn, subjCode)
         warning('Cannot find label "%s" for %s', label_fn, subjCode);
         uni_info = table;

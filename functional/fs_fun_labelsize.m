@@ -36,14 +36,14 @@ end
 boldext = projStr.boldext;
 
 hemi = fs_hemi(label_fn);
-subjCode = fs_subjcode(subjCode_bold, projStr.fMRI);
+subjCode = fs_subjcode(subjCode_bold, projStr.funcPath);
 
 % label file
 labelfile = fullfile(projStr.subjects, subjCode, 'label', label_fn);
 
 % beta file
 analysisfolder = sprintf('loc%s.%s', boldext, hemi);
-betafile = fullfile(fullfile(projStr.fMRI, subjCode_bold, ...
+betafile = fullfile(fullfile(projStr.funcPath, subjCode_bold, ...
         'bold', analysisfolder, beta_fn));
 
 % create the freesurfer command

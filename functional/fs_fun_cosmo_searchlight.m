@@ -39,17 +39,17 @@ wait_f = waitbar(0, 'Loading...   0.00% finished');
 
 % information from the project
 nHemi = projStr.nHemi;
-fMRIPath = projStr.fMRI;
+funcPath = projStr.funcPath;
 
 subjList = projStr.subjList;
 nSubj = projStr.nSubj;
 
 for iSubj = 1:nSubj
     %% this subject information
-    % subjCode in fMRI folder
+    % subjCode in functional folder
     subjCode_bold = subjList{iSubj};
     % subjCode in SUBJECTS_DIR
-    subjCode = fs_subjcode(subjCode_bold, fMRIPath);
+    subjCode = fs_subjcode(subjCode_bold, funcPath);
     hemis = projStr.hemis;
     
     % waitbar

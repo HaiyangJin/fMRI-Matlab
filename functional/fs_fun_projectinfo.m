@@ -29,12 +29,12 @@ if ~strcmp(boldext(1), '_')
 end
 
 projStr.boldExt = boldext;
-projStr.fMRI = funcPath;
+projStr.funcPath = funcPath;
 projStr.hemis = FS.hemis;
 projStr.nHemi = FS.nHemi;
 
 % bold subject codes
-tmpDir = dir(fullfile(projStr.fMRI, [projectName, '*', boldext]));
+tmpDir = dir(fullfile(projStr.funcPath, [projectName, '*', boldext]));
 isSubDir = [tmpDir.isdir] & ~ismember({tmpDir.name}, {'.', '..'});
 
 projStr.subjdir = tmpDir(isSubDir);

@@ -17,7 +17,7 @@ if isempty(path)
     if isempty(projStr) || isempty(subjCode_bold)
         error('Not enough inputs for fs_fun_readrun');
     else
-        run_file = fullfile(projStr.fMRI, subjCode_bold, 'bold', run_fn);
+        run_file = fullfile(projStr.funcPath, subjCode_bold, 'bold', run_fn);
     end
 else
     run_file = run_fn;
