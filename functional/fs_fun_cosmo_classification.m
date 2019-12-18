@@ -3,7 +3,7 @@ function [mvpaTable, uniTable, uniLocTable] = fs_fun_cosmo_classification(projSt
 % [mvpaTable, uniTable, uniLocTable] = fs_fun_cosmo_classification(projStr,...
 %     labelList, classPairs, classifiers, output_path)
 % Inputs:
-%    projStr             project structure (e.g., fw_projectinfo.m)
+%    projStr             project structure (obtained from fs_fun_projectinfo)
 %    labelList           a list of label names
 %    classPairs          a list of pairs to be classified in MVPA
 %    runLoc              run analyses for localizer scans

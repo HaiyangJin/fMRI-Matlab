@@ -6,7 +6,7 @@ function [uni_table, ds_subj, uni_info] = fs_fun_uni_cosmo_ds(projStr, ...
 % dataset used for CoSMoMVPA for FreeSurfer surface data.
 %
 % Inputs:
-%    projStr            Project structure (e.g., fw_projectinfo)
+%    projStr            Project structure (obtained from fs_fun_projectinfo)
 %    label_fn           the label filename (or 'lh' or 'rh', then the
 %                       output will be the data for the whole hemisphere)
 %    subjCode_bold      subject code in fMRI folder

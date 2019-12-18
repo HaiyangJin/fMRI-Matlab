@@ -4,7 +4,7 @@ function [roisize, talCoor, nVtx, VtxMax] = fs_fun_labelsize(projStr, subjCode_b
 % commands (mri_surfcluster).
 %
 % Inputs:
-%    projStr           matlab structure for the project (e.g.,fw_projectinfo).
+%    projStr           matlab structure for the project (obtained from fs_fun_projectinfo)
 %                      This is specific for each project.
 %    subjCode_bold     subject code for functional data
 %    lable_fn          label filename

@@ -4,7 +4,7 @@ function [runNames, nRun] = fs_fun_readrun(run_fn, projStr, subjCode_bold)
 % Created by Haiyang Jin (08/12/2019)
 %
 % Inputs:
-%    projStr     project information (e.g., fw_projectinfo)
+%    projStr     project information (obtained from fs_fun_projectinfo)
 %    fn_run      filenames of the run file (*.txt) (without path)
 %    subjCode    subjCode in $SUBJECTS_DIR
 % Outputs:

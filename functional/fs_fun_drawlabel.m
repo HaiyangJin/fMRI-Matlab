@@ -2,7 +2,7 @@ function fs_fun_drawlabel(projStr, contrast_name, siglevel, extraLabelInfo)
 % This function use FreeSurfer ("tksurfer") to draw labels.
 %
 % Inputs: 
-%    projStr           matlab structure for the project (e.g.,fw_projectinfo).
+%    projStr           matlab structure for the project (obtained from fs_fun_projectinfo)
 %                      This is specific for each project.
 %    contrast_name     contrast name used glm
 %    siglevel          significance level (default is f13 (.05))
