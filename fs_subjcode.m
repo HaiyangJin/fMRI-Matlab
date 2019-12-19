@@ -23,6 +23,10 @@ subjectnameFile = fullfile(funcPath, subjCode_bold, 'subjectname');
 % read the subjectname file
 nameCell = importdata(subjectnameFile);
 
-subjCode = nameCell{1};
+if isnumeric(nameCell)
+    subjCode = num2str(nameCell);
+elseif iscell(nameCell)
+    subjCode = nameCell{1};
+end
 
 end
