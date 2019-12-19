@@ -30,8 +30,8 @@ for iLabel = 1:nLabel
     labelName = labelList{iLabel};
     
     % find the "." to identify the contrast name
-    conStrPosition = strfind(labelName, '.');
-    contrast_cell(iLabel) = {labelName(conStrPosition(3)+1:conStrPosition(4)-1)};
+    [conStart, conEnd] = regexp(labelName, '\w*\-vs\-\w*'); % pattern (word-vs-word)
+    contrast_cell(iLabel) = {labelName(conStart:conEnd)};
 
 end
 
