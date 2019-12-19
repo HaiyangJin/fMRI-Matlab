@@ -1,4 +1,5 @@
-function isok = fs_screenshot_label(subjCode, label_fn, output_path, overlay_file, isfsavg, color_label, saveScreenshots)
+function isok = fs_screenshot_label(subjCode, label_fn, output_path, ...
+    overlay_file, threshold, isfsavg, color_label, saveScreenshots)
 % This function takes the screenshot of the label based with specific 
 % contrast if there is. 
 %
@@ -36,19 +37,24 @@ else %
 end
 nLabel = numel(label_fn); % number of labels for visualization
 
+
+if nargin < 5 || isempty(threshold)
+    threshold = '2,4';
+end
+
 if nargin < 3 || isempty(output_path)
     output_path = fullfile('.');
 end
-output_path = fullfile(output_path, 'Label_Screenshots');
+output_path = fullfile(output_path, ['Label_Screenshots_' strrep(threshold, ',', '-')]);
 if ~exist(output_path, 'dir'); mkdir(output_path); end % create the folder if necessary
 
 % create the freesurfer commands for the functional data
 if nargin < 4 || isempty(overlay_file)
     fscmd_overlay = '';
 else
-    fscmd_overlay = sprintf([':overlay=%s:overlay_threshold=2,4 '...
+    fscmd_overlay = sprintf(['overlay=%s:overlay_threshold=%s '...
         '-colorscale'],...
-        overlay_file);
+        overlay_file, threshold);
 end
 
 % detect which overlay is shown 
@@ -67,16 +73,16 @@ else
 end
 
 % if show ?h.inflated of fsaverage
-if nargin < 5 || isempty(isfsavg)
+if nargin < 6 || isempty(isfsavg)
     isfsavg = 0;
 end
 
 % colors used for labels
-if nargin < 6 || isempty(color_label)
+if nargin < 7 || isempty(color_label)
     color_label = {'#FFFFFF', '#33cc33', '#0000FF', '#FFFF00'}; % white, green, blue, yellow
 end
 
-if nargin < 7 || isempty(saveScreenshots)
+if nargin < 8 || isempty(saveScreenshots)
     saveScreenshots = 1;
 end
 

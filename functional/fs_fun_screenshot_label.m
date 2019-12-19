@@ -1,4 +1,4 @@
-function fs_fun_screenshot_label(projStr, labelList, output_path, whichOverlay, locSmooth, isfsavg)
+function fs_fun_screenshot_label(projStr, labelList, output_path, whichOverlay, locSmooth, threshold)
 % This function gets the screenshots of labels with overlays.
 %
 % Inputs:
@@ -23,8 +23,8 @@ if nargin < 5 || isempty(locSmooth)
 elseif ~strcmp(locSmooth(1), '_')
     locSmooth = ['_' locSmooth];
 end
-if nargin < 6 || isempty(isfsavg)
-    isfsavg = '';
+if nargin < 6 || isempty(threshold)
+    threshold = '';
 end
 
 % number of labels
@@ -34,6 +34,8 @@ nLabels = size(labelList, 1);
 subjList = projStr.subjList;
 nSubj = projStr.nSubj;
 boldext = projStr.boldext;
+
+isfsavg = any(strcmp(projStr.boldext, {'fsavg', 'fs'}));
 
 f_single = waitbar(0, 'Generating screenshots for labels...');
 
@@ -80,9 +82,9 @@ for iLabel = 1:nLabels
             warning('Cannot find the overlay file: %s', file_overlay);
             continue
         end
-            
+        
         % create the screenshot
-        fs_screenshot_label(subjCode, theLabel, output_path, file_overlay, isfsavg);
+        fs_screenshot_label(subjCode, theLabel, output_path, file_overlay, threshold, isfsavg);
 
     end
     
