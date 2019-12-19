@@ -1,4 +1,4 @@
-function isok = fs_screenshot_label(subjCode, label_fn, output_path, overlay_file, color_label)
+function isok = fs_screenshot_label(subjCode, label_fn, output_path, overlay_file, isfsavg, color_label, saveScreenshots)
 % This function takes the screenshot of the label based with specific 
 % contrast if there is. 
 %
@@ -50,30 +50,49 @@ else
         '-colorscale'],...
         overlay_file);
 end
+
 % detect which overlay is shown 
-contrasts = fs_label2contrast(label_fn);
-whichOverlay = find(cellfun(@(x) contains(overlay_file, x), contrasts), 1);
-if isempty(whichOverlay)
-    whichOverlay = 0; 
-    contrast = contrasts{1};
+if ~isempty(label_fn)
+    contrasts = fs_label2contrast(label_fn);
+    whichOverlay = find(cellfun(@(x) contains(overlay_file, x), {contrasts}), 1);
+    if isempty(whichOverlay)
+        whichOverlay = 0;
+        contrast = contrasts{1};
+    else
+        contrast = contrasts{whichOverlay};
+    end
 else
-    contrast = contrasts{whichOverlay};
+    contrast = '';
+    whichOverlay = 0;
+end
+
+% if show ?h.inflated of fsaverage
+if nargin < 5 || isempty(isfsavg)
+    isfsavg = 0;
 end
 
 % colors used for labels
-if nargin < 5 || isempty(color_label)
+if nargin < 6 || isempty(color_label)
     color_label = {'#FFFFFF', '#33cc33', '#0000FF', '#FFFF00'}; % white, green, blue, yellow
 end
 
+if nargin < 7 || isempty(saveScreenshots)
+    saveScreenshots = 1;
+end
 
 %% Create commands for each "section"
 % FreeSurfer setup 
 FS = fs_setup;
 
 % surface files and the annotation file
-subjPath = fullfile(FS.subjects, subjCode);
-file_inf = fullfile(subjPath, 'surf', [hemi '.inflated']); % inflated file
-file_annot = fullfile(subjPath, 'label', [hemi '.aparc.annot']); % annotation file
+if isfsavg
+    subjCode_surf = 'fsaverage';
+else
+    subjCode_surf = subjCode;
+end
+subjPath_Surf = fullfile(FS.subjects, subjCode_surf);
+file_inf = fullfile(subjPath_Surf, 'surf', [hemi '.inflated']); % inflated file
+file_annot = fullfile(subjPath_Surf, 'label', [hemi '.aparc.annot']); % annotation file
 
 fscmd_surf = sprintf(['freeview -f %s:'... % the ?h.inflated file
     'annot=%s:annot_outline=yes:'... % the filename and settings for annotation file
@@ -85,7 +104,7 @@ fscmd_label = '';
 for iLabel = 1:nLabel
     
     theLabel = label_fn{iLabel};
-    file_thelabel = fullfile(subjPath, 'label', theLabel); % label file
+    file_thelabel = fullfile(FS.subjects, subjCode, 'label', theLabel); % label file
     color_thelabel = color_label{iLabel};
     
     % make sure there is the label for this subject
@@ -93,7 +112,7 @@ for iLabel = 1:nLabel
     if ~isAvailable
         isok = 0;
         warning('Cannot find label %s for subject %s.\n', theLabel, subjCode);
-        return; % quit this function now
+        continue; % quit this function now
     end
     
     fscmd_thislabel = sprintf('label=%s:label_outline=yes:label_color=%s:',...
@@ -113,9 +132,14 @@ else
     name_labels = erase(name_labels, {'roi.', '.label'}); % shorten filenames
 end
 
-fn_output = sprintf('%s%s_%d.png', name_labels, subjCode, whichOverlay);
-file_output = fullfile(output_path, fn_output);
-fscmd_output = sprintf(' -ss %s', file_output); %
+if saveScreenshots
+    if isfsavg; avg = '_avg'; else; avg = ''; end
+    fn_output = sprintf('%s%s%s_%d.png', name_labels, subjCode, avg, whichOverlay);
+    file_output = fullfile(output_path, fn_output);
+    fscmd_output = sprintf(' -ss %s', file_output); %
+else
+    fscmd_output = '';
+end
 
 %% combine the commands and run 
 % combine the command together
@@ -123,7 +147,9 @@ fscmd = [fscmd_surf fscmd_label fscmd_overlay fscmd_camera fscmd_output];
 
 % run the freesurfer command
 system(fscmd);
-fprintf('\nSave the screenshot of %s for %s successfully at %s\n\n', ...
-    name_labels, subjCode, file_output);
+if saveScreenshots
+    fprintf('\nSave the screenshot of %s for %s successfully at %s\n\n', ...
+        name_labels, subjCode, file_output);
+end
 
 end
