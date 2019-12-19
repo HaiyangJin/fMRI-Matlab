@@ -39,12 +39,34 @@ for iAnalysis = 1:nAnalysis
         thisCon = contrasts(iCon, :);
         
         % the number of activation and control condition
-        conditionNum = cellfun(@(x) find(startsWith(conditions, x)), thisCon);
+        conditionNum = cellfun(@(x) find(startsWith(conditions, x)), thisCon, 'uni', false);
         
         % save the information
         contra_str(n).analysisName = analysisName;
-        contra_str(n).contrastName = sprintf('%s-vs-%s', thisCon{:});
-        contra_str(n).contrastCode = sprintf('-a %d -c %d', conditionNum);
+        
+        % levels of activation and control
+        nLevels = cellfun(@numel, conditionNum);
+        
+        % first part of contrast name
+        contrNameAct = thisCon{1};
+        contrNameStr = sprintf(['%s' repmat('%s', nLevels(1)-1) '-vs-'], contrNameAct{:});
+        % first part of contrast code
+        contrCodeStr = ['-a' repmat(' %d', 1, nLevels(1))];
+        
+        if nLevels(2) == 0
+            conditionNum = conditionNum(1);
+        else
+            % second part of contrast name
+            contrNameCon = thisCon{2};
+            contrNameStrCon = sprintf(['%s' repmat('%s', nLevels(2)-1)], contrNameCon{:});
+            contrNameStr = [contrNameStr, contrNameStrCon]; %#ok<AGROW>
+            
+            % second part of contrast code
+            contrCodeStr = [contrCodeStr, ' -c' repmat(' %d', 1, nLevels(2))]; %#ok<AGROW>
+        end
+        
+        contra_str(n).contrastName = contrNameStr;
+        contra_str(n).contrastCode = sprintf(contrCodeStr, conditionNum{:});
         
         % created the commands
         fscmd = sprintf('mkcontrast-sess -analysis %s -contrast %s %s', ...
