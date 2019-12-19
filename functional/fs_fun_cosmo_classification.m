@@ -49,7 +49,7 @@ for iSubj = 1:nSubj
         thisLabel = labelList{iLabel};
         
         % waitbar
-        progress = ((iLabel-1)*nSubj + iSubj) / (nLabel * nSubj);
+        progress = ((iSubj-1)*nLabel + iLabel) / (nLabel * nSubj);
         progress_msg = sprintf('Label: %s.  Subject: %s \n%0.2f%% finished...', ...
             thisLabel, strrep(thisSubjBold, '_', '\_'), progress*100);
         waitbar(progress, wait_f, progress_msg);
