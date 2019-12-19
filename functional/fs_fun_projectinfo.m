@@ -24,11 +24,11 @@ if nargin < 3
 end
 
 % add underscore if there is not available in boldext
-if ~strcmp(boldext(1), '_')
+if ~isempty(boldext) &&~strcmp(boldext(1), '_')
     boldext = ['_', boldext];
 end
 
-projStr.boldExt = boldext;
+projStr.boldext = boldext;
 projStr.funcPath = funcPath;
 projStr.hemis = FS.hemis;
 projStr.nHemi = FS.nHemi;
