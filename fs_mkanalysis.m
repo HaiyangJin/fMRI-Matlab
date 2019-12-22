@@ -19,7 +19,7 @@ function analysisList = fs_mkanalysis(funcRunType, boldext, nConditions, ...
 %
 % Created by Haiyang Jin (19/12/2019)
 
-if strcmp(boldext(1), '_')
+if ~strcmp(boldext(1), '_')
     boldext = ['_' boldext];
 end
 
@@ -54,7 +54,7 @@ analysisList = cell(nRunFile, nHemi);
 % the template for the analysis
 if strcmp(boldext, '_self')
     template = 'self';
-elseif ismember(boldext, {'fs', 'fsavg'})
+elseif ismember(boldext, {'_fs', '_fsavg'})
     template = 'fsaverage';
 end
 
