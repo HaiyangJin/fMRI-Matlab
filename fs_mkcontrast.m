@@ -48,7 +48,7 @@ for iAnalysis = 1:nAnalysis
         nLevels = cellfun(@numel, conditionNum);
         
         % first part of contrast name
-        contrNameAct = thisCon{1};
+        contrNameAct = thisCon(1);
         contrNameStr = sprintf(['%s' repmat('%s', nLevels(1)-1) '-vs-'], contrNameAct{:});
         % first part of contrast code
         contrCodeStr = ['-a' repmat(' %d', 1, nLevels(1))];
@@ -57,7 +57,7 @@ for iAnalysis = 1:nAnalysis
             conditionNum = conditionNum(1);
         else
             % second part of contrast name
-            contrNameCon = thisCon{2};
+            contrNameCon = thisCon(2);
             contrNameStrCon = sprintf(['%s' repmat('%s', nLevels(2)-1)], contrNameCon{:});
             contrNameStr = [contrNameStr, contrNameStrCon]; %#ok<AGROW>
             
