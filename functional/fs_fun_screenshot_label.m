@@ -35,7 +35,7 @@ subjList = projStr.subjList;
 nSubj = projStr.nSubj;
 boldext = projStr.boldext;
 
-isfsavg = any(strcmp(projStr.boldext, {'fsavg', 'fs'}));
+isfsavg = endsWith(projStr.boldext, {'fsavg', 'fs'});
 
 f_single = waitbar(0, 'Generating screenshots for labels...');
 

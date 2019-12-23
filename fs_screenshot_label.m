@@ -45,8 +45,6 @@ end
 if nargin < 3 || isempty(output_path)
     output_path = fullfile('.');
 end
-output_path = fullfile(output_path, ['Label_Screenshots_' strrep(threshold, ',', '-')]);
-if ~exist(output_path, 'dir'); mkdir(output_path); end % create the folder if necessary
 
 % create the freesurfer commands for the functional data
 if nargin < 4 || isempty(overlay_file)
@@ -76,6 +74,7 @@ end
 if nargin < 6 || isempty(isfsavg)
     isfsavg = 0;
 end
+if isfsavg; avgStr = '_fsavg'; else; avgStr = '_self'; end
 
 % colors used for labels
 if nargin < 7 || isempty(color_label)
@@ -85,6 +84,11 @@ end
 if nargin < 8 || isempty(saveScreenshots)
     saveScreenshots = 1;
 end
+
+output_folder = sprintf('Label_Screenshots%s_%s', avgStr, strrep(threshold, ',', '-'));
+output_path = fullfile(output_path, output_folder);
+if ~exist(output_path, 'dir'); mkdir(output_path); end % create the folder if necessary
+
 
 %% Create commands for each "section"
 % FreeSurfer setup 
@@ -139,8 +143,7 @@ else
 end
 
 if saveScreenshots
-    if isfsavg; avg = '_avg'; else; avg = ''; end
-    fn_output = sprintf('%s%s%s_%d.png', name_labels, subjCode, avg, whichOverlay);
+    fn_output = sprintf('%s%s%s_%d.png', name_labels, subjCode, avgStr, whichOverlay);
     file_output = fullfile(output_path, fn_output);
     fscmd_output = sprintf(' -ss %s', file_output); %
 else
