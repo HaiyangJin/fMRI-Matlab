@@ -16,6 +16,7 @@ end
 
 % all the folders in HCP path
 tmpSessDir = dir(HCP_path);
+tmpSessDir(startsWith({tmpSessDir.name}, '.')) = [];  % remove folders starts with '.'
 tmpSessList = {tmpSessDir.name};
 
 % the string parts of all folder names
