@@ -5,7 +5,7 @@ function FS = fs_setup
 FS.homedir = getenv('FREESURFER_HOME');
 
 if isempty(FS.homedir)
-    error('Please make sure you started Matlab in terminal after you setting up FreeSurfer properly.');
+    error('Please make sure FreeSurfer is installed and sourced properly.');
 end
 
 FS.subjects = getenv('SUBJECTS_DIR');
