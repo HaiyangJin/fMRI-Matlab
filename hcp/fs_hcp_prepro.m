@@ -14,13 +14,19 @@ function fs_hcp_prepro(HCP_path, sessStr, template)
 %    template       template used for projecting functional data ('self' or
 %                   'fsaverage')
 % Output:
-%
+%    a subfolder called FreeSurfer is built in HCP/. It contains the
+%    directory structure (but not the structure data) for analyses in
+%    FreeSurfer.
 % Dependency:
 %    FreeSurfer   (Please make sure FreeSurfer is installed and sourced properly.)
 %
 % Created by Haiyang Jin (5/01/2020).
 
-FS = fs_setup;
+% get the environment variable 
+fshome_path = getenv('FREESURFER_HOME');
+if isempty(fshome_path)
+    error('Please make sure FreeSurfer is installed and sourced properly.');
+end
 
 if nargin < 1 || isempty(HCP_path)
     HCP_path = pwd;
@@ -44,7 +50,7 @@ elseif strcmp(template, 'fsaverage')
 end
 
 
-%% identify all sessions (folders) match sessStr
+%% Identify all sessions (folders) match sessStr
 sess_dir = dir(fullfile(HCP_path, sessStr));
 
 if isempty(sess_dir)
@@ -63,7 +69,7 @@ if ~exist(subjects_path, 'dir'); mkdir(subjects_path); end
 
 % link fsaverage in subjects/ to fsaverage in FREESURFER 6.0 (or 5.3)
 if ~exist(fullfile(subjects_path, 'fsaverage'), 'dir') && strcmp(boldext, '_fsavg')
-    fsaverage = fullfile(FS.homedir, 'subjects', 'fsaverage');
+    fsaverage = fullfile(fshome_path, 'subjects', 'fsaverage');
     fscmd_fsaverage = sprintf('ln -s %s %s', fsaverage, subjects_path);
     system(fscmd_fsaverage);
 end
@@ -111,7 +117,7 @@ for iSess = 1:nSess
     writetable(table(runCode_cell', runName_cell'), fullfile(this_func_path, ...
         'run_info.txt'), 'WriteVariableNames', false);
     
-    % copy and rename
+    % copy and rename the functional data file
     cellfun(@(x, y) copyfile(fullfile(source_func, x, [x '_native.nii.gz']), ...
         fullfile(this_func_path, y, 'f.nii.gz')), runName_cell, runCode_cell);
     
@@ -120,7 +126,6 @@ for iSess = 1:nSess
     fs_createfile(fullfile(subjCode_path, 'sessid'), subjCode_bold);
     % create subjectname
     fs_createfile(fullfile(subjCode_path, 'subjectname'), sessid);
-    
     
     %% Project functional data to the template
     wd_backup = pwd;
