@@ -51,6 +51,7 @@ elseif strcmp(template, 'fsaverage')
     boldext = '_fsavg';
 end
 
+% link or copy the recon-all outputs
 if nargin < 4 || isempty(linkT1)
     linkT1 = 1;
 end
@@ -80,7 +81,7 @@ if ~exist(fullfile(subjects_path, 'fsaverage'), 'dir') && strcmp(boldext, '_fsav
         fscmd_fsaverage = sprintf('ln -s %s %s', fsaverage, subjects_path);
         system(fscmd_fsaverage);
     else % copy file
-        copyfile(fsaverage, subjects_path);
+        copyfile(fsaverage, fullfile(subjects_path, 'fsaverage'));
     end     
 end
 
@@ -98,7 +99,7 @@ for iSess = 1:nSess
             fscmd_subjcodelink = sprintf('ln -s %s %s', source_subjCode, subjects_path);
             system(fscmd_subjcodelink);
         else % copy folder
-            copyfile(source_subjCode, subjects_path);
+            copyfile(source_subjCode, target_subjCode);
         end
     end
     
