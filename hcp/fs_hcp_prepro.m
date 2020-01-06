@@ -130,8 +130,9 @@ for iSess = 1:nSess
     cellfun(@(x) mkdir(this_func_path, x), runCode_cell);
     
     % save the run code and names in a txt file
-    writetable(table(runCode_cell', runName_cell'), fullfile(this_func_path, ...
-        'run_info.txt'), 'WriteVariableNames', false);
+    RunCode = runCode_cell';
+    RunName = runName_cell';
+    writetable(table(RunCode, RunName), fullfile(this_func_path, 'run_info.txt'));
     
     % copy and rename the functional data file
     cellfun(@(x, y) copyfile(fullfile(source_func, x, [x '_native.nii.gz']), ...
