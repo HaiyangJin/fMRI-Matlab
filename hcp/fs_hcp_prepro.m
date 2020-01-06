@@ -1,4 +1,4 @@
-function fs_hcp_prepro(HCP_path, sessStr, template)
+function fs_hcp_prepro(HCP_path, sessStr, template, linkT1)
 % This function creates directory structure for analyses in FreeSurfer for
 % results obtained from Human Connectome Project pipeline.
 %
@@ -13,6 +13,8 @@ function fs_hcp_prepro(HCP_path, sessStr, template)
 %                   as the full name of the session name (e.g., 'faceword01').
 %    template       template used for projecting functional data ('self' or
 %                   'fsaverage')
+%    linkT1         [logical] 1: link the T1 for all subjects. 0: copy the
+%                   T1 data for all subjects.
 % Output:
 %    a subfolder called FreeSurfer is built in HCP/. It contains the
 %    directory structure (but not the structure data) for analyses in
@@ -49,6 +51,10 @@ elseif strcmp(template, 'fsaverage')
     boldext = '_fsavg';
 end
 
+if nargin < 4 || isempty(linkT1)
+    linkT1 = 1;
+end
+
 
 %% Identify all sessions (folders) match sessStr
 sess_dir = dir(fullfile(HCP_path, sessStr));
@@ -70,21 +76,30 @@ if ~exist(subjects_path, 'dir'); mkdir(subjects_path); end
 % link fsaverage in subjects/ to fsaverage in FREESURFER 6.0 (or 5.3)
 if ~exist(fullfile(subjects_path, 'fsaverage'), 'dir') && strcmp(boldext, '_fsavg')
     fsaverage = fullfile(fshome_path, 'subjects', 'fsaverage');
-    fscmd_fsaverage = sprintf('ln -s %s %s', fsaverage, subjects_path);
-    system(fscmd_fsaverage);
+    if linkT1 % link file
+        fscmd_fsaverage = sprintf('ln -s %s %s', fsaverage, subjects_path);
+        system(fscmd_fsaverage);
+    else % copy file
+        copyfile(fsaverage, subjects_path);
+    end     
 end
 
 for iSess = 1:nSess
     
+    % this session
     sessid = sessList{iSess};
     sess_path = fullfile(HCP_path, sessid);
     
-    %% link recon-all data
+    %% link (or copy) recon-all data
     source_subjCode = fullfile(sess_path, 'T1w', sessid);
     target_subjCode = fullfile(subjects_path, sessid);
     if ~exist(target_subjCode, 'dir')
-        fscmd_subjcodelink = sprintf('ln -s %s %s', source_subjCode, subjects_path);
-        system(fscmd_subjcodelink);
+        if linkT1 % link folder
+            fscmd_subjcodelink = sprintf('ln -s %s %s', source_subjCode, subjects_path);
+            system(fscmd_subjcodelink);
+        else % copy folder
+            copyfile(source_subjCode, subjects_path);
+        end
     end
     
     %% copy functional data to preprocessed folder
