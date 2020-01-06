@@ -1,4 +1,4 @@
-function fs_hcp_prepare(HCP_path, sessStr, template)
+function fs_hcp_prepro(HCP_path, sessStr, template)
 % This function creates directory structure for analyses in FreeSurfer for
 % results obtained from Human Connectome Project pipeline.
 %
