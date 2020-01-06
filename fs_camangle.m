@@ -16,17 +16,19 @@ isLeft = strcmp(hemi, 'lh');
 [conStart, conEnd] = regexp(contrast, '\w*\-vs');
 
 % set camera angle based on contrast
-switch contrast(conStart:(conEnd-3))
-    case ''
-        fscmd_angle = '';
-    case {'f', 'face', 'w', 'word', 'sce', 'scene' }
-        angle = 240 + 60 * isLeft;
-        fscmd_angle = sprintf('elevation %d', angle);
-        
-    case {'object', 'o'}
-        angle = 180 * ~isLeft;
-        fscmd_angle = sprintf('azimuth %d', angle); % camera angle for LOC
-        
+if ~isempty(contrast)
+    switch contrast(conStart:(conEnd-3))
+        case {'f', 'face', 'w', 'word', 'sce', 'scene' }
+            angle = 240 + 60 * isLeft;
+            fscmd_angle = sprintf('elevation %d', angle);
+            
+        case {'object', 'o'}
+            angle = 180 * ~isLeft;
+            fscmd_angle = sprintf('azimuth %d', angle); % camera angle for LOC
+            
+    end
+else
+    fscmd_angle = '';
 end
 
 fscmd_camera = [' -cam dolly 1.5 ' fscmd_angle];
