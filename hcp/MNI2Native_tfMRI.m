@@ -73,13 +73,13 @@ for iSess = 1:nSess
     thisSess = sessList{iSess};
     sess_path = fullfile(HCP_path, thisSess);
     
-    % downsample T2w in native space to fMRI resolution
+    %% downsample T2w in native space to fMRI resolution
     flirt_cmd = sprintf(['flirt -in %1$s/T1w/T2w_acpc_dc_restore_brain '...
         '-ref %1$s/T1w/T2w_acpc_dc_restore_brain -applyisoxfm 2 '...
         '-out %1$s/T1w/T2w_acpc_dc_restore_brain_2mm'], sess_path);
     system(flirt_cmd);
     
-    % transform BOLD data from MNI space to Native Space
+    %% transform BOLD data from MNI space to Native Space
     results_path = fullfile(sess_path, 'MNINonLinear', 'Results');
     bold_dir = dir(fullfile(results_path, 'tfMRI_*'));
     boldList = {bold_dir.name};
