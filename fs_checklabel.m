@@ -15,10 +15,7 @@ if ischar(labelList)
     labelList = {labelList};
 end
 
-% FreeSurfer setup
-FS = fs_setup;
-
-labelPath = fullfile(FS.subjects, subjCode, 'label');
+labelPath = fullfile(getenv('SUBJECTS_DIR'), subjCode, 'label');
 
 % the availability of each label
 isAvail = (cellfun(@(x) exist(fullfile(labelPath, x), 'file'), labelList));

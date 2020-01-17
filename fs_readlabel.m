@@ -1,17 +1,15 @@
-function [dataMatrix, nVer] = fs_readlabel(label_fn, subjCode)
+function [dataMatrix, nVer] = fs_readlabel(labelFn, subjCode)
 % read label file in FreeSurfer to matrix in Matlab
 %
 % Created by Haiyang Jin (28/11/2019)
 
-FS = fs_setup;
-
-if ~fs_checklabel(label_fn, subjCode)
-    error('Cannot find the label "%s" for "%s"', label_fn, subjCode);
+if ~fs_checklabel(labelFn, subjCode)
+    error('Cannot find the label "%s" for "%s"', labelFn, subjCode);
 end
 
-label_file = fullfile(FS.subjects, subjCode, 'label', label_fn);
+labelFile = fullfile(getenv('SUBJECTS_DIR'), subjCode, 'label', labelFn);
 
-labelMatrix = importdata(label_file, ' ', 2); % read the label file
+labelMatrix = importdata(labelFile, ' ', 2); % read the label file
 
 % the data from the label file ([vertex number, x, y, z, activation])
 dataMatrix = labelMatrix.data;

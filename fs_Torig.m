@@ -10,8 +10,7 @@ function Torig = fs_Torig(subjCode)
 if ~exist('subjCode', 'var') || isempty(subjCode); subjCode = 'fsaverage'; end
 
 % obtain the subject folder path
-FS = fs_setup;
-subjectsdir = FS.subjects;
+subjectsdir = getenv('FUNCTIONALS_DIR');
 
 % define the path to orig.mgz
 orig_dir = [subjectsdir subjCode filesep 'mri' filesep 'orig.mgz'];

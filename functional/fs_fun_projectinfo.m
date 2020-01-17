@@ -10,10 +10,9 @@ function projStr = fs_fun_projectinfo(projectName, funcPath, boldext)
 %    a structure of project information
 %
 % Creatd by Haiyang Jin (18/12/2019)
-%
 
 % Copy information from FreeSurfer
-FS = fs_setup;
+FS = fs_projectinfo;
 projStr.subjects = FS.subjects;
 
 if nargin < 2 || isempty(funcPath)
@@ -22,6 +21,9 @@ end
 if nargin < 3 
     boldext = '_self';
 end
+
+% set the environmental variable of FUNCTIONALS_DIR
+setenv('FUNCTIONALS_DIR', funcPath);
 
 % add underscore if there is not available in boldext
 if ~isempty(boldext) &&~strcmp(boldext(1), '_')

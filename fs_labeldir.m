@@ -14,8 +14,7 @@ function label_dir = fs_labeldir(subjCode, labelNames)
 % Created by Haiyang Jin (09/12/2019)
 
 % label folder
-FS = fs_setup;
-labelPath = fullfile(FS.subjects, subjCode, 'label');
+labelPath = fullfile(getenv('SUBJECTS_DIR'), subjCode, 'label');
 
 % convert string to cell
 if ischar(labelNames)

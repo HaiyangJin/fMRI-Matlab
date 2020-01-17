@@ -92,7 +92,7 @@ if ~exist(output_path, 'dir'); mkdir(output_path); end % create the folder if ne
 
 %% Create commands for each "section"
 % FreeSurfer setup 
-FS = fs_setup;
+subjectsPath = getenv('SUBJECTS_DIR');
 
 % surface files and the annotation file
 if isfsavg
@@ -100,7 +100,7 @@ if isfsavg
 else
     subjCode_surf = subjCode;
 end
-subjPath_Surf = fullfile(FS.subjects, subjCode_surf);
+subjPath_Surf = fullfile(subjectsPath, subjCode_surf);
 file_inf = fullfile(subjPath_Surf, 'surf', [hemi '.inflated']); % inflated file
 file_annot = fullfile(subjPath_Surf, 'label', [hemi '.aparc.annot']); % annotation file
 
@@ -114,7 +114,7 @@ fscmd_label = '';
 for iLabel = 1:nLabel
     
     theLabel = label_fn{iLabel};
-    file_thelabel = fullfile(FS.subjects, subjCode, 'label', theLabel); % label file
+    file_thelabel = fullfile(subjectsPath, subjCode, 'label', theLabel); % label file
     color_thelabel = color_label{iLabel};
     
     % make sure there is the label for this subject

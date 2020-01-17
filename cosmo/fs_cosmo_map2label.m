@@ -22,8 +22,7 @@ if ~strcmp(ext, '.label')
 end
 
 % label folder for this subject
-FS = fs_setup;
-label_file = fullfile(FS.subjects, subjCode, 'label', label_fn);
+label_file = fullfile(getenv('SUBJECTS_DIR'), subjCode, 'label', label_fn);
 
 % classification accuracies for each vertex
 acc = dt_cosmo.samples;

@@ -13,8 +13,7 @@ function fs_drawlabel(subjCode, hemi, file_sig, labelname)
 % For furture development, I should included to define the limits of
 % p-values.
 
-FS = fs_setup;
-subjPath = FS.subjects;
+subjPath = getenv('SUBJECTS_DIR');
 
 % create FreeSurfer command and run it
 fscmd = sprintf('tksurfer %s %s inflated -aparc -overlay %s',...

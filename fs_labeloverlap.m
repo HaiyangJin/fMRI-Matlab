@@ -12,7 +12,7 @@ function overlap_table = fs_labeloverlap(labels, output_path, subjList)
 %
 % Created by Haiyang Jin (11/12/2019)
 
-FS = fs_setup;
+FS = fs_projectinfo;
 
 if nargin < 2 || isempty(output_path)
     output_path = '.';
@@ -35,7 +35,7 @@ overlap_str = struct;
 for iSubj = 1:nSubj
     
     subjCode = subjList{iSubj};
-    labelPath = fullfile(FS.subjects, subjCode, 'label');
+%     labelPath = fullfile(FS.subjects, subjCode, 'label');
     
     
     for iLabel = 1:nLabelGroup

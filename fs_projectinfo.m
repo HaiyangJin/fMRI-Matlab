@@ -13,12 +13,13 @@ function FS = fs_projectinfo(subjectsPath)
 FS.homedir = getenv('FREESURFER_HOME');
 
 % Default path to FreeSurfer
-if nargin < 1 
-    subjectsPath = fullfile(FS.homedir, 'subjects');
+if nargin < 1 || isempty(subjectsPath)
+    subjectsPath = getenv('SUBJECTS_DIR');
+else
+    setenv('SUBJECTS_DIR', subjectsPath);
 end
 
 % set the subjects folder
-setenv('SUBJECTS_DIR', subjectsPath);
 FS.subjects = subjectsPath;
 
 % hemisphere information
