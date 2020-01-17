@@ -1,8 +1,9 @@
 function fsl_setup(fslPath)
+% fsl_setup(fslPath);
 % Set up FSL if it is not set up properly.
 %
 % Input:
-%    fslPath        the path to FSL
+%    fslPath        the path to the folder where FSL is installed
 %
 % Created by Haiyang Jin (16-Jan-2020)
 
@@ -19,12 +20,14 @@ end
 
 % setup FSL
 setenv('FSLDIR', fslPath);
-setenv('PATH', sprintf('%s/bin:%s', getenv('FSLDIR'), getenv('PARH')));
+setenv('PATH', sprintf('%s/bin:%s', getenv('FSLDIR'), getenv('PATH')));
 system('export FSLDIR PATH');
-iserror = system('. ${FSLDIR}/etc/fslconf/fsl.sh');
+iserror = system('sh ${FSLDIR}/etc/fslconf/fsl.sh');
 
 % throw error if fsl.sh is not sourced successfully
 assert(~iserror, sprintf('fsl.sh cannot be found at %s/etc/fslconf/', fslPath));
+
+fprintf('\nFSL is set up successfully [I hope so].\n\n');
 
 end
 
