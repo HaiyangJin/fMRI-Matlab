@@ -1,12 +1,12 @@
 function analysisList = fs_mkanalysis(funcRunType, boldext, nConditions, ...
-    runFile_list, refDura, hemis, smooth, nSkip, TR)
+    runFileList, refDura, hemis, smooth, nSkip, TR)
 % This function run mkanalysis-sess in FreeSurfer
 %
 % Inputs:
 %    funcRunName        'main' or 'loc'
 %    boldext            the extension of bold data ('self', 'fs', 'fsavg')
 %    nConditions        number of conditions (excluded fixation)
-%    runFile_list       run filenames (e.g., loc.txt)
+%    runFileList       run filenames (e.g., loc.txt)
 %    refDura            durations of the reference condition (the total
 %                       duration of one "block" or one "trial"
 %    hemis              'lh', 'rh' (and 'mni')
@@ -43,10 +43,10 @@ if nargin < 9 || isempty(TR)
 end
 
 
-if ischar(runFile_list)
-    runFile_list = {runFile_list};
+if ischar(runFileList)
+    runFileList = {runFileList};
 end
-nRunFile = numel(runFile_list);
+nRunFile = numel(runFileList);
 
 % empty cell for saving analysis names
 analysisList = cell(nRunFile, nHemi);
@@ -59,12 +59,12 @@ elseif ismember(boldext, {'_fs', '_fsavg'})
 end
 
 % the paradigm filename
-par_file = [funcRunType '.par'];
+parFile = [funcRunType '.par'];
 
 
 for iRun = 1:nRunFile
     
-    thisRunFile = runFile_list{iRun};
+    thisRunFile = runFileList{iRun};
     runCode = regexp(thisRunFile,'\d*','Match'); % run number
     if isempty(runCode)
         runCode = '';
@@ -93,7 +93,7 @@ for iRun = 1:nRunFile
             '-event-related -nconditions %d -nskip %d -TR %d -runlistfile %s '...
             '-refeventdur %d '...
             '-mcextreg -gammafit 2.25 1.25 -polyfit 2 -fsd bold -per-run -force'], ...
-            analysisName, hemiInfo, smooth, par_file, ...
+            analysisName, hemiInfo, smooth, parFile, ...
             nConditions, nSkip, TR, thisRunFile,...
             refDura);
         

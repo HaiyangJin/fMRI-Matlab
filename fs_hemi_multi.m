@@ -1,13 +1,13 @@
-function [hemi, nHemi] = fs_hemi_multi(fn_labels)
+function [hemi, nHemi] = fs_hemi_multi(labelsFn)
 % This function determine the hemispheres based on the filenames
 %
 % Created by Haiyang Jin (1/12/2019)
 
-if ischar(fn_labels)
-    fn_labels = {fn_labels};
+if ischar(labelsFn)
+    labelsFn = {labelsFn};
 end
 
-hemis = unique(cellfun(@fs_hemi, fn_labels, 'UniformOutput', false));
+hemis = unique(cellfun(@fs_hemi, labelsFn, 'UniformOutput', false));
 nHemi = numel(hemis);
 
 if nHemi ~= 1

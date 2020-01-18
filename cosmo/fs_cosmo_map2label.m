@@ -1,4 +1,4 @@
-function fs_cosmo_map2label(dt_cosmo, subjCode, label_fn, vert_coordi)
+function fs_cosmo_map2label(dt_cosmo, subjCode, labelFn, vertCoordi)
 % This function convert the surface dataset in CoSMoMVPA to label file in
 % FreeSurfer.
 % 
@@ -6,9 +6,9 @@ function fs_cosmo_map2label(dt_cosmo, subjCode, label_fn, vert_coordi)
 %    dt_cosmo         results of searchlight in datasets (only refers to the
 %                     dt obtained from searchlight analyses for surface)
 %    subjCode         subject code in $SUBJECTS_DIR
-%    label_fn         the filename of the label to be saved later (without
+%    labelFn         the filename of the label to be saved later (without
 %                     path)
-%    vert_coordi      vertex coordinates
+%    vertCoordi      vertex coordinates
 % Output:
 %    a label file saved in the label folder
 %
@@ -16,27 +16,27 @@ function fs_cosmo_map2label(dt_cosmo, subjCode, label_fn, vert_coordi)
 % Updated by Haiyang Jin (15/12/2019)
 
 % add the extension of '.label' if its is not
-[~, fn, ext] = fileparts(label_fn);
+[~, fn, ext] = fileparts(labelFn);
 if ~strcmp(ext, '.label')
-    label_fn = [label_fn '.label'];
+    labelFn = [labelFn '.label'];
 end
 
 % label folder for this subject
-label_file = fullfile(getenv('SUBJECTS_DIR'), subjCode, 'label', label_fn);
+labelFile = fullfile(getenv('SUBJECTS_DIR'), subjCode, 'label', labelFn);
 
 % classification accuracies for each vertex
 acc = dt_cosmo.samples;
 nVtx = numel(acc);
 
 % open a file for saving the label information
-fid = fopen(label_file, 'w');
+fid = fopen(labelFile, 'w');
 
 % saving information in the label file
 fprintf(fid, '#!ascii label Converted from CosmoMVPA. subject-%s coords=surface\n', subjCode);
 fprintf(fid, '%d\n', nVtx);
 for vtxID = 1:nVtx
-    fprintf(fid, '%d %5.3f %5.3f %5.3f %f\n', vtxID-1, vert_coordi(vtxID, 1), ...
-        vert_coordi(vtxID, 2), vert_coordi(vtxID, 3), acc(vtxID));  
+    fprintf(fid, '%d %5.3f %5.3f %5.3f %f\n', vtxID-1, vertCoordi(vtxID, 1), ...
+        vertCoordi(vtxID, 2), vertCoordi(vtxID, 3), acc(vtxID));  
 end
 fclose(fid);
 

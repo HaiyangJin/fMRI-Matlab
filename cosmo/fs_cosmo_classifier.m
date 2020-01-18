@@ -1,4 +1,4 @@
-function [class_out, class_names, nClass] = fs_cosmo_classifier(classifier_in)
+function [classOut, classNames, nClass] = fs_cosmo_classifier(classifiers)
 
 % Inputs:
 %    classifier_in      the classifiers used in this analyses. Could be
@@ -9,8 +9,8 @@ function [class_out, class_names, nClass] = fs_cosmo_classifier(classifier_in)
 %
 % Created by Haiyang Jin (9/12/2019)
 
-if nargin < 1 || isempty(classifier_in)
-    classifier_in = 1;
+if nargin < 1 || isempty(classifiers)
+    classifiers = 1;
 end
 
 % classifiers
@@ -19,46 +19,46 @@ classifierList = {@cosmo_classify_libsvm, ...
     @cosmo_classify_naive_bayes,...
     @cosmo_classify_lda, ...
     @cosmo_classify_svm};
-classifierList_names=cellfun(@func2str,classifierList,'UniformOutput',false);
+classifierListNames=cellfun(@func2str,classifierList,'UniformOutput',false);
 
-if isnumeric(classifier_in) % double input
-    classifier_in = classifierList(classifier_in);
+if isnumeric(classifiers) % double input
+    classifiers = classifierList(classifiers);
     
-elseif iscell(classifier_in) % cell input
+elseif iscell(classifiers) % cell input
     % convert strings in cell to function handle if possible
     
     % all the strings in the cell
-    isstr_class = cellfun(@isstr, classifier_in);
+    isstr_class = cellfun(@isstr, classifiers);
     
     % if the functional handles could be found for the strings
     isvalid_class = isstr_class;
-    isvalid = cellfun(@(x) any(contains(classifierList_names, x)), ...
-        classifier_in(isstr_class));
+    isvalid = cellfun(@(x) any(contains(classifierListNames, x)), ...
+        classifiers(isstr_class));
 
     if ~all(isvalid)
-        strclass = classifier_in(isstr_class);
+        strclass = classifiers(isstr_class);
         warning('Cannot find classifier of ''%s''.', strclass{~isvalid});
     end
     
     isvalid_class(isstr_class) = isvalid;
     
-    is_class = cellfun(@(x) find(contains(classifierList_names, x)), ...
-        classifier_in(isvalid_class));
+    is_class = cellfun(@(x) find(contains(classifierListNames, x)), ...
+        classifiers(isvalid_class));
     
     % convert strings to function handle
-    classifier_in(isvalid_class) = classifierList(is_class);
+    classifiers(isvalid_class) = classifierList(is_class);
     
-elseif ischar(classifier_in)  % string input
-    classifier_in= classifierList(contains(classifierList_names, classifier_in));
+elseif ischar(classifiers)  % string input
+    classifiers= classifierList(contains(classifierListNames, classifiers));
 end
 
 % remove non-function handles
-class_out = classifier_in(cellfun(@(x) isa(x, 'function_handle'), classifier_in));
-nClass = numel(class_out);
+classOut = classifiers(cellfun(@(x) isa(x, 'function_handle'), classifiers));
+nClass = numel(classOut);
 
 % display the classifiers used
-class_names=cellfun(@func2str,classifier_in,'UniformOutput',false);
-fprintf('\n\nUsing %d classifiers: %s.\n', length(class_names), ...
-    cosmo_strjoin(class_names, ', '));
+classNames=cellfun(@func2str,classifiers,'UniformOutput',false);
+fprintf('\n\nUsing %d classifiers: %s.\n', length(classNames), ...
+    cosmo_strjoin(classNames, ', '));
 
 end

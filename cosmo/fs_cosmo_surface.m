@@ -1,8 +1,6 @@
 function ds = fs_cosmo_surface(filename, varargin)
 % load a surface structure baed on surface data in FreeSurfer for CoSMoMVPA
 %
-% Created by Haiyang Jin (8/12/2019)
-%
 % ds = fs_cosmo_surface(filename, varagin)
 %
 % Inputs:
@@ -25,6 +23,8 @@ function ds = fs_cosmo_surface(filename, varargin)
 % Dependencies:
 %   - for FreeSurfer files, it requires the FreeSurfer
 %     toolbox, available from: https://surfer.nmr.mgh.harvard.edu/
+%
+% Created by Haiyang Jin (8-Dec-2019)
 
 
 %% modified from cosmo_surface_dataset.m
@@ -58,7 +58,7 @@ if ~exist(filename, 'file')
 end
 
 % load data
-datasamples = load_nifti(filename); % this function is from FreeSurfer
+datasamples = load_nifti(filename); % this function is from FreeSurfer (probably should be replaced by load_untouch_nii)
 data = datasamples.vol;
 data = shiftdim(data,3); % convert 4D to 2D
 

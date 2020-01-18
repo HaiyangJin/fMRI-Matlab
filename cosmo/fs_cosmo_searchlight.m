@@ -1,4 +1,4 @@
-function fs_cosmo_searchlight(subjCode, ds_this, surf_def, hemi_info, classPairs, classifier)
+function fs_cosmo_searchlight(subjCode, ds_this, surfDef, hemiInfo, classPairs, classifier)
 % This function performs the searchlight analysis with cosmoMVPA.
 %
 % Inputs:
@@ -42,13 +42,13 @@ measure_args.classifier = classifier; % @cosmo_classify_libsvm;
 % - nbrhood has the neighborhood information
 % - vo and fo are vertices and faces of the output surface
 % - out2in is the mapping from output to input surface
-feature_count = 200;
+featureCount = 200;
 
 % calculate the surficial neighborhood
 fprintf('\n\nCalcualte the surficial neighborhood for %s (%s):\n',...
-    subjCode, hemi_info);
-[nbrhood,vo,fo,~]=cosmo_surficial_neighborhood(ds_this,surf_def,...
-    'count',feature_count);
+    subjCode, hemiInfo);
+[nbrhood,vo,fo,~]=cosmo_surficial_neighborhood(ds_this,surfDef,...
+    'count',featureCount);
 % print neighborhood
 fprintf('Searchlight neighborhood definition:\n');
 cosmo_disp(nbrhood);
@@ -86,21 +86,21 @@ for iPair = 1:nPairs
     cosmo_disp(measure_args);
     
     %% Run the searchlight
-    svm_results = cosmo_searchlight(ds_thisPair,nbrhood,measure,measure_args);
+    dt_results = cosmo_searchlight(ds_thisPair,nbrhood,measure,measure_args);
     
     % print searchlight output
     fprintf('Dataset output:\n');
-    cosmo_disp(svm_results);
+    cosmo_disp(dt_results);
     
     %% Save results as files
     % store searchlight results
-    output_fn = sprintf('sl.svm.%s.%s-%s', hemi_info, thisPair{1}, thisPair{2});
+    outputFn = sprintf('sl.svm.%s.%s-%s', hemiInfo, thisPair{1}, thisPair{2});
     
-    if ismember(hemi_info, {'lh', 'rh'})  % save as .label for each hemisphere
-        fs_cosmo_map2label(svm_results, subjCode, output_fn, surf_def{1});
-    elseif strcmp(hemi_info, 'both')  % save as .gii for the whole brain
-        output_file = fullfile(getenv('SUBJECTS_DIR'), subjCode, 'label', output_fn);
-        cosmo_map2surface(svm_results, [output_file '.gii'], 'encoding','ASCII');
+    if ismember(hemiInfo, {'lh', 'rh'})  % save as .label for each hemisphere
+        fs_cosmo_map2label(dt_results, subjCode, outputFn, surfDef{1});
+    elseif strcmp(hemiInfo, 'both')  % save as .gii for the whole brain
+        outputFile = fullfile(getenv('SUBJECTS_DIR'), subjCode, 'label', outputFn);
+        cosmo_map2surface(dt_results, [outputFile '.gii'], 'encoding','ASCII');
     end
     
     %% store counts

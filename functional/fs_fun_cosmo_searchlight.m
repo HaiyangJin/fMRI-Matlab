@@ -1,11 +1,11 @@
-function fs_fun_cosmo_searchlight(projStr, file_surfcoor, combineHemi, classPairs, classifier)
+function fs_fun_cosmo_searchlight(projStr, surfCoorFile, combineHemi, classPairs, classifier)
 % This function does the searchlight analyses for the faceword project
 % with CoSMoMVPA. Data were analyzed with FreeSurfer.
 %
 % Inputs:
-%    subjCode_bold      the name of subject's bold folder
+%    projStr            project structure
 %    expCode            experiment code (1 or 2)
-%    file_surfcoor      the coordinate file for vertices ('inflated',
+%    surfCoorFile       the coordinate file for vertices ('inflated',
 %                       'white', 'pial')
 %    combineHemi        if the data of two hemispheres will be combined
 %                       (default is no) [0: run searchlight for the two
@@ -23,8 +23,8 @@ function fs_fun_cosmo_searchlight(projStr, file_surfcoor, combineHemi, classPair
 
 cosmo_warning('once');
 
-if nargin < 3 || isempty(file_surfcoor)
-    file_surfcoor = 'inflated';
+if nargin < 3 || isempty(surfCoorFile)
+    surfCoorFile = 'inflated';
 end
 if nargin < 4 || isempty(combineHemi)
     combineHemi = 0;
@@ -35,7 +35,7 @@ end
 
 %% Preparation
 % waitbar
-wait_f = waitbar(0, 'Loading...   0.00% finished');
+waitHandle = waitbar(0, 'Loading...   0.00% finished');
 
 % information from the project
 nHemi = projStr.nHemi;
@@ -47,31 +47,31 @@ nSubj = projStr.nSubj;
 for iSubj = 1:nSubj
     %% this subject information
     % subjCode in functional folder
-    subjCode_bold = subjList{iSubj};
+    subjCodeBold = subjList{iSubj};
     % subjCode in SUBJECTS_DIR
-    subjCode = fs_subjcode(subjCode_bold, funcPath);
+    subjCode = fs_subjcode(subjCodeBold, funcPath);
     hemis = projStr.hemis;
     
     % waitbar
     progress = iSubj / nSubj * 1/2;
-    progress_msg = sprintf('Loading data for %s.   \n%0.2f%% finished...', ...
+    progressMsg = sprintf('Loading data for %s.   \n%0.2f%% finished...', ...
         strrep(subjCode, '_', '\_'), progress*100);
-    waitbar(progress, wait_f, progress_msg);
+    waitbar(progress, waitHandle, progressMsg);
     
     % load vertex and face coordinates
-    [vtxCell, faceCell] = fs_cosmo_surfcoor(subjCode, file_surfcoor, combineHemi);
+    [vtxCell, faceCell] = fs_cosmo_surfcoor(subjCode, surfCoorFile, combineHemi);
     
     
     %% Load functional data (beta.nii.gz)
     % load the beta.nii.gz for both hemispheres separately
-    [~, ds_surf_cell] = cellfun(@(x) fs_fun_uni_cosmo_ds(projStr, x, subjCode_bold, ...
+    [~, dsSurfCell] = cellfun(@(x) fs_fun_uni_cosmo_ds(projStr, x, subjCodeBold, ...
         '', 'main', 0, 1), hemis, 'UniformOutput', false);
     
     % combine the surface data for the whole brain if needed
     if ~combineHemi
         runSearchlight = 1:nHemi;
     else
-        ds_surf_cell = [ds_surf_cell, fs_cosmo_combinesurface(ds_surf_cell)]; %#ok<AGROW>
+        dsSurfCell = [dsSurfCell, fs_cosmo_combinesurface(dsSurfCell)]; %#ok<AGROW>
         hemis = [hemis, 'both']; %#ok<AGROW>
         
         if combineHemi == 1
@@ -87,30 +87,30 @@ for iSubj = 1:nSubj
     %% conduct searchlight for two hemisphere seprately (and the whole brain)
     for iSL = runSearchlight  % SL = searchlight
         
-        hemi_info = hemis{iSL}; % hemisphere name
+        hemiInfo = hemis{iSL}; % hemisphere name
         
         % waitbar
         progress = (iSubj + iSL/max(runSearchlight)) / (nSubj * 2);
-        progress_msg = sprintf('Subject: %s.  Hemisphere: %s  \n%0.2f%% finished...', ...
-            strrep(subjCode, '_', '\_'), hemi_info, progress*100);
-        waitbar(progress, wait_f, progress_msg);
+        progressMsg = sprintf('Subject: %s.  Hemisphere: %s  \n%0.2f%% finished...', ...
+            strrep(subjCode, '_', '\_'), hemiInfo, progress*100);
+        waitbar(progress, waitHandle, progressMsg);
         
         %% Surface setting
         % white, pial, surface for this hemisphere
-        v_inf = vtxCell{iSL};
-        f_inf = faceCell{iSL};
-        surf_def = {v_inf, f_inf};
+        vtxInflated = vtxCell{iSL};
+        faceInflated = faceCell{iSL};
+        surfDef = {vtxInflated, faceInflated};
         
         % dataset for this searchlight analysis
-        ds_this = ds_surf_cell{iSL};
+        ds_this = dsSurfCell{iSL};
         
         % run search light analysis
-        fs_cosmo_searchlight(subjCode, ds_this, surf_def, hemi_info, classPairs, classifier);
+        fs_cosmo_searchlight(subjCode, ds_this, surfDef, hemiInfo, classPairs, classifier);
         
     end
     
 end
 
-close(wait_f); % close the waitbar 
+close(waitHandle); % close the waitbar 
 
 end

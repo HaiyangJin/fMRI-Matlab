@@ -95,14 +95,14 @@ labelSumTable = [cell2table(labelVarNames, 'VariableNames', labelTable.Propertie
 
 
 % output filename
-file_output = fullfile(outputPath, 'Label_Summary.xlsx');
+outputFile = fullfile(outputPath, 'Label_Summary.xlsx');
 warning('off','MATLAB:xlswrite:AddSheet');  % turn off warning
 % wide table
-writetable(labelSumTable, file_output,...
+writetable(labelSumTable, outputFile,...
     'Sheet', 'Wide_format', 'WriteVariableNames', false);
 % long table
 labelSumLongTable= struct2table(labelStructlong);
-writetable(labelSumLongTable, file_output,...
+writetable(labelSumLongTable, outputFile,...
     'Sheet', 'Long_format');
 
 end

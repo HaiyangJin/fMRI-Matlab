@@ -1,4 +1,4 @@
-function label_dir = fs_labeldir(subjCode, labelNames)
+function labelDir = fs_labeldir(subjCode, labelNames)
 % This function list all labels for the label names
 %
 % Inputs:
@@ -9,7 +9,7 @@ function label_dir = fs_labeldir(subjCode, labelNames)
 %                    labels (e.g., {'roi.face*.label', 'roi.word*.label'});
 %                    or could be a string.
 % Output:
-%     label_dir       the list of all label files
+%     labelDir       the list of all label files
 % 
 % Created by Haiyang Jin (09/12/2019)
 
@@ -25,7 +25,7 @@ end
 nLabelInput = numel(labelNames);
 
 
-label_dir = struct([]); % empty struct 
+labelDir = struct([]); % empty struct 
 
 % list files for each label input separately
 for iLabelInput = 1:nLabelInput
@@ -34,10 +34,10 @@ for iLabelInput = 1:nLabelInput
     thisLabel = labelNames{iLabelInput};
     
     % list all matching files
-    tmp_dir = dir(fullfile(labelPath, thisLabel));
+    tempDir = dir(fullfile(labelPath, thisLabel));
     
     % save information
-    label_dir = [label_dir; tmp_dir]; %#ok<AGROW>
+    labelDir = [labelDir; tempDir]; %#ok<AGROW>
  
 end
 

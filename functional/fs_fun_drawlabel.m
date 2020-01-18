@@ -1,4 +1,4 @@
-function fs_fun_drawlabel(projStr, contrast_name, siglevel, extraLabelInfo)
+function fs_fun_drawlabel(projStr, contrastName, siglevel, extraLabelInfo)
 % This function use FreeSurfer ("tksurfer") to draw labels.
 %
 % Inputs: 
@@ -39,14 +39,14 @@ for iSubj = 1:nSubj
         
         hemi = hemis{iHemi};
         
-        file_sig = fullfile(projStr.funcPath, thisBoldSubj, 'bold',...
-            ['loc' boldext '.' hemi], contrast_name, 'sig.nii.gz');
+        sigFile = fullfile(projStr.funcPath, thisBoldSubj, 'bold',...
+            ['loc' boldext '.' hemi], contrastName, 'sig.nii.gz');
         
         labelname = sprintf('roi.%s.%s.%s.%slabel', ...
-            hemi, siglevel, contrast_name, extraLabelInfo);
+            hemi, siglevel, contrastName, extraLabelInfo);
         
         % draw labels manually with FreeSurfer
-        fs_drawlabel(subjCode, hemi, file_sig, labelname);
+        fs_drawlabel(subjCode, hemi, sigFile, labelname);
         
     end
     

@@ -5,7 +5,7 @@ function contrast = fs_label2contrast(labelList)
 % Input:
 %    labelList          a list of label names
 % Output:
-%    contrast_cell      a cell of contrast names
+%    contrast      a cell of contrast names
 %
 % Created by Haiyang Jin (11/12/2019)
 
@@ -22,7 +22,7 @@ if size(labelList, 1) == 1
 end
 
 nLabel = numel(labelList);
-contrast_cell = cell(size(labelList));
+contrastCell = cell(size(labelList));
 
 % obtain the contrast name for each label
 for iLabel = 1:nLabel
@@ -31,14 +31,14 @@ for iLabel = 1:nLabel
     
     % find the "." to identify the contrast name
     [conStart, conEnd] = regexp(labelName, '\w*\-vs\-\w*'); % pattern (word-vs-word)
-    contrast_cell(iLabel) = {labelName(conStart:conEnd)};
+    contrastCell(iLabel) = {labelName(conStart:conEnd)};
 
 end
 
 if back2char
-    contrast = contrast_cell{1};
+    contrast = contrastCell{1};
 else
-    contrast = contrast_cell;
+    contrast = contrastCell;
 end
 
 

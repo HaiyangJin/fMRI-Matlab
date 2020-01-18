@@ -1,5 +1,5 @@
 function [mvpaTable, uniTable, uniLocTable] = fs_fun_cosmo_classification(projStr,...
-    labelList, classPairs, classifiers, runLoc, output_path)
+    labelList, classPairs, classifiers, runLoc, outputPath)
 % [mvpaTable, uniTable, uniLocTable] = fs_fun_cosmo_classification(projStr,...
 %     labelList, classPairs, classifiers, output_path)
 % Inputs:
@@ -16,12 +16,12 @@ function [mvpaTable, uniTable, uniLocTable] = fs_fun_cosmo_classification(projSt
 % Created by Haiyang Jin (12/12/2019)
 
 if nargin < 5 
-    output_path = '';
+    outputPath = '';
 end
 
 %% Preparation
 % waitbar
-wait_f = waitbar(0, 'Loading...   0.00% finished');
+waitHandle = waitbar(0, 'Loading...   0.00% finished');
 
 % Project information (subject information)
 subjList = projStr.subjList;
@@ -50,47 +50,47 @@ for iSubj = 1:nSubj
         
         % waitbar
         progress = ((iSubj-1)*nLabel + iLabel) / (nLabel * nSubj);
-        progress_msg = sprintf('Label: %s.  Subject: %s \n%0.2f%% finished...', ...
+        progressMsg = sprintf('Label: %s.  Subject: %s \n%0.2f%% finished...', ...
             thisLabel, strrep(thisSubjBold, '_', '\_'), progress*100);
-        waitbar(progress, wait_f, progress_msg);
+        waitbar(progress, waitHandle, progressMsg);
         
         %% Localizer
         if runLoc
-            run_info = 'loc';
+            runInfo = 'loc';
             smooth = '';
             runSeparate = 0;
             
-            uniLocTable_tmp = fs_fun_uni_cosmo_ds(projStr, ...
-                thisLabel, thisSubjBold, output_path, run_info, smooth, runSeparate);
+            uniLocTableTemp = fs_fun_uni_cosmo_ds(projStr, ...
+                thisLabel, thisSubjBold, outputPath, runInfo, smooth, runSeparate);
             
-            uniLocCell(iSubj, iLabel) = {uniLocTable_tmp};
+            uniLocCell(iSubj, iLabel) = {uniLocTableTemp};
         end
         
         
         %% Main runs (run separately)
         % get data for univariate and CoSMoMVPA
-        run_info = 'main';
+        runInfo = 'main';
         smooth = 0;
         runSeparate = 1;
                 
-        [uniMainTable_tmp, ds_subj, uni_info] = fs_fun_uni_cosmo_ds(projStr, ...
-            thisLabel, thisSubjBold, output_path, run_info, smooth, runSeparate);
-        uniCell(iSubj, iLabel) = {uniMainTable_tmp};
+        [uniMainTableTmp, ds_subj, uniInfo] = fs_fun_uni_cosmo_ds(projStr, ...
+            thisLabel, thisSubjBold, outputPath, runInfo, smooth, runSeparate);
+        uniCell(iSubj, iLabel) = {uniMainTableTmp};
         
         % run classification if ds_subj is not empty
         if ~isempty(ds_subj)
-            mvpaTable_tmp = fs_cosmo_classification(ds_subj, uni_info, classPairs, classifiers);
+            mvpaTableTemp = fs_cosmo_classification(ds_subj, uniInfo, classPairs, classifiers);
         else
-            mvpaTable_tmp = table;
+            mvpaTableTemp = table;
         end
         
-        mvpaCell(iSubj, iLabel) = {mvpaTable_tmp};
+        mvpaCell(iSubj, iLabel) = {mvpaTableTemp};
         
     end
     
 end
 % waitbar
-waitbar(progress, wait_f, 'Saving data...');
+waitbar(progress, waitHandle, 'Saving data...');
 
 % combine tables together
 uniLocTable = vertcat(uniLocCell{:});
@@ -98,33 +98,33 @@ uniTable = vertcat(uniCell{:});
 mvpaTable = vertcat(mvpaCell{:});
 
 %% save data to local
-if isempty(output_path)
-    output_path = '.';
+if isempty(outputPath)
+    outputPath = '.';
 end
-output_path = fullfile(output_path, 'Classification');
-if ~exist(output_path, 'dir'); mkdir(output_path); end
+outputPath = fullfile(outputPath, 'Classification');
+if ~exist(outputPath, 'dir'); mkdir(outputPath); end
 
 % univariate analyses for localizers
 if runLoc
-    fn_locuni = fullfile(output_path, 'Localizer_Univariate');
-    save(fn_locuni, 'uniLocTable');
-    writetable(uniLocTable, [fn_locuni, '.xlsx']);
-    writetable(uniLocTable, [fn_locuni, '.csv']);
+    locUniFn = fullfile(outputPath, 'Localizer_Univariate');
+    save(locUniFn, 'uniLocTable');
+    writetable(uniLocTable, [locUniFn, '.xlsx']);
+    writetable(uniLocTable, [locUniFn, '.csv']);
 end
 
 % MVPA for main runs
-fn_cosmo = fullfile(output_path, 'Main_CosmoMVPA');
-save(fn_cosmo, 'mvpaTable');
+cosmoFn = fullfile(outputPath, 'Main_CosmoMVPA');
+save(cosmoFn, 'mvpaTable');
 mvpaTable(:, 'Confusion') = [];
-writetable(mvpaTable, [fn_cosmo, '.xlsx']);
-writetable(mvpaTable, [fn_cosmo, '.csv']);
+writetable(mvpaTable, [cosmoFn, '.xlsx']);
+writetable(mvpaTable, [cosmoFn, '.csv']);
 
 % univariate for main runs
-fn_uni = fullfile(output_path, 'Main_Univariate');
-save(fn_uni, 'uniTable');
-writetable(uniTable, [fn_uni, '.xlsx']);
-writetable(uniTable, [fn_uni, '.csv']);
+uniFn = fullfile(outputPath, 'Main_Univariate');
+save(uniFn, 'uniTable');
+writetable(uniTable, [uniFn, '.xlsx']);
+writetable(uniTable, [uniFn, '.csv']);
 
-close(wait_f); % close the waitbar 
+close(waitHandle); % close the waitbar 
 
 end

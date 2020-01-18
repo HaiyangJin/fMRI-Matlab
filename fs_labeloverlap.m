@@ -1,4 +1,4 @@
-function overlap_table = fs_labeloverlap(labels, output_path, subjList)
+function overlapTable = fs_labeloverlap(labels, outputPath, subjList)
 % This function calcualtes the overlapping between two labels
 %
 % Inputs:
@@ -14,11 +14,11 @@ function overlap_table = fs_labeloverlap(labels, output_path, subjList)
 
 FS = fs_projectinfo;
 
-if nargin < 2 || isempty(output_path)
-    output_path = '.';
+if nargin < 2 || isempty(outputPath)
+    outputPath = '.';
 end
-output_path = fullfile(output_path, 'Label_Overlapping');
-if ~exist(output_path, 'dir'); mkdir(output_path); end
+outputPath = fullfile(outputPath, 'Label_Overlapping');
+if ~exist(outputPath, 'dir'); mkdir(outputPath); end
 
 if nargin < 3 || isempty(subjList)
     subjList = FS.subjList;
@@ -30,7 +30,7 @@ nSubj = FS.nSubj;
 nLabelGroup = size(labels, 1);
 
 n = 0;
-overlap_str = struct;
+overlapStr = struct;
 
 for iSubj = 1:nSubj
     
@@ -61,21 +61,21 @@ for iSubj = 1:nSubj
             end
             
             % load the two label files
-            mat_cell = cellfun(@(x) fs_readlabel(x, subjCode), theseLabel, 'UniformOutput', false);
+            matCell = cellfun(@(x) fs_readlabel(x, subjCode), theseLabel, 'UniformOutput', false);
             
             % check if there is overlapping between the two labels
-            mat_label1 = mat_cell{1};
-            mat_label2 = mat_cell{2};
-            isoverlap = ismember(mat_label1, mat_label2);
-            overlapVer = mat_label1(isoverlap(:, 1));
+            matLabel1 = matCell{1};
+            matLabel2 = matCell{2};
+            isoverlap = ismember(matLabel1, matLabel2);
+            overlapVer = matLabel1(isoverlap(:, 1));
             nOverVer = numel(overlapVer);
             
             % save information to the structure
             n = n + 1;
-            overlap_str(n).SubjCode = {subjCode};
-            overlap_str(n).Label = theseLabel;
-            overlap_str(n).nOverlapVer = nOverVer;
-            overlap_str(n).OverlapVer = {overlapVer'};
+            overlapStr(n).SubjCode = {subjCode};
+            overlapStr(n).Label = theseLabel;
+            overlapStr(n).nOverlapVer = nOverVer;
+            overlapStr(n).OverlapVer = {overlapVer'};
             
         end
     end
@@ -83,8 +83,8 @@ for iSubj = 1:nSubj
 end
 clear n
 
-overlap_table = struct2table(overlap_str); % convert structure to table
-overlap_table = rmmissing(overlap_table, 1); % remove empty rows
-writetable(overlap_table, fullfile(output_path, 'Label_Overlapping.xlsx'));
+overlapTable = struct2table(overlapStr); % convert structure to table
+overlapTable = rmmissing(overlapTable, 1); % remove empty rows
+writetable(overlapTable, fullfile(outputPath, 'Label_Overlapping.xlsx'));
 
 end

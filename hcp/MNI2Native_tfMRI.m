@@ -1,10 +1,10 @@
-function MNI2Native_tfMRI(HCP_path, sessStr)
+function MNI2Native_tfMRI(hcpPath, sessStr)
 % This function was built based on MNI2Native.sh (created by Osama Abdullah
 % on 9/9/18), which converts the functional (bold) data from MNI space to
 % native space (with FSL functions).
 %
 % Inputs:
-%    HCP_path       path to the HCP results ('Path/to/HCP/') [Default is the
+%    hcpPath       path to the HCP results ('Path/to/HCP/') [Default is the
 %                   current working directory]
 %    sessStr        strings (or prefix) for session information (e.g.,
 %                   'faceword' is the prefix for 'faceword01', 'faceword02',
@@ -25,13 +25,13 @@ if isempty(getenv('FSLDIR'))
     error('Please make sure FSL is installed and sourced properly.');
 end
 
-if nargin < 1 || isempty(HCP_path)
-    HCP_path = '.';
+if nargin < 1 || isempty(hcpPath)
+    hcpPath = '.';
 end
 if nargin < 2 || isempty(sessStr) || strcmp(sessStr, '.')
     
     % all the folders in HCP path
-    tmpSessDir = dir(HCP_path);
+    tmpSessDir = dir(hcpPath);
     tmpSessList = {tmpSessDir.name};
     
     % the string parts of all folder names
@@ -54,16 +54,16 @@ end
 
 
 %% identify all sessions (folders) match sessStr
-sess_dir = dir(fullfile(HCP_path, sessStr));
+sessDir = dir(fullfile(hcpPath, sessStr));
 
-% % remove folders whose superfolder (parent folder) is not HCP_path
-% sess_dir(~strcmp({sess_dir.folder}, HCP_path)) = []; 
+% % remove folders whose superfolder (parent folder) is not hcpPath
+% sessDir(~strcmp({sessDir.folder}, hcpPath)) = []; 
 
-if isempty(sess_dir)
-    error('No sessions were found for %s in %s.', sessStr, HCP_path);
+if isempty(sessDir)
+    error('No sessions were found for %s in %s.', sessStr, hcpPath);
 end
 
-sessList = {sess_dir.name};
+sessList = {sessDir.name};
 nSess = numel(sessList);
 
 fileType = {'', '_SBRef'};
@@ -71,30 +71,30 @@ fileType = {'', '_SBRef'};
 for iSess = 1:nSess
     
     thisSess = sessList{iSess};
-    sess_path = fullfile(HCP_path, thisSess);
+    sessPath = fullfile(hcpPath, thisSess);
     
     %% downsample T2w in native space to fMRI resolution
-    flirt_cmd = sprintf(['flirt -in %1$s/T1w/T2w_acpc_dc_restore_brain '...
+    cmd_flirt = sprintf(['flirt -in %1$s/T1w/T2w_acpc_dc_restore_brain '...
         '-ref %1$s/T1w/T2w_acpc_dc_restore_brain -applyisoxfm 2 '...
-        '-out %1$s/T1w/T2w_acpc_dc_restore_brain_2mm'], sess_path);
-    system(flirt_cmd);
+        '-out %1$s/T1w/T2w_acpc_dc_restore_brain_2mm'], sessPath);
+    system(cmd_flirt);
     
     %% transform BOLD data from MNI space to Native Space
-    results_path = fullfile(sess_path, 'MNINonLinear', 'Results');
-    bold_dir = dir(fullfile(results_path, 'tfMRI_*'));
-    boldList = {bold_dir.name};
+    resultsPath = fullfile(sessPath, 'MNINonLinear', 'Results');
+    boldDir = dir(fullfile(resultsPath, 'tfMRI_*'));
+    boldList = {boldDir.name};
 
     % filenames of all bold data to be transformed
     boldArray = repmat(boldList, numel(fileType), 1);
     fileArray = repmat(fileType', 1, numel(boldList));
-    filenameMNI = cellfun(@(x, y) fullfile(results_path, x, [x,y]), boldArray(:), fileArray(:), 'uni', false');
+    filenameMNI = cellfun(@(x, y) fullfile(resultsPath, x, [x,y]), boldArray(:), fileArray(:), 'uni', false');
     
     % the cell of all functions
     cmds = cellfun(@(x) sprintf(['echo "Transforming from MNI to Native: "%1$s.nii.gz;'...
         'applywarp --rel --interp=trilinear '...
         '-i %1$s.nii.gz -r %2$s/T1w/T2w_acpc_dc_restore_brain_2mm '...
         '-w %2$s/MNINonLinear/xfms/standard2acpc_dc -o %1$s_native.nii.gz'],...
-        x, sess_path), filenameMNI, 'uni', false);
+        x, sessPath), filenameMNI, 'uni', false);
     % run all functions
     cellfun(@system, cmds);
 

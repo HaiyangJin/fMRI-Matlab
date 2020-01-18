@@ -1,10 +1,10 @@
-function fs_drawlabel(subjCode, hemi, file_sig, labelname)
+function fs_drawlabel(subjCode, hemi, fileSig, labelname)
 % This function uses "tksurfer" in FreeSurfer to draw label 
 % 
 % Inputs:
 %    subjCode         subject code in $SUBJECTS_DIR
 %    hemi             which hemispheres (must be 'lh' or 'rh')
-%    file_sig         usually the sig.nii.gz from localizer scans
+%    fileSig         usually the sig.nii.gz from localizer scans
 %    labelname        the label name you want to use for this label
 % Output:
 %    a label file saved in the label folder
@@ -17,7 +17,7 @@ subjPath = getenv('SUBJECTS_DIR');
 
 % create FreeSurfer command and run it
 fscmd = sprintf('tksurfer %s %s inflated -aparc -overlay %s',...
-    subjCode, hemi, file_sig);
+    subjCode, hemi, fileSig);
 system(fscmd);
 
 %%%%%%%%%%%%%%%% Manual working in FreeSurfer %%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -31,14 +31,13 @@ system(fscmd);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % created an empty file with the label filename
-file_label = fullfile(subjPath, subjCode, 'label', labelname);
+labelFile = fullfile(subjPath, subjCode, 'label', labelname);
 
 % rename and move this label file
-tmp_fn_label = 'label.label';
-file_tmp_label = fullfile(subjPath, subjCode, tmp_fn_label);
+tempLabelFile = fullfile(subjPath, subjCode, 'label.label');
 
-if exist(file_tmp_label, 'file')
-    movefile(file_tmp_label, file_label);
+if exist(tempLabelFile, 'file')
+    movefile(tempLabelFile, labelFile);
 end
 
 end

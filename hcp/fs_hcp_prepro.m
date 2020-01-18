@@ -1,4 +1,4 @@
-function fs_hcp_prepro(HCP_path, sessStr, template, linkT1)
+function fs_hcp_prepro(hcpPath, sessStr, template, linkT1)
 % This function creates directory structure for analyses in FreeSurfer for
 % results obtained from Human Connectome Project pipeline.
 %
@@ -25,17 +25,17 @@ function fs_hcp_prepro(HCP_path, sessStr, template, linkT1)
 % Created by Haiyang Jin (5/01/2020).
 
 % get the environment variable 
-fshome_path = getenv('FREESURFER_HOME');
-if isempty(fshome_path)
+fshomePath = getenv('FREESURFER_HOME');
+if isempty(fshomePath)
     error('Please make sure FreeSurfer is installed and sourced properly.');
 end
 
-if nargin < 1 || isempty(HCP_path)
-    HCP_path = pwd;
+if nargin < 1 || isempty(hcpPath)
+    hcpPath = pwd;
 end
 
 if nargin < 2 || isempty(sessStr) || strcmp(sessStr, '.')
-    sessStr = fs_hcp_projname(HCP_path);
+    sessStr = fs_hcp_projname(hcpPath);
 end
 % add '*' if last letter is not '*'
 if sessStr(end) ~= '*' && ~strcmp(sessStr, '.')
@@ -58,30 +58,31 @@ end
 
 
 %% Identify all sessions (folders) match sessStr
-sess_dir = dir(fullfile(HCP_path, sessStr));
+sessDir = dir(fullfile(hcpPath, sessStr));
 
-if isempty(sess_dir)
-    error('No sessions were found for %s in %s.', sessStr, HCP_path);
+if isempty(sessDir)
+    error('No sessions were found for %s in %s.', sessStr, hcpPath);
 end
 
-sessList = {sess_dir.name};
+sessList = {sessDir.name};
 nSess = numel(sessList);
 
 % the directory structure is saved in 'HCP/FreeSurfer'
-FS_path = fullfile(HCP_path, 'FreeSurfer');
+fsPath = fullfile(hcpPath, 'FreeSurfer');
 
 % create subjects/
-subjects_path = fullfile(FS_path, 'subjects');
-if ~exist(subjects_path, 'dir'); mkdir(subjects_path); end
+subjectsPath = fullfile(fsPath, 'subjects');
+if ~exist(subjectsPath, 'dir'); mkdir(subjectsPath); end
+fs_projectinfo(subjectsPath);  % set 'SUBJECTS_DIR'
 
 % link fsaverage in subjects/ to fsaverage in FREESURFER 6.0 (or 5.3)
-if ~exist(fullfile(subjects_path, 'fsaverage'), 'dir') && strcmp(boldext, '_fsavg')
-    fsaverage = fullfile(fshome_path, 'subjects', 'fsaverage');
+if ~exist(fullfile(subjectsPath, 'fsaverage'), 'dir') && strcmp(boldext, '_fsavg')
+    fsaverage = fullfile(fshomePath, 'subjects', 'fsaverage');
     if linkT1 % link file
-        fscmd_fsaverage = sprintf('ln -s %s %s', fsaverage, subjects_path);
+        fscmd_fsaverage = sprintf('ln -s %s %s', fsaverage, subjectsPath);
         system(fscmd_fsaverage);
     else % copy file
-        copyfile(fsaverage, fullfile(subjects_path, 'fsaverage'));
+        copyfile(fsaverage, fullfile(subjectsPath, 'fsaverage'));
     end     
 end
 
@@ -89,74 +90,71 @@ for iSess = 1:nSess
     
     % this session
     sessid = sessList{iSess};
-    sess_path = fullfile(HCP_path, sessid);
+    sessPath = fullfile(hcpPath, sessid);
     
     %% link (or copy) recon-all data
-    source_subjCode = fullfile(sess_path, 'T1w', sessid);
-    target_subjCode = fullfile(subjects_path, sessid);
-    if ~exist(target_subjCode, 'dir')
+    sourceSubjCode = fullfile(sessPath, 'T1w', sessid);
+    targetSubjCode = fullfile(subjectsPath, sessid);
+    if ~exist(targetSubjCode, 'dir')
         if linkT1 % link folder
-            fscmd_subjcodelink = sprintf('ln -s %s %s', source_subjCode, subjects_path);
+            fscmd_subjcodelink = sprintf('ln -s %s %s', sourceSubjCode, subjectsPath);
             system(fscmd_subjcodelink);
         else % copy folder
-            copyfile(source_subjCode, target_subjCode);
+            copyfile(sourceSubjCode, targetSubjCode);
         end
     end
     
     %% copy functional data to preprocessed folder
     % make directory for preprocessed data folder
-    this_prepro_path = fullfile(FS_path, 'PreProcessed', sessid);
-    if ~exist(this_prepro_path, 'dir'); mkdir(this_prepro_path); end
+    thisPreproPath = fullfile(fsPath, 'PreProcessed', sessid);
+    if ~exist(thisPreproPath, 'dir'); mkdir(thisPreproPath); end
     
     % source and target path
-    source_func = fullfile(sess_path, 'MNINonLinear', 'Results');
-    run_dir = dir(fullfile(source_func, 'tfMRI*'));
-    runName_cell = {run_dir.name};
+    sourceFunc = fullfile(sessPath, 'MNINonLinear', 'Results');
+    runDir = dir(fullfile(sourceFunc, 'tfMRI*'));
+    runNameCell = {runDir.name};
         
     % copy functional data to preprocessed/
-    cellfun(@(x) copyfile(fullfile(source_func, x, [x '_native.nii.gz']), ...
-        fullfile(this_prepro_path, [x '_native.nii.gz'])), runName_cell);
+    cellfun(@(x) copyfile(fullfile(sourceFunc, x, [x '_native.nii.gz']), ...
+        fullfile(thisPreproPath, [x '_native.nii.gz'])), runNameCell);
     
     %% copy and rename from preprocessed folder to functional_data_'template'
     % make directory for the functional data
-    func_path = fullfile(FS_path, ['functional_data' boldext]);
-    subjCode_bold = [sessid boldext];
-    subjCode_path = fullfile(func_path, subjCode_bold);
-    this_func_path = fullfile(subjCode_path, 'bold');
-    if ~exist(this_func_path, 'dir'); mkdir(this_func_path); end
+    funcPath = fullfile(fsPath, ['functional_data' boldext]);
+    subjCodeBold = [sessid boldext];
+    subjCodePath = fullfile(funcPath, subjCodeBold);
+    thisFuncPath = fullfile(subjCodePath, 'bold');
+    if ~exist(thisFuncPath, 'dir'); mkdir(thisFuncPath); end
     
     % create folders for each run
-    runCode_cell = arrayfun(@(x) num2str(x, '%03d'), 1:numel(runName_cell), 'uni', false);
-    cellfun(@(x) mkdir(this_func_path, x), runCode_cell);
+    runCodeCell = arrayfun(@(x) num2str(x, '%03d'), 1:numel(runNameCell), 'uni', false);
+    cellfun(@(x) mkdir(thisFuncPath, x), runCodeCell);
     
     % save the run code and names in a txt file
-    RunCode = runCode_cell';
-    RunName = runName_cell';
-    writetable(table(RunCode, RunName), fullfile(this_func_path, 'run_info.txt'));
+    RunCode = runCodeCell';
+    RunName = runNameCell';
+    writetable(table(RunCode, RunName), fullfile(thisFuncPath, 'run_info.txt'));
     
     % copy and rename the functional data file
-    cellfun(@(x, y) copyfile(fullfile(source_func, x, [x '_native.nii.gz']), ...
-        fullfile(this_func_path, y, 'f.nii.gz')), runName_cell, runCode_cell);
+    cellfun(@(x, y) copyfile(fullfile(sourceFunc, x, [x '_native.nii.gz']), ...
+        fullfile(thisFuncPath, y, 'f.nii.gz')), runNameCell, runCodeCell);
     
     %% create other files
     % create sessid 
-    fs_createfile(fullfile(subjCode_path, 'sessid'), subjCode_bold);
+    fs_createfile(fullfile(subjCodePath, 'sessid'), subjCodeBold);
     % create subjectname
-    fs_createfile(fullfile(subjCode_path, 'subjectname'), sessid);
+    fs_createfile(fullfile(subjCodePath, 'subjectname'), sessid);
     
     %% Project functional data to the template
-    wd_backup = pwd;
-    
-    % set the enviorment variable SUBJECTS_DIR
-    setenv('SUBJECTS_DIR',subjects_path);
-    
-    cd(func_path);
+    wdBackup = pwd;
+        
+    cd(funcPath);
     fscmd_prepro_run = sprintf(['preproc-sess -s %s -fsd bold'...
         ' -surface %s lhrh -mni305 -fwhm 0 -per-run -force'],...
-        subjCode_bold, template);
+        subjCodeBold, template);
     system(fscmd_prepro_run);
     
-    cd(wd_backup);
+    cd(wdBackup);
 
     
 end

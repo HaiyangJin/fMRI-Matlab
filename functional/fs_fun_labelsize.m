@@ -1,15 +1,15 @@
-function [roisize, talCoor, nVtx, VtxMax] = fs_fun_labelsize(projStr, subjCode_bold, ...
-    label_fn, output_path, beta_fn, thmin)
+function [roisize, talCoor, nVtx, VtxMax] = fs_fun_labelsize(projStr, subjCodeBold, ...
+    labelFn, outputPath, betaFn, thmin)
 % This function obtains the size of the label (ROI) from FreeSurfer
 % commands (mri_surfcluster).
 %
 % Inputs:
 %    projStr           matlab structure for the project (obtained from fs_fun_projectinfo)
 %                      This is specific for each project.
-%    subjCode_bold     subject code for functional data
-%    lable_fn          label filename
-%    output_path       where the temporary output file is saved
-%    beta_fn           based on which data file to obtain the cluster
+%    subjCodeBold     subject code for functional data
+%    lableFn          label filename
+%    outputPath       where the temporary output file is saved
+%    betaFn           based on which data file to obtain the cluster
 %    thmin             the minimal threshold (magic number)
 % Outputs:
 %    roisize           size in mm2
@@ -19,14 +19,14 @@ function [roisize, talCoor, nVtx, VtxMax] = fs_fun_labelsize(projStr, subjCode_b
 %
 % Created by Haiyang Jin (18/11/2019)
 
-if nargin < 4 || isempty(output_path)
-    output_path = '.';
+if nargin < 4 || isempty(outputPath)
+    outputPath = '.';
 end
-output_path = fullfile(output_path, 'Label_Size');
-if nargin < 5 || isempty(beta_fn)
-    beta_fn = 'beta.nii.gz';
+outputPath = fullfile(outputPath, 'Label_Size');
+if nargin < 5 || isempty(betaFn)
+    betaFn = 'beta.nii.gz';
 end
-if ~exist(output_path, 'dir'); mkdir(output_path); end
+if ~exist(outputPath, 'dir'); mkdir(outputPath); end
 
 if nargin < 6 || isempty(thmin)
     thmin = 0.001;
@@ -35,29 +35,29 @@ end
 % load project information
 boldext = projStr.boldext;
 
-hemi = fs_hemi(label_fn);
-subjCode = fs_subjcode(subjCode_bold, projStr.funcPath);
+hemi = fs_hemi(labelFn);
+subjCode = fs_subjcode(subjCodeBold, projStr.funcPath);
 
 % label file
-labelfile = fullfile(projStr.subjects, subjCode, 'label', label_fn);
+labelfile = fullfile(projStr.subjects, subjCode, 'label', labelFn);
 
 % beta file
 analysisfolder = sprintf('loc%s.%s', boldext, hemi);
-betafile = fullfile(fullfile(projStr.funcPath, subjCode_bold, ...
-        'bold', analysisfolder, beta_fn));
+betafile = fullfile(fullfile(projStr.funcPath, subjCodeBold, ...
+        'bold', analysisfolder, betaFn));
 
 % create the freesurfer command
-fn_out = sprintf('cluster%%%s%%%s.txt', label_fn, subjCode);
-file_out = fullfile(output_path, fn_out);
-fs_command = sprintf(['mri_surfcluster --in %s --clabel %s --subject %s ' ...
+outFn = sprintf('cluster%%%s%%%s.txt', labelFn, subjCode);
+outFile = fullfile(outputPath, outFn);
+fs_cmd = sprintf(['mri_surfcluster --in %s --clabel %s --subject %s ' ...
     '--surf inflated --thmin %d --hemi %s --sum %s'], ...
     betafile, labelfile, subjCode, ...
-    thmin, hemi, file_out);
+    thmin, hemi, outFile);
 
-system(fs_command);
+system(fs_cmd);
 
 %% load the output file from mri_surfcluster
-tempcell = importdata(file_out, ' ', 36);
+tempcell = importdata(outFile, ' ', 36);
 
 tempdata = tempcell.data;
 

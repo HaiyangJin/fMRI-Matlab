@@ -1,19 +1,18 @@
-function fs_fun_screenshot_label(projStr, labelList, output_path, whichOverlay, locSmooth, threshold)
+function fs_fun_screenshot_label(projStr, labelList, outputPath, whichOverlay, locSmooth, threshold)
 % This function gets the screenshots of labels with overlays.
 %
 % Inputs:
 %    projStr           the proejct structure (e.g., FW)
 %    labelList         a list of label names
 %    whichOverlay      show overlay of the contrast of which label
-%    output_path       where the labels to be saved
+%    outputPath       where the labels to be saved
 % Output:
 %    screenshots in the folder
 %
 % Created by Haiyang Jin (10/12/2019)
 
-
 if nargin < 3 
-    output_path = '';
+    outputPath = '';
 end
 if nargin < 4 || isempty(whichOverlay)
     whichOverlay = 1; % show the overlay of the first label by default
@@ -37,7 +36,7 @@ boldext = projStr.boldext;
 
 isfsavg = endsWith(projStr.boldext, {'fsavg', 'fs'});
 
-f_single = waitbar(0, 'Generating screenshots for labels...');
+waitHandle = waitbar(0, 'Generating screenshots for labels...');
 
 for iLabel = 1:nLabels
     
@@ -66,29 +65,29 @@ for iLabel = 1:nLabels
         
         % waitbar
         progress = ((iLabel-1) * nSubj + iSubj) / (nLabels * nSubj);
-        wait_msg = sprintf('Label: %s  SubjCode: %s \n%0.2f%% finished...', ...
+        waitMsg = sprintf('Label: %s  SubjCode: %s \n%0.2f%% finished...', ...
             strrep(labelName, '_', '\_'), strrep(subjCode, '_', '\_'), progress*100);
-        waitbar(progress, f_single, wait_msg);
+        waitbar(progress, waitHandle, waitMsg);
         
         % other information for screenshots
         analysis = sprintf('loc%s%s.%s', locSmooth, boldext, hemi); % analysis name
-        file_overlay = fullfile(projStr.funcPath, thisBoldSubj, 'bold',...
+        overlayFile = fullfile(projStr.funcPath, thisBoldSubj, 'bold',...
             analysis, theContrast, 'sig.nii.gz'); % the overlay file
         
         % skip if the overlay file is not available
         if ~whichOverlay
-            file_overlay = '';
-        elseif ~exist(file_overlay, 'file')
-            warning('Cannot find the overlay file: %s', file_overlay);
+            overlayFile = '';
+        elseif ~exist(overlayFile, 'file')
+            warning('Cannot find the overlay file: %s', overlayFile);
             continue
         end
         
         % create the screenshot
-        fs_screenshot_label(subjCode, theLabel, output_path, file_overlay, threshold, isfsavg);
+        fs_screenshot_label(subjCode, theLabel, outputPath, overlayFile, threshold, isfsavg);
 
     end
     
 end
 
-close(f_single);
+close(waitHandle);
 

@@ -16,10 +16,10 @@ end
 subjectsPath = getenv('SUBJECTS_DIR');
 
 % define the path for orig.mgz
-orig_dir = [subjectsPath subjCode filesep 'mri' filesep 'orig.mgz'];
+origFile = [subjectsPath subjCode filesep 'mri' filesep 'orig.mgz'];
 
 % create the freesurfer command
-fscmd = sprintf('mri_info --vox2ras %s', orig_dir);
+fscmd = sprintf('mri_info --vox2ras %s', origFile);
 
 % run the command
 [~, cmdout] = system(fscmd);

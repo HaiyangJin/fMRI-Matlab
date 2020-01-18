@@ -1,4 +1,4 @@
-function contra_str = fs_mkcontrast(analysisList, contrasts, conditions)
+function contraStr = fs_mkcontrast(analysisList, contrasts, conditions)
 % This function creates contrast and run mkcontrast-sess in FreeSurfer
 %
 % Inputs:
@@ -10,7 +10,7 @@ function contra_str = fs_mkcontrast(analysisList, contrasts, conditions)
 %                         be used to set the contrast name later)
 %    conditions           the full names of all conditions
 % Output:
-%    contra_str           a contrast structure which has three fieldnames.
+%    contraStr           a contrast structure which has three fieldnames.
 %                         (analysisName: the ananlysis name; contrastName:
 %                         the contrast name in format of a-vs-b;
 %                         contrastCode: the commands to be used in
@@ -23,7 +23,7 @@ nAnalysis = numel(analysisList);
 nContrast = size(contrasts, 1);
 
 % empty structure for saving information
-contra_str = struct;
+contraStr = struct;
 n = 0;
 
 for iAnalysis = 1:nAnalysis
@@ -42,7 +42,7 @@ for iAnalysis = 1:nAnalysis
         conditionNum = cellfun(@(x) find(startsWith(conditions, x)), thisCon, 'uni', false);
         
         % save the information
-        contra_str(n).analysisName = analysisName;
+        contraStr(n).analysisName = analysisName;
         
         % levels of activation and control
         nLevels = cellfun(@numel, conditionNum);
@@ -65,12 +65,12 @@ for iAnalysis = 1:nAnalysis
             contrCodeStr = [contrCodeStr, ' -c' repmat(' %d', 1, nLevels(2))]; %#ok<AGROW>
         end
         
-        contra_str(n).contrastName = contrNameStr;
-        contra_str(n).contrastCode = sprintf(contrCodeStr, conditionNum{:});
+        contraStr(n).contrastName = contrNameStr;
+        contraStr(n).contrastCode = sprintf(contrCodeStr, conditionNum{:});
         
         % created the commands
         fscmd = sprintf('mkcontrast-sess -analysis %s -contrast %s %s', ...
-            analysisName, contra_str(n).contrastName, contra_str(n).contrastCode);
+            analysisName, contraStr(n).contrastName, contraStr(n).contrastCode);
         
         system(fscmd)
     end

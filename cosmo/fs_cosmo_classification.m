@@ -1,21 +1,21 @@
-function mvpa_table = fs_cosmo_classification(ds_subj, uni_info, classPairs, classifiers)
+function mvpaTable = fs_cosmo_classification(ds_subj, uniInfo, classPairs, classifiers)
 % mvpa_table = fs_cosmo_classification(ds_subj, uni_info, classPairs, classifiers)
 % This function performs leave-one-out crossvalidation classification with CoSMoMVPA.
 %
 % Inputs:
-%    ds_subj          dataset obtained from fs_fun_uni_cosmo_ds.
-%    uni_info         the condition information obtained from fs_fun_uni_cosmo_ds.
+%    dsSubj          dataset obtained from fs_fun_uni_cosmo_ds.
+%    uniInfo         the condition information obtained from fs_fun_uni_cosmo_ds.
 %    classPairs       the pairs to be classified
 %    classifiers      the classifiers to be used (could be more than 1)
 % Output:
-%    mvpa_table       the MVPA result table
+%    mvpaTable       the MVPA result table
 %
 % Created by Haiyang Jin (12/12/2019)
 
 if nargin < 4 || isempty(classifiers)
-    [classifiers, class_names, nClass] = fs_cosmo_classifier;
+    [classifiers, classNames, nClass] = fs_cosmo_classifier;
 else
-    [classifiers, class_names, nClass] = fs_cosmo_classifier(classifiers);
+    [classifiers, classNames, nClass] = fs_cosmo_classifier(classifiers);
 end
 
 % MVPA settings
@@ -30,7 +30,7 @@ nPair = size(classPairs, 1);
 
 % empty cell for saving data later
 mvpaCell = cell(nPair, nClass);
-ACC_table = table;
+accTable = table;
 
 % Run analysis for each pair
 for iPair = 1:nPair
@@ -55,27 +55,27 @@ for iPair = 1:nPair
         tmpMVPA = table;
         % the classifier for this analysis
         measure_args.classifier = classifiers{iClass};
-        thisClassfifier = class_names{iClass};
+        thisClassfifier = classNames{iClass};
         
-        predicted_ds = measure(ds_thisPair, measure_args);
+        ds_predicted = measure(ds_thisPair, measure_args);
         
         % calculate the confusion matrix
-        thisConMatrix = cosmo_confusion_matrix(predicted_ds);
+        thisConMatrix = cosmo_confusion_matrix(ds_predicted);
         
         % calculate and display the accuracy
-        accuracy = mean(predicted_ds.sa.targets == predicted_ds.samples);
+        accuracy = mean(ds_predicted.sa.targets == ds_predicted.samples);
         desc=sprintf('%s: accuracy %.1f%%', thisClassfifier, accuracy*100);
         fprintf('%s\n',desc);
         
         % save the results
-        nRowTemp = numel(predicted_ds.sa.targets);
+        nRowTemp = numel(ds_predicted.sa.targets);
         tmpMVPA.ClassifyPair = repmat({[thisPair{1}, '-', thisPair{2}]}, nRowTemp, 1);
         tmpMVPA.Classifier = repmat({thisClassfifier}, nRowTemp, 1);
         
-        tmpMVPA.Run = predicted_ds.sa.folds;
-        tmpMVPA.Predicted = predicted_ds.samples;
-        tmpMVPA.Targets = predicted_ds.sa.targets;
-        tmpMVPA.ACC = predicted_ds.samples == predicted_ds.sa.targets;
+        tmpMVPA.Run = ds_predicted.sa.folds;
+        tmpMVPA.Predicted = ds_predicted.samples;
+        tmpMVPA.Targets = ds_predicted.sa.targets;
+        tmpMVPA.ACC = ds_predicted.samples == ds_predicted.sa.targets;
         
         tmpMVPA.Confusion = repmat({thisConMatrix}, nRowTemp, 1);
         
@@ -84,16 +84,16 @@ for iPair = 1:nPair
     end
     
     % save all tables together
-    ACC_table = vertcat(mvpaCell{:});
+    accTable = vertcat(mvpaCell{:});
     
 end
 
 % combine mvpa data with condition information
-nRow = size(ACC_table, 1);
+nRow = size(accTable, 1);
 if ~nRow
-    mvpa_table = table;
+    mvpaTable = table;
 else
-    mvpa_table = [repmat(uni_info, nRow, 1), ACC_table];
+    mvpaTable = [repmat(uniInfo, nRow, 1), accTable];
 end
 
 end
