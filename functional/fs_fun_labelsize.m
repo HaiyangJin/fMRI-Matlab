@@ -1,4 +1,4 @@
-function [roisize, talCoor, nVtx, VtxMax] = fs_fun_labelsize(projStr, subjCodeBold, ...
+function [roisize, talCoor, nVtx, VtxMax] = fs_fun_labelsize(projStr, subjCodeSess, ...
     labelFn, outputPath, betaFn, thmin)
 % This function obtains the size of the label (ROI) from FreeSurfer
 % commands (mri_surfcluster).
@@ -36,14 +36,14 @@ end
 boldext = projStr.boldext;
 
 hemi = fs_hemi(labelFn);
-subjCode = fs_subjcode(subjCodeBold, projStr.funcPath);
+subjCode = fs_subjcode(subjCodeSess, projStr.funcPath);
 
 % label file
 labelfile = fullfile(projStr.subjects, subjCode, 'label', labelFn);
 
 % beta file
 analysisfolder = sprintf('loc%s.%s', boldext, hemi);
-betafile = fullfile(fullfile(projStr.funcPath, subjCodeBold, ...
+betafile = fullfile(fullfile(projStr.funcPath, subjCodeSess, ...
         'bold', analysisfolder, betaFn));
 
 % create the freesurfer command

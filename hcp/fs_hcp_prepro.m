@@ -121,8 +121,8 @@ for iSess = 1:nSess
     %% copy and rename from preprocessed folder to functional_data_'template'
     % make directory for the functional data
     funcPath = fullfile(fsPath, ['functional_data' boldext]);
-    subjCodeBold = [sessid boldext];
-    subjCodePath = fullfile(funcPath, subjCodeBold);
+    subjCodeSess = [sessid boldext];
+    subjCodePath = fullfile(funcPath, subjCodeSess);
     thisFuncPath = fullfile(subjCodePath, 'bold');
     if ~exist(thisFuncPath, 'dir'); mkdir(thisFuncPath); end
     
@@ -141,7 +141,7 @@ for iSess = 1:nSess
     
     %% create other files
     % create sessid 
-    fs_createfile(fullfile(subjCodePath, 'sessid'), subjCodeBold);
+    fs_createfile(fullfile(subjCodePath, 'sessid'), subjCodeSess);
     % create subjectname
     fs_createfile(fullfile(subjCodePath, 'subjectname'), sessid);
     
@@ -151,7 +151,7 @@ for iSess = 1:nSess
     cd(funcPath);
     fscmd_prepro_run = sprintf(['preproc-sess -s %s -fsd bold'...
         ' -surface %s lhrh -mni305 -fwhm 0 -per-run -force'],...
-        subjCodeBold, template);
+        subjCodeSess, template);
     system(fscmd_prepro_run);
     
     cd(wdBackup);

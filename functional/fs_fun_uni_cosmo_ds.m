@@ -1,5 +1,5 @@
 function [uniTable, ds_subj, uniInfo] = fs_fun_uni_cosmo_ds(projStr, ...
-    labelFn, subjCodeBold, outputPath, runInfo, smooth, runSeparate)
+    labelFn, subjCodeSess, outputPath, runInfo, smooth, runSeparate)
 % [uni_table, ds_subj, uni_info] = fs_fun_uni_cosmo_ds(projStr, ...
 %     label_fn, subjCode_bold, output_path, run_info, smooth, runSeparate)
 % This function generates the data table for univariate analyses and the
@@ -51,7 +51,7 @@ parFn = sprintf('%s.par', runInfo); % paradigm filename
 analysisExt = sprintf('%s%s', runInfo, smooth); % first parts of the analysis name
 
 funcPath = projStr.funcPath;  % where the functional data are saved
-boldPath = fullfile(funcPath, subjCodeBold, 'bold'); % the bold folder
+boldPath = fullfile(funcPath, subjCodeSess, 'bold'); % the bold folder
 
 hemiOnly = any(ismember(labelFn, projStr.hemis));
 if hemiOnly
@@ -61,7 +61,7 @@ if hemiOnly
 else
     % warning if the label is not available for that subjCode and finish this
     % function
-    subjCode = fs_subjcode(subjCodeBold, funcPath);  % subjCode in $SUBJECTS_DIR
+    subjCode = fs_subjcode(subjCodeSess, funcPath);  % subjCode in $SUBJECTS_DIR
     if ~fs_checklabel(labelFn, subjCode)
         warning('Cannot find label "%s" for %s', labelFn, subjCode);
         uniInfo = table;
@@ -75,14 +75,14 @@ else
     vtxROI = dtMatrix(:, 1);
     
     % calculate the size of this label file and save the output
-    [labelsize, talCoor] = fs_fun_labelsize(projStr, subjCodeBold, labelFn, outputPath);
+    [labelsize, talCoor] = fs_fun_labelsize(projStr, subjCodeSess, labelFn, outputPath);
     
 end
 
 hemi = fs_hemi(labelFn);  % which hemisphere
 
 % read the run file
-[runNames, nRun] = fs_fun_readrun(runFn, projStr, subjCodeBold);
+[runNames, nRun] = fs_fun_readrun(runFn, projStr, subjCodeSess);
 if ~runSeparate; nRun = 1; end % useful later for deciding the analysis name
 
 % Pre-define the cell array for saving ds
@@ -131,7 +131,7 @@ uniInfo.Label = {labelFn};
 uniInfo.nVertices = nVertex;
 uniInfo.LabelSize = labelsize;
 uniInfo.TalCoordinate = talCoor;
-uniInfo.SubjCode = {subjCodeBold};
+uniInfo.SubjCode = {subjCodeSess};
 
 nRowUni = size(ds_subj.samples, 1);
 uniTable = [repmat(uniInfo, nRowUni, 1), fs_cosmo_univariate(ds_subj)];  

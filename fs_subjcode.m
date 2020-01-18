@@ -1,4 +1,4 @@
-function subjCode = fs_subjcode(subjCodeBold, funcPath)
+function subjCode = fs_subjcode(subjCodeSess, funcPath)
 % This function converts the subject code for bold into subject code in
 % $SUBJECTS_DIR
 %
@@ -12,13 +12,13 @@ function subjCode = fs_subjcode(subjCodeBold, funcPath)
 % Created by Haiyang Jin (10/12/2019)
 
 % error if cannot find the subjectBold in that folder
-if ~exist(fullfile(funcPath, subjCodeBold), 'dir')
+if ~exist(fullfile(funcPath, subjCodeSess), 'dir')
     error('Cannot find subject Code ""%s"" in folder ""%s""', ...
-        subjCodeBold, funcPath);
+        subjCodeSess, funcPath);
 end
 
 % the subjectname file in the functional folder
-subjectnameFile = fullfile(funcPath, subjCodeBold, 'subjectname');
+subjectnameFile = fullfile(funcPath, subjCodeSess, 'subjectname');
 
 % read the subjectname file
 nameCell = importdata(subjectnameFile);

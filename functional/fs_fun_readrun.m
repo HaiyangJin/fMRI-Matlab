@@ -1,4 +1,4 @@
-function [runNames, nRun] = fs_fun_readrun(runFn, projStr, subjCodeBold)
+function [runNames, nRun] = fs_fun_readrun(runFn, projStr, subjCodeSess)
 % This function loads run file (.txt) and output the list of run numbers
 % 
 % Created by Haiyang Jin (08/12/2019)
@@ -14,10 +14,10 @@ function [runNames, nRun] = fs_fun_readrun(runFn, projStr, subjCodeBold)
 path = fileparts(runFn);
 
 if isempty(path)
-    if isempty(projStr) || isempty(subjCodeBold)
+    if isempty(projStr) || isempty(subjCodeSess)
         error('Not enough inputs for fs_fun_readrun');
     else
-        runFile = fullfile(projStr.funcPath, subjCodeBold, 'bold', runFn);
+        runFile = fullfile(projStr.funcPath, subjCodeSess, 'bold', runFn);
     end
 else
     runFile = runFn;
