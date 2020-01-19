@@ -61,7 +61,7 @@ for iSubj = 1:nSubj
             end
             
             % load the two label files
-            matCell = cellfun(@(x) fs_readlabel(x, subjCode), theseLabel, 'UniformOutput', false);
+            matCell = cellfun(@(x) fs_readlabel(subjCode, x), theseLabel, 'UniformOutput', false);
             
             % check if there is overlapping between the two labels
             matLabel1 = matCell{1};

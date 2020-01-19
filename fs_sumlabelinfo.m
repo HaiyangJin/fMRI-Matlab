@@ -50,7 +50,7 @@ for iSubj = 1:nSubj
         thisLabel = labelDir(iLabel).name;
         
         % number of vtx in this label
-        [~, nVtx] = fs_readlabel(thisLabel, subjCode);
+        [~, nVtx] = fs_readlabel(subjCode, thisLabel);
         
         % replace some specifal strings (they could not be used as column
         % names in structure

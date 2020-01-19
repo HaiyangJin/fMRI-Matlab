@@ -71,7 +71,7 @@ else
     end
     
     % converting the label file to logical matrix
-    dtMatrix = fs_readlabel(labelFn, subjCode);
+    dtMatrix = fs_readlabel(subjCode, labelFn);
     vtxROI = dtMatrix(:, 1);
     
     % calculate the size of this label file and save the output
