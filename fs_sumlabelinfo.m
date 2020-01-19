@@ -1,5 +1,5 @@
 function [labelSumTable, labelSumLongTable] = fs_sumlabelinfo(labelNames, outputPath)
-% This function gathers information of "all" labels
+% This function gathers information for "all" labels
 %
 % Inputs:
 %    labelNames         label names or parts of label names that could be 
@@ -10,12 +10,12 @@ function [labelSumTable, labelSumLongTable] = fs_sumlabelinfo(labelNames, output
 %    labelSumTable      The wide format of the information
 %    labelSumLongTable  
 %    
-%
-% Created by Haiyang Jin (9/12/2019)
+% Created by Haiyang Jin (9-Dec-2019)
 
 if nargin < 2 || isempty(outputPath)
     outputPath = fullfile('.');
 end
+isSave = ~strcmp('none', outputPath);  % do not save files if outputPath is 'none'
 outputPath = fullfile(outputPath, 'Label_Summary');
 if ~exist(outputPath, 'dir'); mkdir(outputPath); end
 
@@ -34,9 +34,7 @@ n = 0;
 for iSubj = 1:nSubj
     
     subjCode = subjList{iSubj};
-    
-    thisLabelPath = fullfile(FS.subjects, subjCode, 'label');
-    
+        
     % List all files matching labelNames
     labelDir = fs_labeldir(subjCode, labelNames);
     
@@ -92,18 +90,19 @@ labelVarNames = cellfun(@(x) strrep(x, 'T', '-'), labelVarNames, 'UniformOutput'
 % save the label names as another table and combine it with the label
 % information
 labelSumTable = [cell2table(labelVarNames, 'VariableNames', labelTable.Properties.VariableNames); labelTable];
-
-
-% output filename
-outputFile = fullfile(outputPath, 'Label_Summary.xlsx');
-warning('off','MATLAB:xlswrite:AddSheet');  % turn off warning
-% wide table
-writetable(labelSumTable, outputFile,...
-    'Sheet', 'Wide_format', 'WriteVariableNames', false);
-% long table
 labelSumLongTable= struct2table(labelStructlong);
-writetable(labelSumLongTable, outputFile,...
-    'Sheet', 'Long_format');
+
+if isSave
+    % output filename
+    outputFile = fullfile(outputPath, 'Label_Summary.xlsx');
+    warning('off','MATLAB:xlswrite:AddSheet');  % turn off warning
+    % wide table
+    writetable(labelSumTable, outputFile,...
+        'Sheet', 'Wide_format', 'WriteVariableNames', false);
+    % long table
+    writetable(labelSumLongTable, outputFile,...
+        'Sheet', 'Long_format');
+end
 
 end
 
