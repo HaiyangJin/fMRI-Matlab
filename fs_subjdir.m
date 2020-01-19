@@ -1,5 +1,6 @@
-function FS = fs_projectinfo(subjectsPath)
-% This function set up and gather some information from FreeSurfer.
+function FS = fs_subjdir(subjectsPath)
+% function FS = fs_subjdir(subjectsPath)
+% This function set up 'SUBJECTS_DIR' and gather some information from FreeSurfer.
 %
 % Input:
 %    subjectsPath   path to subjects/ folder in FreeSurfer

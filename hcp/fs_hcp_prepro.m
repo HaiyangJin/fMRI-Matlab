@@ -73,7 +73,7 @@ fsPath = fullfile(hcpPath, 'FreeSurfer');
 % create subjects/
 subjectsPath = fullfile(fsPath, 'subjects');
 if ~exist(subjectsPath, 'dir'); mkdir(subjectsPath); end
-fs_projectinfo(subjectsPath);  % set 'SUBJECTS_DIR'
+fs_subjdir(subjectsPath);  % set 'SUBJECTS_DIR'
 
 % link fsaverage in subjects/ to fsaverage in FREESURFER 6.0 (or 5.3)
 if ~exist(fullfile(subjectsPath, 'fsaverage'), 'dir') && strcmp(boldext, '_fsavg')

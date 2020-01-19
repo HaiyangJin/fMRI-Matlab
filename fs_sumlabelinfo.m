@@ -20,7 +20,7 @@ outputPath = fullfile(outputPath, 'Label_Summary');
 if ~exist(outputPath, 'dir'); mkdir(outputPath); end
 
 % FreeSurfer setup
-FS = fs_projectinfo;
+FS = fs_subjdir;
 
 subjList = FS.subjList;
 nSubj = FS.nSubj;

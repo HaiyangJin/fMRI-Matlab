@@ -27,7 +27,7 @@ if nargin < 3 || isempty(combineHemi)
 end
 
 % FreeSurfer setup
-FS = fs_projectinfo;
+FS = fs_subjdir;
 surfPath = fullfile(FS.subjects, subjCode, 'surf');
 hemis = FS.hemis;
 nHemi = FS.nHemi;

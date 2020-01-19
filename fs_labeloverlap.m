@@ -12,7 +12,7 @@ function overlapTable = fs_labeloverlap(labels, outputPath, subjList)
 %
 % Created by Haiyang Jin (11/12/2019)
 
-FS = fs_projectinfo;
+FS = fs_subjdir;
 
 if nargin < 2 || isempty(outputPath)
     outputPath = '.';

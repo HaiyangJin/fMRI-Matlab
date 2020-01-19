@@ -12,7 +12,7 @@ function projStr = fs_fun_projectinfo(projectName, funcPath, boldext)
 % Creatd by Haiyang Jin (18/12/2019)
 
 % Copy information from FreeSurfer
-FS = fs_projectinfo;
+FS = fs_subjdir;
 projStr.subjects = FS.subjects;
 
 if nargin < 2 || isempty(funcPath)
