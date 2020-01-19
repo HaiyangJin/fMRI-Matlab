@@ -6,7 +6,7 @@ function [allAvail, isAvail] = fs_checklabel(labelList, subjCode)
 %    subjCode         subject code in $SUBJECTS_DIR
 % Outputs:
 %    allAvail         if all the labels are available
-%    isAvail          the availability of all labels
+%    isAvail          the availability of every labels
 % 
 % Created by Haiyang Jin (28/11/2019)
 
