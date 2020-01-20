@@ -1,5 +1,6 @@
 function fs_cosmo_map2label(dt_cosmo, subjCode, labelFn, vertCoordi)
-% This function convert the surface dataset in CoSMoMVPA to label file in
+% fs_cosmo_map2label(dt_cosmo, subjCode, labelFn, vertCoordi)
+% This function converts the surface dataset in CoSMoMVPA to label file in
 % FreeSurfer.
 % 
 % Inputs:
