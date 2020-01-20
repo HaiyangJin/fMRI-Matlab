@@ -10,10 +10,10 @@ function Torig = fs_Torig(subjCode)
 if ~exist('subjCode', 'var') || isempty(subjCode); subjCode = 'fsaverage'; end
 
 % obtain the subject folder path
-subjectsdir = getenv('FUNCTIONALS_DIR');
+funcPath = getenv('FUNCTIONALS_DIR');
 
 % define the path to orig.mgz
-origFile = [subjectsdir subjCode filesep 'mri' filesep 'orig.mgz'];
+origFile = [funcPath subjCode filesep 'mri' filesep 'orig.mgz'];
 
 % create the FreeSurfer command
 fscmd = sprintf('mri_info --vox2ras-tkr %s', origFile);
