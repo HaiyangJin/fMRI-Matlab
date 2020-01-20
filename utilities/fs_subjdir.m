@@ -1,9 +1,9 @@
 function FS = fs_subjdir(structPath)
-% function FS = fs_subjdir(subjectsPath)
+% function FS = fs_subjdir(structPath)
 % This function set up 'SUBJECTS_DIR' and gather some information from FreeSurfer.
 %
 % Input:
-%    subjectsPath   path to subjects/ folder in FreeSurfer
+%    structPath   path to subjects/ folder in FreeSurfer
 %
 % Output:
 %    FS             a struct contains FreeSurfer information

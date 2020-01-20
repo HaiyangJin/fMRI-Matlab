@@ -1,5 +1,5 @@
 function fs_savemgz(subjCode, surfData, outputFn, structPath, outputPath)
-% fs_savemgz(subjCode, surfData, outputFn, subjectsPath, outputPath)
+% fs_savemgz(subjCode, surfData, outputFn, structPath, outputPath)
 % 
 % This function is built based on nsd_savemgz.m created by Kendrick Kay 
 % (https://github.com/kendrickkay/nsdcode/). 
@@ -12,7 +12,7 @@ function fs_savemgz(subjCode, surfData, outputFn, structPath, outputPath)
 %     surfData         nVtx * D (where D >= 1)
 %     outputFn         filename of the output file (without path) [the
 %                      filename must conform to the format [lh,rh].XXX.[mgz,mgh].
-%     subjectsPath     'SUBJECTS_DIR' in FreeSurfer
+%     structPath       'SUBJECTS_DIR' in FreeSurfer
 % Output:
 %     a new *.mgz or *.mgh file will be saved at subjects/surf/
 %
