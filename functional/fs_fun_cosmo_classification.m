@@ -1,9 +1,9 @@
-function [mvpaTable, uniTable, uniLocTable] = fs_fun_cosmo_classification(projStr,...
+function [mvpaTable, uniTable, uniLocTable] = fs_fun_cosmo_classification(project,...
     labelList, classPairs, classifiers, runLoc, outputPath)
 % [mvpaTable, uniTable, uniLocTable] = fs_fun_cosmo_classification(projStr,...
-%     labelList, classPairs, classifiers, output_path)
+%     labelList, classPairs, classifiers, outputPath)
 % Inputs:
-%    projStr             project structure (obtained from fs_fun_projectinfo)
+%    project             project structure (obtained from fs_fun_projectinfo)
 %    labelList           a list of label names
 %    classPairs          a list of pairs to be classified in MVPA
 %    runLoc              run analyses for localizer scans
@@ -13,7 +13,7 @@ function [mvpaTable, uniTable, uniLocTable] = fs_fun_cosmo_classification(projSt
 %    uniTable            main run data for univariate analyses
 %    uniLocTable         localizer run data for univariate analyses
 %
-% Created by Haiyang Jin (12/12/2019)
+% Created by Haiyang Jin (12-Dec-2019)
 
 if nargin < 5 
     outputPath = '';
@@ -24,8 +24,8 @@ end
 waitHandle = waitbar(0, 'Loading...   0.00% finished');
 
 % Project information (subject information)
-subjList = projStr.subjList;
-nSubj = projStr.nSubj;
+sessList = project.sessList;
+nSess = project.nSess;
 
 % label information
 if ischar(labelList)
@@ -34,14 +34,14 @@ end
 nLabel = numel(labelList);
 
 % create empty table
-uniLocCell = cell(nSubj, nLabel);
-uniCell = cell(nSubj, nLabel);
-mvpaCell = cell(nSubj, nLabel);
+uniLocCell = cell(nSess, nLabel);
+uniCell = cell(nSess, nLabel);
+mvpaCell = cell(nSess, nLabel);
 
-for iSubj = 1:nSubj
+for iSess = 1:nSess
     
     % this subject code (bold)
-    thisSubjBold = subjList{iSubj};
+    thisSess = sessList{iSess};
     
     for iLabel = 1:nLabel
         
@@ -49,9 +49,9 @@ for iSubj = 1:nSubj
         thisLabel = labelList{iLabel};
         
         % waitbar
-        progress = ((iSubj-1)*nLabel + iLabel) / (nLabel * nSubj);
+        progress = ((iSess-1)*nLabel + iLabel) / (nLabel * nSess);
         progressMsg = sprintf('Label: %s.  Subject: %s \n%0.2f%% finished...', ...
-            thisLabel, strrep(thisSubjBold, '_', '\_'), progress*100);
+            thisLabel, strrep(thisSess, '_', '\_'), progress*100);
         waitbar(progress, waitHandle, progressMsg);
         
         %% Localizer
@@ -60,10 +60,10 @@ for iSubj = 1:nSubj
             smooth = '';
             runSeparate = 0;
             
-            uniLocTableTemp = fs_fun_uni_cosmo_ds(projStr, ...
-                thisLabel, thisSubjBold, outputPath, runInfo, smooth, runSeparate);
+            uniLocTableTemp = fs_fun_uni_cosmo_ds(project, ...
+                thisLabel, thisSess, outputPath, runInfo, smooth, runSeparate);
             
-            uniLocCell(iSubj, iLabel) = {uniLocTableTemp};
+            uniLocCell(iSess, iLabel) = {uniLocTableTemp};
         end
         
         
@@ -73,9 +73,9 @@ for iSubj = 1:nSubj
         smooth = 0;
         runSeparate = 1;
                 
-        [uniMainTableTmp, ds_subj, uniInfo] = fs_fun_uni_cosmo_ds(projStr, ...
-            thisLabel, thisSubjBold, outputPath, runInfo, smooth, runSeparate);
-        uniCell(iSubj, iLabel) = {uniMainTableTmp};
+        [uniMainTableTmp, ds_subj, uniInfo] = fs_fun_uni_cosmo_ds(project, ...
+            thisLabel, thisSess, outputPath, runInfo, smooth, runSeparate);
+        uniCell(iSess, iLabel) = {uniMainTableTmp};
         
         % run classification if ds_subj is not empty
         if ~isempty(ds_subj)
@@ -84,7 +84,7 @@ for iSubj = 1:nSubj
             mvpaTableTemp = table;
         end
         
-        mvpaCell(iSubj, iLabel) = {mvpaTableTemp};
+        mvpaCell(iSess, iLabel) = {mvpaTableTemp};
         
     end
     

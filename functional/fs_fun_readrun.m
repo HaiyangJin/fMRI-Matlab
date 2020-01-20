@@ -1,23 +1,23 @@
-function [runNames, nRun] = fs_fun_readrun(runFn, projStr, subjCodeSess)
+function [runNames, nRun] = fs_fun_readrun(runFn, projStr, sessCode)
 % This function loads run file (.txt) and output the list of run numbers
-% 
-% Created by Haiyang Jin (08/12/2019)
 %
 % Inputs:
-%    projStr     project information (obtained from fs_fun_projectinfo)
 %    runFn      filenames of the run file (*.txt) (without path)
-%    subjCode    subjCode in $SUBJECTS_DIR
+%    projStr    project information (obtained from fs_fun_projectinfo)
+%    sessCode    session code for functional data (functional subject code)
 % Outputs:
 %    runNames    a vector of run names
 %    nRun        number of runs
+%
+% Created by Haiyang Jin (08-Dec-2019)
 
 path = fileparts(runFn);
 
 if isempty(path)
-    if isempty(projStr) || isempty(subjCodeSess)
+    if isempty(projStr) || isempty(sessCode)
         error('Not enough inputs for fs_fun_readrun');
     else
-        runFile = fullfile(projStr.funcPath, subjCodeSess, 'bold', runFn);
+        runFile = fullfile(projStr.funcPath, sessCode, 'bold', runFn);
     end
 else
     runFile = runFn;

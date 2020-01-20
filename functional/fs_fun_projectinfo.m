@@ -1,4 +1,4 @@
-function projStr = fs_fun_projectinfo(projectName, funcPath, boldext)
+function project = fs_fun_projectinfo(projectName, funcPath, boldext)
 % This function creates the structure for a project
 %
 % Inputs:
@@ -12,11 +12,10 @@ function projStr = fs_fun_projectinfo(projectName, funcPath, boldext)
 % Creatd by Haiyang Jin (18/12/2019)
 
 % Copy information from FreeSurfer
-FS = fs_subjdir;
-projStr.subjects = FS.subjects;
+project = fs_subjdir;
 
 if nargin < 2 || isempty(funcPath)
-    funcPath = fullfile(FS.subjects, '..', 'functional_data/');
+    funcPath = fullfile(project.subjects, '..', 'functional_data/');
 end
 if nargin < 3 
     boldext = '_self';
@@ -30,17 +29,15 @@ if ~isempty(boldext) &&~strcmp(boldext(1), '_')
     boldext = ['_', boldext];
 end
 
-projStr.boldext = boldext;
-projStr.funcPath = funcPath;
-projStr.hemis = FS.hemis;
-projStr.nHemi = FS.nHemi;
+project.boldext = boldext;
+project.funcPath = funcPath;
 
-% bold subject codes
-tmpDir = dir(fullfile(projStr.funcPath, [projectName, '*', boldext]));
+% sessions (bold subject codes)
+tmpDir = dir(fullfile(project.funcPath, [projectName, '*', boldext]));
 isSubDir = [tmpDir.isdir] & ~ismember({tmpDir.name}, {'.', '..'});
 
-projStr.subjdir = tmpDir(isSubDir);
-projStr.subjList = {projStr.subjdir.name};
-projStr.nSubj = numel(projStr.subjList);
+project.sessDir = tmpDir(isSubDir);
+project.sessList = {project.sessDir.name};
+project.nSess = numel(project.sessList);
 
 end

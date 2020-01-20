@@ -24,29 +24,29 @@ end
 
 % obtian the information about this bold type
 boldext = projStr.boldext;
-subjList = projStr.subjList;
-nSubj = projStr.nSubj;
+sessList = projStr.subjList;
+nSess = projStr.nSubj;
 hemis = projStr.hemis;
 
 %% Draw labels for all participants for both hemispheres
 
-for iSubj = 1:nSubj
+for iSess = 1:nSess
     
-    thisBoldSubj = subjList{iSubj};
-    subjCode = fs_subjcode(thisBoldSubj, projStr.funcPath);
+    thisSess = sessList{iSess};
+    subjCode = fs_subjcode(thisSess, projStr.funcPath);
     
     for iHemi = 1:projStr.nHemi
         
         hemi = hemis{iHemi};
         
-        sigFile = fullfile(projStr.funcPath, thisBoldSubj, 'bold',...
+        sigFile = fullfile(projStr.funcPath, thisSess, 'bold',...
             ['loc' boldext '.' hemi], contrastName, 'sig.nii.gz');
         
-        labelname = sprintf('roi.%s.%s.%s.%slabel', ...
+        labelName = sprintf('roi.%s.%s.%s.%slabel', ...
             hemi, siglevel, contrastName, extraLabelInfo);
         
         % draw labels manually with FreeSurfer
-        fs_drawlabel(subjCode, hemi, sigFile, labelname);
+        fs_drawlabel(subjCode, hemi, sigFile, labelName);
         
     end
     

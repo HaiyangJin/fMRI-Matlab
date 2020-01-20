@@ -47,9 +47,9 @@ nSubj = projStr.nSubj;
 for iSubj = 1:nSubj
     %% this subject information
     % subjCode in functional folder
-    subjCodeSess = subjList{iSubj};
+    sessCode = subjList{iSubj};
     % subjCode in SUBJECTS_DIR
-    subjCode = fs_subjcode(subjCodeSess, funcPath);
+    subjCode = fs_subjcode(sessCode, funcPath);
     hemis = projStr.hemis;
     
     % waitbar
@@ -64,7 +64,7 @@ for iSubj = 1:nSubj
     
     %% Load functional data (beta.nii.gz)
     % load the beta.nii.gz for both hemispheres separately
-    [~, dsSurfCell] = cellfun(@(x) fs_fun_uni_cosmo_ds(projStr, x, subjCodeSess, ...
+    [~, dsSurfCell] = cellfun(@(x) fs_fun_uni_cosmo_ds(projStr, x, sessCode, ...
         '', 'main', 0, 1), hemis, 'UniformOutput', false);
     
     % combine the surface data for the whole brain if needed

@@ -1,7 +1,7 @@
 function [uniTable, ds_subj, uniInfo] = fs_fun_uni_cosmo_ds(projStr, ...
-    labelFn, subjCodeSess, outputPath, runInfo, smooth, runSeparate)
+    labelFn, sessCode, outputPath, runInfo, smooth, runSeparate)
 % [uni_table, ds_subj, uni_info] = fs_fun_uni_cosmo_ds(projStr, ...
-%     label_fn, subjCode_bold, output_path, run_info, smooth, runSeparate)
+%     label_fn, sessCode, output_path, run_info, smooth, runSeparate)
 % This function generates the data table for univariate analyses and the
 % dataset used for CoSMoMVPA for FreeSurfer surface data.
 %
@@ -9,7 +9,7 @@ function [uniTable, ds_subj, uniInfo] = fs_fun_uni_cosmo_ds(projStr, ...
 %    projStr            Project structure (obtained from fs_fun_projectinfo)
 %    labelFn           the label filename (or 'lh' or 'rh', then the
 %                       output will be the data for the whole hemisphere)
-%    subjCodeBold      subject code in functional folder
+%    sessCode          session code in functional folder (bold subject code)
 %    outputPath        where the outputs from fs_fun_labelsize are saved
 %    runInfo           the run name (usually is 'loc' or 'main')
 %    runSeparate        gather data for each run separately or not
@@ -51,7 +51,7 @@ parFn = sprintf('%s.par', runInfo); % paradigm filename
 analysisExt = sprintf('%s%s', runInfo, smooth); % first parts of the analysis name
 
 funcPath = projStr.funcPath;  % where the functional data are saved
-boldPath = fullfile(funcPath, subjCodeSess, 'bold'); % the bold folder
+boldPath = fullfile(funcPath, sessCode, 'bold'); % the bold folder
 
 hemiOnly = any(ismember(labelFn, projStr.hemis));
 if hemiOnly
@@ -61,7 +61,7 @@ if hemiOnly
 else
     % warning if the label is not available for that subjCode and finish this
     % function
-    subjCode = fs_subjcode(subjCodeSess, funcPath);  % subjCode in $SUBJECTS_DIR
+    subjCode = fs_subjcode(sessCode, funcPath);  % subjCode in $SUBJECTS_DIR
     if ~fs_checklabel(labelFn, subjCode)
         warning('Cannot find label "%s" for %s', labelFn, subjCode);
         uniInfo = table;
@@ -75,14 +75,14 @@ else
     vtxROI = dtMatrix(:, 1);
     
     % calculate the size of this label file and save the output
-    [labelsize, talCoor] = fs_fun_labelsize(projStr, subjCodeSess, labelFn, outputPath);
+    [labelsize, talCoor] = fs_fun_labelsize(projStr, sessCode, labelFn, outputPath);
     
 end
 
 hemi = fs_hemi(labelFn);  % which hemisphere
 
 % read the run file
-[runNames, nRun] = fs_fun_readrun(runFn, projStr, subjCodeSess);
+[runNames, nRun] = fs_fun_readrun(runFn, projStr, sessCode);
 if ~runSeparate; nRun = 1; end % useful later for deciding the analysis name
 
 % Pre-define the cell array for saving ds
@@ -131,7 +131,7 @@ uniInfo.Label = {labelFn};
 uniInfo.nVertices = nVertex;
 uniInfo.LabelSize = labelsize;
 uniInfo.TalCoordinate = talCoor;
-uniInfo.SubjCode = {subjCodeSess};
+uniInfo.SubjCode = {sessCode};
 
 nRowUni = size(ds_subj.samples, 1);
 uniTable = [repmat(uniInfo, nRowUni, 1), fs_cosmo_univariate(ds_subj)];  

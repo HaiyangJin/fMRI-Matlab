@@ -1,4 +1,4 @@
-function [roisize, talCoor, nVtx, VtxMax] = fs_fun_labelsize(projStr, subjCodeSess, ...
+function [roisize, talCoor, nVtx, VtxMax] = fs_fun_labelsize(project, sessCode, ...
     labelFn, outputPath, betaFn, thmin)
 % This function obtains the size of the label (ROI) from FreeSurfer
 % commands (mri_surfcluster).
@@ -6,7 +6,7 @@ function [roisize, talCoor, nVtx, VtxMax] = fs_fun_labelsize(projStr, subjCodeSe
 % Inputs:
 %    projStr           matlab structure for the project (obtained from fs_fun_projectinfo)
 %                      This is specific for each project.
-%    subjCodeBold     subject code for functional data
+%    sessCode          session code for functional data (functional subject code)
 %    lableFn          label filename
 %    outputPath       where the temporary output file is saved
 %    betaFn           based on which data file to obtain the cluster
@@ -17,7 +17,7 @@ function [roisize, talCoor, nVtx, VtxMax] = fs_fun_labelsize(projStr, subjCodeSe
 %    nVtx              number of vertices in this label
 %    VtxMax            the vertex number of the peak response
 %
-% Created by Haiyang Jin (18/11/2019)
+% Created by Haiyang Jin (18-Nov-2019)
 
 if nargin < 4 || isempty(outputPath)
     outputPath = '.';
@@ -33,17 +33,17 @@ if nargin < 6 || isempty(thmin)
 end
 
 % load project information
-boldext = projStr.boldext;
+boldext = project.boldext;
 
 hemi = fs_hemi(labelFn);
-subjCode = fs_subjcode(subjCodeSess, projStr.funcPath);
+subjCode = fs_subjcode(sessCode, project.funcPath);
 
 % label file
-labelfile = fullfile(projStr.subjects, subjCode, 'label', labelFn);
+labelfile = fullfile(project.subjects, subjCode, 'label', labelFn);
 
 % beta file
 analysisfolder = sprintf('loc%s.%s', boldext, hemi);
-betafile = fullfile(fullfile(projStr.funcPath, subjCodeSess, ...
+betafile = fullfile(fullfile(project.funcPath, sessCode, ...
         'bold', analysisfolder, betaFn));
 
 % create the freesurfer command

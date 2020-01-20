@@ -1,4 +1,4 @@
-function MNI2Native_tfMRI(hcpPath, sessStr)
+function MNI2Native_tfMRI(hcpPath, projectString)
 % This function was built based on MNI2Native.sh (created by Osama Abdullah
 % on 9/9/18), which converts the functional (bold) data from MNI space to
 % native space (with FSL functions).
@@ -28,15 +28,15 @@ end
 if nargin < 1 || isempty(hcpPath)
     hcpPath = '.';
 end
-if nargin < 2 || isempty(sessStr) || strcmp(sessStr, '.')
+if nargin < 2 || isempty(projectString) || strcmp(projectString, '.')
     
     % all the folders in HCP path
-    tmpSessDir = dir(hcpPath);
-    tmpSessList = {tmpSessDir.name};
+    tempDir = dir(hcpPath);
+    tempList = {tempDir.name};
     
     % the string parts of all folder names
-    numericParts =  regexp(tmpSessList, '\d+', 'match');
-    stringParts = cellfun(@(x, y) erase(x, y), tmpSessList, numericParts, 'uni', false);
+    numericParts =  regexp(tempList, '\d+', 'match');
+    stringParts = cellfun(@(x, y) erase(x, y), tempList, numericParts, 'uni', false);
     
     % information of string parts
     [uc, ~, idc] = unique(stringParts) ;
@@ -44,57 +44,57 @@ if nargin < 2 || isempty(sessStr) || strcmp(sessStr, '.')
 
     % the most frequent string will be used as the prefix
     [~, whichStr] = max(counts);
-    sessStr = uc{whichStr};
+    projectString = uc{whichStr};
   
 end
 % add '*' if last letter is not '*'
-if sessStr(end) ~= '*' && ~strcmp(sessStr, '.')
-    sessStr = [sessStr, '*'];
+if projectString(end) ~= '*' && ~strcmp(projectString, '.')
+    projectString = [projectString, '*'];
 end
 
 
 %% identify all sessions (folders) match sessStr
-sessDir = dir(fullfile(hcpPath, sessStr));
+projDir = dir(fullfile(hcpPath, projectString));
 
 % % remove folders whose superfolder (parent folder) is not hcpPath
 % sessDir(~strcmp({sessDir.folder}, hcpPath)) = []; 
 
-if isempty(sessDir)
-    error('No sessions were found for %s in %s.', sessStr, hcpPath);
+if isempty(projDir)
+    error('No sessions were found for %s in %s.', projectString, hcpPath);
 end
 
-sessList = {sessDir.name};
-nSess = numel(sessList);
+subjList = {projDir.name};
+nSubj = numel(subjList);
 
 fileType = {'', '_SBRef'};
 
-for iSess = 1:nSess
+for iSubj = 1:nSubj
     
-    thisSess = sessList{iSess};
-    sessPath = fullfile(hcpPath, thisSess);
+    thisSubj = subjList{iSubj};
+    thisPath = fullfile(hcpPath, thisSubj);
     
     %% downsample T2w in native space to fMRI resolution
     cmd_flirt = sprintf(['flirt -in %1$s/T1w/T2w_acpc_dc_restore_brain '...
         '-ref %1$s/T1w/T2w_acpc_dc_restore_brain -applyisoxfm 2 '...
-        '-out %1$s/T1w/T2w_acpc_dc_restore_brain_2mm'], sessPath);
+        '-out %1$s/T1w/T2w_acpc_dc_restore_brain_2mm'], thisPath);
     system(cmd_flirt);
     
     %% transform BOLD data from MNI space to Native Space
-    resultsPath = fullfile(sessPath, 'MNINonLinear', 'Results');
-    boldDir = dir(fullfile(resultsPath, 'tfMRI_*'));
-    boldList = {boldDir.name};
+    resultsPath = fullfile(thisPath, 'MNINonLinear', 'Results');
+    mniDir = dir(fullfile(resultsPath, 'tfMRI_*'));
+    mniList = {mniDir.name};
 
     % filenames of all bold data to be transformed
-    boldArray = repmat(boldList, numel(fileType), 1);
-    fileArray = repmat(fileType', 1, numel(boldList));
-    filenameMNI = cellfun(@(x, y) fullfile(resultsPath, x, [x,y]), boldArray(:), fileArray(:), 'uni', false');
+    minArray = repmat(mniList, numel(fileType), 1);
+    fileArray = repmat(fileType', 1, numel(mniList));
+    filenameMNI = cellfun(@(x, y) fullfile(resultsPath, x, [x,y]), minArray(:), fileArray(:), 'uni', false');
     
     % the cell of all functions
     cmds = cellfun(@(x) sprintf(['echo "Transforming from MNI to Native: "%1$s.nii.gz;'...
         'applywarp --rel --interp=trilinear '...
         '-i %1$s.nii.gz -r %2$s/T1w/T2w_acpc_dc_restore_brain_2mm '...
         '-w %2$s/MNINonLinear/xfms/standard2acpc_dc -o %1$s_native.nii.gz'],...
-        x, sessPath), filenameMNI, 'uni', false);
+        x, thisPath), filenameMNI, 'uni', false);
     % run all functions
     cellfun(@system, cmds);
 
