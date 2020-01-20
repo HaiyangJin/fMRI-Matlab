@@ -1,10 +1,12 @@
-function fs_fun_cosmo_searchlight(project, surfCoorFile, combineHemi, classPairs, classifier)
+function fs_fun_cosmo_searchlight(project, classPairs, sessCode, surfCoorFile, combineHemi, classifier)
+% fs_fun_cosmo_searchlight(project, classPairs, sessCode, surfCoorFile, combineHemi, classifier)
 % This function does the searchlight analyses for the faceword project
 % with CoSMoMVPA. Data were analyzed with FreeSurfer.
 %
 % Inputs:
 %    project            project structure (created by fs_fun_projectinfo)
-%    expCode            experiment code (1 or 2)
+%    classPairs         condition pairs to be classified
+%    sessCode           session code (functional subject folder)
 %    surfCoorFile       the coordinate file for vertices ('inflated',
 %                       'white', 'pial')
 %    combineHemi        if the data of two hemispheres will be combined
@@ -13,23 +15,32 @@ function fs_fun_cosmo_searchlight(project, surfCoorFile, combineHemi, classPairs
 %                       anlaysis for the whole brain together; 3: run
 %                       analysis for both 0 and 1.
 %    classifier         classifier function handle
+%
 % Output:
 %    For each hemispheres, the results will be saved as a label file saved
 %    at the subject label folder ($SUBJECTS_DIR/subjCode/label)
 %    For the whole brain, the results will be saved as *.gii
 %
-% Created by Haiyang Jin (24/11/2019)
-% Updated by Haiyang Jin (15/12/2019)
+% Created by Haiyang Jin (24-Nov-2019)
+% Updated by Haiyang Jin (15-Dec-2019)
 
 cosmo_warning('once');
 
-if nargin < 3 || isempty(surfCoorFile)
+if nargin < 3 || isempty(sessCode)
+    sessList = project.sessList; % all sessions
+elseif ischar(sessCode)
+    sessList = {sessCode};
+else
+    sessList = sessCode;
+end
+
+if nargin < 4 || isempty(surfCoorFile)
     surfCoorFile = 'inflated';
 end
-if nargin < 4 || isempty(combineHemi)
+if nargin < 5 || isempty(combineHemi)
     combineHemi = 0;
 end
-if nargin < 5
+if nargin < 6
     classifier = '';
 end
 
@@ -40,20 +51,18 @@ waitHandle = waitbar(0, 'Loading...   0.00% finished');
 % information from the project
 nHemi = project.nHemi;
 funcPath = project.funcPath;
+nSess = numel(sessList);
 
-sessList = project.sessList;
-nSess = project.nSess;
-
-for iSubj = 1:nSess
+for iSess = 1:nSess
     %% this subject information
     % subjCode in functional folder
-    sessCode = sessList{iSubj};
+    thisSess = sessList{iSess};
     % subjCode in SUBJECTS_DIR
-    subjCode = fs_subjcode(sessCode, funcPath);
+    subjCode = fs_subjcode(thisSess, funcPath);
     hemis = project.hemis;
     
     % waitbar
-    progress = iSubj / nSess * 1/2;
+    progress = iSess / nSess * 1/2;
     progressMsg = sprintf('Loading data for %s.   \n%0.2f%% finished...', ...
         strrep(subjCode, '_', '\_'), progress*100);
     waitbar(progress, waitHandle, progressMsg);
@@ -64,7 +73,7 @@ for iSubj = 1:nSess
     
     %% Load functional data (beta.nii.gz)
     % load the beta.nii.gz for both hemispheres separately
-    [~, dsSurfCell] = cellfun(@(x) fs_fun_uni_cosmo_ds(project, x, sessCode, ...
+    [~, dsSurfCell] = cellfun(@(x) fs_fun_uni_cosmo_ds(project, x, thisSess, ...
         '', 'main', 0, 1), hemis, 'UniformOutput', false);
     
     % combine the surface data for the whole brain if needed
@@ -90,7 +99,7 @@ for iSubj = 1:nSess
         hemiInfo = hemis{iSL}; % hemisphere name
         
         % waitbar
-        progress = (iSubj + iSL/max(runSearchlight)) / (nSess * 2);
+        progress = (iSess + iSL/max(runSearchlight)) / (nSess * 2);
         progressMsg = sprintf('Subject: %s.  Hemisphere: %s  \n%0.2f%% finished...', ...
             strrep(subjCode, '_', '\_'), hemiInfo, progress*100);
         waitbar(progress, waitHandle, progressMsg);
