@@ -1,12 +1,12 @@
-function [uniTable, ds_subj, uniInfo] = fs_fun_uni_cosmo_ds(projStr, ...
+function [uniTable, ds_subj, uniInfo] = fs_fun_uni_cosmo_ds(project, ...
     labelFn, sessCode, outputPath, runInfo, smooth, runSeparate)
-% [uni_table, ds_subj, uni_info] = fs_fun_uni_cosmo_ds(projStr, ...
+% [uni_table, ds_subj, uni_info] = fs_fun_uni_cosmo_ds(project, ...
 %     label_fn, sessCode, output_path, run_info, smooth, runSeparate)
 % This function generates the data table for univariate analyses and the
 % dataset used for CoSMoMVPA for FreeSurfer surface data.
 %
 % Inputs:
-%    projStr            Project structure (obtained from fs_fun_projectinfo)
+%    project            Project structure (obtained from fs_fun_projectinfo)
 %    labelFn           the label filename (or 'lh' or 'rh', then the
 %                       output will be the data for the whole hemisphere)
 %    sessCode          session code in functional folder (bold subject code)
@@ -50,10 +50,10 @@ runFn = sprintf('run_%s.txt', runInfo);  % run filename
 parFn = sprintf('%s.par', runInfo); % paradigm filename
 analysisExt = sprintf('%s%s', runInfo, smooth); % first parts of the analysis name
 
-funcPath = projStr.funcPath;  % where the functional data are saved
+funcPath = project.funcPath;  % where the functional data are saved
 boldPath = fullfile(funcPath, sessCode, 'bold'); % the bold folder
 
-hemiOnly = any(ismember(labelFn, projStr.hemis));
+hemiOnly = any(ismember(labelFn, project.hemis));
 if hemiOnly
     labelsize = 0;
     talCoor = zeros(1, 3);
@@ -75,14 +75,14 @@ else
     vtxROI = dtMatrix(:, 1);
     
     % calculate the size of this label file and save the output
-    [labelsize, talCoor] = fs_fun_labelsize(projStr, sessCode, labelFn, outputPath);
+    [labelsize, talCoor] = fs_fun_labelsize(project, sessCode, labelFn, outputPath);
     
 end
 
 hemi = fs_hemi(labelFn);  % which hemisphere
 
 % read the run file
-[runNames, nRun] = fs_fun_readrun(runFn, projStr, sessCode);
+[runNames, nRun] = fs_fun_readrun(runFn, project, sessCode);
 if ~runSeparate; nRun = 1; end % useful later for deciding the analysis name
 
 % Pre-define the cell array for saving ds
@@ -93,7 +93,7 @@ for iRun = 1:nRun
     % set iRunStr as '' when there is only "1" run
     iRunStr = erase(num2str(iRun), num2str(nRun^2));
     analysisName = sprintf('%s%s%s.%s', ...
-        analysisExt, projStr.boldext, iRunStr, hemi); % the analysis name
+        analysisExt, project.boldext, iRunStr, hemi); % the analysis name
     % the beta file
     betaFile = fullfile(boldPath, analysisName, 'beta.nii.gz');
     

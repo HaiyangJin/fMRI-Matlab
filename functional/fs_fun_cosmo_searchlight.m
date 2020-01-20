@@ -1,9 +1,9 @@
-function fs_fun_cosmo_searchlight(projStr, surfCoorFile, combineHemi, classPairs, classifier)
+function fs_fun_cosmo_searchlight(project, surfCoorFile, combineHemi, classPairs, classifier)
 % This function does the searchlight analyses for the faceword project
 % with CoSMoMVPA. Data were analyzed with FreeSurfer.
 %
 % Inputs:
-%    projStr            project structure
+%    project            project structure (created by fs_fun_projectinfo)
 %    expCode            experiment code (1 or 2)
 %    surfCoorFile       the coordinate file for vertices ('inflated',
 %                       'white', 'pial')
@@ -38,22 +38,22 @@ end
 waitHandle = waitbar(0, 'Loading...   0.00% finished');
 
 % information from the project
-nHemi = projStr.nHemi;
-funcPath = projStr.funcPath;
+nHemi = project.nHemi;
+funcPath = project.funcPath;
 
-subjList = projStr.subjList;
-nSubj = projStr.nSubj;
+sessList = project.sessList;
+nSess = project.nSess;
 
-for iSubj = 1:nSubj
+for iSubj = 1:nSess
     %% this subject information
     % subjCode in functional folder
-    sessCode = subjList{iSubj};
+    sessCode = sessList{iSubj};
     % subjCode in SUBJECTS_DIR
     subjCode = fs_subjcode(sessCode, funcPath);
-    hemis = projStr.hemis;
+    hemis = project.hemis;
     
     % waitbar
-    progress = iSubj / nSubj * 1/2;
+    progress = iSubj / nSess * 1/2;
     progressMsg = sprintf('Loading data for %s.   \n%0.2f%% finished...', ...
         strrep(subjCode, '_', '\_'), progress*100);
     waitbar(progress, waitHandle, progressMsg);
@@ -64,7 +64,7 @@ for iSubj = 1:nSubj
     
     %% Load functional data (beta.nii.gz)
     % load the beta.nii.gz for both hemispheres separately
-    [~, dsSurfCell] = cellfun(@(x) fs_fun_uni_cosmo_ds(projStr, x, sessCode, ...
+    [~, dsSurfCell] = cellfun(@(x) fs_fun_uni_cosmo_ds(project, x, sessCode, ...
         '', 'main', 0, 1), hemis, 'UniformOutput', false);
     
     % combine the surface data for the whole brain if needed
@@ -90,7 +90,7 @@ for iSubj = 1:nSubj
         hemiInfo = hemis{iSL}; % hemisphere name
         
         % waitbar
-        progress = (iSubj + iSL/max(runSearchlight)) / (nSubj * 2);
+        progress = (iSubj + iSL/max(runSearchlight)) / (nSess * 2);
         progressMsg = sprintf('Subject: %s.  Hemisphere: %s  \n%0.2f%% finished...', ...
             strrep(subjCode, '_', '\_'), hemiInfo, progress*100);
         waitbar(progress, waitHandle, progressMsg);

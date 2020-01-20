@@ -1,8 +1,8 @@
-function fs_fun_drawlabel(projStr, contrastName, siglevel, extraLabelInfo)
+function fs_fun_drawlabel(project, contrastName, siglevel, extraLabelInfo)
 % This function use FreeSurfer ("tksurfer") to draw labels.
 %
 % Inputs: 
-%    projStr           matlab structure for the project (obtained from fs_fun_projectinfo)
+%    project           matlab structure for the project (obtained from fs_fun_projectinfo)
 %                      This is specific for each project.
 %    contrast_name     contrast name used glm
 %    siglevel          significance level (default is f13 (.05))
@@ -23,23 +23,23 @@ elseif ~strcmp(extraLabelInfo(end), '.')
 end
 
 % obtian the information about this bold type
-boldext = projStr.boldext;
-sessList = projStr.subjList;
-nSess = projStr.nSubj;
-hemis = projStr.hemis;
+boldext = project.boldext;
+sessList = project.sessList;
+nSess = project.nSess;
+hemis = project.hemis;
 
 %% Draw labels for all participants for both hemispheres
 
 for iSess = 1:nSess
     
     thisSess = sessList{iSess};
-    subjCode = fs_subjcode(thisSess, projStr.funcPath);
+    subjCode = fs_subjcode(thisSess, project.funcPath);
     
-    for iHemi = 1:projStr.nHemi
+    for iHemi = 1:project.nHemi
         
         hemi = hemis{iHemi};
         
-        sigFile = fullfile(projStr.funcPath, thisSess, 'bold',...
+        sigFile = fullfile(project.funcPath, thisSess, 'bold',...
             ['loc' boldext '.' hemi], contrastName, 'sig.nii.gz');
         
         labelName = sprintf('roi.%s.%s.%s.%slabel', ...
