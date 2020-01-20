@@ -13,7 +13,7 @@ function FS = fs_subjdir(structPath)
 % get the enviorment variables on FreeSurfer
 FS.homedir = getenv('FREESURFER_HOME');
 
-% Default path to FreeSurfer
+% Default path to SUBJECTS_DIR
 if nargin < 1 || isempty(structPath)
     structPath = getenv('SUBJECTS_DIR');
 else

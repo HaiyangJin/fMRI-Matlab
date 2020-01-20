@@ -7,9 +7,9 @@ function project = fs_fun_projectinfo(projectName, funcPath, boldext)
 %    funcPath          the path of functional data
 %    boldext           the extension (usually is '_self')
 % Output:
-%    a structure of project information
+%    project           a structure of project information
 %
-% Creatd by Haiyang Jin (18/12/2019)
+% Creatd by Haiyang Jin (18-Dec-2019)
 
 % Copy information from FreeSurfer
 project = fs_subjdir;
