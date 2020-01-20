@@ -25,6 +25,10 @@ if nargin < 5 || isempty(outputPath)
     outputPath = fullfile(subjectsPath, subjCode, 'surf');
 end
 
+if ~ismember({'.mgh', '.mgz'}, outputFn(end-3:end))
+    outputFn = [outputFn, '.mgz'];
+end
+
 % obtain hemi information from outputFn
 hemi = fs_hemi(outputFn);
 
