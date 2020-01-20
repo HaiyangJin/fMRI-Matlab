@@ -67,18 +67,18 @@ nSubj = numel(hcpList);
 fsPath = fullfile(hcpPath, 'FreeSurfer');
 
 % create subjects/
-subjectsPath = fullfile(fsPath, 'subjects');
-if ~exist(subjectsPath, 'dir'); mkdir(subjectsPath); end
-fs_subjdir(subjectsPath);  % set 'SUBJECTS_DIR'
+structPath = fullfile(fsPath, 'subjects');
+if ~exist(structPath, 'dir'); mkdir(structPath); end
+fs_subjdir(structPath);  % set 'SUBJECTS_DIR'
 
 % link fsaverage in subjects/ to fsaverage in FREESURFER 6.0 (or 5.3)
-if ~exist(fullfile(subjectsPath, 'fsaverage'), 'dir') && strcmp(boldext, '_fsavg')
+if ~exist(fullfile(structPath, 'fsaverage'), 'dir') && strcmp(boldext, '_fsavg')
     fsaverage = fullfile(fshomePath, 'subjects', 'fsaverage');
     if linkT1 % link file
-        fscmd_fsaverage = sprintf('ln -s %s %s', fsaverage, subjectsPath);
+        fscmd_fsaverage = sprintf('ln -s %s %s', fsaverage, structPath);
         system(fscmd_fsaverage);
     else % copy file
-        copyfile(fsaverage, fullfile(subjectsPath, 'fsaverage'));
+        copyfile(fsaverage, fullfile(structPath, 'fsaverage'));
     end     
 end
 
@@ -89,11 +89,11 @@ for iSubj = 1:nSubj
     thisPath = fullfile(hcpPath, thisSubj);
     
     %% link (or copy) recon-all data
-    targetSubjCode = fullfile(subjectsPath, thisSubj);
+    targetSubjCode = fullfile(structPath, thisSubj);
     sourceSubjCode = fullfile(thisPath, 'T1w', thisSubj); % use relative directory
     if ~exist(targetSubjCode, 'dir')
         if linkT1 % link folder
-            fscmd_linksubjdir = sprintf('ln -s %s %s', sourceSubjCode, subjectsPath);
+            fscmd_linksubjdir = sprintf('ln -s %s %s', sourceSubjCode, structPath);
             system(fscmd_linksubjdir);
         else % copy folder
             copyfile(sourceSubjCode, targetSubjCode);

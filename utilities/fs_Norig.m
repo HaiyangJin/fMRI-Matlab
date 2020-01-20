@@ -13,10 +13,10 @@ if ~exist('subjCode', 'var') || isempty(subjCode)
 end
 
 % Obtain the subjects folder path
-subjectsPath = getenv('SUBJECTS_DIR');
+structPath = getenv('SUBJECTS_DIR');
 
 % define the path for orig.mgz
-origFile = [subjectsPath subjCode filesep 'mri' filesep 'orig.mgz'];
+origFile = [structPath subjCode filesep 'mri' filesep 'orig.mgz'];
 
 % create the freesurfer command
 fscmd = sprintf('mri_info --vox2ras %s', origFile);

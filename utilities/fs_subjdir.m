@@ -1,4 +1,4 @@
-function FS = fs_subjdir(subjectsPath)
+function FS = fs_subjdir(structPath)
 % function FS = fs_subjdir(subjectsPath)
 % This function set up 'SUBJECTS_DIR' and gather some information from FreeSurfer.
 %
@@ -14,24 +14,24 @@ function FS = fs_subjdir(subjectsPath)
 FS.homedir = getenv('FREESURFER_HOME');
 
 % Default path to FreeSurfer
-if nargin < 1 || isempty(subjectsPath)
-    subjectsPath = getenv('SUBJECTS_DIR');
+if nargin < 1 || isempty(structPath)
+    structPath = getenv('SUBJECTS_DIR');
 else
-    setenv('SUBJECTS_DIR', subjectsPath);
+    setenv('SUBJECTS_DIR', structPath);
 end
 
 % set the subjects folder
-FS.subjects = subjectsPath;
+FS.structPath = structPath;
 
 % hemisphere information
 FS.hemis = {'lh', 'rh'};
 FS.nHemi = numel(FS.hemis);
 
 % subject code information
-subjdir = dir(FS.subjects);
-subjdir = subjdir([subjdir.isdir]);  % only keep folders
-FS.subjdir = subjdir(~ismember({subjdir.name}, {'.', '..'})); % remove . and ..
-FS.subjList = {FS.subjdir.name};
+subjDir = dir(FS.structPath);
+subjDir = subjDir([subjDir.isdir]);  % only keep folders
+FS.subjDir = subjDir(~ismember({subjDir.name}, {'.', '..'})); % remove . and ..
+FS.subjList = {FS.subjDir.name};
 FS.nSubj = numel(FS.subjList);
 
 end

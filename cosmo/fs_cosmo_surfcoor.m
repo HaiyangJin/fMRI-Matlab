@@ -28,7 +28,7 @@ end
 
 % FreeSurfer setup
 FS = fs_subjdir;
-surfPath = fullfile(FS.subjects, subjCode, 'surf');
+surfPath = fullfile(FS.structPath, subjCode, 'surf');
 hemis = FS.hemis;
 nHemi = FS.nHemi;
 

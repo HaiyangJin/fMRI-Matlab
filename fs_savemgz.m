@@ -1,4 +1,4 @@
-function fs_savemgz(subjCode, surfData, outputFn, subjectsPath, outputPath)
+function fs_savemgz(subjCode, surfData, outputFn, structPath, outputPath)
 % fs_savemgz(subjCode, surfData, outputFn, subjectsPath, outputPath)
 % 
 % This function is built based on nsd_savemgz.m created by Kendrick Kay 
@@ -18,11 +18,11 @@ function fs_savemgz(subjCode, surfData, outputFn, subjectsPath, outputPath)
 %
 % Created by Haiyang Jin (19-Jan-2020)
 
-if nargin < 4 || isempty(subjectsPath)
-    subjectsPath = getenv('SUBJECTS_DIR');
+if nargin < 4 || isempty(structPath)
+    structPath = getenv('SUBJECTS_DIR');
 end
 if nargin < 5 || isempty(outputPath)
-    outputPath = fullfile(subjectsPath, subjCode, 'surf');
+    outputPath = fullfile(structPath, subjCode, 'surf');
 end
 
 if ~ismember({'.mgh', '.mgz'}, outputFn(end-3:end))
@@ -33,7 +33,7 @@ end
 hemi = fs_hemi(outputFn);
 
 % load tempalte 
-thisSubjPath = fullfile(subjectsPath, subjCode);
+thisSubjPath = fullfile(structPath, subjCode);
 if strcmp(subjCode, 'fsaverage')
     template = sprintf('%s/surf/%s.orig.avg.area.mgh',thisSubjPath,hemi);
 else

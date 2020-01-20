@@ -39,7 +39,7 @@ hemi = fs_hemi(labelFn);
 subjCode = fs_subjcode(sessCode, project.funcPath);
 
 % label file
-labelfile = fullfile(project.subjects, subjCode, 'label', labelFn);
+labelfile = fullfile(project.structPath, subjCode, 'label', labelFn);
 
 % beta file
 analysisfolder = sprintf('loc%s.%s', boldext, hemi);

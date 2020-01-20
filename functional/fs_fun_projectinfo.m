@@ -15,7 +15,7 @@ function project = fs_fun_projectinfo(projectName, funcPath, boldext)
 project = fs_subjdir;
 
 if nargin < 2 || isempty(funcPath)
-    funcPath = fullfile(project.subjects, '..', 'functional_data/');
+    funcPath = fullfile(project.strcutPath, '..', 'functional_data/');
 end
 if nargin < 3 
     boldext = '_self';
