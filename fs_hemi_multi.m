@@ -1,19 +1,39 @@
-function [hemi, nHemi] = fs_hemi_multi(labelsFn)
-% This function determine the hemispheres based on the filenames
+function [hemi, nHemi] = fs_hemi_multi(filenames, forceString)
+% This function determine the hemispheres based on the filenames (if 'lh'
+% or 'rh' is included in the filename).
 %
-% Created by Haiyang Jin (1/12/2019)
+% Inputs:
+%     filenames         <cell> or <string> filenames (with out path)
+%     forceString       <logical> force the output to be string if the
+%                       length of filenames is 1
+%
+% Outputs:
+%     hemi              could be a cell of 'lh' and 'rh'. Or a string based
+%                       on forceString
+%     nHemi             number of different hemispheres for filenames
+%
+% Created by Haiyang Jin (1-Dec-2019)
 
-if ischar(labelsFn)
-    labelsFn = {labelsFn};
+% convert the filenames to a cell if it is a string
+if ischar(filenames)
+    filenames = {filenames};
 end
 
-hemis = unique(cellfun(@fs_hemi, labelsFn, 'UniformOutput', false));
-nHemi = numel(hemis);
+if nargin < 2 || isempty(forceString)
+    forceString = 1;
+end
+
+% hemi for each file
+hemis = cellfun(@fs_hemi, filenames, 'UniformOutput', false);
+
+% number of different hemipheres
+nHemi = numel(unique(hemis));
 
 if nHemi ~= 1
     warning('These labels are for both hemispheres.');
     hemi = hemis;
-else
+elseif forceString
     hemi = hemis{1};
 end
 
+end
