@@ -113,8 +113,12 @@ for iSess = 1:nSess
         % dataset for this searchlight analysis
         ds_this = dsSurfCell{iSL};
         
+        slInfo.subjCode = subjCode;
+        slInfo.hemiInfo = hemiInfo;
+        slInfo.featureCount = 200;
+        
         % run search light analysis
-        fs_cosmo_searchlight(subjCode, ds_this, surfDef, hemiInfo, classPairs, classifier);
+        fs_cosmo_searchlight(slInfo, ds_this, surfDef, classPairs, classifier);
         
     end
     
