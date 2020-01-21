@@ -18,11 +18,22 @@ function mgzFile = fs_fvmgz(mgzFile, surfType, threshold)
 
 % open a gui to select file if mgzFile is empty
 if nargin < 1 || isempty(mgzFile)
-    [filename, path] = uigetfile({'*.mgz;*.mgh'},...
+    
+    % set the default folder is SUBJECTS_DIR if it is not empty
+    structPath = getenv('SUBJECTS_DIR');
+    if empty(structPath)
+        startPath = pwd;
+    else
+        startPath = structPath;
+    end
+    
+    % open a gui to select mgz files
+    [filename, path] = uigetfile({fullfile(startPath, '*.mgz;*.mgh')},...
         'Please select the mgz file to be checked...',...
         'MultiSelect', 'on');
     mgzFile = fullfile(path, filename);
 else
+    % get the path and the filenames from mgzFile
     if ischar(mgzFile); mgzFile = {mgzFile}; end
     [pathCell, nameCell, extCell] = cellfun(@fileparts, mgzFile, 'uni', false);
     
