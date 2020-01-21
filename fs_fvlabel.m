@@ -1,5 +1,5 @@
-function isok = fs_screenshot_label(subjCode, labelFn, outputPath, ...
-    overlayFile, threshold, isfsavg, colorLabel, saveScreenshots)
+function isok = fs_fvlabel(subjCode, labelFn, outputPath, ...
+    overlayFile, threshold, isfsavg, colorLabel, saveSS)
 % This function takes the screenshot of the label based with specific 
 % contrast if there is. 
 %
@@ -13,9 +13,9 @@ function isok = fs_screenshot_label(subjCode, labelFn, outputPath, ...
 %    isok               if all labels in "labelFn" are available for this subjCode
 %    screenshots of labels saved in outputPath
 % 
-% Created by Haiyang Jin (28/11/2019)
-% Updated by Haiyang Jin (1/12/2019) Plot multiple labels (same hemisphere)
-% Updated by Haiyang Jin (10/12/2019) could plot overlay only witout labels
+% Created by Haiyang Jin (28-Noc-2019)
+% Updated by Haiyang Jin (1-Dec-2019) Plot multiple labels (same hemisphere)
+% Updated by Haiyang Jin (10-Dec-2019) could plot overlay only witout labels
 
 isok = 1;
 
@@ -82,8 +82,8 @@ if nargin < 7 || isempty(colorLabel)
     colorLabel = {'#FFFFFF', '#33cc33', '#0000FF', '#FFFF00'}; % white, green, blue, yellow
 end
 
-if nargin < 8 || isempty(saveScreenshots)
-    saveScreenshots = 1;
+if nargin < 8 || isempty(saveSS)
+    saveSS = 0;
 end
 
 outputFolder = sprintf('Label_Screenshots%s_%s', avgStr, strrep(threshold, ',', '-'));
@@ -143,7 +143,7 @@ else
     nameLabels = erase(nameLabels, {'roi.', '.label'}); % shorten filenames
 end
 
-if saveScreenshots
+if saveSS
     outputFn = sprintf('%s%s%s_%d.png', nameLabels, subjCode, avgStr, whichOverlay);
     outputFile = fullfile(outputPath, outputFn);
     fscmd_output = sprintf(' -ss %s', outputFile); %
@@ -157,7 +157,7 @@ fscmd = [fscmd_surf fscmd_label fscmd_overlay fscmd_camera fscmd_output];
 
 % run the freesurfer command
 system(fscmd);
-if saveScreenshots
+if saveSS
     fprintf('\nSave the screenshot of %s for %s successfully at %s\n\n', ...
         nameLabels, subjCode, outputFile);
 end
