@@ -48,13 +48,10 @@ for iSess = 1:nSess
     for iRun = 1:nRun
         
         thisRun = runList{iRun};
-        thisFile = fullfile(theBoldPath, thisRun, 'template.nii.gz');
-        
-        % change the current directory to thisRunPath
-        cd(thisRunPath);
+        thisFile = fullfile(theBoldPath, thisRun);
         
         % freesurfer command to do the automatic registration        
-        fscmd = sprintf('bbregister --mov %s --bold --s %s --lta register.lta',...
+        fscmd = sprintf('bbregister --mov %1$s/template.nii.gz --bold --s %2$s --lta %1$s/register.lta',...
             thisFile, thisSubjCode);
         system(fscmd);
         
