@@ -21,7 +21,7 @@ if nargin < 1 || isempty(mgzFile)
     
     % set the default folder is SUBJECTS_DIR if it is not empty
     structPath = getenv('SUBJECTS_DIR');
-    if empty(structPath)
+    if isempty(structPath)
         startPath = pwd;
     else
         startPath = structPath;
