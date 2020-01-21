@@ -29,11 +29,11 @@ hemis = cellfun(@fs_hemi, filenames, 'UniformOutput', false);
 % number of different hemipheres
 nHemi = numel(unique(hemis));
 
-if nHemi ~= 1
-    warning('These labels are for both hemispheres.');
-    hemi = hemis;
-elseif forceString
+if nHemi == 1 && forceString
     hemi = hemis{1};
+else
+    hemi = hemis;
+    warning('These files are for both hemispheres.');
 end
 
 end
