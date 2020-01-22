@@ -1,4 +1,6 @@
 function fs_bbregister(project, sessCode, runFolder)
+% function fs_bbregister(project, sessCode, runFolder)
+%
 % This function does the automatic registration between the tempalte.nii.gz
 % and the structure. For more information, please check
 % https://surfer.nmr.mgh.harvard.edu/fswiki/MultiModalTutorialV6.0/MultiModalRegistration.
@@ -10,7 +12,7 @@ function fs_bbregister(project, sessCode, runFolder)
 %     runFolder         the run folder names
 %
 % Output:
-%     files named 'register.lta' and 'register.dat'
+%     create files named 'register.lta' and 'register.dat'
 %
 % Created by Haiyang Jin (20-Jan-2020)
 
