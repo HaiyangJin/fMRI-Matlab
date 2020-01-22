@@ -1,7 +1,8 @@
-function mgzFile = fs_fvmgz(mgzFile, surfType, threshold)
+function mgzFile = fs_fvsurfmgz(mgzFile, surfType, threshold)
 % function fs_fvmgz(mgzFile, surfType, threshold)
 %
-% This function displays *.mgz file in FreeView.
+% This function displays *.mgz file (for surface) in FreeView. [For
+% displaying *.mgz for volume, please use fs_fvvolmgz.m instead.]
 %
 % Inputs: 
 %     mgzFile            *.mgz file (with path) [if is empty, a window will
@@ -12,7 +13,7 @@ function mgzFile = fs_fvmgz(mgzFile, surfType, threshold)
 %                        [low,(mid,)high(,percentile)]
 %
 % Output:
-%     Open the FreeView to display the mgz (mgh) file
+%     Open FreeView to display the mgz (mgh) file
 %
 % Created by Haiyang Jin (21-Jan-2020)
 
@@ -32,6 +33,7 @@ if nargin < 1 || isempty(mgzFile)
         'Please select the mgz file to be checked...',...
         'MultiSelect', 'on');
     mgzFile = fullfile(path, filename);
+    if ischar(mgzFile); mgzFile = {mgzFile}; end
 else
     % get the path and the filenames from mgzFile
     if ischar(mgzFile); mgzFile = {mgzFile}; end
@@ -48,6 +50,12 @@ end
 hemis = fs_hemi_multi(filename, 0);  % which hemi it is (they are)?
 hemiNames = unique(hemis); 
 
+% make sure the selected *.mgz is surface files
+notSurf = cellfun(@isempty, hemis);
+if any(notSurf)
+    error('Please make sure the file %s is a surface file.\n', mgzFile{notSurf});
+end
+
 if nargin < 2 || isempty(surfType)
     surfType = 'inflated';
 end
@@ -59,7 +67,7 @@ end
 nHemi = numel(hemiNames);
 fscmd_hemis = cell(nHemi, 1);
 % create the cmd for the two hemispheres separately
-for iHemi = 1:numel(hemiNames)
+for iHemi = 1:nHemi
     
     thisHemi = hemiNames{iHemi};
     isThisHemi = strcmp(thisHemi, hemis);
