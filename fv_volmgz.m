@@ -43,6 +43,8 @@ if loadReg
     regFile = fullfile(thePath, 'register.lta');
     if exist(regFile, 'file')
         fscmd_reg = sprintf(':reg=%s', regFile);
+    else
+        warning('Cannot find registration file: %s.', regFile);
     end
 end
 fscmd_vol = [fscmd_mgz fscmd_reg];
