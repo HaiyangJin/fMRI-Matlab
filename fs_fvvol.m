@@ -47,8 +47,15 @@ end
 fscmd_vol = [fscmd_mgz fscmd_reg];
 
 % get the structPath for this subjCode
-origFile = fullfile(thePath, '..', 'mri', 'orig.mgz');
-if (isempty(subjCode) || isempty(structPath)) && ~exist(origFile, 'file')
+
+if (isempty(subjCode) || isempty(structPath))
+    subjPath = fullfile(thePath, '..');
+else
+    subjPath = fullfile(structPath, subjCode);
+end
+origFile = fullfile(subjPath, 'mri', 'orig.mgz');
+
+if  ~exist(origFile, 'file')
     % only show the selected file
     fscmd_orig = '';
     fscmd_surf = '';
@@ -56,7 +63,7 @@ else
     % also show orig.mgz and ?h.pial and ?h.white
     
     % fscmd for volume orig
-    fscmd_orig = sprintf(' %s', origFile);
+    fscmd_orig = sprintf(' %s:visible=0', origFile);
     
     % fscmd for surface
     % color table for surface
@@ -64,7 +71,7 @@ else
     color.pial = 'red';
     colors = cellfun(@(x) color.(x), surfType, 'uni', false);
     
-    surfPath = fullfile(thePath, '..', 'surf');
+    surfPath = fullfile(subjPath, 'surf');
     hemis = {'lh', 'rh'};
     tempColor = repmat(colors, numel(hemis), 1);
     tempHemis = repmat(hemis, 1, numel(surfType))';
