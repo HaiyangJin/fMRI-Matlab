@@ -5,8 +5,9 @@ function mgzFile = fs_fvsurfmgz(mgzFile, surfType, threshold)
 % displaying *.mgz for volume, please use fs_fvvolmgz.m instead.]
 %
 % Inputs: 
-%     mgzFile            *.mgz file (with path) [if is empty, a window will
-%                        open for selecting the *.mgz (mgh) file.
+%     mgzFile            <string> or <a cell of strings> *.mgz file (with 
+%                        path) [fs_fvmgz.m could be used to open a gui for 
+%                        selecting files.]
 %     surfType           <string> the base surface file to be displayed
 %                        ('inflated', 'white', 'pial', 'sphere')
 %     threshold          <string> the threshold used for mgzFile
@@ -17,51 +18,31 @@ function mgzFile = fs_fvsurfmgz(mgzFile, surfType, threshold)
 %
 % Created by Haiyang Jin (21-Jan-2020)
 
-% open a gui to select file if mgzFile is empty
-if nargin < 1 || isempty(mgzFile)
-    
-    % set the default folder is SUBJECTS_DIR if it is not empty
-    structPath = getenv('SUBJECTS_DIR');
-    if isempty(structPath)
-        startPath = pwd;
-    else
-        startPath = structPath;
-    end
-    
-    % open a gui to select mgz files
-    [filename, path] = uigetfile({fullfile(startPath, '*.mgz;*.mgh')},...
-        'Please select the mgz file to be checked...',...
-        'MultiSelect', 'on');
-    mgzFile = fullfile(path, filename);
-    if ischar(mgzFile); mgzFile = {mgzFile}; end
-else
-    % get the path and the filenames from mgzFile
-    if ischar(mgzFile); mgzFile = {mgzFile}; end
-    [pathCell, nameCell, extCell] = cellfun(@fileparts, mgzFile, 'uni', false);
-    
-    filename = cellfun(@(x, y) [x y], nameCell, extCell, 'uni', false);
-    
-    path = unique(pathCell);  
-    assert(numel(path) == 1); % make sure all the files are in the same folder
-    path = path{1};
-end
-
-% decide the hemi for each file
-hemis = fs_hemi_multi(filename, 0);  % which hemi it is (they are)?
-hemiNames = unique(hemis); 
-
-% make sure the selected *.mgz is surface files
-notSurf = cellfun(@isempty, hemis);
-if any(notSurf)
-    error('Please make sure the file %s is a surface file.\n', mgzFile{notSurf});
-end
-
 if nargin < 2 || isempty(surfType)
     surfType = 'inflated';
 end
 
 if nargin < 3 || isempty(threshold)
     threshold = ''; % 0.5,1
+end
+
+% convert mgzFile to a cell if it is string
+if ischar(mgzFile); mgzFile = {mgzFile}; end
+
+% get the path from mgzFile
+pathCell = cellfun(@fileparts, mgzFile, 'uni', false);
+path = unique(pathCell);  % the path to these files
+assert(numel(path) == 1); % make sure all the files are in the same folder
+path = path{1}; % convert cell to string
+
+% decide the hemi for each file
+hemis = fs_hemi_multi(mgzFile, 0);  % which hemi it is (they are)?
+hemiNames = unique(hemis);
+
+% make sure the selected *.mgz is surface files
+notSurf = cellfun(@isempty, hemis);
+if any(notSurf)
+    error('Please make sure the file %s is a surface file.\n', mgzFile{notSurf});
 end
     
 nHemi = numel(hemiNames);
