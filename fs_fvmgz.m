@@ -42,7 +42,7 @@ if nargin < 2
 end
 
 if nargin < 3
-    runFV = 0;
+    runFV = 1;
 end
 
 % stop here if do not display the files in freeview
@@ -64,11 +64,14 @@ if numel(isBoth) ~= 1
 end
 
 % set info for the two functions
-fs_fv = {@fs_fvsurfmgz, @fs_fvvolmgz};
 fvString = {'surface', 'volume'};
 
 % display the mgz files
 fprintf('\nDisplaying %s files in FreeView...\n\n', fvString{isBoth + 1});
-mgzFile = fs_fv{isBoth+1}(mgzFile, surfType);
+if isBoth
+    mgzFile = fs_fvvol(mgzFile);
+else
+    mgzFile = fs_fvsurfmgz(mgzFile, surfType);
+end
 
 end
