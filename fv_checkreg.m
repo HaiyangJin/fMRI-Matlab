@@ -11,7 +11,8 @@ function fv_checkreg(project, sessCode, loadReg, runFolder)
 %                       0: do not load the file. (register.lta is generated
 %                       by fs_bbregister.m which performs the automatic
 %                       registration.)
-%     runFolder         <string> the run folder names
+%     runFolder         <string> or <numeric> the run folder names (or
+%                       order)
 %
 % Output:
 %     display the registration (before or after bbregister)
@@ -24,10 +25,15 @@ end
 
 if nargin < 4 || isempty(runFolder)
     % show the first run by default
+    runFolder = 1;
+end
+
+if isnumeric(runFolder)
+    % get the run list
     locList = fs_fun_readrun('run_loc.txt', project, sessCode);
     mainList = fs_fun_readrun('run_main.txt', project, sessCode);
     runList = [locList; mainList];
-    runFolder = runList{1};
+    runFolder = runList{runFolder};
 end
 
 % the template filename
