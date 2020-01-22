@@ -1,5 +1,8 @@
-function isok = fs_fvlabel(subjCode, labelFn, outputPath, ...
+function isok = fv_label(subjCode, labelFn, outputPath, ...
     overlayFile, threshold, isfsavg, colorLabel, saveSS)
+%isok = fv_label(subjCode, labelFn, outputPath, ...
+%    overlayFile, threshold, isfsavg, colorLabel, saveSS)
+%    
 % This function takes the screenshot of the label based with specific 
 % contrast if there is. 
 %

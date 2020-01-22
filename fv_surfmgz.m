@@ -1,12 +1,12 @@
-function mgzFile = fs_fvsurfmgz(mgzFile, surfType, threshold)
-% function fs_fvmgz(mgzFile, surfType, threshold)
+function mgzFile = fv_surfmgz(mgzFile, surfType, threshold)
+% function fv_surfmgz(mgzFile, surfType, threshold)
 %
 % This function displays *.mgz file (for surface) in FreeView. [For
-% displaying *.mgz for volume, please use fs_fvvolmgz.m instead.]
+% displaying *.mgz for volume, please use fv_volmgz.m instead.]
 %
 % Inputs: 
 %     mgzFile            <string> or <a cell of strings> *.mgz file (with 
-%                        path) [fs_fvmgz.m could be used to open a gui for 
+%                        path) [fv_mgz.m could be used to open a gui for 
 %                        selecting files.]
 %     surfType           <string> the base surface file to be displayed
 %                        ('inflated', 'white', 'pial', 'sphere')

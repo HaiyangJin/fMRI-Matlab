@@ -1,4 +1,5 @@
-function mgzFile = fs_fvvol(mgzFile, subjCode, structPath, surfType, loadReg)
+function mgzFile = fv_volmgz(mgzFile, subjCode, structPath, surfType, loadReg)
+% mgzFile = fv_volmgz(mgzFile, subjCode, structPath, surfType, loadReg)
 % This function displays the *.mgz file (for volume) in Freeview.
 % 
 % Inputs: 

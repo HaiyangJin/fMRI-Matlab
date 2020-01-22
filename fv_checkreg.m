@@ -1,4 +1,6 @@
-function fs_fvreg(project, sessCode, loadReg, runFolder)
+function fv_checkreg(project, sessCode, loadReg, runFolder)
+% fv_checkreg(project, sessCode, loadReg, runFolder)
+%
 % This function displays the co-registration between structure and
 % functional data in FreeView.
 %
@@ -35,6 +37,6 @@ tempFile = fullfile(project.funcPath, sessCode, 'bold', runFolder, 'template.nii
 subjCode = fs_subjcode(sessCode, project.funcPath);
 
 % display the template.nii.gz with ?h.white and ?h.pial
-fs_fvvol(tempFile, subjCode, project.structPath, '', loadReg);
+fv_volmgz(tempFile, subjCode, project.structPath, '', loadReg);
 
 end

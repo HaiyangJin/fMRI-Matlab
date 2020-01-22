@@ -1,5 +1,5 @@
-function mgzFile = fs_fvmgz(mgzFile, surfType, runFV)
-%
+function mgzFile = fv_mgz(mgzFile, surfType, runFV)
+% mgzFile = fv_mgz(mgzFile, surfType, runFV)
 %
 % This function displays *.mgz file (for surface or volume) in FreeView.
 %
@@ -69,9 +69,9 @@ fvString = {'surface', 'volume'};
 % display the mgz files
 fprintf('\nDisplaying %s files in FreeView...\n\n', fvString{isBoth + 1});
 if isBoth
-    mgzFile = fs_fvvol(mgzFile);
+    mgzFile = fv_volmgz(mgzFile);
 else
-    mgzFile = fs_fvsurfmgz(mgzFile, surfType);
+    mgzFile = fv_surfmgz(mgzFile, surfType);
 end
 
 end

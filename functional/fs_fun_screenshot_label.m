@@ -84,7 +84,7 @@ for iLabel = 1:nLabels
         end
         
         % create the screenshot
-        fs_fvlabel(subjCode, theLabel, outputPath, overlayFile, threshold, isfsavg, '', 1);
+        fv_label(subjCode, theLabel, outputPath, overlayFile, threshold, isfsavg, '', 1);
 
     end
     
