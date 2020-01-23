@@ -3,18 +3,29 @@ function mgzFile = fv_volmgz(mgzFile, subjCode, structPath, surfType, loadReg)
 % This function displays the *.mgz file (for volume) in Freeview.
 % 
 % Inputs: 
-%     mgzFile            *.mgz file (with path) [if is empty, a window will
-%                        open for selecting the *.mgz (mgh) file.
+%     mgzFile            *.mgz file (with path) [if is empty, 'orig.mgz' for
+%                        subjCode will be shown.] (To open a GUI for
+%                        selecting files, please use fv_mgz.m.)
+%     subjCode           <string> subjCode in SUBJECTS_DIR
+%     structPath         <string> the path to SUBJECTS_DIR
 %     surfType           <string> the base surface file to be displayed
 %                        ('white', 'pial') [porbably should not
 %                        be 'inflated' or 'sphere']
+%     loadReg            <logical> 1: load 'register.lta' if it is available; 
+%                        0: do not load 'register.lta'.
 %
 % Output:
-%      Open FreeView to display the mgz (mgh) file
+%     mgzFile            the *.mgz file was displayed
+%     Open FreeView to display the mgz (mgh) file
 %
 % Created by Haiyang Jin (22-Jan-2020)
 
-if ischar(mgzFile); mgzFile = {mgzFile}; end
+if nargin < 1 || isempty(mgzFile) 
+    dispMgz = 0;
+else
+    dispMgz = 1;
+    if ischar(mgzFile); mgzFile = {mgzFile}; end
+end
 
 if nargin < 2 %|| isempty(subjCode)
     subjCode = '';
@@ -35,22 +46,25 @@ if nargin < 5 || isempty(loadReg)
 end
 
 % fscmd for volume mgzFile
-fscmd_mgz = sprintf(repmat(' %s', 1, numel(mgzFile)), mgzFile{:});
-% show with 'register.lta' (created by bbregister)
-fscmd_reg = '';
-thePath = fileparts(mgzFile{1});
-if loadReg
-    regFile = fullfile(thePath, 'register.lta');
-    if exist(regFile, 'file')
-        fscmd_reg = sprintf(':reg=%s', regFile);
-    else
-        warning('Cannot find registration file: %s.', regFile);
+if dispMgz
+    fscmd_mgz = sprintf(repmat(' %s', 1, numel(mgzFile)), mgzFile{:});
+    % show with 'register.lta' (created by bbregister)
+    fscmd_reg = '';
+    thePath = fileparts(mgzFile{1});
+    if loadReg
+        regFile = fullfile(thePath, 'register.lta');
+        if exist(regFile, 'file')
+            fscmd_reg = sprintf(':reg=%s', regFile);
+        else
+            warning('Cannot find registration file: %s.', regFile);
+        end
     end
+    fscmd_vol = [fscmd_mgz fscmd_reg];
+else
+    fscmd_vol = '';
 end
-fscmd_vol = [fscmd_mgz fscmd_reg];
 
 % get the structPath for this subjCode
-
 if (isempty(subjCode) || isempty(structPath))
     subjPath = fullfile(thePath, '..');
 else
