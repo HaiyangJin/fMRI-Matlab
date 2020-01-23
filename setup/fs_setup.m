@@ -8,7 +8,7 @@ function fs_setup(fsPath)
 % Created and updated by Haiyang Jin (16-Jan-2020)
 
 if ~isempty(getenv('FREESURFER_HOME'))
-    fprintf('\nFreeSurfer was already set up properly.\n\n');
+    fprintf('\nFreeSurfer was already set up.\n\n');
     return;
 end
 
