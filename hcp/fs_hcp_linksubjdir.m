@@ -1,10 +1,11 @@
-function fs_hcp_linksubjdir(structPath, isLinkT1)
+function fs_hcp_linksubjdir(structPath, hcpPath, isLinkT1)
 % This function re-link the SUBJECTS_DIR after the output from HCP is
 % downloaded to local storage.
 %
 % Input:
-%     structPath       'SUBJECTS_DIR'
-%     isLinkT1         logical. 1: link files. 0: copy files.
+%     structPath       <string> 'SUBJECTS_DIR'
+%     hcpPath          <string> the full path to HCP/ folder
+%     isLinkT1         <logical> 1: link files. 0: copy files.
 % Output:
 %     re-link the folders in SUBJECTS_DIR
 %
@@ -16,15 +17,18 @@ if nargin < 1 || isempty(structPath)
 else
     FS = fs_subjdir(structPath);
 end
-
-% link file by default
-if nargin < 2 || isempty(isLinkT1)
-    isLinkT1 = 1;
-end
-
 % path to SUBJECTS_DIR
 structPath = FS.structPath;
-hcpPath = fullfile(structPath, '..');
+
+% set the hcpPath (if empty) based on structPath
+if nargin < 2 || isempty(hcpPath)
+    hcpPath = fullfile(structPath, '..');
+end
+
+% link file by default
+if nargin < 3 || isempty(isLinkT1)
+    isLinkT1 = 1;
+end
 
 for iSubj = 1:FS.nSubj
     
