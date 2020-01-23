@@ -7,6 +7,9 @@ function fs_setup(fsPath)
 %
 % Created and updated by Haiyang Jin (16-Jan-2020)
 
+% setup matlab
+fs_setupmatlab;
+
 if ~isempty(getenv('FREESURFER_HOME'))
     fprintf('\nFreeSurfer was already set up.\n\n');
     return;
