@@ -1,4 +1,6 @@
-function fs_drawlabel(subjCode, hemi, fileSig, labelname)
+function fv_drawlabel(subjCode, hemi, fileSig, labelname)
+% fv_drawlabel(subjCode, hemi, fileSig, labelname)
+%
 % This function uses "tksurfer" in FreeSurfer to draw label 
 % 
 % Inputs:
