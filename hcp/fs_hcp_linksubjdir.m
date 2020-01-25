@@ -22,7 +22,7 @@ structPath = FS.structPath;
 
 % set the hcpPath (if empty) based on structPath
 if nargin < 2 || isempty(hcpPath)
-    hcpPath = fullfile(structPath, '..');
+    hcpPath = fullfile(structPath, '..', '..');
 end
 
 % link file by default
@@ -39,6 +39,7 @@ for iSubj = 1:FS.nSubj
     
     % link (or copy) recon-all data
     if isLinkT1 % link files
+        delete(targetSubjCode);  % delete the old folder
         fscmd_link = sprintf('ln -s %s %s', sourceSubjCode, structPath);
         system(fscmd_link);
     elseif ~isLinkT1
