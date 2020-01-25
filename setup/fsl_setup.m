@@ -21,6 +21,7 @@ end
 % setup FSL
 setenv('FSLDIR', fslPath);
 setenv('PATH', sprintf('%s/bin:%s', getenv('FSLDIR'), getenv('PATH')));
+setenv('FSLOUTPUTTYPE', 'NIFTI_GZ'); 
 system('export FSLDIR PATH');
 iserror = system('sh ${FSLDIR}/etc/fslconf/fsl.sh');
 
