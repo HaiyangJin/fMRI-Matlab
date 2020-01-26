@@ -107,7 +107,7 @@ for iSubj = 1:nSubj
     
     % source and target path
     sourceFunc = fullfile(thisPath, 'MNINonLinear', 'Results');
-    runDir = dir(fullfile(sourceFunc, 'tfMRI*'));
+    runDir = dir(fullfile(sourceFunc, '*fMRI*'));
     runNameCell = {runDir.name};
         
     % copy functional data to preprocessed/
