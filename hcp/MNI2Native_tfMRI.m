@@ -81,7 +81,7 @@ for iSubj = 1:nSubj
     
     %% transform BOLD data from MNI space to Native Space
     resultsPath = fullfile(thisPath, 'MNINonLinear', 'Results');
-    mniDir = dir(fullfile(resultsPath, 'tfMRI_*'));
+    mniDir = dir(fullfile(resultsPath, '*fMRI_*'));
     mniList = {mniDir.name};
 
     % filenames of all bold data to be transformed
