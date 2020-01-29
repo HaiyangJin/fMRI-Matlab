@@ -8,4 +8,4 @@ function fs_selxavg3(sessidfile, analysisList)
 % Created by Haiyang Jin (19/12/2019)
 
 % run the analysis 
-cellfun(@(x) system(sprintf('selxavg3-sess -sf %s -analysis %s', sessidfile, x)), analysisList);
+cellfun(@(x) system(sprintf('selxavg3-sess -sf %s -analysis %s -force', sessidfile, x)), analysisList);
