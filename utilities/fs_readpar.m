@@ -43,9 +43,11 @@ end
 tableout = table;
 if ~cleanPar
     tableout.OnsetTime = str2double(tmptable.OnsetTime);
-    tableout.Duration = str2double(tmptable.Duration);
 end
 tableout.Condition = str2double(tmptable.Condition);
+if ~cleanPar
+    tableout.Duration = str2double(tmptable.Duration);
+end
 tableout.Weight = str2double(tmptable.Weight);
 tableout.Label = tmptable.Label;
 
