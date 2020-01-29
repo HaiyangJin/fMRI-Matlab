@@ -27,9 +27,9 @@ if ~isempty(contrast)
             fscmd_angle = sprintf('azimuth %d', angle); % camera angle for LOC
             
     end
-else
-    fscmd_angle = '';
 end
+
+if ~exist('fscmd_angle', 'var'); fscmd_angle = ''; end
 
 fscmd_camera = [' -cam dolly 1.5 ' fscmd_angle];
 
