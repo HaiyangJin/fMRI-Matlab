@@ -1,4 +1,4 @@
-function contraStr = fs_mkcontrast(analysisList, contrasts, conditions)
+function contraStruct = fs_mkcontrast(analysisList, contrasts, conditions, force)
 % This function creates contrast and run mkcontrast-sess in FreeSurfer
 %
 % Inputs:
@@ -10,20 +10,36 @@ function contraStr = fs_mkcontrast(analysisList, contrasts, conditions)
 %                         be used to set the contrast name later)
 %    conditions           the full names of all conditions
 % Output:
-%    contraStr           a contrast structure which has three fieldnames.
+%    contraStruct         a contrast structure which has three fieldnames.
 %                         (analysisName: the ananlysis name; contrastName:
 %                         the contrast name in format of a-vs-b;
 %                         contrastCode: the commands to be used in
 %                         FreeSurfer)
+%                         contraStruct will also be saved as the Matlab
+%                         file and its name will be the initials of all the
+%                         conditions.
 %
-% Created by Haiyang Jin (19/12/2019)
+% Created by Haiyang Jin (19-Dec-2019)
 
+if nargin < 4 || isempty(force)
+    force = 0;
+end
+
+% filename of the Matlab file to be saved later
+contraFn = sprintf('Contra_%s.mat', cellfun(@(x) x(1), conditions));
+
+if exist(contraFn, 'file') && ~force
+    load(contraFn, 'contraStruct');
+    fprintf('contraStruct is loaded.\n');
+    return;
+end
+    
 % number of analysis names and contrasts
 nAnalysis = numel(analysisList);
 nContrast = size(contrasts, 1);
 
 % empty structure for saving information
-contraStr = struct;
+contraStruct = struct;
 n = 0;
 
 for iAnalysis = 1:nAnalysis
@@ -42,7 +58,7 @@ for iAnalysis = 1:nAnalysis
         conditionNum = cellfun(@(x) find(startsWith(conditions, x)), thisCon, 'uni', false);
         
         % save the information
-        contraStr(n).analysisName = analysisName;
+        contraStruct(n).analysisName = analysisName;
         
         % levels of activation and control
         nLevels = cellfun(@numel, conditionNum);
@@ -65,14 +81,20 @@ for iAnalysis = 1:nAnalysis
             contrCodeStr = [contrCodeStr, ' -c' repmat(' %d', 1, nLevels(2))]; %#ok<AGROW>
         end
         
-        contraStr(n).contrastName = contrNameStr;
-        contraStr(n).contrastCode = sprintf(contrCodeStr, conditionNum{:});
+        contraStruct(n).contrastName = contrNameStr;
+        contraStruct(n).contrastCode = sprintf(contrCodeStr, conditionNum{:});
         
         % created the commands
         fscmd = sprintf('mkcontrast-sess -analysis %s -contrast %s %s', ...
-            analysisName, contraStr(n).contrastName, contraStr(n).contrastCode);
+            analysisName, contraStruct(n).contrastName, contraStruct(n).contrastCode);
         
         system(fscmd)
     end
     
+end
+
+% save contraStr as Matlab file
+save(contraFn, 'contraStruct', '-v7.3');
+fprintf('contraStruct is saved in %s.\n', contraFn)
+
 end
