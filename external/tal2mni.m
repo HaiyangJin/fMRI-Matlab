@@ -1,11 +1,15 @@
 function outpoints = tal2mni(inpoints)
 % Converts coordinates to MNI brain best guess
 % from Talairach coordinates
+%
 % FORMAT outpoints = tal2mni(inpoints)
 % Where inpoints is N by 3 or 3 by N matrix of coordinates
 %  (N being the number of points)
 % outpoints is the coordinate matrix with MNI points
+%
 % Matthew Brett 2/2/01
+%
+% downloaded from http://imaging.mrc-cbu.cam.ac.uk/imaging/MniTalairach
 
 dimdim = find(size(inpoints) == 3);
 if isempty(dimdim)
