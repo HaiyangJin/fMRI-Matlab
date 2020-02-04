@@ -30,7 +30,6 @@ end
 % slplit the filename for the overlay file
 strings = strsplit(overlayFile, filesep);
 
-
 hemi = fs_hemi(strings(end-2));
 contrast = strings{end-1};
 theLabel = sprintf('%s.%s', hemi, contrast);
@@ -38,6 +37,12 @@ funcPath = fullfile(filesep, strings{1:end-5});
 subjCode = fs_subjcode(strings{end-4}, funcPath);
 outputPath = '';
 threshold = '';
+
+% display the information of the overlay file
+fprintf('\nDisplaying %s.\n', overlayFile);
+fprintf('SubjCode: %s.\n', subjCode);
+fprintf('Hemisphere: %s.\n', hemi);
+fprintf('Contrast: %s.\n', contrast);
 
 % display the overlay file
 fv_label(subjCode, theLabel, outputPath, overlayFile, threshold, 0, '', 0);
