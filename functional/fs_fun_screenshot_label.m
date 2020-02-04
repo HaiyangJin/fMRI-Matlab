@@ -1,4 +1,5 @@
-function fs_fun_screenshot_label(project, labelList, outputPath, whichOverlay, locSmooth, threshold)
+function fs_fun_screenshot_label(project, labelList, runType, outputPath, ...
+    smooth, whichOverlay, threshold, runNum)
 % fs_fun_screenshot_label(project, labelList, outputPath, whichOverlay, locSmooth, threshold)
 % This function gets the screenshots of labels with overlays.
 %
@@ -12,19 +13,27 @@ function fs_fun_screenshot_label(project, labelList, outputPath, whichOverlay, l
 %
 % Created by Haiyang Jin (10-Dec-2019)
 
-if nargin < 3 
+if nargin < 3
+    runType = 'loc';
+end
+if nargin < 4
     outputPath = '';
 end
-if nargin < 4 || isempty(whichOverlay)
+if nargin < 5 || isempty(smooth)
+    smooth = '';
+elseif ~strcmp(smooth(1), '_')
+    smooth = ['_' smooth];
+end
+if nargin < 6 || isempty(whichOverlay)
     whichOverlay = 1; % show the overlay of the first label by default
 end
-if nargin < 5 || isempty(locSmooth)
-    locSmooth = '';
-elseif ~strcmp(locSmooth(1), '_')
-    locSmooth = ['_' locSmooth];
-end
-if nargin < 6 || isempty(threshold)
+if nargin < 7 || isempty(threshold)
     threshold = '';
+end
+if nargin < 8 || isempty(runNum)
+    runNum = '';
+elseif isnumeric(runNum)
+    runNum = num2str(runNum);
 end
 
 % number of labels
@@ -48,7 +57,7 @@ for iLabel = 1:nLabels
     if nHemi ~= 1
         continue;
     end
-
+    
     % get the contrast name from the label name
     if ~whichOverlay
         labelName = theLabel{1};
@@ -56,7 +65,7 @@ for iLabel = 1:nLabels
         labelName = theLabel{whichOverlay};
     end
     theContrast = fs_label2contrast(labelName);
-
+    
     
     for iSess = 1:nSess
         
@@ -71,7 +80,7 @@ for iLabel = 1:nLabels
         waitbar(progress, waitHandle, waitMsg);
         
         % other information for screenshots
-        analysis = sprintf('loc%s%s.%s', locSmooth, boldext, hemi); % analysis name
+        analysis = sprintf('%s%s%s%s.%s', runType, smooth, boldext, runNum, hemi); % analysis name
         overlayFile = fullfile(project.funcPath, thisSess, 'bold',...
             analysis, theContrast, 'sig.nii.gz'); % the overlay file
         
@@ -85,7 +94,7 @@ for iLabel = 1:nLabels
         
         % create the screenshot
         fv_label(subjCode, theLabel, outputPath, overlayFile, threshold, isfsavg, '', 1);
-
+        
     end
     
 end
