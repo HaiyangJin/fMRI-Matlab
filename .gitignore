@@ -1,3 +1,7 @@
+# FreeSurfer temporary files
+.xdebug_tksurfer
+surfer.log
+
 .DS_Store
 
 # ignore Matlab temp files
