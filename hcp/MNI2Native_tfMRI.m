@@ -4,21 +4,22 @@ function MNI2Native_tfMRI(hcpPath, projectString)
 % native space (with FSL functions).
 %
 % Inputs:
-%    hcpPath       path to the HCP results ('Path/to/HCP/') [Default is the
-%                   current working directory]
-%    sessStr        strings (or prefix) for session information (e.g.,
+%    hcpPath        <string> path to the HCP results ('Path/to/HCP/') 
+%                   [Default is the current working directory]
+%    sessStr        <string> strings (or prefix) for session information (e.g.,
 %                   'faceword' is the prefix for 'faceword01', 'faceword02',
 %                   'faceword03'. sessStr will help to identify all the 
 %                   session folders. In order to perform this
 %                   transformation for only one session, just set the sessStr 
 %                   as the full name of the session name (e.g., 'faceword01').
+%
 % Output:
 %    files of functional (bold) data on native space.  
 % Dependency:
 %    FSL  (Please make sure FSL is installed and sourced properly.)
 %
-% Created by Haiyang Jin (5/01/2020) (Based on MNI2Native.sh which was 
-% created by Osama Abdullah on 9/09/18).
+% Created by Haiyang Jin (5-Jan-2020) (Based on MNI2Native.sh which was 
+% created by Osama Abdullah on 9-Sept-18).
 
 % check if FSL is sourced properly
 if isempty(getenv('FSLDIR'))
