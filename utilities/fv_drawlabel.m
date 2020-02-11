@@ -1,25 +1,37 @@
-function fv_drawlabel(subjCode, hemi, fileSig, labelname)
+function fv_drawlabel(subjCode, hemi, fileSig, labelname, fthresh)
 % fv_drawlabel(subjCode, hemi, fileSig, labelname)
 %
 % This function uses "tksurfer" in FreeSurfer to draw label 
 % 
 % Inputs:
-%    subjCode         subject code in $SUBJECTS_DIR
-%    hemi             which hemispheres (must be 'lh' or 'rh')
-%    fileSig         usually the sig.nii.gz from localizer scans
-%    labelname        the label name you want to use for this label
+%    subjCode         <string> subject code in $SUBJECTS_DIR.
+%    hemi             <string> which hemispheres (must be 'lh' or 'rh').
+%    fileSig          <string> usually the sig.nii.gz from localizer scans.
+%    labelname        <string> the label name you want to use for this
+%                     label.
+%    fthresh          <string> or <numeric> the overlay threshold minimal 
+%                     value .
 % Output:
 %    a label file saved in the label folder
 %
-% Created by Haiyang Jin (10/12/2019)
+% Created by Haiyang Jin (10-Dec-2019)
 % For furture development, I should included to define the limits of
 % p-values.
+
+if nargin < 5 % || isempty(fthresh)
+    fthresh = '';
+elseif isnumeric(fthresh)
+    fthresh = num2str(fthresh);
+end
 
 subjPath = getenv('SUBJECTS_DIR');
 
 % create FreeSurfer command and run it
 fscmd = sprintf('tksurfer %s %s inflated -aparc -overlay %s',...
     subjCode, hemi, fileSig);
+if ~isempty(fthresh)
+    fscmd = sprintf('%s -fthresh %s', fscmd, fthresh);
+end
 system(fscmd);
 
 %%%%%%%%%%%%%%%% Manual working in FreeSurfer %%%%%%%%%%%%%%%%%%%%%%%%%%%%

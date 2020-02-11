@@ -1,4 +1,4 @@
-function fs_fun_drawlabel(project, analysisName, contrastName, siglevel, extraLabelInfo)
+function fs_fun_drawlabel(project, analysisName, contrastName, fthresh, extraLabelInfo)
 % fs_fun_drawlabel(project, analysisName, contrastName, siglevel, extraLabelInfo)
 % This function use FreeSurfer ("tksurfer") to draw labels.
 %
@@ -10,11 +10,13 @@ function fs_fun_drawlabel(project, analysisName, contrastName, siglevel, extraLa
 %                      <cell of string> cell of subject codes in
 %                      %SUBJECTS_DIR.
 %    analysisName      <string> or <a cell of strings> the names of the
-%                      analysis (i.e., the names of the analysis folders)
-%    contrast_name     contrast name used glm (i.e., the names of contrast
-%                      folders)
-%    siglevel          significance level (default is f13 (.05))
-%    extraLabelInfo    extra label information added to the label name
+%                      analysis (i.e., the names of the analysis folders).
+%    contrast_name     <string> contrast name used glm (i.e., the names of 
+%                      contrast folders).
+%    fthresh           <numeric> significance level (default is f13 (.05)).
+%    extraLabelInfo    <string> extra label information added to the end 
+%                      of the label name.
+%
 % Output:
 %    a label saved in the label/ folder within $SUBJECTS_DIR
 %
@@ -30,8 +32,8 @@ elseif ischar(project)
 end
 nSess = numel(sessList);
 
-if nargin < 4 || isempty(siglevel)
-    siglevel = 'f13';
+if nargin < 4 || isempty(fthresh)
+    fthresh = 1.3; % p < .05
 end
 if nargin < 5 || isempty(extraLabelInfo)
     extraLabelInfo = '';
@@ -48,21 +50,21 @@ nAnalysis = numel(analysisName);
 for iSess = 1:nSess
     
     thisSess = sessList{iSess};
-    subjCode = fs_subjcode(thisSess, project.funcPath);
+    subjCode = fs_subjcode(thisSess, funcPath);
     
     for iAna = 1:nAnalysis
         
         thisAna = analysisName{iAna};
         hemi = fs_hemi(thisAna);
         
-        sigFile = fullfile(project.funcPath, thisSess, 'bold',...
+        sigFile = fullfile(funcPath, thisSess, 'bold',...
             thisAna, contrastName, 'sig.nii.gz');
         
-        labelName = sprintf('roi.%s.%s.%s.%slabel', ...
-            hemi, siglevel, contrastName, extraLabelInfo);
+        labelName = sprintf('roi.%s.f%d.%s.%slabel', ...
+            hemi, fthresh*10, contrastName, extraLabelInfo);
         
         % draw labels manually with FreeSurfer
-        fv_drawlabel(subjCode, hemi, sigFile, labelName);
+        fv_drawlabel(subjCode, hemi, sigFile, labelName, fthresh);
         
     end
     
