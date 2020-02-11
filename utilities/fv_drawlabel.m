@@ -26,6 +26,17 @@ end
 
 subjPath = getenv('SUBJECTS_DIR');
 
+% open a message box to display information
+CreateStruct.Interpreter = 'tex';
+CreateStruct.WindowStyle = 'modal';
+% msgbox('\fontsize{18} Now is big =)', CreateStruct)
+
+message = {sprintf('\\fontsize{20}SubjCode: %s', replace(subjCode, '_', '-'));
+    sprintf('label: %s', labelname);
+    sprintf('fthresh: %s', fthresh)};
+title = 'The current session...';
+f = msgbox(message,title, CreateStruct);
+
 % create FreeSurfer command and run it
 fscmd = sprintf('tksurfer %s %s inflated -aparc -overlay %s',...
     subjCode, hemi, fileSig);
@@ -53,5 +64,8 @@ tempLabelFile = fullfile(subjPath, subjCode, 'label.label');
 if exist(tempLabelFile, 'file')
     movefile(tempLabelFile, labelFile);
 end
+
+% close the msgbox
+close(f);
 
 end
