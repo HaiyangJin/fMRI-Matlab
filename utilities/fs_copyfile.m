@@ -14,6 +14,11 @@ function fs_copyfile(source, target, force)
 %
 % Created by Haiyang Jin (11-Feb-2020)
 
+if isempty(dir(source)) % if the source does not exist
+    warning('The source files do not exist.');
+    return;
+end
+
 if nargin < 3 || isempty(force)
     force = 0;
 end
@@ -21,18 +26,18 @@ end
 [~, sourceFn, sourceExt] = fileparts(source);
 sourceFile = [sourceFn sourceExt];
 
-isExist = 0;
+existTarget = 0;
 
 % make the target direcotry if it does not exist
 if ~exist(target, 'dir')
     mkdir(target);
 elseif ~isempty(dir(fullfile(target, sourceFile)))
     % check if the source files already exist in the target folder
-    isExist = 1;
+    existTarget = 1;
     warning('File %s is already in Folder %s.', sourceFile, target);
 end
 
-if ~isExist || force
+if ~existTarget || force
     % copy the files
     copyfile(source, target);
 else
