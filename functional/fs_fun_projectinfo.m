@@ -14,20 +14,20 @@ function project = fs_fun_projectinfo(projectName, funcPath, boldext)
 % Copy information from FreeSurfer
 project = fs_subjdir;
 
-if nargin < 2 || isempty(funcPath)
-    funcPath = fullfile(project.strcutPath, '..', 'functional_data/');
-end
 if nargin < 3 
     boldext = '_self';
 end
-
-% set the environmental variable of FUNCTIONALS_DIR
-setenv('FUNCTIONALS_DIR', funcPath);
-
 % add underscore if there is not available in boldext
 if ~isempty(boldext) &&~strcmp(boldext(1), '_')
     boldext = ['_', boldext];
 end
+
+if nargin < 2 || isempty(funcPath)
+    funcPath = fullfile(project.structPath, '..', ['functional_data' boldext]);
+end
+
+% set the environmental variable of FUNCTIONALS_DIR
+setenv('FUNCTIONALS_DIR', funcPath);
 
 project.boldext = boldext;
 project.funcPath = funcPath;
