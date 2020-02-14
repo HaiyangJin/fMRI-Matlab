@@ -7,5 +7,5 @@ function fs_recon(t1File, subjCode)
 %
 % Created by Haiyang Jin (6-Feb-2020)
 
-fscmd = sprintf('recon-all -i %s -s % -all', t1File, subjCode);
+fscmd = sprintf('recon-all -i %s -s %s -all', t1File, subjCode);
 system(fscmd);
