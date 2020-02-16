@@ -1,4 +1,4 @@
-function fs_samsrf_linksubjdir(sourcePath, targetPath, isLink)
+function fs_samsrf_linksubjdir(sourcePath, targetPath, isLink, force)
 % This function links the structPath (source) to the session folder in the 
 % functional data folder (target).
 %
@@ -9,6 +9,8 @@ function fs_samsrf_linksubjdir(sourcePath, targetPath, isLink)
 %                        should be the subjCode in structPath.
 %     isLink             <logical> if link the two folder. 1 (default): 
 %                        link folder; 0: copy folder.
+%     force              <logical> if force, the target folders will be
+%                        removed if they already exist.
 %     
 % Output:
 %     link or copy folders.
@@ -20,6 +22,10 @@ function fs_samsrf_linksubjdir(sourcePath, targetPath, isLink)
 
 if nargin < 3 || isempty(isLink)
     isLink = 1;
+end
+
+if nargin < 4 || isempty(force)
+    force = 0;
 end
 
 % read folders in the source path
@@ -45,6 +51,17 @@ end
 
 % create all the combinations of source and target
 [tempSource, tempTarget] = ndgrid(sourceFolders, targetPath);
+
+if force % && isLink
+    % remove the target folder if it exists
+    
+    % the path to all the target subfolders
+    [targetTemp, targetSub] = ndgrid(targetPath, {sourceDir.name});
+    theTarget = fullfile(targetTemp, targetSub);
+    
+    % delete these folders
+    cellfun(@delete, unique(theTarget));
+end
 
 % run the function
 cellfun(tempfunc, tempSource, tempTarget);
