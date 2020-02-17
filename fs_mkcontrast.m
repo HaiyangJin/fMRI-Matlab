@@ -2,17 +2,18 @@ function contraStruct = fs_mkcontrast(analysisList, contrasts, conditions, force
 % This function creates contrast and run mkcontrast-sess in FreeSurfer
 %
 % Inputs:
-%    analysisList         a list of all analysis names
-%    contrasts            a cell of contrasts to be created. One row is one
-%                         contrast; the conditions in the first cell is the
-%                         activation condition; the conditions in the
+%    analysisList         <cell of string> a list of all analysis names;
+%    contrasts            <cell> a cell of contrasts to be created. One row 
+%                         is one contrast; the conditions in the first cell  
+%                         is the activation condition; the conditions in the
 %                         second cell is the control condition. (These will
-%                         be used to set the contrast name later)
-%    conditions           the full names of all conditions
+%                         be used to set the contrast name later);
+%    conditions           <cell of string> the full names of all conditions;
+%    force                <logical> force to make contrast
 % Output:
-%    contraStruct         a contrast structure which has three fieldnames.
-%                         (analysisName: the ananlysis name; contrastName:
-%                         the contrast name in format of a-vs-b;
+%    contraStruct         <structure> a contrast structure which has three 
+%                         fieldnames. (analysisName: the ananlysis name; 
+%                         contrastName: the contrast name in format of a-vs-b;
 %                         contrastCode: the commands to be used in
 %                         FreeSurfer)
 %                         contraStruct will also be saved as the Matlab
@@ -25,18 +26,23 @@ if nargin < 4 || isempty(force)
     force = 0;
 end
 
+if ischar(analysisList)
+    analysisList = {analysisList};
+end
+
+% number of analysis names and contrasts
+nAnalysis = numel(analysisList);
+nContrast = size(contrasts, 1);
+
 % filename of the Matlab file to be saved later
-contraFn = sprintf('Contra_%s.mat', cellfun(@(x) x(1), conditions));
+contraFn = sprintf('Ana%d_Con%d_%s.mat', nAnalysis, nContrast, ...
+    cellfun(@(x) x(1), conditions));
 
 if exist(contraFn, 'file') && ~force
     load(contraFn, 'contraStruct');
     fprintf('contraStruct is loaded.\n');
     return;
 end
-    
-% number of analysis names and contrasts
-nAnalysis = numel(analysisList);
-nContrast = size(contrasts, 1);
 
 % empty structure for saving information
 contraStruct = struct;
