@@ -1,16 +1,21 @@
-function fs_setup(fsPath)
+function fs_setup(fsPath, force)
 % fs_setup(fsPath);
 % Set up FreeSurfer if it is not set up properly.
 %
 % Input:
 %    fsPath         full path to the folder where FreeSurfer is installed
+%    force          force to set fsPath as $FREESURFER_HOME
 %
 % Created and updated by Haiyang Jin (16-Jan-2020)
 
 % setup matlab
 fs_setupmatlab;
 
-if ~isempty(getenv('FREESURFER_HOME'))
+if nargin < 2 || isempty(force)
+    force = 0;
+end
+
+if ~isempty(getenv('FREESURFER_HOME'))&& ~force
     fprintf('\nFreeSurfer was already set up.\n\n');
     return;
 end
