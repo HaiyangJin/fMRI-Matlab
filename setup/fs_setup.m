@@ -17,6 +17,7 @@ end
 
 if ~isempty(getenv('FREESURFER_HOME'))&& ~force
     fprintf('\nFreeSurfer was already set up.\n\n');
+    fs_version; % display the version of FreeSurfer
     return;
 end
 
@@ -83,4 +84,8 @@ clear fsfasthome fsfasttoolbox;
 %-----------------------------------------------------%
 
 fprintf('\nFreeSurfer is set up successfully [I hope so].\n\n');
+
+%% Display the version of the FreeSurfer in use
+fs_version;
+
 end
