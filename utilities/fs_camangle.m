@@ -18,7 +18,8 @@ isLeft = strcmp(hemi, 'lh');
 % set camera angle based on contrast
 if ~isempty(contrast)
     switch contrast(conStart:(conEnd-3))
-        case {'f', 'face', 'w', 'word', 'sce', 'scene' }
+        case {'f', 'face', 'w', 'word', 'sce', 'scene' ...
+                , 'rep', 'ord', 'rev'}
             angle = 240 + 60 * isLeft;
             fscmd_angle = sprintf('elevation %d', angle);
             
