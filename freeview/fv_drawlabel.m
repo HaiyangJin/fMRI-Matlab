@@ -37,6 +37,8 @@ message = {sprintf('\\fontsize{20}SubjCode: %s', replace(subjCode, '_', '-'));
 title = 'The current session...';
 f = msgbox(message,title, CreateStruct);
 
+movegui(f, 'northeast');
+
 % create FreeSurfer command and run it
 fscmd = sprintf('tksurfer %s %s inflated -aparc -overlay %s',...
     subjCode, hemi, sigFile);
