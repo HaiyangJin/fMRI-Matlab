@@ -1,11 +1,16 @@
-function file = fs_createfile(file, contents4save)
+function filename = fs_createfile(filename, contents4save)
+% filename = fs_createfile(filename, contents4save)
+%
 % This function creates new files for FreeSurfer (e.g, sessid, subjectname,
 % runfile).
 %
 % Inputs:
-%    file        the filename with path to be created
-%    contents    the contents to be saved (could be a cell or a string)
+%    filename         <string> the filename with path to be created.
+%    contents         <cell array> the contents to be saved (could be a 
+%                     cell or a string).
+%
 % Output:
+%    filename         <string> the name of the created file.
 %    a new file is created.
 %
 % Created by Haiyang Jin (16-Dec-2019)
@@ -18,7 +23,7 @@ end
 [nRow, nColu] = size(contents4save);
 
 % open a new file
-fid = fopen(file, 'w');
+fid = fopen(filename, 'w');
 
 % create the array
 rowFormat = ['%s' repmat(' %s', 1, nColu-1)];
