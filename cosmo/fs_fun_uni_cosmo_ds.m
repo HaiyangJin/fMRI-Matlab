@@ -7,17 +7,24 @@ function [uniTable, ds_subj, uniInfo] = fs_fun_uni_cosmo_ds(project, ...
 % dataset used for CoSMoMVPA for FreeSurfer surface data.
 %
 % Inputs:
-%    project            Project structure (obtained from fs_fun_projectinfo)
-%    labelFn           the label filename (or 'lh' or 'rh', then the
-%                       output will be the data for the whole hemisphere)
-%    sessCode          session code in functional folder (bold subject code)
-%    outputPath        where the outputs from fs_fun_labelsize are saved
-%    runInfo           the run name (usually is 'loc' or 'main')
-%    runSeparate        gather data for each run separately or not
+%    project            <structure> Project structure (obtained from 
+%                       fs_fun_projectinfo).
+%    labelFn            <string> the label filename (or 'lh' or 'rh', then 
+%                       the output will be the data for the whole
+%                       hemisphere).
+%    sessCode           <string> session code in functional folder (bold
+%                       subject code).
+%    outputPath         <string> where the outputs from fs_fun_labelsize 
+%                       are saved.
+%    runInfo            <string> the run name (usually is 'loc' or 'main').
+%    smooth             <string> or <numeric> the smooth used.
+%    runSeparate        <logical> gather data for each run separately or
+%                       not.
+%
 % Outputs:
-%    uniTable          the data table for univarate analyses
-%    ds_subj            data set for CoSMoMVPA
-%    uniInfo           information for this analyses
+%    uniTable           <table> the data table for univarate analyses.
+%    ds_subj            <structure> data set for CoSMoMVPA.
+%    uniInfo            <structure> information for this analysis.
 %
 % Created by Haiyang Jin (12-Dec-2019)
 
@@ -38,8 +45,12 @@ if nargin < 6 || isempty(smooth)
     else
         smooth = '';
     end
-else
+elseif isnumeric(smooth)
     smooth = sprintf('_sm%d', smooth);
+elseif ischar(smooth)
+    if ~strcmp(smooth(1), '_')
+        smooth = ['_' smooth];
+    end
 end
 
 if (nargin < 7 || isempty(runSeparate)) && ~exist('runSeparate', 'var')
