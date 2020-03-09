@@ -1,4 +1,6 @@
 function [predicted, probability] =cosmo_classify_libsvm_p(samples_train, targets_train, samples_test, opt)
+% [predicted, probability] =cosmo_classify_libsvm_p(samples_train, targets_train, samples_test, opt)
+%
 % This function is modified from cosmo_classify_libsvm.m in CoSMoMVPA. This
 % function will calculate the probability of the predictions. One more
 % output 'probability' is added.
