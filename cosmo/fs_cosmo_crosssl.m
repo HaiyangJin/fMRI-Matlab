@@ -1,14 +1,20 @@
-function fs_cosmo_searchlight(slInfo, ds_this, surfDef, classPairs, classifier)
-% fs_cosmo_searchlight(slInfo, ds_this, surfDef, classPairs, classifier)
+function fs_cosmo_crosssl(slInfo, ds, surfDef, classPairs, classifier)
+% fs_cosmo_crosssl(slInfo, ds, surfDef, classPairs, classifier)
 %
 % This function performs the searchlight analysis with cosmoMVPA.
 %
 % Inputs:
-%    slInfo         searchlight information (structure) (more see below)
-%    ds_this        cosmo dataset
-%    surf_def       surface denitions
-%    classPairs     the pairs to be classified for the searchlight
-%    classifier     the classifier to be used
+%    slInfo          <structure> searchlight information (structure). It 
+%                    includes {'subjCode', 'hemiInfo', 'featureCount'}.
+%    ds              <structure> cosmo dataset.
+%    surf_def        <> surface denitions
+%    classPairs      <cell of strings> the pairs to be classified for the 
+%                    searchlight; a PxQ (usually is 2) cell matrix for
+%                    the pairs to be classified. Each row is one 
+%                    classfication pair. 
+%    classifier      <numeric> or <strings> or <cells> the classifiers 
+%                    to be used (only 1).
+%
 % Output:
 %    For each hemispheres, the results will be saved as a *.mgz file saved 
 %    at the subject label folder ($SUBJECTS_DIR/subjCode/surf)
@@ -16,6 +22,7 @@ function fs_cosmo_searchlight(slInfo, ds_this, surfDef, classPairs, classifier)
 %
 % Created by Haiyang Jin (15-Dec-2019)
 
+% obtain the searchlight information from slInfo
 fields = {'subjCode', 'hemiInfo', 'featureCount'};
 slInfoCheck = isfield(slInfo, fields);
 if ~all(slInfoCheck)
@@ -26,10 +33,10 @@ subjCode = slInfo.subjCode;  % subject code in $SUBJECTS_DIR
 hemiInfo = slInfo.hemiInfo;  %    hemi_info      'lh', 'rh', or 'both'
 featureCount = slInfo.featureCount;  % number of vertices (or voxels)
 
-if nargin < 6 || isempty(classifier)
-    [classifier, ~, nClass] = fs_cosmo_classifier;
+if nargin < 5 || isempty(classifier)
+    [classifier, ~, shortName, nClass] = fs_cosmo_classifier;
 else
-    [classifier, ~, nClass] = fs_cosmo_classifier(classifier);
+    [classifier, ~, shortName, nClass] = fs_cosmo_classifier(classifier);
 end
 % error if multiple classifiers are chosed
 if nClass ~= 1
@@ -66,7 +73,7 @@ if exist(nbhFilename, 'file') % load the file if it is available
 else % calculate the surficial neighborhood
     fprintf('\n\nCalcualte the surficial neighborhood for %s (%s):\n',...
         subjCode, hemiInfo);
-    [nbrhood,vo,fo,~]=cosmo_surficial_neighborhood(ds_this,surfDef,...
+    [nbrhood,vo,fo,~]=cosmo_surficial_neighborhood(ds,surfDef,...
         'count',featureCount);
     
     % save the the surficial neighborhood file
@@ -90,13 +97,13 @@ for iPair = 1:nPairs
     thisPair = classPairs(iPair, :);
     
     % skip if the pair is not available in this dataset
-    if ~all(ismember(thisPair, unique(ds_this.sa.labels)))
+    if ~all(ismember(thisPair, unique(ds.sa.labels)))
         continue;
     end
     
     % dataset for this classification
-    thisPairMask = cosmo_match(ds_this.sa.labels, thisPair);
-    ds_thisPair = cosmo_slice(ds_this, thisPairMask);
+    thisPairMask = cosmo_match(ds.sa.labels, thisPair);
+    ds_thisPair = cosmo_slice(ds, thisPairMask);
     
     %% Set partition scheme. odd_even is fast; for publication-quality analysis
     % nfold_partitioner is recommended.
@@ -120,7 +127,7 @@ for iPair = 1:nPairs
     
     %% Save results as *.mgz files
     % store searchlight results
-    outputFn = sprintf('sl.svm.%s.%s-%s', hemiInfo, thisPair{1}, thisPair{2});
+    outputFn = sprintf('sl.%s.%s.%s-%s', shortName{1}, hemiInfo, thisPair{1}, thisPair{2});
     
     if ismember(hemiInfo, {'lh', 'rh'})  % save as .label for each hemisphere
 %         fs_save2label(dt_results.samples, subjCode, outputFn, surfDef{1});

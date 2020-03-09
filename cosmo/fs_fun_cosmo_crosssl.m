@@ -1,28 +1,32 @@
-function fs_fun_cosmo_searchlight(project, classPairs, sessCode, surfCoorFile, combineHemi, classifier)
-% fs_fun_cosmo_searchlight(project, classPairs, sessCode, surfCoorFile, combineHemi, classifier)
-% This function does the searchlight analyses for the faceword project
+function fs_fun_cosmo_crosssl(project, classPairs, sessCode, surfType, combineHemi, classifier)
+% fs_fun_cosmo_crosssl(project, classPairs, sessCode, surfCoorFile, combineHemi, classifier)
+%
+% This function does the searchlight analyses for the whole project
 % with CoSMoMVPA. Data were analyzed with FreeSurfer.
 %
 % Inputs:
-%    project            project structure (created by fs_fun_projectinfo)
-%    classPairs         condition pairs to be classified
-%    sessCode           session code (functional subject folder)
-%    surfCoorFile       the coordinate file for vertices ('inflated',
-%                       'white', 'pial')
-%    combineHemi        if the data of two hemispheres will be combined
-%                       (default is no) [0: run searchlight for the two
-%                       hemnispheres separately; 1: run searchlight
+%    project            <structure> project structure (created by fs_fun_projectinfo)
+%    classPairs         <cell of strings> a PxQ (usually is 2) cell matrix 
+%                       for the pairs to be classified. Each row is one 
+%                       classfication pair. 
+%    sessCode           <string> or <cell of strings> session code 
+%                       (functional subject folder).
+%    surfType           <string> the coordinate file for vertices (
+%                       ('inflated', 'white', 'pial').
+%    combineHemi        <logical> if the data of two hemispheres will be 
+%                       combined (default is no) [0: run searchlight for 
+%                       the two hemnispheres separately; 1: run searchlight
 %                       anlaysis for the whole brain together; 3: run
 %                       analysis for both 0 and 1.
-%    classifier         classifier function handle
+%    classifier         <numeric> or <strings> or <cells> the classifiers 
+%                       to be used (only 1).
 %
 % Output:
-%    For each hemispheres, the results will be saved as a label file saved
-%    at the subject label folder ($SUBJECTS_DIR/subjCode/label)
+%    For each hemispheres, the results will be saved as a *.mgz file saved 
+%    at the subject label folder ($SUBJECTS_DIR/subjCode/surf)
 %    For the whole brain, the results will be saved as *.gii
 %
 % Created by Haiyang Jin (24-Nov-2019)
-% Updated by Haiyang Jin (15-Dec-2019)
 
 cosmo_warning('once');
 
@@ -34,8 +38,8 @@ else
     sessList = sessCode;
 end
 
-if nargin < 4 || isempty(surfCoorFile)
-    surfCoorFile = 'inflated';
+if nargin < 4 || isempty(surfType)
+    surfType = 'inflated';
 end
 if nargin < 5 || isempty(combineHemi)
     combineHemi = 0;
@@ -68,7 +72,7 @@ for iSess = 1:nSess
     waitbar(progress, waitHandle, progressMsg);
     
     % load vertex and face coordinates
-    [vtxCell, faceCell] = fs_cosmo_surfcoor(subjCode, surfCoorFile, combineHemi);
+    [vtxCell, faceCell] = fs_cosmo_surfcoor(subjCode, surfType, combineHemi);
     
     
     %% Load functional data (beta.nii.gz)
@@ -118,12 +122,13 @@ for iSess = 1:nSess
         slInfo.featureCount = 200;
         
         % run search light analysis
-        fs_cosmo_searchlight(slInfo, ds_this, surfDef, classPairs, classifier);
+        fs_cosmo_crosssl(slInfo, ds_this, surfDef, classPairs, classifier);
         
     end
     
 end
 
-close(waitHandle); % close the waitbar 
+% close the waitbar 
+close(waitHandle); 
 
 end
