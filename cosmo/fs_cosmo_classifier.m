@@ -1,4 +1,4 @@
-function [classOut, classNames, nClass] = fs_cosmo_classifier(classifiers)
+function [classOut, classNames, classShortNames, nClass] = fs_cosmo_classifier(classifiers)
 % [classOut, classNames, nClass] = fs_cosmo_classifier(classifiers)
 %
 % This function generates the classifier related information.
@@ -23,6 +23,8 @@ classifierList = {@cosmo_classify_libsvm, ...
     @cosmo_classify_lda, ...
     @cosmo_classify_svm};
 classifierListNames=cellfun(@func2str,classifierList,'UniformOutput',false);
+
+classShortNames = cellfun(@(x) erase(x, 'cosmo_classify_'), classifierListNames, 'uni', false);
 
 if isnumeric(classifiers) % double input
     classifiers = classifierList(classifiers);
@@ -60,7 +62,7 @@ classOut = classifiers(cellfun(@(x) isa(x, 'function_handle'), classifiers));
 nClass = numel(classOut);
 
 % display the classifiers used
-classNames=cellfun(@func2str,classifiers,'UniformOutput',false);
+classNames = classifierListNames;
 fprintf('\n\nUsing %d classifiers: %s.\n', length(classNames), ...
     cosmo_strjoin(classNames, ', '));
 
