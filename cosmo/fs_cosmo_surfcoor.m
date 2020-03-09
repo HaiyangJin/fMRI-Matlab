@@ -1,9 +1,9 @@
 function [vtxCell, faceCell] = fs_cosmo_surfcoor(subjCode, surfCoorFile, combineHemi)
+% [vtxCell, faceCell] = fs_cosmo_surfcoor(subjCode, surfCoorFile, combineHemi)
+% 
 % This function converts ?h.inflated (or white or pial) into ASCII file and
 % then load them into Matlab. Vertices (faces) for both hemispheres could
 % be merged together. 
-% 
-% Created by Haiyang Jin (8/12/2019)
 %
 % Inputs: 
 %    subjCode           subject code in $SUBJECTS_DIR
@@ -18,6 +18,8 @@ function [vtxCell, faceCell] = fs_cosmo_surfcoor(subjCode, surfCoorFile, combine
 %                       hemisphere. The third column (if there is) is for 
 %                       the merged hemispheres.
 %    faceCell           face cell. Same structure as vtxCell
+%
+% Created by Haiyang Jin (8-Dec-2019)
 
 if nargin < 2 || isempty(surfCoorFile)
     surfCoorFile = {'inflated'};
