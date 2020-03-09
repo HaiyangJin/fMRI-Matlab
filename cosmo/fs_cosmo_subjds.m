@@ -61,7 +61,7 @@ hemiOnly = any(ismember(labelFn, project.hemis));
 % warning if the label is not available for that subjCode and finish this
 % function
 subjCode = fs_subjcode(sessCode, funcPath);  % subjCode in $SUBJECTS_DIR
-if ~fs_checklabel(labelFn, subjCode)
+if ~fs_checklabel(labelFn, subjCode) && ~hemiOnly
     warning('Cannot find label "%s" for %s', labelFn, subjCode);
     condInfo = table;
     ds_subj = table;
@@ -69,8 +69,10 @@ if ~fs_checklabel(labelFn, subjCode)
 end
 
 % converting the label file to logical matrix
-dtMatrix = fs_readlabel(subjCode, labelFn);
-vtxROI = dtMatrix(:, 1);
+if ~hemiOnly
+    dtMatrix = fs_readlabel(subjCode, labelFn);
+    vtxROI = dtMatrix(:, 1);
+end
 
 hemi = fs_hemi(labelFn);  % which hemisphere
 
