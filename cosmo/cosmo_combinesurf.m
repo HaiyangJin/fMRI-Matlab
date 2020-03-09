@@ -1,13 +1,20 @@
-function ds_combine = fs_cosmo_combinesurface(ds_cell)
+function ds_combine = cosmo_combinesurf(ds_cell)
+% ds_combine = cosmo_combinesurface(ds_cell)
+%
 % This function combines the functional (surface) data of two hemispheres
-% together (or maybe more). 
+% together (or maybe more). Essentially, this function combine the .samples
+% horizontally. 
 %
 % Inputs:
-%    ds_cell       a cell of cosmo dataset for both hemispheres (or more)
+%    ds_cell          <cell of structure> a cell of cosmo dataset for both 
+%                     hemispheres (or more data sets).
 % Outputs:
-%    ds_combine    the combined cosmo dataset
+%    ds_combine       <sturcture> the combined cosmo dataset.
 %
-% Created by Haiyang Jin (15/12/2019)
+% Dependency:
+%    CoSMoMVPA
+%
+% Created by Haiyang Jin (15-Dec-2019)
 
 % number of vertices in total for all datasets in ds_cell
 nVtxTotal = sum(cellfun(@(x) numel(x.a.fdim.values{1, 1}), ds_cell));
@@ -16,7 +23,7 @@ nVtxTotal = sum(cellfun(@(x) numel(x.a.fdim.values{1, 1}), ds_cell));
 nds = numel(ds_cell);
 
 % empty cell for saving updated datasets
-ds_update = cell(1, nds); 
+ds_all = cell(1, nds); 
 startVtxNum = 0;
 
 for ids = 1:nds
@@ -34,9 +41,10 @@ for ids = 1:nds
     this_ds.a.fdim.values = {1:nVtxTotal};
     
     % save the updated dataset
-    ds_update(1, ids) = {this_ds};
+    ds_all(1, ids) = {this_ds};
     
 end
 
 % combine all updated datasets
-ds_combine = cosmo_stack(ds_update, 2);
+ds_combine = cosmo_stack(ds_all, 2);
+end

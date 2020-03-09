@@ -80,7 +80,7 @@ for iSess = 1:nSess
     if ~combineHemi
         runSearchlight = 1:nHemi;
     else
-        dsSurfCell = [dsSurfCell, fs_cosmo_combinesurface(dsSurfCell)]; %#ok<AGROW>
+        dsSurfCell = [dsSurfCell, cosmo_combinesurf(dsSurfCell)]; %#ok<AGROW>
         hemis = [hemis, 'both']; %#ok<AGROW>
         
         if combineHemi == 1
