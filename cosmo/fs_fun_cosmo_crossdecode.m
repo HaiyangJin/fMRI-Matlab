@@ -1,12 +1,19 @@
-function [mvpaTable, uniTable, uniLocTable] = fs_fun_cosmo_classification(project,...
+function [mvpaTable, uniTable, uniLocTable] = fs_fun_cosmo_crossdecode(project,...
     labelList, classPairs, classifiers, runLoc, outputPath)
-% [mvpaTable, uniTable, uniLocTable] = fs_fun_cosmo_classification(project,...
-%     labelList, classPairs, classifiers, outputPath)
+% [mvpaTable, uniTable, uniLocTable] = fs_fun_cosmo_crossdecode(project,...
+%     labelList, classPairs, classifiers, runLoc, outputPath)
+%
+% This function run the cross-validation classification (decoding) for all
+% subjects and all pairs.
+%
 % Inputs:
-%    project             project structure (obtained from fs_fun_projectinfo)
-%    labelList           a list of label names
-%    classPairs          a list of pairs to be classified in MVPA
-%    runLoc              run analyses for localizer scans
+%    project             <structure> project structure (obtained from
+%                        fs_fun_projectinfo).
+%    labelList           <cell of strings> a list of label names.
+%    classPairs          <cell of strings> a PxQ (usually is 2) cell matrix 
+%                        for the pairs to be classified. Each row is one 
+%                        classfication pair. 
+%    runLoc              <logical> run analyses for localizer scans
 %    output_path         where output where be saved
 % Outputs:
 %    mvpaTable           MVPA result table (main runs)
@@ -15,7 +22,12 @@ function [mvpaTable, uniTable, uniLocTable] = fs_fun_cosmo_classification(projec
 %
 % Created by Haiyang Jin (12-Dec-2019)
 
-if nargin < 5 
+if nargin < 5 || isempty(runLoc)
+    runLoc = 0;
+    warning('Classification (decoding) only performs on main runs by default.');
+end
+
+if nargin < 6 
     outputPath = '';
 end
 
@@ -74,13 +86,24 @@ for iSess = 1:nSess
         smooth = 0;
         runSeparate = 1;
                 
-        [uniMainTableTmp, ds_subj, uniInfo] = fs_cosmo_subjds(project, ...
+        [ds_subj, condInfo] = fs_cosmo_subjds(project, ...
             thisLabel, thisSess, outputPath, runInfo, smooth, runSeparate);
+        
+        % add more inforamtion about this label
+        [roisize, talCoor, nVtx, VtxMax] = fs_fun_labelsize(project, thisSess, ...
+    thisLabel, outputPath);
+        condInfo.roiSize = roisize;
+        condInfo.talCoor = talCoor;
+        condInfo.nVtx = nVtx;
+        condInfo.vtxMax = VtxMax;
+        
+        % convert ds to uniTable
+        uniMainTableTmp = fs_ds2uni(ds_subj, condInfo);
         uniCell(iSess, iLabel) = {uniMainTableTmp};
         
         % run classification if ds_subj is not empty
         if ~isempty(ds_subj)
-            mvpaTableTemp = fs_cosmo_classification(ds_subj, uniInfo, classPairs, classifiers);
+            mvpaTableTemp = fs_cosmo_crossdecode(ds_subj, condInfo, classPairs, classifiers);
         else
             mvpaTableTemp = table;
         end
