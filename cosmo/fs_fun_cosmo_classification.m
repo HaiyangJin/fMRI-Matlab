@@ -60,9 +60,10 @@ for iSess = 1:nSess
             smooth = '';
             runSeparate = 0;
             
-            uniLocTableTemp = fs_fun_uni_cosmo_ds(project, ...
-                thisLabel, thisSess, outputPath, runInfo, smooth, runSeparate);
+            [locDsTemp, condInfoTemp] = fs_cosmo_subjds(project, ...
+                thisLabel, thisSess, runInfo, smooth, runSeparate);
             
+            uniLocTableTemp = fs_ds2uni(locDsTemp, condInfoTemp);
             uniLocCell(iSess, iLabel) = {uniLocTableTemp};
         end
         
@@ -73,7 +74,7 @@ for iSess = 1:nSess
         smooth = 0;
         runSeparate = 1;
                 
-        [uniMainTableTmp, ds_subj, uniInfo] = fs_fun_uni_cosmo_ds(project, ...
+        [uniMainTableTmp, ds_subj, uniInfo] = fs_cosmo_subjds(project, ...
             thisLabel, thisSess, outputPath, runInfo, smooth, runSeparate);
         uniCell(iSess, iLabel) = {uniMainTableTmp};
         

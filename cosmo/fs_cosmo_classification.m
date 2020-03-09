@@ -1,16 +1,17 @@
-function mvpaTable = fs_cosmo_classification(ds_subj, uniInfo, classPairs, classifiers)
+function mvpaTable = fs_cosmo_classification(ds_subj, condInfo, classPairs, classifiers)
 % mvpa_table = fs_cosmo_classification(ds_subj, uni_info, classPairs, classifiers)
+%
 % This function performs leave-one-out crossvalidation classification with CoSMoMVPA.
 %
 % Inputs:
-%    dsSubj          dataset obtained from fs_fun_uni_cosmo_ds.
-%    uniInfo         the condition information obtained from fs_fun_uni_cosmo_ds.
+%    ds_subj          dataset obtained from fs_cosmo_subjds.
+%    condInfo         the condition information obtained from fs_cosmo_subjds.
 %    classPairs       the pairs to be classified
 %    classifiers      the classifiers to be used (could be more than 1)
 % Output:
 %    mvpaTable       the MVPA result table
 %
-% Created by Haiyang Jin (12/12/2019)
+% Created by Haiyang Jin (12-Dec-2019)
 
 if nargin < 4 || isempty(classifiers)
     [classifiers, classNames, nClass] = fs_cosmo_classifier;
@@ -93,7 +94,7 @@ nRow = size(accTable, 1);
 if ~nRow
     mvpaTable = table;
 else
-    mvpaTable = [repmat(uniInfo, nRow, 1), accTable];
+    mvpaTable = [repmat(condInfo, nRow, 1), accTable];
 end
 
 end
