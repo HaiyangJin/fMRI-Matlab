@@ -1,5 +1,8 @@
 function [classOut, classNames, nClass] = fs_cosmo_classifier(classifiers)
-
+% [classOut, classNames, nClass] = fs_cosmo_classifier(classifiers)
+%
+% This function generates the classifier related information.
+%
 % Inputs:
 %    classifier_in      the classifiers used in this analyses. Could be
 %                       double (1, 2, 3, 4, 5) or strings ('libsvm', 'bayes',
@@ -7,7 +10,7 @@ function [classOut, classNames, nClass] = fs_cosmo_classifier(classifiers)
 % Output:
 %    classifier_out     a cell contains the classifiers
 %
-% Created by Haiyang Jin (9/12/2019)
+% Created by Haiyang Jin (9-Dec-2019)
 
 if nargin < 1 || isempty(classifiers)
     classifiers = 1;
