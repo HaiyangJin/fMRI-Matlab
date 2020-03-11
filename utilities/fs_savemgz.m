@@ -8,13 +8,19 @@ function fs_savemgz(subjCode, surfData, outputFn, structPath, outputPath)
 % (uncompressed).
 %
 % Inputs:
-%     subjCode         subject code in SUBJECTS_DIR
-%     surfData         nVtx * D (where D >= 1)
-%     outputFn         filename of the output file (without path) [the
-%                      filename must conform to the format [lh,rh].XXX.[mgz,mgh].
-%     structPath       'SUBJECTS_DIR' in FreeSurfer
+%     subjCode         <string> subject code in SUBJECTS_DIR.
+%     surfData         <array of numeric> nVtx * D (where D >= 1) [Data to 
+%                      be saved].
+%     outputFn         <string> filename of the output file (without path) 
+%                      [the filename must conform to the format
+%                      [lh,rh].XXX.[mgz,mgh].
+%     structPath       <string> 'SUBJECTS_DIR' in FreeSurfer.
+%
 % Output:
 %     a new *.mgz or *.mgh file will be saved at subjects/surf/
+%
+% Dependency:
+%     FreeSurfer Matlab codes...
 %
 % Created by Haiyang Jin (19-Jan-2020)
 
