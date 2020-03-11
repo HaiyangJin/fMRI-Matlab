@@ -7,7 +7,12 @@ function fs_cosmo_crosssl(slInfo, ds, surfDef, classPairs, classifier)
 %    slInfo          <structure> searchlight information (structure). It 
 %                    includes {'subjCode', 'hemiInfo', 'featureCount'}.
 %    ds              <structure> cosmo dataset.
-%    surf_def        <> surface denitions
+%    surf_def        <cell of numeric array> surface denitions. The first
+%                    element is the array of vertex number and coordiantes;
+%                    the second element is the array of face number and
+%                    coordinates. Both can be obtained by fs_cosmo_surfcoor.
+%                    More information can be found in
+%                    cosmo_surficial_neighborhood.m
 %    classPairs      <cell of strings> the pairs to be classified for the 
 %                    searchlight; a PxQ (usually is 2) cell matrix for
 %                    the pairs to be classified. Each row is one 
@@ -19,6 +24,9 @@ function fs_cosmo_crosssl(slInfo, ds, surfDef, classPairs, classifier)
 %    For each hemispheres, the results will be saved as a *.mgz file saved 
 %    at the subject label folder ($SUBJECTS_DIR/subjCode/surf)
 %    For the whole brain, the results will be saved as *.gii
+%
+% Dependency:
+%    CoSMoMVPA
 %
 % Created by Haiyang Jin (15-Dec-2019)
 
