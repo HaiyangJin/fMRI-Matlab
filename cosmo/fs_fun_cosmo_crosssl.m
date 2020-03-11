@@ -7,19 +7,19 @@ function fs_fun_cosmo_crosssl(project, classPairs, sessCode, surfType, combineHe
 % Inputs:
 %    project            <structure> project structure (created by fs_fun_projectinfo)
 %    classPairs         <cell of strings> a PxQ (usually is 2) cell matrix 
-%                       for the pairs to be classified. Each row is one 
-%                       classfication pair. 
+%                        for the pairs to be classified. Each row is one 
+%                        classfication pair. 
 %    sessCode           <string> or <cell of strings> session code 
-%                       (functional subject folder).
+%                        (functional subject folder).
 %    surfType           <string> the coordinate file for vertices (
-%                       ('inflated', 'white', 'pial').
+%                        ('inflated', 'white', 'pial').
 %    combineHemi        <logical> if the data of two hemispheres will be 
-%                       combined (default is no) [0: run searchlight for 
-%                       the two hemnispheres separately; 1: run searchlight
-%                       anlaysis for the whole brain together; 3: run
-%                       analysis for both 0 and 1.
+%                        combined (default is no) [0: run searchlight for 
+%                        the two hemnispheres separately; 1: run searchlight
+%                        anlaysis for the whole brain together; 3: run
+%                        analysis for both 0 and 1.
 %    classifier         <numeric> or <strings> or <cells> the classifiers 
-%                       to be used (only 1).
+%                        to be used (only 1).
 %
 % Output:
 %    For each hemispheres, the results will be saved as a *.mgz file saved 
@@ -117,12 +117,11 @@ for iSess = 1:nSess
         % dataset for this searchlight analysis
         ds_this = dsSurfCell{iSL};
         
-        slInfo.subjCode = subjCode;
-        slInfo.hemiInfo = hemiInfo;
-        slInfo.featureCount = 200;
+        featureCount = 200;
         
         % run search light analysis
-        fs_cosmo_crosssl(slInfo, ds_this, surfDef, classPairs, classifier);
+        fs_cosmo_crosssl(ds_this, surfDef, featureCount, classPairs, ...
+            subjCode, hemiInfo, classifier);
         
     end
     
