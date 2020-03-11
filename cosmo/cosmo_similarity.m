@@ -1,5 +1,5 @@
-function [predictTable, ds_combined] = fs_cosmo_similarity(ds, classPairs, condName, condWeight, autoscale)
-% fs_cosmo_similarity(ds, classPairs, condName, condWeight)
+function [predictTable, ds_combined] = cosmo_similarity(ds, classPairs, condName, condWeight, autoscale)
+% [predictTable, ds_combined] = cosmo_similarity(ds, classPairs, condName, condWeight, autoscale)
 %
 % This function quantifies the similarity of the pattern to the two (or more)
 % conditions in classPairs. The pattern could be another condition or the
@@ -18,7 +18,10 @@ function [predictTable, ds_combined] = fs_cosmo_similarity(ds, classPairs, condN
 %                      combination. Default is Z scale data.
 %
 % Output:
-%
+%     predictTable     <table> the prediction for the new condition and the
+%                      related information.
+%     ds_combined      <structure> data set structure for the combined
+%                      data.
 %
 % Dependency:
 %     CoSMoMVPA
