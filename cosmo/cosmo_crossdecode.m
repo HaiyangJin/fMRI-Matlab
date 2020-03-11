@@ -1,22 +1,30 @@
-function mvpaTable = fs_cosmo_crossdecode(ds_subj, condInfo, classPairs, classifiers)
-% mvpa_table = fs_cosmo_crossdecode(ds_subj, condInfo, classPairs, classifiers)
+function mvpaTable = cosmo_crossdecode(ds, classPairs, condInfo, classifiers)
+% mvpaTable = cosmo_crossdecode(ds, classPairs, condInfo, classifiers)
 %
 % This function performs leave-one-out crossvalidation classification with CoSMoMVPA.
 %
 % Inputs:
-%    ds_subj          <strucutre> dataset obtained from fs_cosmo_subjds.
-%    condInfo         <structure> the condition information obtained from
-%                     fs_cosmo_subjds.
+%    ds               <strucutre> dataset obtained from fs_cosmo_subjds.
 %    classPairs       <cell of strings> a PxQ (usually is 2) cell matrix 
 %                     for the pairs to be classified. Each row is one 
 %                     classfication pair. 
+%    condInfo         <structure> Extra information to be saved 
+%                     in mvpaTable. E.g., the condition information 
+%                     obtained from fs_cosmo_subjds.
 %    classifiers      <numeric> or <strings> or <cells> the classifiers 
 %                     to be used (can be more than 1).
 %
 % Output:
 %    mvpaTable       the MVPA result table
 %
+% Dependency:
+%    CoSMoMVPA
+%
 % Created by Haiyang Jin (12-Dec-2019)
+
+if nargin < 3 || isempty(condInfo)
+    condInfo = '';
+end
 
 if nargin < 4 || isempty(classifiers)
     [classifiers, classNames, nClass] = cosmo_classifier;
@@ -29,7 +37,7 @@ measure = @cosmo_crossvalidation_measure;  % function handle
 measure_args.output = 'fold_predictions';
 
 % remove constant features
-ds_subj = cosmo_remove_useless_data(ds_subj);
+ds = cosmo_remove_useless_data(ds);
 
 % pairs for classification
 nPair = size(classPairs, 1);
@@ -45,13 +53,13 @@ for iPair = 1:nPair
     thisPair = classPairs(iPair, :);
     
     % skip if the pair is not available in this dataset
-    if ~all(ismember(thisPair, unique(ds_subj.sa.labels)))
+    if ~all(ismember(thisPair, unique(ds.sa.labels)))
         continue;
     end
     
     % dataset for this classification
-    thisPairMask = cosmo_match(ds_subj.sa.labels, thisPair);
-    ds_thisPair = cosmo_slice(ds_subj, thisPairMask);
+    thisPairMask = cosmo_match(ds.sa.labels, thisPair);
+    ds_thisPair = cosmo_slice(ds, thisPairMask);
     
     % set the partitions for this dataset
     measure_args.partitions = cosmo_nfold_partitioner(ds_thisPair); % leave 1 out
@@ -96,7 +104,7 @@ end
 
 % combine mvpa data with condition information
 nRow = size(accTable, 1);
-if ~nRow
+if ~nRow || isempty(condInfo)
     mvpaTable = table;
 else
     mvpaTable = [repmat(condInfo, nRow, 1), accTable];

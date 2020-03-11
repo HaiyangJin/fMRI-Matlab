@@ -103,7 +103,7 @@ for iSess = 1:nSess
         
         % run classification if ds_subj is not empty
         if ~isempty(ds_subj)
-            mvpaTableTemp = fs_cosmo_crossdecode(ds_subj, condInfo, classPairs, classifiers);
+            mvpaTableTemp = cosmo_crossdecode(ds_subj, classPairs, condInfo, classifiers);
         else
             mvpaTableTemp = table;
         end
