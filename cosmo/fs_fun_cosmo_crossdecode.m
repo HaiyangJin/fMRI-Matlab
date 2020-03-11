@@ -8,20 +8,20 @@ function [mvpaTable, uniTable, uniLocTable] = fs_fun_cosmo_crossdecode(project,.
 %
 % Inputs:
 %    project             <structure> project structure (obtained from
-%                        fs_fun_projectinfo).
+%                         fs_fun_projectinfo).
 %    labelList           <cell of strings> a list of label names.
 %    classPairs          <cell of strings> a PxQ (usually is 2) cell matrix 
-%                        for the pairs to be classified. Each row is one 
-%                        classfication pair. 
-%    runLoc              <logical> run analyses for localizer scans
-%    output_path         <string> where output to be saved
+%                         for the pairs to be classified. Each row is one 
+%                         classfication pair. 
+%    runLoc              <logical> run analyses for localizer scans.
+%    output_path         <string> where output to be saved.
 %    classifiers         <numeric> or <strings> or <cells> the classifiers 
 %                         to be used (only 1).
 %
 % Outputs:
-%    mvpaTable           MVPA result table (main runs)
-%    uniTable            main run data for univariate analyses
-%    uniLocTable         localizer run data for univariate analyses
+%    mvpaTable           <table> MVPA result table (main runs).
+%    uniTable            <table> main run data for univariate analyses.
+%    uniLocTable         <table> localizer run data for univariate analyses.
 %
 % Created by Haiyang Jin (12-Dec-2019)
 
@@ -48,6 +48,7 @@ if ischar(labelList)
 end
 nLabel = numel(labelList);
 
+%% Crossvalidation decode
 % create empty table
 uniLocCell = cell(nSess, nLabel);
 uniCell = cell(nSess, nLabel);
@@ -81,7 +82,6 @@ for iSess = 1:nSess
             uniLocTableTemp = fs_ds2uni(locDsTemp, condInfoTemp);
             uniLocCell(iSess, iLabel) = {uniLocTableTemp};
         end
-        
         
         %% Main runs (run separately)
         % get data for univariate and CoSMoMVPA
