@@ -34,9 +34,9 @@ hemiInfo = slInfo.hemiInfo;  %    hemi_info      'lh', 'rh', or 'both'
 featureCount = slInfo.featureCount;  % number of vertices (or voxels)
 
 if nargin < 5 || isempty(classifier)
-    [classifier, ~, shortName, nClass] = fs_cosmo_classifier;
+    [classifier, ~, shortName, nClass] = cosmo_classifier;
 else
-    [classifier, ~, shortName, nClass] = fs_cosmo_classifier(classifier);
+    [classifier, ~, shortName, nClass] = cosmo_classifier(classifier);
 end
 % error if multiple classifiers are chosed
 if nClass ~= 1

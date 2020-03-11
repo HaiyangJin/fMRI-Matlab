@@ -19,9 +19,9 @@ function mvpaTable = fs_cosmo_crossdecode(ds_subj, condInfo, classPairs, classif
 % Created by Haiyang Jin (12-Dec-2019)
 
 if nargin < 4 || isempty(classifiers)
-    [classifiers, classNames, nClass] = fs_cosmo_classifier;
+    [classifiers, classNames, nClass] = cosmo_classifier;
 else
-    [classifiers, classNames, nClass] = fs_cosmo_classifier(classifiers);
+    [classifiers, classNames, nClass] = cosmo_classifier(classifiers);
 end
 
 % MVPA settings

@@ -1,14 +1,17 @@
-function [classOut, classNames, classShortNames, nClass] = fs_cosmo_classifier(classifiers)
-% [classOut, classNames, nClass] = fs_cosmo_classifier(classifiers)
+function [classOut, classNames, classShortNames, nClass] = cosmo_classifier(classifiers)
+% [classOut, classNames, classShortNames, nClass] = cosmo_classifier(classifiers)
 %
 % This function generates the classifier related information.
 %
 % Inputs:
-%    classifier_in      the classifiers used in this analyses. Could be
+%    classifiers      the classifiers used in this analyses. Could be
 %                       double (1, 2, 3, 4, 5) or strings ('libsvm', 'bayes',
 %                       'lda', '_svm') or function handles. Default is 1.
 % Output:
 %    classifier_out     a cell contains the classifiers
+%
+% Dependency:
+%    CoSMoMVPA
 %
 % Created by Haiyang Jin (9-Dec-2019)
 
