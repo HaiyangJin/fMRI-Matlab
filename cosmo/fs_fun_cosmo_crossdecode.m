@@ -1,5 +1,5 @@
 function [mvpaTable, uniTable, uniLocTable] = fs_fun_cosmo_crossdecode(project,...
-    labelList, classPairs, classifiers, runLoc, outputPath)
+    labelList, classPairs, runLoc, outputPath, classifiers)
 % [mvpaTable, uniTable, uniLocTable] = fs_fun_cosmo_crossdecode(project,...
 %     labelList, classPairs, classifiers, runLoc, outputPath)
 %
@@ -14,7 +14,10 @@ function [mvpaTable, uniTable, uniLocTable] = fs_fun_cosmo_crossdecode(project,.
 %                        for the pairs to be classified. Each row is one 
 %                        classfication pair. 
 %    runLoc              <logical> run analyses for localizer scans
-%    output_path         where output where be saved
+%    output_path         <string> where output to be saved
+%    classifiers         <numeric> or <strings> or <cells> the classifiers 
+%                         to be used (only 1).
+%
 % Outputs:
 %    mvpaTable           MVPA result table (main runs)
 %    uniTable            main run data for univariate analyses
