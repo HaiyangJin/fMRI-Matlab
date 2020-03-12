@@ -49,6 +49,8 @@ if nargin < 6 || isempty(outputPath)
 end
 
 %% Preparations
+% waitbar
+waitHandle = waitbar(0, 'Loading...   0.00% finished');
 
 % sessions
 sessList = project.sessList;
@@ -87,6 +89,13 @@ for iSess = 1:nSess
 
         for iClass = 1:nClass
             
+            % waitbar
+            progress = ((iSess-1)*nLabel*nClass + (iLabel-1)*nClass + iClass-1)...
+                / (nLabel * nSess * nClass);
+            progressMsg = sprintf('Subject: %s   Label: %s. \n%0.2f%% finished...', ...
+                strrep(thisSess, '_', '\_'), thisLabel, progress*100);
+            waitbar(progress, waitHandle, progressMsg);
+            
             % the classPair and condName for this decoding
             thisClass = classPairs(iClass, :);
             thisCondName = condName(iClass, :);
@@ -109,6 +118,9 @@ for iSess = 1:nSess
 end
 
 %% Save the output
+% waitbar
+waitbar(progress, waitHandle, 'Saving data...');
+
 % obtain the predictTable
 predictTable = vertcat(cellTable{:});
 
@@ -125,5 +137,8 @@ save(similarityFn, 'predictTable');
 
 writetable(predictTable, [similarityFn, '.xlsx']);
 writetable(predictTable, [similarityFn, '.csv']);
+
+% close the waitbar 
+close(waitHandle); 
 
 end
