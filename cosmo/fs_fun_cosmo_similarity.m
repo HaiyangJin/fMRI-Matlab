@@ -69,13 +69,13 @@ for iSess = 1:nSess
     
     % this session code
     thisSess = sessList{iSess};
-    info.SubjCode = {fs_subjcode(thisSess, project.funcPath)};
+    info.SubjCode = thisSess;
     
     for iLabel = 1:nLabel
         
         % this label name
         thisLabel = labelList{iLabel};
-        info.Labelname = {thisLabel};
+        info.Label = {thisLabel};
         
         % load the data set
         ds_this = fs_cosmo_subjds(project, thisLabel, thisSess, 'main', '', 1);
