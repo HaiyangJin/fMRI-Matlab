@@ -71,7 +71,7 @@ for iSess = 1:nSess
     
     % this session code
     thisSess = sessList{iSess};
-    info.SubjCode = thisSess;
+    info.SubjCode = {thisSess};
     
     for iLabel = 1:nLabel
         
