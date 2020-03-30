@@ -1,4 +1,4 @@
-function [v_merged, f_merged] = merge_surfaces(filenames)
+function [v_merged, f_merged] = merge_ascsurf(filenames)
 % merge surface filesep
 %
 % Input:
