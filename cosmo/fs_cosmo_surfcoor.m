@@ -1,4 +1,4 @@
-function [vtxCell, faceCell] = fs_cosmo_surfcoor(subjCode, surfCoorFile, combineHemi)
+function [vtxCell, faceCell] = fs_cosmo_surfcoor(subjCode, surfType, combineHemi)
 % [vtxCell, faceCell] = fs_cosmo_surfcoor(subjCode, surfCoorFile, combineHemi)
 % 
 % This function converts ?h.inflated (or white or pial) into ASCII file and
@@ -6,23 +6,27 @@ function [vtxCell, faceCell] = fs_cosmo_surfcoor(subjCode, surfCoorFile, combine
 % be merged together. 
 %
 % Inputs: 
-%    subjCode           subject code in $SUBJECTS_DIR
-%    surfCoorFile      the coordinate file for vertices ('inflated',
-%                       'white', 'pial') (default is 'inflated')
-%    combineHemi        if the data of two hemispheres will be combined
-%                       (default is no)
+%    subjCode           <string> subject code in $SUBJECTS_DIR.
+%    surfCoorFile       <string> coordinate file for vertices ('inflated', 
+%                        'white', 'pial') (default is 'inflated').
+%    combineHemi        <logical> whether the data of two hemispheres will 
+%                       be combined (default is no).
+%
 % Outputs:
-%    vtxCell            vertex cell. each row is for each surface file in
-%                       surfCoorFile. The first column is for left
-%                       hemisphere. The column is for the right
-%                       hemisphere. The third column (if there is) is for 
-%                       the merged hemispheres.
-%    faceCell           face cell. Same structure as vtxCell
+%    vtxCell            <cell> vertex cell. each row is for each surface 
+%                        file in surfCoorFile. The first column is for left
+%                        hemisphere. The second column is for the right
+%                        hemisphere. The third column (if there is) is for 
+%                        the merged hemispheres.
+%    faceCell           <cell> face cell. Same structure as vtxCell.
+%
+% Dependency:
+%    FreeSurfer Matlab functions.
 %
 % Created by Haiyang Jin (8-Dec-2019)
 
-if nargin < 2 || isempty(surfCoorFile)
-    surfCoorFile = {'inflated'};
+if nargin < 2 || isempty(surfType)
+    surfType = {'inflated'};
 end
 if nargin < 3 || isempty(combineHemi)
     combineHemi = 0;
@@ -31,58 +35,52 @@ end
 % FreeSurfer setup
 FS = fs_subjdir;
 surfPath = fullfile(FS.structPath, subjCode, 'surf');
-hemis = FS.hemis;
-nHemi = FS.nHemi;
+hemis = {'lh', 'rh'};
+nHemi = 2;
 
 % which of the surface files will be loaded
-if ~iscell(surfCoorFile)
-    surfCoorFile = {surfCoorFile}; % convert to cell if necessary
+if ~iscell(surfType)
+    surfType = {surfType}; % convert to cell if necessary
 end
 surfExt = {'white', 'pial', 'inflated'};
-whichSurfcoor = strcmp(surfExt, surfCoorFile);
+whichSurfcoor = ismember(surfType, surfExt);
 if ~any(whichSurfcoor)
     error('The surface coordinate system (%s) is not supported by this function.\n',...
         surfExt{1, whichSurfcoor});
 end
-nSurfFile = numel(surfCoorFile);
+nSurfFile = numel(surfType);
 
 % Create a cell for saving ASCII filenames for both hemisphere
-ascFileCell = cell(nSurfFile, nHemi);
 vCell = cell(nSurfFile, nHemi + combineHemi); % left, right, and (merged)
 fCell = cell(nSurfFile, nHemi + combineHemi); % left, right, and (merged)
 
 % Convert surface file to ASCII (with functions in FreeSurfer)
-for iSurfExt = 1:nSurfFile
+for iSurf = 1:nSurfFile
     
     for iHemi = 1:nHemi
         
         % the surface and its asc filename
-        thisSurfFile = [hemis{iHemi} '.' surfCoorFile{iSurfExt}];
-        thisASC = [thisSurfFile '.asc'];
-        
+        thisSurfFile = [hemis{iHemi} '.' surfType{iSurf}];
         thisSurfPath = fullfile(surfPath, thisSurfFile);
-        thisASCPath = fullfile(surfPath, thisASC);
+     
+        % read FreeSurfer surface files (with FreeSurfer Matlab functions).
+        [vCell{iSurf, iHemi}, fCell{iSurf, iHemi}] = fs_readsurf(thisSurfPath);
         
-        if ~exist(thisASCPath, 'file')
-            % convert the surface file to ASCII file
-            fscmd_asc = sprintf('mris_convert %s %s', thisSurfPath, thisASCPath);
-            system(fscmd_asc);
-        end
-        
-        % save the filename in the cell
-        ascFileCell(iSurfExt, iHemi) = {thisASCPath};
-        
-        [vCell{iSurfExt, iHemi}, fCell{iSurfExt, iHemi}] = surfing_read(thisASCPath);
     end
     
     if combineHemi
-        % Combine ASCII for two hemispheres together (with the order lh, rh)
-        % this function could be obtained from http://www.cosmomvpa.org/faq.html#make-a-merged-hemisphere-from-a-left-and-right-hemisphere
-        [vCell{iSurfExt, 3}, fCell{iSurfExt, 3}] = merge_surfaces(ascFileCell(iSurfExt, :));
+        % Combine the vertex coordinates for both hemispheres
+        vCell{iSurf, 3} = vertcat(vCell{iSurf, [1,2]});
+        
+        % Combine the faces of vertices for both hemispheres
+        nVtxLeft = size(vCell{1, 1}, 1);
+        fCell{iSurf, 3} = vertcat(fCell{iSurf, 1}, fCell{iSurf, 2} + nVtxLeft);
+        
     end
     
 end
 
+% save the output
 vtxCell = vCell;
 faceCell = fCell;
 
