@@ -69,26 +69,32 @@ for iAnalysis = 1:nAnalysis
         % levels of activation and control
         nLevels = cellfun(@numel, conditionNum);
         
+        %% Activation conditions
         % first part of contrast name
-        contrNameAct = thisCon(1);
-        contrNameStr = sprintf(['%s' repmat('%s', nLevels(1)-1) '-vs-'], contrNameAct{:});
+        contrNameAct = sprintf(['%s' repmat('%s', nLevels(1)-1) '-vs-'], thisCon{1});
         % first part of contrast code
-        contrCodeStr = ['-a' repmat(' %d', 1, nLevels(1))];
+        contrCodeAct = ['-a' repmat(' %d', 1, nLevels(1))];
         
+        %% Control conditions
         if nLevels(2) == 0
+            % if there is no control condition [NULL will be used as
+            % control condition]
             conditionNum = conditionNum(1);
+            contrCodeCon = '';
         else
             % second part of contrast name
-            contrNameCon = thisCon(2);
-            contrNameStrCon = sprintf(['%s' repmat('%s', nLevels(2)-1)], contrNameCon{:});
-            contrNameStr = [contrNameStr, contrNameStrCon]; %#ok<AGROW>
-            
+            contrNameCon = sprintf(['%s' repmat('%s', nLevels(2)-1)], thisCon{2});
             % second part of contrast code
-            contrCodeStr = [contrCodeStr, ' -c' repmat(' %d', 1, nLevels(2))]; %#ok<AGROW>
+            contrCodeCon = [' -c' repmat(' %d', 1, nLevels(2))]; 
         end
         
-        contraStruct(n).contrastName = contrNameStr;
-        contraStruct(n).contrastCode = sprintf(contrCodeStr, conditionNum{:});
+        %% Combine activation and control
+        contrName = [contrNameAct, contrNameCon];
+        contrCode = [contrCodeAct, contrCodeCon];
+        
+        % create the contrast names and contrast codes
+        contraStruct(n).contrastName = contrName;
+        contraStruct(n).contrastCode = sprintf(contrCode, conditionNum{:});
         
         % created the commands
         fscmd = sprintf('mkcontrast-sess -analysis %s -contrast %s %s', ...
