@@ -30,14 +30,17 @@ else
 end
 
 %% identify the input type
-isP = pInput > 0 & pInput < 1;
+% p ~ (0, 1)
+% fsp ~ (0, +unlimited)
+isPosi = pInput > 0;
+isP = isPosi & pInput < 1;
 
 if all(isP(:))
     inputCode = 1; % real p-values
-elseif all(~isP(:))
-    inputCode = 2; % FreeSurfer p-values
+elseif any(~isPosi(:))
+    error('pInput has to be positive values.');
 else
-    error('Please include only one type of p-values in pInput');
+    inputCode = 2; % FreeSurfer p-values
 end
 
 %% convert the p-values if necessary
