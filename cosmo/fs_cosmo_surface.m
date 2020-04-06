@@ -57,9 +57,8 @@ if ~exist(surfFn, 'file')
 end
 
 % load data
-datasamples = load_nifti(surfFn); % this function is from FreeSurfer
-data = datasamples.vol;
-data = shiftdim(data,3); % convert 4D to 2D
+data = fs_readnifti(surfFn, 1); % only load data
+data = data'; % betas * vertices
 
 % only keep first n rows of samples if Target information is available
 if ~isempty(params.targets)
