@@ -1,30 +1,30 @@
 function fs_fun_cosmo_crosssl(project, classPairs, sessCode, surfType, combineHemi, classifier)
-% fs_fun_cosmo_crosssl(project, classPairs, sessCode, surfCoorFile, combineHemi, classifier)
+% fs_fun_cosmo_crosssl(project, classPairs, sessCode, surfType, combineHemi, classifier)
 %
 % This function does the searchlight analyses for the whole project
 % with CoSMoMVPA. Data were analyzed with FreeSurfer.
 %
 % Inputs:
-%    project            <structure> project structure (created by fs_fun_projectinfo)
-%    classPairs         <cell of strings> a PxQ (usually is 2) cell matrix 
-%                        for the pairs to be classified. Each row is one 
-%                        classfication pair. 
-%    sessCode           <string> or <cell of strings> session code 
-%                        (functional subject folder).
-%    surfType           <string> the coordinate file for vertices (
-%                        ('inflated', 'white', 'pial').
-%    combineHemi        <logical> if the data of two hemispheres will be 
-%                        combined (default is no) [0: run searchlight for 
-%                        the two hemnispheres separately; 1: run searchlight
-%                        anlaysis for the whole brain together; 3: run
-%                        analysis for both 0 and 1.
-%    classifier         <numeric> or <strings> or <cells> the classifiers 
-%                        to be used (only 1).
+%     project            <structure> project structure (created by fs_fun_projectinfo)
+%     classPairs         <cell of strings> a PxQ (usually is 2) cell matrix 
+%                         for the pairs to be classified. Each row is one 
+%                         classfication pair. 
+%     sessCode           <string> or <cell of strings> session code 
+%                         (functional subject folder).
+%     surfType           <string> the coordinate file for vertices (
+%                         ('sphere', 'inflated', 'white', 'pial').
+%     combineHemi        <logical> if the data of two hemispheres will be 
+%                         combined (default is no) [0: run searchlight for 
+%                         the two hemnispheres separately; 1: run searchlight
+%                         anlaysis for the whole brain together; 3: run
+%                         analysis for both 0 and 1.
+%     classifier         <numeric> or <strings> or <cells> the classifiers 
+%                         to be used (only 1).
 %
 % Output:
-%    For each hemispheres, the results will be saved as a *.mgz file saved 
-%    at the subject label folder ($SUBJECTS_DIR/subjCode/surf)
-%    For the whole brain, the results will be saved as *.gii
+%     For each hemispheres, the results will be saved as a *.mgz file saved 
+%     at the subject label folder ($SUBJECTS_DIR/subjCode/surf)
+%     For the whole brain, the results will be saved as *.gii
 %
 % Created by Haiyang Jin (24-Nov-2019)
 
@@ -39,7 +39,7 @@ else
 end
 
 if nargin < 4 || isempty(surfType)
-    surfType = 'inflated';
+    surfType = 'sphere';
 end
 if nargin < 5 || isempty(combineHemi)
     combineHemi = 0;
