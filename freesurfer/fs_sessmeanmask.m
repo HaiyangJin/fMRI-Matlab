@@ -57,12 +57,12 @@ for iHemi = 1:nHemi
     % calcuate the mean masks
     fscmd1 = sprintf(['mri_concat --o %s --mean' repmat(' %s', 1, nRun)], ...
         maskFilename, masks{:});
-    fscmd{1, 1} = fscmd1;
+    fscmd{1, iHemi} = fscmd1;
     system(fscmd1)
     
     % binary the masks
     fscmd2 = sprintf('mri_binarize --i %1$s --min 10e-10 --o %1$s', maskFilename);
-    fscmd{2, 1} = fscmd2;
+    fscmd{2, iHemi} = fscmd2;
     system(fscmd2)
     
 end
