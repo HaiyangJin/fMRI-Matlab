@@ -84,7 +84,7 @@ else
     
     % fscmd for surface
     % color table for surface
-    color.white = 'blue';
+    color.white = 'yellow';
     color.pial = 'red';
     colors = cellfun(@(x) color.(x), surfType, 'uni', false);
     
