@@ -85,7 +85,7 @@ end
 hemi = fs_hemi(labelFn);  % which hemisphere
 
 % read the run file
-[runNames, nRun] = fs_readrun(runFn, project.funcPath, sessCode);
+[runNames, nRun] = fs_readrun(runFn, sessCode, project.funcPath);
 if ~runSeparate; nRun = 1; end % useful later for deciding the analysis name
 
 %% Load data from runs

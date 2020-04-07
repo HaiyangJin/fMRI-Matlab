@@ -1,11 +1,11 @@
-function [runNames, nRun] = fs_readrun(runFn, funcPath, sessCode)
+function [runNames, nRun] = fs_readrun(runFn, sessCode, funcPath)
 % This function loads run file (.txt) and output the list of run numbers
 %
 % Inputs:
 %     runFn        <string> filenames of the run file (*.txt) (with or
 %                   without path).
-%     funcPath     <string> the full path to the functional folder.
 %     sessCode     <string> session code in funcPath.
+%     funcPath     <string> the full path to the functional folder.
 %
 % Outputs:
 %     runNames     <cell of string> list of run names.
@@ -16,7 +16,13 @@ function [runNames, nRun] = fs_readrun(runFn, funcPath, sessCode)
 path = fileparts(runFn);
 
 if isempty(path)
-    if isempty(funcPath) || isempty(sessCode)
+    
+    % get the funcPath from global environment
+    if nargin < 3 || isempty(funcPath)
+        funcPath = getenv('FUNCTIONALS_DIR');
+    end
+    
+    if nargin < 2 || isempty(sessCode)
         error('Not enough inputs for fs_readrun.');
     else
         runFile = fullfile(funcPath, sessCode, 'bold', runFn);

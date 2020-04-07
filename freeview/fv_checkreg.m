@@ -30,8 +30,8 @@ end
 
 if isnumeric(runFolder)
     % get the run list
-    locList = fs_readrun('run_loc.txt', project, sessCode);
-    mainList = fs_readrun('run_main.txt', project, sessCode);
+    locList = fs_readrun('run_loc.txt', sessCode, funcPath);
+    mainList = fs_readrun('run_main.txt', sessCode, funcPath);
     runList = [locList; mainList];
     runFolder = runList{runFolder};
 end
