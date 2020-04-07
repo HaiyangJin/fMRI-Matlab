@@ -1,13 +1,11 @@
-function fs_fun_drawlabel(project, analysisName, contrastName, fthresh, extraLabelInfo)
-% fs_fun_drawlabel(project, analysisName, contrastName, siglevel, extraLabelInfo)
+function fs_drawlabel(sessList, analysisName, contrastName, fthresh, extraLabelInfo, funcPath)
+% fs_drawlabel(sessList, analysisName, contrastName, fthresh, extraLabelInfo, funcPath)
+%
 % This function use FreeSurfer ("tksurfer") to draw labels.
 %
 % Inputs: 
-%    project           <structure> or <string> or <cell of string>
-%                      <structure> matlab structure for the project 
-%                      (obtained from fs_fun_projectinfo);
-%                      <string> subject code in $SUBJECTS_DIR;
-%                      <cell of string> cell of subject codes in
+%    sessList          <string> session code in $FUNCTIONALS_DIR;
+%                      <cell of string> cell of session codes in
 %                      %SUBJECTS_DIR.
 %    analysisName      <string> or <a cell of strings> the names of the
 %                      analysis (i.e., the names of the analysis folders).
@@ -16,29 +14,29 @@ function fs_fun_drawlabel(project, analysisName, contrastName, fthresh, extraLab
 %    fthresh           <numeric> significance level (default is f13 (.05)).
 %    extraLabelInfo    <string> extra label information added to the end 
 %                      of the label name.
+%    funcPath          <string> the full path to the functional folder.
 %
 % Output:
 %    a label saved in the label/ folder within $SUBJECTS_DIR
 %
 % Created by Haiyang Jin (10-Dec-2019)
 
-if isstruct(project)
-    % obtian the information about this bold type
-    sessList = project.sessList;
-    funcPath = project.funcPath;
-elseif ischar(project)
-    sessList = {project};
-    funcPath = getenv('FUNCTIONALS_DIR');
+if ischar(sessList)
+    sessList = {sessList};
 end
 nSess = numel(sessList);
 
 if nargin < 4 || isempty(fthresh)
-    fthresh = 1.3; % p < .05
+    fthresh = 2; % p < .01
 end
 if nargin < 5 || isempty(extraLabelInfo)
     extraLabelInfo = '';
 elseif ~strcmp(extraLabelInfo(end), '.')
     extraLabelInfo = [extraLabelInfo, '.'];
+end
+
+if nargin < 6 || isempty(funcPath)
+    funcPath = getenv('FUNCTIONALS_DIR');
 end
 
 % convert analysisName to cell if it is string

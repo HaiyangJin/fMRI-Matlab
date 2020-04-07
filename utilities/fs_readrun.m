@@ -1,4 +1,6 @@
 function [runNames, nRun] = fs_readrun(runFn, sessCode, funcPath)
+% [runNames, nRun] = fs_readrun(runFn, sessCode, funcPath)
+%
 % This function loads run file (.txt) and output the list of run numbers
 %
 % Inputs:

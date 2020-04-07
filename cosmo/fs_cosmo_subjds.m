@@ -8,7 +8,7 @@ function [ds_subj, condInfo] = fs_cosmo_subjds(sessCode, labelFn, template, ...
 %
 % Inputs:
 %     sessCode         <string> session code in functional folder (bold
-%                        subject code).
+%                       subject code).
 %     labelFn          <string> the label filename (or 'lh' or 'rh', then
 %                       the output will be the data for the whole
 %                       hemisphere).
@@ -85,7 +85,7 @@ end
 hemi = fs_hemi(labelFn);  % which hemisphere
 
 % read the run file
-[runNames, nRun] = fs_readrun(runFn, sessCode, project.funcPath);
+[runNames, nRun] = fs_readrun(runFn, sessCode, funcPath);
 if ~runSeparate; nRun = 1; end % useful later for deciding the analysis name
 
 %% Load data from runs

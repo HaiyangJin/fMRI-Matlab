@@ -1,26 +1,32 @@
-function fs_fun_screenshot_label(project, labelList, runType, template, ...
-    outputPath, sm, whichOverlay, threshold, runNum)
-% fs_fun_screenshot_label(project, labelList, outputPath, whichOverlay, locSmooth, threshold)
+function fs_fun_screenshot_label(sessList, labelList, runType, template, ...
+    outputPath, smooth, whichOverlay, threshold, runNum, funcPath)
+% fs_fun_screenshot_label(sessList, labelList, runType, template, ...
+%    outputPath, smooth, whichOverlay, threshold, runNum, funcPath)
+%    
 % This function gets the screenshots of labels with overlays.
 %
 % Inputs:
-%     project           <structure> the proejct structure (created by 
-%                        fs_functionals).
+%     sessList          <cell of string> session codes in $FUNCTIONALS_DIR.
 %     labelList         <cell of strings> a list of label names.
 %     runType           <string> 'loc' or 'main'.
 %     template          <string> 'fsaverage' or 'self'. fsaverage is the default.
 %     outputPath        <string> where the labels to be saved.
-%     sm                <string> smooth (FWHM).
+%     smooth            <string> smooth (FWHM).
 %     whichOverlay      <integer> show overlay of the contrast of which
 %                        label.
 %     threshold         <numeric> 0.05, 0.1... or 1.3, 2, 3.
 %     runNum            <numeric> the last part of run file's basename.
 %                        [e.g. 1 in main1.txt].
+%     funcPath          <string> the full path to the functional folder.
 %
 % Output:
 %     screenshots in the folder
 %
 % Created by Haiyang Jin (10-Dec-2019)
+
+if ischar(sessList)
+    sessList = {sessList};
+end
 
 if nargin < 3
     runType = 'loc';
@@ -37,10 +43,10 @@ if nargin < 5
     outputPath = '';
 end
 
-if nargin < 6 || isempty(sm)
-    sm = '';
-elseif ~strcmp(sm(1), '_')
-    sm = ['_' sm];
+if nargin < 6 || isempty(smooth)
+    smooth = '';
+elseif ~strcmp(smooth(1), '_')
+    smooth = ['_' smooth];
 end
 
 if nargin < 7 || isempty(whichOverlay)
@@ -57,12 +63,15 @@ elseif isnumeric(runNum)
     runNum = num2str(runNum);
 end
 
+if nargin < 10 || isempty(funcPath)
+    funcPath = getenv('FUNCTIONALS_DIR');
+end
+
 % number of labels
 nLabels = size(labelList, 1);
 
 % functional information about the structure
-sessList = project.sessList;
-nSess = project.nSess;
+nSess = numel(sessList);
 
 waitHandle = waitbar(0, 'Generating screenshots for labels...');
 
@@ -89,7 +98,7 @@ for iLabel = 1:nLabels
         
         % this subject code
         thisSess = sessList{iSess};  % bold subjCode
-        subjCode = fs_subjcode(thisSess, project.funcPath); % FS subjCode
+        subjCode = fs_subjcode(thisSess, funcPath); % FS subjCode
         
         % waitbar
         progress = ((iLabel-1) * nSess + iSess) / (nLabels * nSess);
@@ -98,8 +107,8 @@ for iLabel = 1:nLabels
         waitbar(progress, waitHandle, waitMsg);
         
         % other information for screenshots
-        analysis = sprintf('%s%s%s%s.%s', runType, sm, template, runNum, hemi); % analysis name
-        overlayFile = fullfile(project.funcPath, thisSess, 'bold',...
+        analysis = sprintf('%s%s%s%s.%s', runType, smooth, template, runNum, hemi); % analysis name
+        overlayFile = fullfile(funcPath, thisSess, 'bold',...
             analysis, theContrast, 'sig.nii.gz'); % the overlay file
         
         % skip if the overlay file is not available

@@ -1,5 +1,5 @@
-function predictTable = fs_fun_cosmo_similarity(project, labelList, ...
-    classPairs, condName, condWeight, template, outputPath)
+function predictTable = fs_fun_cosmo_similarity(sessList, labelList, ...
+    classPairs, condName, condWeight, template, outputPath, funcPath)
 % predictTable = fs_fun_cosmo_similarity(project, labelList, ...
 %     classPairs, condName, condWeight, outputPath)
 %
@@ -7,8 +7,8 @@ function predictTable = fs_fun_cosmo_similarity(project, labelList, ...
 % the sessions in the project. libsvm is used in this analysis.
 %
 % Inputs:
-%    project             <structure> project structure (obtained from
-%                         fs_fun_projectinfo).
+%    sessList            <string> session code in functional folder (bold
+%                         subject code).
 %    labelList           <cell of strings> a list of label names.
 %    classPairs          <cell of strings> a PxQ (usually is 2) cell matrix 
 %                         for the pairs to be classified. Each row is one 
@@ -21,8 +21,9 @@ function predictTable = fs_fun_cosmo_similarity(project, labelList, ...
 %    condWeight          <array of numeric> a PxQ numeric array for the
 %                         weights to be applied to the combination of condName.
 %                         Each row of weights is tested separately.
-%     template          <string> 'fsaverage' or 'self'. fsaverage is the default.
-%    outputPath         <string> where output to be saved.
+%    template            <string> 'fsaverage' or 'self'. fsaverage is the default.
+%    outputPath          <string> where output to be saved.
+%    structPath          the full path to the functional folder.
 %
 % Output:
 %    predictTable        <table> the prediction for the new condition and 
@@ -53,13 +54,16 @@ if nargin < 7 || isempty(outputPath)
     outputPath = '';
 end
 
+if nargin < 8 || isempty(funcPath)
+    funcPath = getenv('FUNCTIONALS_DIR');
+end
+
 %% Preparations
 % waitbar
 waitHandle = waitbar(0, 'Loading...   0.00% finished');
 
 % sessions
-sessList = project.sessList;
-nSess = project.nSess;
+nSess = numel(sessList);
 
 % label information
 if ischar(labelList)
@@ -85,7 +89,7 @@ for iSess = 1:nSess
         info.Label = {thisLabel};
         
         % load the data set
-        ds_this = fs_cosmo_subjds(thisSess, thisLabel, template, project.funcPath, 'main', '', 1);
+        ds_this = fs_cosmo_subjds(thisSess, thisLabel, template, funcPath, 'main', '', 1);
         
         % continue if the ds_this is empty
         if isempty(ds_this)

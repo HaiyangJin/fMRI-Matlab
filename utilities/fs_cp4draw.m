@@ -1,15 +1,20 @@
-function fs_cp4draw(project, targetPath, analysisList, contrastList)
+function fs_cp4draw(sessList, targetPath, analysisList, contrastList, funcPath, structPath)
+% fs_cp4draw(sessList, targetPath, analysisList, contrastList, funcPath, structPath)
+%
 % This function copy the files necessary for drawing labels later.
 %
 % Inputs:
-%     project          <structure> created by fs_fun_project.
+%     sessList         <cell of strings> session codes in $FUNCTIONALS_DIR.
 %     targetPath       <string> the target path where the project will be
-%                      copied to
+%                       copied to
 %     analysisList     <string> or <cell of strings> the list of analysis
-%                      name(s); it equals to the parent directory of
-%                      funcPath.
+%                       name(s); it equals to the parent directory of
+%                       funcPath.
 %     contrastList     <string> or <cell of strings> the list of the
-%                      contrast name(s).
+%                       contrast name(s).
+%     funcPath         <string> the full path to the functional folder.
+%     structPath       <string> the full path to the subjects folder.
+%
 % Output:
 %     the necessary files for drawing labels
 %
@@ -31,9 +36,15 @@ function fs_cp4draw(project, targetPath, analysisList, contrastList)
 %
 % Created by Haiyang Jin (10-Feb-2020)
 
-structPath = project.structPath;
+if nargin < 5 || isempty(funcPath)
+    funcPath = getenv('FUNCTIONALS_DIR');
+end
+
+if nargin < 6 || isempty(structPath)
+    funcPath = getenv('SUBJECTS_DIR');
+end
+
 [~, structFolder] = fileparts(structPath);
-funcPath = project.funcPath;
 [~, funcFolder] = fileparts(funcPath);
 
 surfFiles = {'*h.inflated', '*h.orig', '*h.curv', '*h.white', '*h.pial'};
@@ -42,10 +53,11 @@ surfFiles = {'*h.inflated', '*h.orig', '*h.curv', '*h.white', '*h.pial'};
 cellfun(@fs_copyfile, fullfile(funcPath, analysisList), ...
     fullfile(targetPath, funcFolder, analysisList));
 
-for iSess = 1: project.nSess
+nSess = numel(sessList);
+for iSess = 1: nSess
     
     % functional data
-    thisSess = project.sessList{iSess};
+    thisSess = sessList{iSess};
     
     tempBold = fullfile(thisSess, 'bold');
     

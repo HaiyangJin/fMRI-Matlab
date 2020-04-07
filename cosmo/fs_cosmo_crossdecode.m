@@ -1,28 +1,27 @@
-function [mvpaTable, uniTable, uniLocTable] = fs_fun_cosmo_crossdecode(project,...
-    labelList, classPairs, runLoc, template, outputPath, classifiers)
-% [mvpaTable, uniTable, uniLocTable] = fs_fun_cosmo_crossdecode(project,...
-%     labelList, classPairs, classifiers, runLoc, outputPath)
+function [mvpaTable, uniTable, uniLocTable] = fs_cosmo_crossdecode(sessList,...
+    labelList, classPairs, runLoc, template, outputPath, classifiers, funcPath)
+% [mvpaTable, uniTable, uniLocTable] = fs_cosmo_crossdecode(sessList,...
+%    labelList, classPairs, runLoc, template, outputPath, classifiers, funcPath)
 %
 % This function run the cross-validation classification (decoding) for all
 % subjects and all pairs.
 %
 % Inputs:
-%     project            <structure> project structure (obtained from
-%                         fs_fun_projectinfo).
-%     labelList          <cell of strings> a list of label names.
-%     classPairs         <cell of strings> a PxQ (usually is 2) cell matrix 
+%    sessList           <cell of string> session code in functional folder.
+%    labelList          <cell of strings> a list of label names.
+%    classPairs         <cell of strings> a PxQ (usually is 2) cell matrix 
 %                         for the pairs to be classified. Each row is one 
 %                         classfication pair. 
-%     runLoc             <logical> run analyses for localizer scans.
-%     template           <string> 'fsaverage' or 'self'. fsaverage is the default.
-%     outputPath         <string> where output to be saved.
-%     classifiers        <numeric> or <strings> or <cells> the classifiers 
+%    runLoc             <logical> run analyses for localizer scans.
+%    template           <string> 'fsaverage' or 'self'. fsaverage is the default.
+%    outputPath         <string> where output to be saved.
+%    classifiers        <numeric> or <strings> or <cells> the classifiers 
 %                         to be used (only 1).
 %
 % Outputs:
-%     mvpaTable          <table> MVPA result table (main runs).
-%     uniTable           <table> main run data for univariate analyses.
-%     uniLocTable        <table> localizer run data for univariate analyses.
+%    mvpaTable          <table> MVPA result table (main runs).
+%    uniTable           <table> main run data for univariate analyses.
+%    uniLocTable        <table> localizer run data for univariate analyses.
 %
 % Created by Haiyang Jin (12-Dec-2019)
 
@@ -43,9 +42,11 @@ end
 % waitbar
 waitHandle = waitbar(0, 'Loading...   0.00% finished');
 
-% Project information (subject information)
-sessList = project.sessList;
-nSess = project.nSess;
+% session codes
+if ischar(sessList)
+    sessList = {sessList};
+end
+nSess = numel(sessList);
 
 % label information
 if ischar(labelList)
@@ -82,7 +83,7 @@ for iSess = 1:nSess
             runSeparate = 0;
             
             [locDsTemp, condInfoTemp] = fs_cosmo_subjds(thisSess, ...
-                thisLabel, template, project.funcPath, runInfo, smooth, runSeparate);
+                thisLabel, template, funcPath, runInfo, smooth, runSeparate);
             
             uniLocTableTemp = fs_ds2uni(locDsTemp, condInfoTemp);
             uniLocCell(iSess, iLabel) = {uniLocTableTemp};
@@ -95,11 +96,11 @@ for iSess = 1:nSess
         runSeparate = 1;
                 
         [ds_subj, condInfo] = fs_cosmo_subjds(thisSess, ...
-            thisLabel, template, project.funcPath, outputPath, runInfo, smooth, runSeparate);
+            thisLabel, template, funcPath, outputPath, runInfo, smooth, runSeparate);
         
         % add more inforamtion about this label
         [roisize, talCoor, nVtx, VtxMax] = fs_labelsize(thisSess, template, ...
-    thisLabel, project.funcPath, outputPath);
+    thisLabel, funcPath, outputPath);
         condInfo.roiSize = roisize;
         condInfo.talCoor = talCoor;
         condInfo.nVtx = nVtx;

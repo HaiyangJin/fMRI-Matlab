@@ -1,16 +1,17 @@
-function fs_fun_cosmo_crosssl(project, classPairs, sessCode, surfType, combineHemi, classifier)
-% fs_fun_cosmo_crosssl(project, classPairs, sessCode, surfType, combineHemi, classifier)
+function fs_fun_cosmo_crosssl(sessList, classPairs, surfType, combineHemi, ...
+    classifier, funcPath)
+% fs_fun_cosmo_crosssl(sessList, classPairs, surfType, combineHemi, ...
+%    classifier, funcPath)
 %
 % This function does the searchlight analyses for the whole project
 % with CoSMoMVPA. Data were analyzed with FreeSurfer.
 %
 % Inputs:
-%     project            <structure> project structure (created by fs_fun_projectinfo)
+%     sessList           <string> or <cell of strings> session code 
+%                         (functional subject folder).
 %     classPairs         <cell of strings> a PxQ (usually is 2) cell matrix 
 %                         for the pairs to be classified. Each row is one 
 %                         classfication pair. 
-%     sessCode           <string> or <cell of strings> session code 
-%                         (functional subject folder).
 %     surfType           <string> the coordinate file for vertices (
 %                         ('sphere', 'inflated', 'white', 'pial').
 %     combineHemi        <logical> if the data of two hemispheres will be 
@@ -20,6 +21,7 @@ function fs_fun_cosmo_crosssl(project, classPairs, sessCode, surfType, combineHe
 %                         analysis for both 0 and 1.
 %     classifier         <numeric> or <strings> or <cells> the classifiers 
 %                         to be used (only 1).
+%     funcPath         <string> the full path to the functional folder.
 %
 % Output:
 %     For each hemispheres, the results will be saved as a *.mgz file saved 
@@ -30,22 +32,20 @@ function fs_fun_cosmo_crosssl(project, classPairs, sessCode, surfType, combineHe
 
 cosmo_warning('once');
 
-if nargin < 3 || isempty(sessCode)
-    sessList = project.sessList; % all sessions
-elseif ischar(sessCode)
-    sessList = {sessCode};
-else
-    sessList = sessCode;
-end
-
-if nargin < 4 || isempty(surfType)
+if nargin < 3 || isempty(surfType)
     surfType = 'sphere';
 end
-if nargin < 5 || isempty(combineHemi)
+
+if nargin < 4 || isempty(combineHemi)
     combineHemi = 0;
 end
-if nargin < 6
+
+if nargin < 5
     classifier = '';
+end
+
+if nargin < 6 || isempty(funcPath)
+    funcPath = getenv('FUNCTIONALS_DIR');
 end
 
 %% Preparation
@@ -53,8 +53,8 @@ end
 waitHandle = waitbar(0, 'Loading...   0.00% finished');
 
 % information from the project
-nHemi = project.nHemi;
-funcPath = project.funcPath;
+hemis = {'lh', 'rh'};
+nHemi = numel(hemis);
 nSess = numel(sessList);
 
 for iSess = 1:nSess
@@ -63,7 +63,6 @@ for iSess = 1:nSess
     thisSess = sessList{iSess};
     % subjCode in SUBJECTS_DIR
     subjCode = fs_subjcode(thisSess, funcPath);
-    hemis = project.hemis;
     
     % waitbar
     progress = iSess / nSess * 1/2;

@@ -1,31 +1,26 @@
-function output = fs_checkreg(project, sessCode, isSort)
-% This function check the co-registration conducted by prepro-sess.
+function output = fs_checkreg(sessList, isSort, funcPath)
+% output = fs_checkreg(sessList, isSort, funcPath)
+% 
+% This function check the co-registration conducted by preproc-sess.
 %
 % Inputs:
-%     project            <struct> the project information. Created by fs_fun_projinfo.m.
-%     sessCode           <string> or <a cell of strings> session codes
-%     isSort             <logical> sort the results by the quality (last
-%                        column)
+%    sessList          <string> or <a cell of strings> session codes.
+%    isSort            <logical> sort the results by the quality (last
+%                        column).
+%    funcPath          <string> the full path to the functional folder.
+%
 % Output:
-%     output             a cell of registration quality if isSort is true.
-%                        Otherwise output is empty.
+%    output            a cell of registration quality if isSort is true.
+%                      Otherwise output is empty.
 %
 % Created by Haiyang Jin (26-Jan-2020)
 
-if nargin < 1 || isempty(project)
-    funcPath = getenv('FUNCTIONALS_DIR');
-else
-    funcPath = project.funcPath;
-end
-
-if nargin < 2 || isempty(sessCode)
-    sessCode = project.sessList;
-elseif ischar(sessCode)
-    sessCode = {sessCode};
-end
-
-if nargin < 3 || ismepty(isSort)
+if nargin < 2 || ismepty(isSort)
     isSort = 0;
+end
+
+if nargin < 3 || isempty(funcPath)
+    funcPath = getenv('FUNCTIONALS_DIR');
 end
 
 % creat the commands for checking co-registration
@@ -33,7 +28,7 @@ wdBackup = pwd;
 cd(funcPath);
 
 fscmd = cellfun(@(x) sprintf('tkregister-sess -s %s -fsd bold -per-run -bbr-sum',...
-    x), sessCode, 'uni', false);
+    x), sessList, 'uni', false);
 
 if isSort
     % run cmds and save the results
