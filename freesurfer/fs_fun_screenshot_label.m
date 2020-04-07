@@ -1,36 +1,57 @@
-function fs_fun_screenshot_label(project, labelList, runType, outputPath, ...
-    smooth, whichOverlay, threshold, runNum)
+function fs_fun_screenshot_label(project, labelList, runType, template, ...
+    outputPath, sm, whichOverlay, threshold, runNum)
 % fs_fun_screenshot_label(project, labelList, outputPath, whichOverlay, locSmooth, threshold)
 % This function gets the screenshots of labels with overlays.
 %
 % Inputs:
-%    project           the proejct structure (created by fs_fun_projectinfo)
-%    labelList         a list of label names
-%    whichOverlay      show overlay of the contrast of which label
-%    outputPath       where the labels to be saved
+%     project           <structure> the proejct structure (created by 
+%                        fs_functionals).
+%     labelList         <cell of strings> a list of label names.
+%     runType           <string> 'loc' or 'main'.
+%     template          <string> 'fsaverage' or 'self'. fsaverage is the default.
+%     outputPath        <string> where the labels to be saved.
+%     sm                <string> smooth (FWHM).
+%     whichOverlay      <integer> show overlay of the contrast of which
+%                        label.
+%     threshold         <numeric> 0.05, 0.1... or 1.3, 2, 3.
+%     runNum            <numeric> the last part of run file's basename.
+%                        [e.g. 1 in main1.txt].
+%
 % Output:
-%    screenshots in the folder
+%     screenshots in the folder
 %
 % Created by Haiyang Jin (10-Dec-2019)
 
 if nargin < 3
     runType = 'loc';
 end
-if nargin < 4
+
+if nargin < 4 || isempty(template)
+    template = 'fsaverage';
+    warning('The template was not specified and fsaverage will be used by default.');
+elseif ~ismember(template, {'fsaverage', 'self'})
+    error('The template has to be ''fsaverage'' or ''self'' (not ''%s'').', template);
+end
+
+if nargin < 5
     outputPath = '';
 end
-if nargin < 5 || isempty(smooth)
-    smooth = '';
-elseif ~strcmp(smooth(1), '_')
-    smooth = ['_' smooth];
+
+if nargin < 6 || isempty(sm)
+    sm = '';
+elseif ~strcmp(sm(1), '_')
+    sm = ['_' sm];
 end
-if nargin < 6 || isempty(whichOverlay)
+
+if nargin < 7 || isempty(whichOverlay)
     whichOverlay = 1; % show the overlay of the first label by default
 end
-if nargin < 7 || isempty(threshold)
+
+if nargin < 8 || isempty(threshold)
     threshold = '';
 end
-if nargin < 8 || isempty(runNum)
+
+if nargin < 9 || isempty(runNum)
     runNum = '';
 elseif isnumeric(runNum)
     runNum = num2str(runNum);
@@ -42,9 +63,6 @@ nLabels = size(labelList, 1);
 % functional information about the structure
 sessList = project.sessList;
 nSess = project.nSess;
-boldext = project.boldext;
-
-isfsavg = endsWith(project.boldext, {'fsavg', 'fs'});
 
 waitHandle = waitbar(0, 'Generating screenshots for labels...');
 
@@ -80,7 +98,7 @@ for iLabel = 1:nLabels
         waitbar(progress, waitHandle, waitMsg);
         
         % other information for screenshots
-        analysis = sprintf('%s%s%s%s.%s', runType, smooth, boldext, runNum, hemi); % analysis name
+        analysis = sprintf('%s%s%s%s.%s', runType, sm, template, runNum, hemi); % analysis name
         overlayFile = fullfile(project.funcPath, thisSess, 'bold',...
             analysis, theContrast, 'sig.nii.gz'); % the overlay file
         
@@ -93,7 +111,7 @@ for iLabel = 1:nLabels
         end
         
         % create the screenshot
-        fv_label(subjCode, theLabel, outputPath, overlayFile, threshold, isfsavg, '', 1);
+        fv_label(subjCode, theLabel, outputPath, overlayFile, threshold, template, '', 1);
         
     end
     

@@ -1,36 +1,45 @@
-function [ds_subj, condInfo] = fs_cosmo_subjds(project, labelFn, sessCode, runInfo, smooth, runSeparate)
-% [ds_subj, condInfo] = fs_cosmo_subjds(project, labelFn, sessCode, runInfo, smooth, runSeparate)
+function [ds_subj, condInfo] = fs_cosmo_subjds(sessCode, labelFn, template, ...
+    funcPath, runInfo, smooth, runSeparate)
+% [ds_subj, condInfo] = fs_cosmo_subjds(sessCode, labelFn, template, ...
+%    funcPath, runInfo, smooth, runSeparate)
 %
 % This function load the FreeSurfer surface data as the dataset used for
 % CoSMoMVPA.
 %
 % Inputs:
-%    project            <structure> Project structure (obtained from
-%                       fs_fun_projectinfo).
-%    labelFn            <string> the label filename (or 'lh' or 'rh', then
+%     sessCode         <string> session code in functional folder (bold
+%                        subject code).
+%     labelFn          <string> the label filename (or 'lh' or 'rh', then
 %                       the output will be the data for the whole
 %                       hemisphere).
-%    sessCode           <string> session code in functional folder (bold
-%                       subject code).
-%    runInfo            <string> the run name (usually is 'loc' or 'main').
-%    smooth             <string> or <numeric> the smooth used.
-%    runSeparate        <logical> gather data for each run separately or
+%     template         <string> 'fsaverage' or 'self'. fsaverage is the default.
+%     funcPath         <string> the full path to the functional folder.
+%     runInfo          <string> the run name (usually is 'loc' or 'main').
+%     smooth           <string> or <numeric> the smooth used.
+%     runSeparate      <logical> gather data for each run separately or
 %                       not.
 %
 % Outputs:
-%    ds_subj            <structure> data set for CoSMoMVPA.
-%    condInfo           <structure> condition information for this analysis.
+%     ds_subj          <structure> data set for CoSMoMVPA.
+%     condInfo         <structure> condition information for this analysis.
 %
 % Created by Haiyang Jin (12-Dec-2019)
 
 % Input arguments
-if nargin < 4 || isempty(runInfo)
+if nargin < 4 || isempty(template)
+    template = 'fsaverage';
+    warning('The template was not specified and fsaverage will be used by default.');
+elseif ~ismember(template, {'fsaverage', 'self'})
+    error('The template has to be ''fsaverage'' or ''self'' (not ''%s'').', template);
+end
+    
+if nargin < 5 || isempty(runInfo)
     runInfo = 'loc';
     warning('Analyses for localizer scans were conducted by default.');
 end
 if strcmpi(runInfo, 'loc'); runSeparate = 0; end
 
-if nargin < 5 || isempty(smooth)
+if nargin < 6 || isempty(smooth)
     if strcmpi(runInfo, 'main')
         smooth = '_sm0';
     else
@@ -44,7 +53,7 @@ elseif ischar(smooth)
     end
 end
 
-if (nargin < 6 || isempty(runSeparate)) && ~exist('runSeparate', 'var')
+if (nargin < 7 || isempty(runSeparate)) && ~exist('runSeparate', 'var')
     runSeparate = 1;
 end
 
@@ -53,10 +62,9 @@ runFn = sprintf('run_%s.txt', runInfo);  % run filename
 parFn = sprintf('%s.par', runInfo); % paradigm filename
 analysisExt = sprintf('%s%s', runInfo, smooth); % first parts of the analysis name
 
-funcPath = project.funcPath;  % where the functional data are saved
 boldPath = fullfile(funcPath, sessCode, 'bold'); % the bold folder
 
-hemiOnly = any(ismember(labelFn, project.hemis));
+hemiOnly = any(ismember(labelFn, {'lh', 'rh'}));
 
 % warning if the label is not available for that subjCode and finish this
 % function
@@ -77,7 +85,7 @@ end
 hemi = fs_hemi(labelFn);  % which hemisphere
 
 % read the run file
-[runNames, nRun] = fs_fun_readrun(runFn, project, sessCode);
+[runNames, nRun] = fs_readrun(runFn, project.funcPath, sessCode);
 if ~runSeparate; nRun = 1; end % useful later for deciding the analysis name
 
 %% Load data from runs
@@ -89,7 +97,7 @@ for iRun = 1:nRun
     % set iRunStr as '' when there is only "1" run
     iRunStr = erase(num2str(iRun), num2str(nRun^2));
     analysisName = sprintf('%s%s%s.%s', ...
-        analysisExt, project.boldext, iRunStr, hemi); % the analysis name
+        analysisExt, template, iRunStr, hemi); % the analysis name
     % the beta file
     betaFile = fullfile(boldPath, analysisName, 'beta.nii.gz');
     

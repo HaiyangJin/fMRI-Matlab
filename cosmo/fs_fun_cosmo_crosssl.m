@@ -76,9 +76,10 @@ for iSess = 1:nSess
     
     
     %% Load functional data (beta.nii.gz)
-    % load the beta.nii.gz for both hemispheres separately
-    dsSurfCell = cellfun(@(x) fs_cosmo_subjds(project, x, thisSess, ...
-        'main', 0, 1), hemis, 'UniformOutput', false);
+    % load the beta.nii.gz for both hemispheres separately [only use 
+    % fsaverage as the template]
+    dsSurfCell = cellfun(@(x) fs_cosmo_subjds(thisSess, x, 'fsaverage', ...
+        funcPath, 'main', 0, 1), hemis, 'uni', false);
     
     % combine the surface data for the whole brain if needed
     if ~combineHemi

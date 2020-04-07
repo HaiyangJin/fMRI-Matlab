@@ -1,24 +1,29 @@
-function fs_hcp_prepro(hcpPath, projString, template, linkT1)
+function fs_hcp_prepro(hcpPath, projString, template, funcExt, linkT1)
 % This function creates directory structure for analyses in FreeSurfer for
 % results obtained from Human Connectome Project pipeline.
 %
 % Inputs:
-%    HCP_path       path to the HCP results ('Path/to/HCP/') [Default is the
-%                   current working directory]
-%    projString     strings (or prefix) for session information (e.g.,
-%                   'faceword' is the prefix for 'faceword01', 'faceword02',
-%                   'faceword03'. sessStr will help to identify all the
-%                   session folders. In order to perform this
-%                   transformation for only one session, just set the sessStr
-%                   as the full name of the session name (e.g., 'faceword01').
-%    template       template used for projecting functional data ('self' or
-%                   'fsaverage')
-%    linkT1         [logical] 1: link the T1 for all subjects. 0: copy the
-%                   T1 data for all subjects.
+%    HCP_path         <string> path to the HCP results ('Path/to/HCP/') 
+%                      [Default is the current working directory].
+%    projString       <string> strings (or prefix) for session information 
+%                      (e.g., 'faceword' is the prefix for 'faceword01', 
+%                      'faceword02', 'faceword03'. sessStr will help to 
+%                      identify all the session folders. In order to 
+%                      perform this transformation for only one session, 
+%                      just set the sessStr as the full name of the 
+%                      session name (e.g., 'faceword01').
+%    template         <string> template used for projecting functional data 
+%                      ('self' or 'fsaverage').
+%    funcExt          <string> strings to be added at the end of
+%                      functionals folder name.
+%    linkT1           <logical> 1: link the T1 for all subjects. 0: copy the
+%                      T1 data for all subjects.
+%
 % Output:
 %    a subfolder called FreeSurfer is built in HCP/. It contains the
 %    directory structure (but not the structure data) for analyses in
 %    FreeSurfer.
+%
 % Dependency:
 %    FreeSurfer   (Please make sure FreeSurfer is installed and sourced properly.)
 %
@@ -43,12 +48,18 @@ if projString(end) ~= '*' && ~strcmp(projString, '.')
 end
 
 if nargin < 3 || isempty(template)
-    template = 'self';
+    template = 'fsaverage';
+    warning('The template was not specified and fsaverage will be used by default.');
+elseif ~ismember(template, {'fsaverage', 'self'})
+    error('The template has to be ''fsaverage'' or ''self'' (not ''%s'').', template);
 end
-boldext = fs_template2boldext(template);
+
+if nargin < 4 || isempty(funcExt)
+    funcExt = '';
+end
 
 % link or copy the recon-all outputs
-if nargin < 4 || isempty(linkT1)
+if nargin < 5 || isempty(linkT1)
     linkT1 = 1;
 end
 
@@ -72,7 +83,7 @@ if ~exist(structPath, 'dir'); mkdir(structPath); end
 fs_subjdir(structPath);  % set 'SUBJECTS_DIR'
 
 % link fsaverage in subjects/ to fsaverage in FREESURFER 6.0 (or 5.3)
-if ~exist(fullfile(structPath, 'fsaverage'), 'dir') && strcmp(boldext, '_fsavg')
+if ~exist(fullfile(structPath, 'fsaverage'), 'dir') && strcmp(template, 'fsaverage')
     fsaverage = fullfile(fshomePath, 'subjects', 'fsaverage');
     if linkT1 % link file
         fscmd_fsaverage = sprintf('ln -s %s %s', fsaverage, structPath);
@@ -116,8 +127,8 @@ for iSubj = 1:nSubj
     
     %% copy and rename from preprocessed folder to functional_data_'template'
     % make directory for the functional data
-    funcPath = fullfile(fsPath, ['functional_data' boldext]);
-    sessCode = [thisSubj boldext];
+    funcPath = fullfile(fsPath, ['functional_data' funcExt]);
+    sessCode = thisSubj;
     sessPath = fullfile(funcPath, sessCode);
     thisBoldPath = fullfile(sessPath, 'bold');
     if ~exist(thisBoldPath, 'dir'); mkdir(thisBoldPath); end

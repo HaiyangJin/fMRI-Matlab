@@ -1,26 +1,29 @@
-function analysisList = fs_mkanalysis(funcRunType, boldext, nConditions, ...
+function [analysisList, fscmd] = fs_mkanalysis(funcRunType, template, nConditions, ...
     runFileList, refDura, hemis, smooth, nSkip, TR)
 % This function run mkanalysis-sess in FreeSurfer
 %
 % Inputs:
-%    funcRunName        'main' or 'loc'
-%    boldext            the extension of bold data ('self', 'fs', 'fsavg')
-%    nConditions        number of conditions (excluded fixation)
-%    runFileList       run filenames (e.g., loc.txt)
-%    refDura            durations of the reference condition (the total
-%                       duration of one "block" or one "trial"
-%    hemis              'lh', 'rh' (and 'mni')
-%    smooth             smooth of data (double)
-%    nSkip              number of TRs to be skipped at the run start
-%    TR                 duration of one TR
-% Output:
-%    analysisList       a cell of all analysis names
-%    run mkanalysis-sess in FreeSurfer
+%     funcRunName        <string> 'main' or 'loc'
+%     template           <string> 'fsaverage' or 'self'.
+%     nConditions        <integer> number of conditions (excluded fixation).
+%     runFileList        <string> run filenames (e.g., loc.txt)
+%     refDura            <numeric> durations of the reference condition .
+%                         (the total duration of one "block" or one "trial")
+%     hemis              <cell of strings> or <string> 'lh', 'rh' (and 'mni')
+%     smooth             <numeric> smoothing (FWHM).
+%     nSkip              <integer> number of TRs to be skipped at the run
+%                         start.
+%     TR                 <numeric> duration of one TR.
 %
-% Created by Haiyang Jin (19/12/2019)
+% Output:
+%     analysisList       <cell of strings> a cell of all analysis names.
+%     fscmd              <cell of strings> FreeSurfer commands used here.
+%     run mkanalysis-sess in FreeSurfer.
+%
+% Created by Haiyang Jin (19-Dec-2019)
 
-if ~strcmp(boldext(1), '_')
-    boldext = ['_' boldext];
+if ~ismember(template, {'fsaverage', 'self'})
+    error('The template has to be ''fsaverage'' or ''self'' (not ''%s'').', template);
 end
 
 if nargin < 6 || isempty(hemis)
@@ -51,16 +54,11 @@ nRunFile = numel(runFileList);
 % empty cell for saving analysis names
 analysisList = cell(nRunFile, nHemi);
 
-% the template for the analysis
-if strcmp(boldext, '_self')
-    template = 'self';
-elseif ismember(boldext, {'_fs', '_fsavg'})
-    template = 'fsaverage';
-end
-
 % the paradigm filename
 parFile = [funcRunType '.par'];
 
+% empty cell for saving FreeSurfer commands
+fscmd = cell(nRunFile, nHemi);
 
 for iRun = 1:nRunFile
     
@@ -76,7 +74,7 @@ for iRun = 1:nRunFile
         
         % analysis name
         hemi = hemis{iHemi};
-        analysisName = sprintf('%s_sm%d%s%s.%s', funcRunType, smooth, boldext, runCode, hemi);
+        analysisName = sprintf('%s_sm%d%s%s.%s', funcRunType, smooth, template, runCode, hemi);
         
         % save the analysis names into the cell
         analysisList(iRun, iHemi) = {analysisName};
@@ -96,9 +94,14 @@ for iRun = 1:nRunFile
             analysisName, hemiInfo, smooth, parFile, ...
             nConditions, nSkip, TR, thisRunFile,...
             refDura);
-        
+        fscmd{iRun, iHemi} = fscmd_analysis;
         system(fscmd_analysis)
         
     end
     
+end
+
+% save the FreeSurfer commands as one column
+fscmd = vertcat(fscmd{:});
+
 end

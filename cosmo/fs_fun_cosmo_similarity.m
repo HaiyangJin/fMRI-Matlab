@@ -1,5 +1,5 @@
 function predictTable = fs_fun_cosmo_similarity(project, labelList, ...
-    classPairs, condName, condWeight, outputPath)
+    classPairs, condName, condWeight, template, outputPath)
 % predictTable = fs_fun_cosmo_similarity(project, labelList, ...
 %     classPairs, condName, condWeight, outputPath)
 %
@@ -21,7 +21,8 @@ function predictTable = fs_fun_cosmo_similarity(project, labelList, ...
 %    condWeight          <array of numeric> a PxQ numeric array for the
 %                         weights to be applied to the combination of condName.
 %                         Each row of weights is tested separately.
-%    output_path         <string> where output to be saved.
+%     template          <string> 'fsaverage' or 'self'. fsaverage is the default.
+%    outputPath         <string> where output to be saved.
 %
 % Output:
 %    predictTable        <table> the prediction for the new condition and 
@@ -44,7 +45,11 @@ elseif size(condWeight, 2) ~= size(condName, 2)
     error('The column numbers of condWeight and condName should be the same.');
 end
 
-if nargin < 6 || isempty(outputPath)
+if nargin < 6 || isempty(template)
+    template = '';
+end
+
+if nargin < 7 || isempty(outputPath)
     outputPath = '';
 end
 
@@ -80,7 +85,7 @@ for iSess = 1:nSess
         info.Label = {thisLabel};
         
         % load the data set
-        ds_this = fs_cosmo_subjds(project, thisLabel, thisSess, 'main', '', 1);
+        ds_this = fs_cosmo_subjds(thisSess, thisLabel, template, project.funcPath, 'main', '', 1);
         
         % continue if the ds_this is empty
         if isempty(ds_this)

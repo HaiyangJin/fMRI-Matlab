@@ -1,5 +1,5 @@
 function [mvpaTable, uniTable, uniLocTable] = fs_fun_cosmo_crossdecode(project,...
-    labelList, classPairs, runLoc, outputPath, classifiers)
+    labelList, classPairs, runLoc, template, outputPath, classifiers)
 % [mvpaTable, uniTable, uniLocTable] = fs_fun_cosmo_crossdecode(project,...
 %     labelList, classPairs, classifiers, runLoc, outputPath)
 %
@@ -7,30 +7,35 @@ function [mvpaTable, uniTable, uniLocTable] = fs_fun_cosmo_crossdecode(project,.
 % subjects and all pairs.
 %
 % Inputs:
-%    project             <structure> project structure (obtained from
+%     project            <structure> project structure (obtained from
 %                         fs_fun_projectinfo).
-%    labelList           <cell of strings> a list of label names.
-%    classPairs          <cell of strings> a PxQ (usually is 2) cell matrix 
+%     labelList          <cell of strings> a list of label names.
+%     classPairs         <cell of strings> a PxQ (usually is 2) cell matrix 
 %                         for the pairs to be classified. Each row is one 
 %                         classfication pair. 
-%    runLoc              <logical> run analyses for localizer scans.
-%    output_path         <string> where output to be saved.
-%    classifiers         <numeric> or <strings> or <cells> the classifiers 
+%     runLoc             <logical> run analyses for localizer scans.
+%     template           <string> 'fsaverage' or 'self'. fsaverage is the default.
+%     outputPath         <string> where output to be saved.
+%     classifiers        <numeric> or <strings> or <cells> the classifiers 
 %                         to be used (only 1).
 %
 % Outputs:
-%    mvpaTable           <table> MVPA result table (main runs).
-%    uniTable            <table> main run data for univariate analyses.
-%    uniLocTable         <table> localizer run data for univariate analyses.
+%     mvpaTable          <table> MVPA result table (main runs).
+%     uniTable           <table> main run data for univariate analyses.
+%     uniLocTable        <table> localizer run data for univariate analyses.
 %
 % Created by Haiyang Jin (12-Dec-2019)
 
-if nargin < 5 || isempty(runLoc)
+if nargin < 5 || isempty(template)
+    template = '';
+end
+
+if nargin < 6 || isempty(runLoc)
     runLoc = 0;
     warning('Classification (decoding) only performs on main runs by default.');
 end
 
-if nargin < 6 
+if nargin < 7 
     outputPath = '';
 end
 
@@ -76,8 +81,8 @@ for iSess = 1:nSess
             smooth = '';
             runSeparate = 0;
             
-            [locDsTemp, condInfoTemp] = fs_cosmo_subjds(project, ...
-                thisLabel, thisSess, runInfo, smooth, runSeparate);
+            [locDsTemp, condInfoTemp] = fs_cosmo_subjds(thisSess, ...
+                thisLabel, template, project.funcPath, runInfo, smooth, runSeparate);
             
             uniLocTableTemp = fs_ds2uni(locDsTemp, condInfoTemp);
             uniLocCell(iSess, iLabel) = {uniLocTableTemp};
@@ -89,12 +94,12 @@ for iSess = 1:nSess
         smooth = 0;
         runSeparate = 1;
                 
-        [ds_subj, condInfo] = fs_cosmo_subjds(project, ...
-            thisLabel, thisSess, outputPath, runInfo, smooth, runSeparate);
+        [ds_subj, condInfo] = fs_cosmo_subjds(thisSess, ...
+            thisLabel, template, project.funcPath, outputPath, runInfo, smooth, runSeparate);
         
         % add more inforamtion about this label
-        [roisize, talCoor, nVtx, VtxMax] = fs_fun_labelsize(project, thisSess, ...
-    thisLabel, outputPath);
+        [roisize, talCoor, nVtx, VtxMax] = fs_labelsize(thisSess, template, ...
+    thisLabel, project.funcPath, outputPath);
         condInfo.roiSize = roisize;
         condInfo.talCoor = talCoor;
         condInfo.nVtx = nVtx;
