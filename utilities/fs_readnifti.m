@@ -33,7 +33,7 @@ switch dataOnly
     case 1 
         % only output the data
         outtemp = load_nifti(niiFilename);
-        out = squeeze(outtemp.vol); % remove dimensions of length 1 
+        out = outtemp.vol; 
     case 2
         % only output headers
         out = load_nifti(niiFilename, 1);
