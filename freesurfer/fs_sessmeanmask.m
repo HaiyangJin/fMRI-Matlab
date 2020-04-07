@@ -3,7 +3,7 @@ function fscmd = fs_sessmeanmask(sessCode, template, funcPath)
 %
 % This function generates the mean mask of all run masks within that session. 
 % Its outputs are:
-%     boldPath/masks/brain.*.?h.pr.nii.gz
+%     boldPath/masks/brain.[template].?h.pr.nii.gz
 %
 % Inputs:
 %     sessCode         <string> session code in funcPath.

@@ -4,8 +4,8 @@ function fscmd = fs_projfunc(sessCode, projFile, runFolder, template, hemi, sm, 
 % This function projects the preprocessed functional (voxelwise) data to 
 % fsaverage or self surface. Then FWHM smoothing is applied if needed. The
 % output files are:
-%     fmcpr*.sm0.*.?h.nii.gz
-%     fmcpr*.sm5.*.?h.nii.gz (if smoothing is applied)
+%     fmcpr.*.[template].sm0.*.?h.nii.gz
+%     fmcpr.*.[template].sm5.*.?h.nii.gz (if smoothing is applied)
 %
 % Inputs:
 %     sessCode         <string> session code in funcPath.

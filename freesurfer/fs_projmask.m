@@ -4,8 +4,8 @@ function fscmd = fs_projmask(sessCode, runFolder, template, hemi, funcPath)
 % This function projects the brain.nii.gz (funcPath/sessCode/bold/runDir)
 % to the fsaverage or self surface space (without smoothing). It will
 % create following files in masks/:
-%     brain.*.?h.pr.nii.gz
-%     brain.*.?h.nii.gz
+%     brain.[template].?h.pr.nii.gz
+%     brain.[template].?h.nii.gz
 %
 % Inputs:
 %     sessCode         <string> session code in funcPath.
