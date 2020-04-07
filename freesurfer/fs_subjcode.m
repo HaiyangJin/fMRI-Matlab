@@ -9,9 +9,14 @@ function subjCode = fs_subjcode(sessCode, funcPath)
 %    funcPath         <string> the full path to the functional folder.
 %
 % Output:
-%    subjCode             subject code in %SUBJECTS_DIR
+%    subjCode         <string> subject code in %SUBJECTS_DIR.
 %
 % Created by Haiyang Jin (10-Dec-2019)
+
+% use the path saved in the global environment if needed
+if nargin < 2 || isempty(funcPath)
+    funcPath = getenv('FUNCTIONALS_DIR');
+end
 
 % error if cannot find the sessCode in that folder
 if ~exist(fullfile(funcPath, sessCode), 'dir')
@@ -23,13 +28,6 @@ end
 subjectnameFile = fullfile(funcPath, sessCode, 'subjectname');
 
 % read the subjectname file
-nameCell = importdata(subjectnameFile);
-
-% save the subjCode as string
-if isnumeric(nameCell)
-    subjCode = num2str(nameCell);
-elseif iscell(nameCell)
-    subjCode = nameCell{1};
-end
+subjCode = fs_readtext(subjectnameFile);
 
 end
