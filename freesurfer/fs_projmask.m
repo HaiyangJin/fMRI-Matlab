@@ -1,5 +1,5 @@
-function fscmd = fs_funcmask(sessCode, runFolder, tofsavg, hemi, funcPath)
-% fscmd = fs_funcmask(sessCode, runFolder, tofsavg, hemi, funcPath)
+function fscmd = fs_projmask(sessCode, runFolder, tofsavg, hemi, funcPath)
+% fscmd = fs_projmask(sessCode, runFolder, tofsavg, hemi, funcPath)
 %
 % This function projects the brain.nii.gz (funcPath/sessCode/bold/runDir)
 % to the fsaverage or self surface space (without smoothing). It will
