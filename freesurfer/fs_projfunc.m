@@ -1,5 +1,5 @@
-function fscmd = fs_projfunc(sessCode, runFolder, projFile, tofsavg, hemi, sm, funcPath)
-% fscmd = fs_projfunc(sessCode, runFolder, projFile, tofsavg, hemi, sm, funcPath)
+function fscmd = fs_projfunc(sessCode, projFile, runFolder, template, hemi, sm, funcPath)
+% fscmd = fs_projfunc(sessCode, runFolder, projFile, template, hemi, sm, funcPath)
 %
 % This function projects the preprocessed functional (voxelwise) data to 
 % fsaverage or self surface. Then FWHM smoothing is applied if needed. The
@@ -9,12 +9,11 @@ function fscmd = fs_projfunc(sessCode, runFolder, projFile, tofsavg, hemi, sm, f
 %
 % Inputs:
 %     sessCode         <string> session code in funcPath.
+%     projFile         <string> the name of the to-be-projected file 
+%                       (i.e., the preprocessed functional data).
+%                       [do not need to include '.nii.gz'.] 
 %     runFolder        <string> the run folder name.
-%     projFile         <string> the name of the to-be-projected file.
-%                       do not need to include '.nii.gz'. 
-%     toFsavg          <logical> 1: fsaverage will be used as the target; 
-%                       0: self surface will be used as the target.
-%                       fsaverage will be used by default.
+%     template         <string> 'fsaverage' or 'self'. fsaverage is the default.
 %     hemi             <string> which hemisphere. 'lh' (default) or 'rh'. 
 %     sm               <integer> smoothing with FWHM.
 %     funcPath         <string> the full path to the functional folder.
@@ -22,14 +21,16 @@ function fscmd = fs_projfunc(sessCode, runFolder, projFile, tofsavg, hemi, sm, f
 % Output:
 %     fscmd            <cell of strings> FreeSurfer commands used here.
 %
-% Created by Haiyang Jin (7-April-2020)
+% Created by Haiyang Jin (7-Apr-2020)
 
 projBasename = erase(projFile, '.nii.gz');
 projFile = [projBasename '.nii.gz'];
 
-if nargin < 4 || isempty(tofsavg)
-    tofsavg = 1;
-    warning('Target subject was not specified and fsaverage will be used by default.');
+if nargin < 4 || isempty(template)
+    template = 'fsaverage';
+    warning('The template was not specified and fsaverage will be used by default.');
+elseif ~ismember(template, {'fsaverage', 'self'})
+    error('The template has to be ''fsaverage'' or ''self'' (not ''%s'').', template);
 end
 
 if nargin < 5 || isempty(hemi)
@@ -50,37 +51,39 @@ end
 fscmd = cell(1 + logical(sm), 1);
 
 % target subject code and name
-trgsubjs = {'fsaverage', fs_subjcode(sessCode, funcPath)};
-trgNames = {'fsaverage', 'self'};
-trgsubj = trgsubjs{2-tofsavg};
-trgName = trgNames{2-tofsavg};
+if strcmp(template, 'self')
+    trgSubj = fs_subjcode(sessCode, funcPath);
+else
+    trgSubj = template;
+end
 
 % full path to the run folder
 runPath = fullfile(funcPath, sessCode, 'bold', runFolder, filesep);
 
 % full filename of the output file
 outFnString = '%s.sm%d.%s.%s.nii.gz';
-out0Fn = sprintf(outFnString, projBasename, 0, trgName, hemi);
+out0Fn = sprintf(outFnString, projBasename, 0, template, hemi);
 
 %% Project the functional volume data to the surface
 %%%%%% Project the data. e.g., fmcpr -> fmcpr.sm0  %%%%%%%%
 fscmd1 = sprintf(['mri_vol2surf --mov %1$s%2$s ',...
     '--reg %1$sregister.dof6.lta --trgsubject %3$s --interp trilin '...
     '--projfrac 0.5 --hemi %4$s --o %1$s%5$s --noreshape --cortex'],...
-    runPath, projFile, trgsubj, hemi, out0Fn);
+    runPath, projFile, trgSubj, hemi, out0Fn);
 fscmd{1, 1} = fscmd1;
 system(fscmd1)
 
 %%%%%% Apply smoothing. e.g., fmcpr.sm0 -> fmcpr.sm5  %%%%%%%%
 if sm > 0
-outFn = sprintf(outFnString, projBasename, sm, trgName, hemi);
-maskFn = sprintf('brain.%s.%s.nii.gz', trgName, hemi);
-
-fscmd2 = sprintf(['mris_fwhm --s %2$s --hemi %3$s --smooth-only '...
-    '--i %1$s%4$s --fwhm %5$d --o %1$s%6$s '...
-    '--mask %1$smasks/%7$s --no-detrend'], ...
-    runPath, trgsubj, hemi, out0Fn, sm, outFn, maskFn);
-fscmd{2, 1} = fscmd2;
-system(fscmd2)
+    outFn = sprintf(outFnString, projBasename, sm, template, hemi);
+    maskFn = sprintf('brain.%s.%s.nii.gz', template, hemi);
+    
+    fscmd2 = sprintf(['mris_fwhm --s %2$s --hemi %3$s --smooth-only '...
+        '--i %1$s%4$s --fwhm %5$d --o %1$s%6$s '...
+        '--mask %1$smasks/%7$s --no-detrend'], ...
+        runPath, trgSubj, hemi, out0Fn, sm, outFn, maskFn);
+    fscmd{2, 1} = fscmd2;
+    system(fscmd2)
+end
 
 end

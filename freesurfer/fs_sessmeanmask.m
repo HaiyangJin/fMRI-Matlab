@@ -1,5 +1,5 @@
-function fscmd = fs_sessmeanmask(sessCode, tofsavg, funcPath)
-% fscmd = fs_sessmeanmask(sessCode, tofsavg, funcPath)
+function fscmd = fs_sessmeanmask(sessCode, template, funcPath)
+% fscmd = fs_sessmeanmask(sessCode, template, funcPath)
 %
 % This function generates the mean mask of all run masks within that session. 
 % Its outputs are:
@@ -7,9 +7,7 @@ function fscmd = fs_sessmeanmask(sessCode, tofsavg, funcPath)
 %
 % Inputs:
 %     sessCode         <string> session code in funcPath.
-%     toFsavg          <logical> 1: fsaverage will be used as the target; 
-%                       0: self surface will be used as the target.
-%                       fsaverage will be used by default.
+%     template         <string> 'fsaverage' or 'self'. fsaverage is the default.
 %     funcPath         <string> the full path to the functional folder.
 %
 % Output:
@@ -17,9 +15,11 @@ function fscmd = fs_sessmeanmask(sessCode, tofsavg, funcPath)
 %
 % Created by Haiyang Jin (7-Apr-2020)
 
-if nargin < 2 || isempty(tofsavg)
-    tofsavg = 1;
-    warning('Target subject was not specified and fsaverage will be used by default.');
+if nargin < 2 || isempty(template)
+    template = 'fsaverage';
+    warning('The template was not specified and fsaverage will be used by default.');
+elseif ~ismember(template, {'fsaverage', 'self'})
+    error('The template has to be ''fsaverage'' or ''self'' (not ''%s'').', template);
 end
 
 if nargin < 3 || isempty(funcPath)
@@ -29,10 +29,6 @@ end
 % hemispheres
 hemis = {'lh', 'rh'};
 nHemi = numel(hemis);
-
-% target subject code and name
-trgNames = {'fsaverage', 'self'};
-trgName = trgNames{2-tofsavg};
 
 % empty cell for saving FreeSurfer commands
 fscmd = cell(2, nHemi);
@@ -47,10 +43,16 @@ boldPath = fullfile(funcPath, sessCode, 'bold');
 % calculate the mean mask for each hemisphere separately
 for iHemi = 1:nHemi
     
-    maskFn = sprintf('brain.%s.%s.pr.nii.gz', trgName, hemis{iHemi});
+    maskFn = sprintf('brain.%s.%s.pr.nii.gz', template, hemis{iHemi});
     maskFilename = fullfile(boldPath, 'masks', maskFn);
     
     masks = fullfile(boldPath, runList, 'masks', maskFn);
+    
+    missing = cellfun(@(x) ~exist(x, 'file'), masks);
+    if any(missing)
+        missingMask = masks(missing);
+        error('Cannot find the mask file: %s.\n', missingMask{:});
+    end
     
     % calcuate the mean masks
     fscmd1 = sprintf(['mri_concat --o %s --mean' repmat(' %s', 1, nRun)], ...

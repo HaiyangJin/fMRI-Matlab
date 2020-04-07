@@ -1,5 +1,5 @@
-function fscmd = fs_projmask(sessCode, runFolder, tofsavg, hemi, funcPath)
-% fscmd = fs_projmask(sessCode, runFolder, tofsavg, hemi, funcPath)
+function fscmd = fs_projmask(sessCode, runFolder, template, hemi, funcPath)
+% fscmd = fs_projmask(sessCode, runFolder, template, hemi, funcPath)
 %
 % This function projects the brain.nii.gz (funcPath/sessCode/bold/runDir)
 % to the fsaverage or self surface space (without smoothing). It will
@@ -10,20 +10,20 @@ function fscmd = fs_projmask(sessCode, runFolder, tofsavg, hemi, funcPath)
 % Inputs:
 %     sessCode         <string> session code in funcPath.
 %     runFolder        <string> the run folder name.
-%     toFsavg          <logical> 1: fsaverage will be used as the target; 
-%                       0: self surface will be used as the target.
-%                       fsaverage will be used by default.
+%     template         <string> 'fsaverage' or 'self'. fsaverage is the default.
 %     hemi             <string> which hemisphere. 'lh' (default) or 'rh'. 
 %     funcPath         <string> the full path to the functional folder.
 %
 % Output:
 %     fscmd            <cell of strings> FreeSurfer commands used here.
 %
-% Created by Haiyang Jin (7-April-2020)
+% Created by Haiyang Jin (7-Apr-2020)
 
-if nargin < 3 || isempty(tofsavg)
-    tofsavg = 1;
-    warning('Target subject was not specified and fsaverage will be used by default.');
+if nargin < 3 || isempty(template)
+    template = 'fsaverage';
+    warning('The template was not specified and fsaverage will be used by default.');
+elseif ~ismember(template, {'fsaverage', 'self'})
+    error('The template has to be ''fsaverage'' or ''self'' (not ''%s'').', template);
 end
 
 if nargin < 4 || isempty(hemi)
@@ -40,17 +40,18 @@ end
 fscmd = cell(2, 1);
 
 % target subject code and name
-trgsubjs = {'fsaverage', fs_subjcode(sessCode, funcPath)};
-trgNames = {'fsaverage', 'self'};
-trgsubj = trgsubjs{2-tofsavg};
-trgName = trgNames{2-tofsavg};
+if strcmp(template, 'self')
+    trgSubj = fs_subjcode(sessCode, funcPath);
+else
+    trgSubj = template;
+end
 
 % full path to the run folder
 runPath = fullfile(funcPath, sessCode, 'bold', runFolder, filesep);
 
 % full filename of the output file
-outprFilename = fullfile(runPath, 'masks', sprintf('brain.%s.%s.pr.nii.gz',trgName, hemi));
-outFilename = fullfile(runPath, 'masks', sprintf('brain.%s.%s.nii.gz',trgName, hemi));
+outprFilename = fullfile(runPath, 'masks', sprintf('brain.%s.%s.pr.nii.gz', template, hemi));
+outFilename = fullfile(runPath, 'masks', sprintf('brain.%s.%s.nii.gz', template, hemi));
 
 %% Create the brain mask
 %%%%%%%% project brain.nii.gz to brain.self.rh.pr.nii.gz %%%%%%
@@ -58,7 +59,7 @@ fscmd1 = sprintf(['mri_vol2surf --mov %1$smasks/brain.nii.gz '...
     '--reg %1$sregister.dof6.lta '...
     '--trgsubject %2$s --interp nearest --projfrac 0.5 --hemi %3$s '...
     '--o %4$s --noreshape --cortex'], ...
-    runPath, trgsubj, hemi, outprFilename);
+    runPath, trgSubj, hemi, outprFilename);
 fscmd{1, 1} = fscmd1;
 system(fscmd1)
 
