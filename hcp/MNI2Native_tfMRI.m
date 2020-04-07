@@ -1,12 +1,12 @@
-function MNI2Native_tfMRI(hcpPath, projectString)
+function MNI2Native_tfMRI(hcpPath, strPattern)
 % This function was built based on MNI2Native.sh (created by Osama Abdullah
 % on 9/9/18), which converts the functional (bold) data from MNI space to
 % native space (with FSL functions).
 %
 % Inputs:
-%    hcpPath        <string> path to the HCP results ('Path/to/HCP/') 
-%                   [Default is the current working directory]
-%    sessStr        <string> strings (or prefix) for session information (e.g.,
+%    hcpPath       <string> path to the HCP results ('Path/to/HCP/') 
+%                   [Default is the current working directory].
+%    strPattern    <string> strings (or prefix) for session information (e.g.,
 %                   'faceword' is the prefix for 'faceword01', 'faceword02',
 %                   'faceword03'. sessStr will help to identify all the 
 %                   session folders. In order to perform this
@@ -15,6 +15,7 @@ function MNI2Native_tfMRI(hcpPath, projectString)
 %
 % Output:
 %    files of functional (bold) data on native space.  
+%
 % Dependency:
 %    FSL  (Please make sure FSL is installed and sourced properly.)
 %
@@ -29,7 +30,7 @@ end
 if nargin < 1 || isempty(hcpPath)
     hcpPath = '.';
 end
-if nargin < 2 || isempty(projectString) || strcmp(projectString, '.')
+if nargin < 2 || isempty(strPattern) || strcmp(strPattern, '.')
     
     % all the folders in HCP path
     tempDir = dir(hcpPath);
@@ -45,23 +46,23 @@ if nargin < 2 || isempty(projectString) || strcmp(projectString, '.')
 
     % the most frequent string will be used as the prefix
     [~, whichStr] = max(counts);
-    projectString = uc{whichStr};
+    strPattern = uc{whichStr};
   
 end
 % add '*' if last letter is not '*'
-if projectString(end) ~= '*' && ~strcmp(projectString, '.')
-    projectString = [projectString, '*'];
+if strPattern(end) ~= '*' && ~strcmp(strPattern, '.')
+    strPattern = [strPattern, '*'];
 end
 
 
 %% identify all sessions (folders) match sessStr
-projDir = dir(fullfile(hcpPath, projectString));
+projDir = dir(fullfile(hcpPath, strPattern));
 
 % % remove folders whose superfolder (parent folder) is not hcpPath
 % sessDir(~strcmp({sessDir.folder}, hcpPath)) = []; 
 
 if isempty(projDir)
-    error('No sessions were found for %s in %s.', projectString, hcpPath);
+    error('No sessions were found for %s in %s.', strPattern, hcpPath);
 end
 
 subjList = {projDir.name};
