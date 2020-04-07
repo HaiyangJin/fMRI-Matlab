@@ -35,8 +35,8 @@ for iSess = 1:nSess
     % get the run list
     if nargin < 3 || isempty(runFolder)  % all runs
         % get the list of run folders (with numbers only)
-        locRunList = fs_fun_readrun('run_loc.txt', project, thisSess);
-        mainRunList = fs_fun_readrun('main_loc.txt', project, thisSess);
+        locRunList = fs_readrun('run_loc.txt', project, thisSess);
+        mainRunList = fs_readrun('main_loc.txt', project, thisSess);
         
         runList = [locRunList; mainRunList];  % run list for both
         runList = runList(~cellfun(@isempty, runList));  % remove empty cell
