@@ -1,9 +1,11 @@
-function FS = fs_subjdir(structPath)
+function FS = fs_subjdir(structPath, strPattern)
 % function FS = fs_subjdir(structPath)
 % This function set up 'SUBJECTS_DIR' and gather some information from FreeSurfer.
 %
 % Input:
-%    structPath   path to subjects/ folder in FreeSurfer
+%    structPath     <string> path to $SUBJECTS_DIR folder in FreeSurfer.
+%    strPattern     <string> string pattern used to identify subject
+%                    folders.
 %
 % Output:
 %    FS             a struct contains FreeSurfer information
@@ -20,15 +22,15 @@ else
     setenv('SUBJECTS_DIR', structPath);
 end
 
+if nargin < 2 || isempty(strPattern)
+    strPattern = '';
+end
+
 % set the subjects folder
 FS.structPath = structPath;
 
-% hemisphere information
-FS.hemis = {'lh', 'rh'};
-FS.nHemi = numel(FS.hemis);
-
 % subject code information
-subjDir = dir(FS.structPath);
+subjDir = dir(fullfile(FS.structPath, strPattern));
 subjDir = subjDir([subjDir.isdir]);  % only keep folders
 FS.subjDir = subjDir(~ismember({subjDir.name}, {'.', '..'})); % remove . and ..
 FS.subjList = {FS.subjDir.name};

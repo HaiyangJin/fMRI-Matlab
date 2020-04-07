@@ -1,5 +1,5 @@
-function project = fs_functionals(sessStrPattern, funcPath)
-% project = fs_functionals(funcPath, sessStr)
+function project = fs_funcdir(funcPath, strPattern)
+% project = fs_functionals(funcPath, strPattern)
 %
 % This function creates the structure for a project.
 %
@@ -17,8 +17,12 @@ function project = fs_functionals(sessStrPattern, funcPath)
 % Copy information from FreeSurfer
 project = fs_subjdir;
 
-if nargin < 2 || isempty(funcPath)
+if nargin < 1 || isempty(funcPath)
     funcPath = fullfile(project.structPath, '..', 'functional_data');
+end
+
+if nargin < 2 || isempty(strPattern)
+    strPattern = '';
 end
 
 % set the environmental variable of FUNCTIONALS_DIR
@@ -26,7 +30,7 @@ setenv('FUNCTIONALS_DIR', funcPath);
 project.funcPath = funcPath;
 
 % sessions (bold subject codes)
-tmpDir = dir(fullfile(project.funcPath, sessStrPattern));
+tmpDir = dir(fullfile(project.funcPath, strPattern));
 isSubDir = [tmpDir.isdir] & ~ismember({tmpDir.name}, {'.', '..'});
 
 project.sessDir = tmpDir(isSubDir);
