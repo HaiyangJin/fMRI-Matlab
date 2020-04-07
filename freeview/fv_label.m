@@ -1,19 +1,23 @@
-function isok = fv_label(subjCode, labelFn, outputPath, ...
-    overlayFile, threshold, isfsavg, colorLabel, saveSS)
-%isok = fv_label(subjCode, labelFn, outputPath, ...
-%    overlayFile, threshold, isfsavg, colorLabel, saveSS)
+function isok = fv_label(subjCode, labelFn, outputPath, overlayFile, ...
+    threshold, colorLabel, saveSS)
+% isok = fv_label(subjCode, labelFn, outputPath, overlayFile, ...
+%    threshold, colorLabel, saveSS)
 %    
 % This function takes the screenshot of the label based with specific 
 % contrast if there is. 
 %
 % Inputs:
-%    subjCode           subject code in $SUBJECTS_DIR
-%    labelFn           a list (cell) of label names
-%    outputPath        where the screenshots will be saved
-%    overlayFile       the overlay file to be displayed
-%    colorLabel        colors used for each label in order
+%    subjCode           <string> subject code in $SUBJECTS_DIR.
+%    labelFn            <cell of strings> a list (cell) of label names.
+%    outputPath         <string> where the screenshots will be saved.
+%    overlayFile        <string> the overlay file to be displayed.
+%    threshold          <string> p-value threshold.
+%    colorLabel         <string> colors used for each label in order.
+%    saveSS             <logical> 1: save screenshots; 0: do not save.
+%
 % Output:
-%    isok               if all labels in "labelFn" are available for this subjCode
+%    isok               <logical> if all labels in "labelFn" are available 
+%                        for this subjCode
 %    screenshots of labels saved in outputPath
 % 
 % Created by Haiyang Jin (28-Noc-2019)
@@ -73,13 +77,6 @@ else
     whichOverlay = 0;
 end
 
-% if show ?h.inflated of fsaverage (probably this should be determined by
-% the overlay file???)
-if nargin < 6 || isempty(isfsavg)
-    isfsavg = 0;
-end
-if isfsavg; avgStr = '_fsavg'; else; avgStr = '_self'; end
-
 % colors used for labels
 if nargin < 7 || isempty(colorLabel)
     colorLabel = {'#FFFFFF', '#33cc33', '#0000FF', '#FFFF00'}; % white, green, blue, yellow
@@ -89,7 +86,7 @@ if nargin < 8 || isempty(saveSS)
     saveSS = 0;
 end
 
-outputFolder = sprintf('Label_Screenshots%s_%s', avgStr, strrep(threshold, ',', '-'));
+outputFolder = sprintf('Label_Screenshots%s_%s', template, strrep(threshold, ',', '-'));
 outputPath = fullfile(outputPath, outputFolder);
 if ~exist(outputPath, 'dir'); mkdir(outputPath); end % create the folder if necessary
 
@@ -98,15 +95,19 @@ if ~exist(outputPath, 'dir'); mkdir(outputPath); end % create the folder if nece
 % FreeSurfer setup 
 structPath = getenv('SUBJECTS_DIR');
 
-% surface files and the annotation file
-if isfsavg
-    subjCodeTemp = 'fsaverage';
+% if show ?h.inflated of fsaverage (probably this should be determined by
+% the overlay file???)
+if contains('fsaverage', overlayFile)
+    template = 'fsaverage';
 else
-    subjCodeTemp = subjCode;
+    template = 'self';
 end
-subjPath = fullfile(structPath, subjCodeTemp);
-inflateFile = fullfile(subjPath, 'surf', [hemi '.inflated']); % inflated file
-annotFile = fullfile(subjPath, 'label', [hemi '.aparc.annot']); % annotation file
+
+% surface files and the annotation file
+trgSubj = fs_trgsubj(subjCode, template);
+templatePath = fullfile(structPath, trgSubj);
+inflateFile = fullfile(templatePath, 'surf', [hemi '.inflated']); % inflated file
+annotFile = fullfile(templatePath, 'label', [hemi '.aparc.annot']); % annotation file
 
 fscmd_surf = sprintf(['freeview -f %s:'... % the ?h.inflated file
     'annot=%s:annot_outline=yes:'... % the filename and settings for annotation file
@@ -147,7 +148,7 @@ else
 end
 
 if saveSS
-    outputFn = sprintf('%s%s%s_%d.png', nameLabels, subjCode, avgStr, whichOverlay);
+    outputFn = sprintf('%s%s%s_%d.png', nameLabels, subjCode, template, whichOverlay);
     outputFile = fullfile(outputPath, outputFn);
     fscmd_output = sprintf(' -ss %s', outputFile); %
 else
