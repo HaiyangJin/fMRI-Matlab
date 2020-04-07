@@ -1,14 +1,14 @@
-function predictTable = fs_fun_cosmo_similarity(sessList, labelList, ...
+function predictTable = fs_cosmo_similarity(sessList, labelList, ...
     classPairs, condName, condWeight, template, outputPath, funcPath)
-% predictTable = fs_fun_cosmo_similarity(project, labelList, ...
+% predictTable = fs_cosmo_similarity(project, labelList, ...
 %     classPairs, condName, condWeight, outputPath)
 %
 % This function decodes the similarity of condName to classPairs for all
 % the sessions in the project. libsvm is used in this analysis.
 %
 % Inputs:
-%    sessList            <string> session code in functional folder (bold
-%                         subject code).
+%    sessList            <cell of string> session code in functional folder 
+%                         (bold subject code).
 %    labelList           <cell of strings> a list of label names.
 %    classPairs          <cell of strings> a PxQ (usually is 2) cell matrix 
 %                         for the pairs to be classified. Each row is one 
