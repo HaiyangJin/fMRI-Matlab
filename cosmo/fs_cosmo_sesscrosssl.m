@@ -63,6 +63,9 @@ waitHandle = waitbar(0, 'Loading...   0.00% finished');
 % information from the project
 hemis = {'lh', 'rh'};
 nHemi = numel(hemis);
+if ischar(sessList)
+    sessList = {sessList};
+end
 nSess = numel(sessList);
 
 for iSess = 1:nSess
