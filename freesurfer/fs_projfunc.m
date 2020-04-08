@@ -51,11 +51,7 @@ end
 fscmd = cell(1 + logical(sm), 1);
 
 % target subject code and name
-if strcmp(template, 'self')
-    trgSubj = fs_subjcode(sessCode, funcPath);
-else
-    trgSubj = template;
-end
+trgSubj = fs_trgsubj(fs_subjcode(sessCode, funcPath), template);
 
 % full path to the run folder
 runPath = fullfile(funcPath, sessCode, 'bold', runFolder, filesep);
