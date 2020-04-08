@@ -1,16 +1,17 @@
-function [vtxCell, faceCell] = fs_cosmo_surfcoor(subjCode, surfType, combineHemi)
-% [vtxCell, faceCell] = fs_cosmo_surfcoor(subjCode, surfCoorFile, combineHemi)
+function [vtxCell, faceCell] = fs_cosmo_surfcoor(subjCode, surfType, combineHemi, struPath)
+% [vtxCell, faceCell] = fs_cosmo_surfcoor(subjCode, [surfType = 'sphere', ...
+% combineHemi = 0, struPath])
 % 
-% This function converts ?h.inflated (or white or pial) into ASCII file and
-% then load them into Matlab. Vertices (faces) for both hemispheres could
-% be merged together. 
+% This function load ?h.sphere (inflated or white or pial) into Matlab. The
+% vertices will be masked by label/?h.cortex.label. Vertices (faces) for 
+% both hemispheres can be merged together. 
 %
 % Inputs: 
 %    subjCode           <string> subject code in $SUBJECTS_DIR.
-%    surfCoorFile       <string> coordinate file for vertices ('inflated', 
-%                        'white', 'pial') (default is 'inflated').
+%    surfCoorFile       <string> coordinate file for vertices ('sphere',  
+%                        'inflated', 'white', 'pial') (default is 'sphere').
 %    combineHemi        <logical> whether the data of two hemispheres will 
-%                       be combined (default is no).
+%                        be combined (default is no).
 %
 % Outputs:
 %    vtxCell            <cell> vertex cell. each row is for each surface 
@@ -26,15 +27,19 @@ function [vtxCell, faceCell] = fs_cosmo_surfcoor(subjCode, surfType, combineHemi
 % Created by Haiyang Jin (8-Dec-2019)
 
 if nargin < 2 || isempty(surfType)
-    surfType = {'inflated'};
+    surfType = {'sphere'};
 end
+
 if nargin < 3 || isempty(combineHemi)
     combineHemi = 0;
 end
 
+if nargin < 4 || isempty(struPath)
+    struPath = getenv('SUBJECTS_DIR');
+end
+
 % FreeSurfer setup
-FS = fs_subjdir;
-surfPath = fullfile(FS.structPath, subjCode, 'surf');
+surfPath = fullfile(struPath, subjCode, 'surf');
 hemis = {'lh', 'rh'};
 nHemi = 2;
 
@@ -42,7 +47,7 @@ nHemi = 2;
 if ~iscell(surfType)
     surfType = {surfType}; % convert to cell if necessary
 end
-surfExt = {'white', 'pial', 'inflated'};
+surfExt = {'sphere', 'white', 'pial', 'inflated'};
 whichSurfcoor = ismember(surfType, surfExt);
 if ~any(whichSurfcoor)
     error('The surface coordinate system (%s) is not supported by this function.\n',...
