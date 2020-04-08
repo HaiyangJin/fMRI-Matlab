@@ -1,5 +1,5 @@
 function fscmd = fs_projsess(sessList, projFile, template, smooth, runList, hemi, funcPath)
-% fscmd = fs_projsess(sessList, projFile, [template = 'fsaverage', smooth = 0,
+% fscmd = fs_projsess(sessList, projFile, [template = 'self', smooth = 5,
 %                     runList = [allruns], hemi = {'lh', 'rh'}, funcPath])
 %
 % This function projects the preprocessed functional (voxelwise) data for
@@ -31,14 +31,14 @@ projBasename = erase(projFile, '.nii.gz');
 projFile = [projBasename '.nii.gz'];
 
 if nargin < 3 || isempty(template)
-    template = 'fsaverage';
-    warning('The template was not specified and fsaverage will be used by default.');
+    template = 'self';
+    warning('The template was not specified and self will be used by default.');
 elseif ~ismember(template, {'fsaverage', 'self'})
     error('The template has to be ''fsaverage'' or ''self'' (not ''%s'').', template);
 end
 
 if nargin < 4 || isempty(smooth)
-    smooth = 0;
+    smooth = 5;
 end
 
 if nargin < 6 || isempty(hemi)
@@ -72,7 +72,7 @@ for iSess = 1:nSess
         % run the analysis for all the runs
         runList = runListAll;
     elseif ischar(runList)
-        % get the list of run folder names
+        % get the list of run folder names from the run list file
         runList = fs_readtext(fullfile(boldPath, runList));
     end
     
