@@ -28,8 +28,8 @@ function [ds_subj, condInfo] = fs_cosmo_subjds(sessCode, labelFn, template, ...
 % Input arguments
 if nargin < 3 || isempty(template)
     template = '';
-elseif ~endsWith(template, '_')
-    template = [template, '_'];
+elseif ~startsWith(template, '_')
+    template = ['_', template];
 end
     
 if nargin < 4 || isempty(funcPath)
@@ -100,7 +100,7 @@ for iRun = 1:nRun
     % set iRunStr as '' when there is only "1" run
     iRunStr = erase(num2str(iRun), num2str(nRun^2));
     analysisName = sprintf('%s%s%s.%s', ...
-        template, analysisExt, iRunStr, hemi); % the analysis name
+        analysisExt, template, iRunStr, hemi); % the analysis name
     % the beta file
     betaFile = fullfile(boldPath, analysisName, 'beta.nii.gz');
     

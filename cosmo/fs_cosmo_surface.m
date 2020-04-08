@@ -58,7 +58,7 @@ end
 
 % load data
 data = fs_readnifti(surfFn, 1); % only load data
-data = data'; % betas * vertices
+data = shiftdim(data, 3); % betas * vertices
 
 % only keep first n rows of samples if Target information is available
 if ~isempty(params.targets)

@@ -36,7 +36,7 @@ tableNames = {'OnsetTime', 'Condition', 'Duration', 'Weight', 'Label'};
 tmptable = cell2table(cellTran', 'VariableNames', tableNames);
 
 if cleanPar
-    tmptable = tmptable(tmptable.Label ~= "NULL", :);  % remove the baseline
+    tmptable = tmptable(tmptable.Condition ~= "0", :);  % remove the baseline
 end
 
 % Create the output table
