@@ -26,13 +26,16 @@ function [ds_subj, condInfo] = fs_cosmo_subjds(sessCode, labelFn, template, ...
 % Created by Haiyang Jin (12-Dec-2019)
 
 % Input arguments
-if nargin < 4 || isempty(template)
-    template = 'fsaverage';
-    warning('The template was not specified and fsaverage will be used by default.');
-elseif ~ismember(template, {'fsaverage', 'self'})
-    error('The template has to be ''fsaverage'' or ''self'' (not ''%s'').', template);
+if nargin < 3 || isempty(template)
+    template = '';
+elseif ~endsWith(template, '_')
+    template = [template, '_'];
 end
     
+if nargin < 4 || isempty(funcPath)
+    funcPath = getenv('FUNCTIONALS_DIR');
+end
+
 if nargin < 5 || isempty(runInfo)
     runInfo = 'loc';
     warning('Analyses for localizer scans were conducted by default.');
@@ -97,7 +100,7 @@ for iRun = 1:nRun
     % set iRunStr as '' when there is only "1" run
     iRunStr = erase(num2str(iRun), num2str(nRun^2));
     analysisName = sprintf('%s%s%s.%s', ...
-        analysisExt, template, iRunStr, hemi); % the analysis name
+        template, analysisExt, iRunStr, hemi); % the analysis name
     % the beta file
     betaFile = fullfile(boldPath, analysisName, 'beta.nii.gz');
     
