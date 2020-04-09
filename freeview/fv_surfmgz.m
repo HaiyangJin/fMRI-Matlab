@@ -65,6 +65,12 @@ else
     thePath = fullfile(theSubjPath, 'surf');
 end
 
+% if the mgz file is from 'fsaverageSL'(searchlight), use surface in
+% 'fsaverage' folder.
+if contains(thePath, 'fsaverageSL')
+    thePath = strrep(thePath, 'fsaverageSL', 'fsaverage');
+end
+
 nHemi = numel(hemiNames);
 fscmd_hemis = cell(nHemi, 1);
 % create the cmd for the two hemispheres separately
@@ -87,8 +93,8 @@ for iHemi = 1:nHemi
     end
     
     % file for the surface file
-    surfFilename = cellfun(@(x) sprintf('%s.%s', thisHemi, x), surfType, 'uni', false);
-    surfFile = fullfile(thePath, '..', 'surf', surfFilename);
+    surfFilename = cellfun(@(x) sprintf('%s.%s', thisHemi, x), surfType, 'uni', false);        
+    surfFile = fullfile(thePath, '..', 'surf', surfFilename);    
     isAvail = cellfun(@(x) exist(x, 'file'), surfFile);
     % assert the surface file is available
     if ~all(isAvail)
