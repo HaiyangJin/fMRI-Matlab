@@ -1,5 +1,5 @@
 function fscmd = fs_projfunc(sessCode, projFile, runFolder, template, hemi, sm, funcPath)
-% fscmd = fs_projfunc(sessCode, runFolder, projFile, template, hemi, sm, funcPath)
+% fscmd = fs_projfunc(sessCode, projFile, runFolder, template, hemi, sm, funcPath)
 %
 % This function projects the preprocessed functional (voxelwise) data to 
 % fsaverage or self surface. Then FWHM smoothing is applied if needed. The
@@ -61,11 +61,17 @@ outFnString = '%s.sm%d.%s.%s.nii.gz';
 out0Fn = sprintf(outFnString, projBasename, 0, template, hemi);
 
 %% Project the functional volume data to the surface
+% to be compatible with old FreeSurfer version
+regFile = fullfile(runPath, 'register.dof6.lta');
+if ~exist(regFile, 'file')
+    regFile = strrep(regFile, '.lta', '.dat');
+end
+
 %%%%%% Project the data. e.g., fmcpr -> fmcpr.sm0  %%%%%%%%
 fscmd1 = sprintf(['mri_vol2surf --mov %1$s%2$s ',...
-    '--reg %1$sregister.dof6.lta --trgsubject %3$s --interp trilin '...
+    '--reg %6$s --trgsubject %3$s --interp trilin '...
     '--projfrac 0.5 --hemi %4$s --o %1$s%5$s --noreshape --cortex'],...
-    runPath, projFile, trgSubj, hemi, out0Fn);
+    runPath, projFile, trgSubj, hemi, out0Fn, regFile);
 fscmd{1, 1} = fscmd1;
 system(fscmd1)
 
