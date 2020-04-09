@@ -1,5 +1,5 @@
-function fs_savemgz(subjCode, surfData, outputFn, structPath, outputPath)
-% fs_savemgz(subjCode, surfData, outputFn, structPath, outputPath)
+function fs_savemgz(subjCode, surfData, outputFn, outputPath, structPath)
+% fs_savemgz(subjCode, surfData, outputFn, outputPath, structPath)
 % 
 % This function is built based on nsd_savemgz.m created by Kendrick Kay 
 % (https://github.com/kendrickkay/nsdcode/). 
@@ -8,27 +8,29 @@ function fs_savemgz(subjCode, surfData, outputFn, structPath, outputPath)
 % (uncompressed).
 %
 % Inputs:
-%     subjCode         <string> subject code in SUBJECTS_DIR.
-%     surfData         <array of numeric> nVtx * D (where D >= 1) [Data to 
+%    subjCode         <string> subject code in SUBJECTS_DIR.
+%    surfData         <array of numeric> nVtx * D (where D >= 1) [Data to 
 %                      be saved].
-%     outputFn         <string> filename of the output file (without path) 
+%    outputFn         <string> filename of the output file (without path) 
 %                      [the filename must conform to the format
 %                      [lh,rh].XXX.[mgz,mgh].
-%     structPath       <string> 'SUBJECTS_DIR' in FreeSurfer.
+%    outputPath       <string> where the *.mgz file will be saved.
+%    structPath       <string> 'SUBJECTS_DIR' in FreeSurfer.
 %
 % Output:
-%     a new *.mgz or *.mgh file will be saved at subjects/surf/
+%    a new *.mgz or *.mgh file will be saved at subjects/surf/
 %
 % Dependency:
 %     FreeSurfer Matlab codes...
 %
 % Created by Haiyang Jin (19-Jan-2020)
 
-if nargin < 4 || isempty(structPath)
-    structPath = getenv('SUBJECTS_DIR');
-end
-if nargin < 5 || isempty(outputPath)
+if nargin < 4 || isempty(outputPath)
     outputPath = fullfile(structPath, subjCode, 'surf');
+end
+
+if nargin < 5 || isempty(structPath)
+    structPath = getenv('SUBJECTS_DIR');
 end
 
 if ~ismember({'.mgh', '.mgz'}, outputFn(end-3:end))
