@@ -6,7 +6,9 @@ function output = fs_checkreg(sessList, isSort, funcPath)
 % Inputs:
 %    sessList          <string> or <a cell of strings> session codes.
 %    isSort            <logical> sort the results by the quality (last
-%                        column).
+%                       column). 0: do not sort (default); 1: sort the
+%                       quality by 'descend'; 2: sort the quality by
+%                       'ascend'. 
 %    funcPath          <string> the full path to the functional folder.
 %
 % Output:
@@ -15,8 +17,12 @@ function output = fs_checkreg(sessList, isSort, funcPath)
 %
 % Created by Haiyang Jin (26-Jan-2020)
 
-if nargin < 2 || ismepty(isSort)
+if nargin < 2 || isempty(isSort)
     isSort = 0;
+elseif isSort == 1
+    order = 'descend';
+elseif isSort == 2
+    order = 'ascend';
 end
 
 if nargin < 3 || isempty(funcPath)
@@ -41,17 +47,17 @@ if isSort
     % replace ? with space
     tempOutput = cellfun(@(x) strrep(x, '?', ' '), cmdOutput, 'uni', false);
     
-    % divided a row of strings into multiple strings
-    tempStrings = cellfun(@(x) reshape(regexp(x, '\w*\S', 'match'), 4, [])', tempOutput, 'uni', false);
+    % split a row of strings into multiple strings
+    tempStrings = cellfun(@split, tempOutput, 'uni', false);
+
+    % combine all cells
+    strings = horzcat(tempStrings{:});
     
-    % combine the third and forth columns as a new column
-    strings = cellfun(@(z) horzcat(z(:, 1:2), cellfun(@(x, y) [x y], z(:, 3), z(:, 4), 'uni', false)),...
-        tempStrings, 'uni', false);
+    % reshape the strings
+    output = reshape(strings(1: end-1, :), 3, [])';
     
-    % combine the output from multiple sessions and multiple runs
-    output = vertcat(strings{:});
-    
-    output = sortrows(output, 3, 'descend'); 
+    % order the output
+    output = sortrows(output, 3, order); 
     
 else
     % only run the cmds but donot save anything
