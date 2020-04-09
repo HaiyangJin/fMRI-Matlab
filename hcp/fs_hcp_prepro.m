@@ -1,4 +1,6 @@
 function fs_hcp_prepro(hcpPath, projString, template, funcExt, linkT1)
+% fs_hcp_prepro(hcpPath, projString, template, funcExt, linkT1)
+%
 % This function creates directory structure for analyses in FreeSurfer for
 % results obtained from Human Connectome Project pipeline.
 %
@@ -21,7 +23,7 @@ function fs_hcp_prepro(hcpPath, projString, template, funcExt, linkT1)
 %
 % Output:
 %    a subfolder called FreeSurfer is built in HCP/. It contains the
-%    directory structure (but not the structure data) for analyses in
+%    directory structure (but not the anatomy data) for analyses in
 %    FreeSurfer.
 %
 % Dependency:
