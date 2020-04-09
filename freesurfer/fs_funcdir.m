@@ -38,6 +38,6 @@ tmpDir = dir(fullfile(funcPath, strPattern));
 isSessDir = [tmpDir.isdir] & ~ismember({tmpDir.name}, {'.', '..'});
 
 sessDir = tmpDir(isSessDir);
-sessList = {sessDir.name};
+sessList = {sessDir.name}';
 
 end
