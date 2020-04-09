@@ -1,14 +1,21 @@
-function [classOut, classNames, classShortNames, nClass] = cosmo_classifier(classifiers)
+function [classOut, classONames, classOShortNames, nClass] = cosmo_classifier(classifiers)
 % [classOut, classNames, classShortNames, nClass] = cosmo_classifier(classifiers)
 %
 % This function generates the classifier related information.
 %
 % Inputs:
-%    classifiers      the classifiers used in this analyses. Could be
-%                       double (1, 2, 3, 4, 5) or strings ('libsvm', 'bayes',
-%                       'lda', '_svm') or function handles. Default is 1.
+%    classifiers        <integer> or <string> or <function handle> 
+%                        the classifiers used in this analyses. cn be
+%                        integer (1, 2, 3, 4, 5) or strings ('libsvm', 
+%                        'bayes','lda', '_svm') or function handles. 
+%                        Default is 1.
 % Output:
-%    classifier_out     a cell contains the classifiers
+%    classOut           <cell> a cell of function handles. 
+%    classONames        <cell of string> a cell of all out classifier
+%                        names.
+%    classOShortNames   <cell of string> the short version of out classifier
+%                        names.
+%    nClass             <integer> number of out classifiers.
 %
 % Dependency:
 %    CoSMoMVPA
@@ -20,14 +27,12 @@ if nargin < 1 || isempty(classifiers)
 end
 
 % classifiers
-classifierList = {@cosmo_classify_libsvm, ...
-    @cosmo_classify_nn, ...
-    @cosmo_classify_naive_bayes,...
-    @cosmo_classify_lda, ...
-    @cosmo_classify_svm};
-classifierListNames=cellfun(@func2str,classifierList,'UniformOutput',false);
-
-classShortNames = cellfun(@(x) erase(x, 'cosmo_classify_'), classifierListNames, 'uni', false);
+classifierList = {@cosmo_classify_libsvm, ... % 1
+    @cosmo_classify_nn, ... % 2
+    @cosmo_classify_naive_bayes,... % 3
+    @cosmo_classify_lda, ... $ 4
+    @cosmo_classify_svm}; % 5
+classifierListNames=cellfun(@func2str,classifierList, 'uni',false);
 
 if isnumeric(classifiers) % double input
     classifiers = classifierList(classifiers);
@@ -38,14 +43,14 @@ elseif iscell(classifiers) % cell input
     % all the strings in the cell
     isstr_class = cellfun(@isstr, classifiers);
     
-    % if the functional handles could be found for the strings
+    % if the functional handles can be found for the strings
     isvalid_class = isstr_class;
     isvalid = cellfun(@(x) any(contains(classifierListNames, x)), ...
         classifiers(isstr_class));
 
     if ~all(isvalid)
         strclass = classifiers(isstr_class);
-        warning('Cannot find classifier of ''%s''.', strclass{~isvalid});
+        warning('Cannot find classifier ''%s''.', strclass{~isvalid});
     end
     
     isvalid_class(isstr_class) = isvalid;
@@ -62,11 +67,12 @@ end
 
 % remove non-function handles
 classOut = classifiers(cellfun(@(x) isa(x, 'function_handle'), classifiers));
+classONames = cellfun(@func2str,classOut, 'uni',false);
+classOShortNames = cellfun(@(x) erase(x, 'cosmo_classify_'), classONames, 'uni', false);
 nClass = numel(classOut);
 
 % display the classifiers used
-classNames = classifierListNames;
-fprintf('\n\nUsing %d classifiers: %s.\n', length(classNames), ...
-    cosmo_strjoin(classNames, ', '));
+fprintf('\n\nUsing %d classifier(s): %s.\n', nClass, ...
+    cosmo_strjoin(classONames, ', '));
 
 end
