@@ -57,12 +57,15 @@ fscmd1 = sprintf(['mri_vol2surf --mov %1$smasks/brain.nii.gz '...
     '--o %4$s --noreshape --cortex'], ...
     runPath, trgSubj, hemi, outprFilename);
 fscmd{1, 1} = fscmd1;
-system(fscmd1)
+isnotok = system(fscmd1);
+assert(~logical(isnotok), 'Command (%s) failed.', fscmd1); 
 
 %%%%%%%% binarize brain.self.rh.pr.nii.gz %%%%%%
 fscmd2 = sprintf('mri_binarize --i %1$s --min .00001 --o %1$s', outprFilename);
 fscmd{2, 1} = fscmd2;
-system(fscmd2)
+isnotok = system(fscmd2);
+assert(~logical(isnotok), 'Command (%s) failed.', fscmd2); 
+
 
 %% Copy *.pr.nii.gz to *.nii.gz
 % e.g., copy brain.self.rh.pr.nii.gz to brain.self.rh.nii.gz

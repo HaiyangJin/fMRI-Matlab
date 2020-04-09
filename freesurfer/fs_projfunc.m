@@ -73,7 +73,8 @@ fscmd1 = sprintf(['mri_vol2surf --mov %1$s%2$s ',...
     '--projfrac 0.5 --hemi %4$s --o %1$s%5$s --noreshape --cortex'],...
     runPath, projFile, trgSubj, hemi, out0Fn, regFile);
 fscmd{1, 1} = fscmd1;
-system(fscmd1)
+isnotok = system(fscmd1);
+assert(~logical(isnotok), 'Command (%s) failed.', fscmd1); 
 
 %%%%%% Apply smoothing. e.g., fmcpr.sm0 -> fmcpr.sm5  %%%%%%%%
 if sm > 0
@@ -85,7 +86,9 @@ if sm > 0
         '--mask %1$smasks/%7$s --no-detrend'], ...
         runPath, trgSubj, hemi, out0Fn, sm, outFn, maskFn);
     fscmd{2, 1} = fscmd2;
-    system(fscmd2)
+    isnotok = system(fscmd2);
+    assert(~logical(isnotok), 'Command (%s) failed.', fscmd2); 
+
 end
 
 end

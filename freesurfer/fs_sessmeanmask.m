@@ -58,12 +58,14 @@ for iHemi = 1:nHemi
     fscmd1 = sprintf(['mri_concat --o %s --mean' repmat(' %s', 1, nRun)], ...
         maskFilename, masks{:});
     fscmd{1, iHemi} = fscmd1;
-    system(fscmd1)
+    isnotok = system(fscmd1);
+    assert(~logical(isnotok), 'Command (%s) failed.', fscmd1); 
     
     % binary the masks
     fscmd2 = sprintf('mri_binarize --i %1$s --min 10e-10 --o %1$s', maskFilename);
     fscmd{2, iHemi} = fscmd2;
-    system(fscmd2)
+    isnotok = system(fscmd2);
+    assert(~logical(isnotok), 'Command (%s) failed.', fscmd2); 
     
 end
 
