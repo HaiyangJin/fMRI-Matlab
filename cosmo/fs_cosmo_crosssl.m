@@ -1,12 +1,16 @@
-function dt_sl = fs_cosmo_crosssl(ds, surfDef, featureCount, classPairs, ...
-    subjCode, hemiInfo, classifier)
-% dt_sl = fs_cosmo_crosssl(ds, surfDef, featureCount, classPairs, ...
-%    subjCode, hemiInfo, classifier)
+function dt_sl = fs_cosmo_crosssl(ds, classPairs, surfDef, featureCount, ...
+    subjCode, hemi, template, classifier)
+% dt_sl = fs_cosmo_crosssl(ds, classPairs, surfDef, featureCount, ...
+%    subjCode, hemi, template, classifier)
 %
 % This function performs the searchlight analysis with cosmoMVPA.
 %
 % Inputs:
 %    ds              <structure> cosmo dataset.
+%    classPairs      <cell of strings> the pairs to be classified for the
+%                     searchlight; a PxQ (usually is 2) cell matrix for
+%                     the pairs to be classified. Each row is one
+%                     classfication pair.
 %    surf_def        <cell of numeric array> surface denitions. The first
 %                     element is the array of vertex number and coordiantes;
 %                     the second element is the array of face number and
@@ -15,19 +19,16 @@ function dt_sl = fs_cosmo_crosssl(ds, surfDef, featureCount, classPairs, ...
 %                     cosmo_surficial_neighborhood.m .
 %    featureCount    <intenger> number of features to be used for each
 %                     decoding.
-%    classPairs      <cell of strings> the pairs to be classified for the
-%                     searchlight; a PxQ (usually is 2) cell matrix for
-%                     the pairs to be classified. Each row is one
-%                     classfication pair.
 %    subjCode        <string> subject code in $SUBJECTS_DIR.
 %    hemi            <string> 'lh', 'rh', or 'both'.
+%    template        <string> 'fsaverage' or 'self'. fsaverage is the default.
 %    classifier      <numeric> or <strings> or <cells> the classifiers
 %                     to be used (only 1).
 %
 % Output:
 %    dt_sl           <structure> data set of the searchlight results.
-%    For each hemispheres, the results will be saved as a *.mgz file saved
-%    at the subject label folder ($SUBJECTS_DIR/subjCode/surf)
+%    For each hemispheres, the results will be saved as a *.mgz file in
+%    $SUBJECTS_DIR/fsaverageSL/surf/).
 %    For the whole brain, the results will be saved as *.gii
 %
 % Dependency:
@@ -36,13 +37,13 @@ function dt_sl = fs_cosmo_crosssl(ds, surfDef, featureCount, classPairs, ...
 % Created by Haiyang Jin (15-Dec-2019)
 
 % if save the neighborhood infor and the rearchlight results
-if nargin < 6 || isempty(subjCode) || isempty(hemiInfo)
+if nargin < 6 || isempty(subjCode) || isempty(hemi)
     isSave = 0;
 else
     isSave = 1;
 end
 
-if nargin < 7 || isempty(classifier)
+if nargin < 8 || isempty(classifier)
     [classifier, ~, shortName, nClass] = cosmo_classifier;
 else
     [classifier, ~, shortName, nClass] = cosmo_classifier(classifier);
@@ -52,6 +53,23 @@ if nClass ~= 1
     error('Please choose only one classifier for search light analysis here.');
 else
     classifier = classifier{1}; % convert cell to string
+end
+
+% decide whose surface information will be used
+trgSubj = fs_trgsubj(subjCode, template);
+% load ?h.cortex.label as a mask for surface
+vtxMask = fs_cortexmask(trgSubj, hemi);
+
+% method used for distance
+metric = 'euclidean';
+
+% 
+if strcmp(trgSubj, 'fsaverage')
+    saveSubj = 'fsaverageSL';
+    outputPath = fullfile(getenv('SUBJECTS_DIR'), saveSubj, 'surf');
+    if ~exist(outputPath, 'dir'); mkdir(outputPath); end
+else
+    saveSubj = trgSubj;
 end
 
 %% Set analysis parameters
@@ -72,21 +90,21 @@ measure_args.classifier = classifier; % @cosmo_classify_libsvm;
 
 % load the surficial neighborhood
 if isSave
-    nbhFn = sprintf('sl_cosmo_neighborhood_%s_%d.mat', hemiInfo, featureCount);
-    nbhFilename = fullfile(getenv('SUBJECTS_DIR'), subjCode, 'surf', nbhFn);
+    nbhFn = sprintf('sl_cosmo_neighborhood_%s_%d.mat', hemi, featureCount);
+    nbhFilename = fullfile(getenv('SUBJECTS_DIR'), saveSubj, 'surf', nbhFn);
     
     if exist(nbhFilename, 'file') % load the file if it is available
         fprintf('\n\nLoad the surficial neighborhood for %s (%s):\n',...
-            subjCode, hemiInfo);
+            trgSubj, hemi);
         
         temp = load(nbhFilename);
         
-        if ~strcmp(temp.subjCode, subjCode) || ~strcmp(temp.hemiInfo, hemiInfo)
+        if ~strcmp(temp.trgSubj, trgSubj) || ~strcmp(temp.hemi, hemi)
             error('The wrong file is loaded...');
         end
         % obtain the variables
         nbrhood = temp.nbrhood;
-        vo = temp.to;
+        vo = temp.vo;
         fo = temp.fo;
         
         clear temp
@@ -97,15 +115,16 @@ end
 if ~exist('nbrhood', 'var') || ~exist('vo', 'var') || ~exist('fo', 'var')
     % calculate the surficial neighborhood
     fprintf('\n\nCalcualte the surficial neighborhood for %s (%s):\n',...
-        subjCode, hemiInfo);
+        trgSubj, hemi);
     [nbrhood,vo,fo,~]=cosmo_surficial_neighborhood(ds,surfDef,...
-        'count',featureCount);
+        'count',featureCount, 'metric', metric); % 'radius', r , 
     
     if isSave
         % save the the surficial neighborhood file
-        fprintf('\n\Saving the surficial neighborhood for %s (%s):\n',...
-            subjCode, hemiInfo);
-        save(nbhFilename, 'nbrhood', 'vo', 'fo', 'subjCode', 'hemiInfo','-v7.3');
+        fprintf('\nSaving the surficial neighborhood for %s (%s):\n',...
+            trgSubj, hemi);
+        save(nbhFilename, 'nbrhood', 'vo', 'fo', 'trgSubj', 'hemi',...
+            'template', 'metric', '-v7.3');
     end
     
 end
@@ -147,22 +166,28 @@ for iPair = 1:nPairs
     cosmo_disp(measure_args);
     
     %% Run the searchlight
-    dt_sl = cosmo_searchlight(ds_thisPair,nbrhood,measure,measure_args);
+    dt_sl = cosmo_searchlight(ds_thisPair,nbrhood,measure,measure_args,...
+        'center_ids', vtxMask, 'nproc', 10);
     
     % print searchlight output
     fprintf('Dataset output:\n');
     cosmo_disp(dt_sl);
     
+    % set the accuracy for non-cortex vertices as -1
+    accuracy = -ones(size(vo, 1), 1);
+    accuracy(vtxMask) = dt_sl.samples';
+    
     %% Save results as *.mgz files
     if isSave
         % store searchlight results
-        outputFn = sprintf('sl.%s.%s.%s-%s', shortName{1}, hemiInfo, thisPair{1}, thisPair{2});
+        outputFn = sprintf('sl.%s.%s.%s.%s.%s-%s', shortName{1}, template, ...
+            subjCode, hemi, thisPair{1}, thisPair{2});
         
-        if ismember(hemiInfo, {'lh', 'rh'})  % save as .label for each hemisphere
-            %         fs_save2label(dt_results.samples, subjCode, outputFn, surfDef{1});
-            fs_savemgz(subjCode, dt_sl.samples', outputFn);
-        elseif strcmp(hemiInfo, 'both')  % save as .gii for the whole brain
-            outputFile = fullfile(getenv('SUBJECTS_DIR'), subjCode, 'surf', outputFn);
+        if ismember(hemi, {'lh', 'rh'})
+            
+            fs_savemgz(trgSubj, accuracy, outputFn, outputPath);
+        elseif strcmp(hemi, 'both')  % save as .gii for the whole brain
+            outputFile = fullfile(outputPath, outputFn);
             cosmo_map2surface(dt_sl, [outputFile '.gii'], 'encoding','ASCII');
         end
     end
