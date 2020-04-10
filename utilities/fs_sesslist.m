@@ -32,6 +32,8 @@ if isempty(fileparts(sessid))
     if nID > 1
         error(['There are %d session ID files. Please specify which '...
             'you want to use.'], nID);
+    elseif nID == 0
+        error('Cannot find the session id file (%s).', sessid);
     else
         % create the session id filename (with path)
         sessFilename = fullfile(sessDir.folder, sessDir.name);
@@ -41,6 +43,9 @@ else
     % save the session id filename (with path)
     sessFilename = sessid;
 end
+
+assert(logical(exist(sessFilename, 'file')), ...
+    'Cannot find the session id file (%s).', sessFilename);
 
 % read the session id file
 sessList = fs_readtext(sessFilename);
