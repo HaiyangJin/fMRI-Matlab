@@ -1,31 +1,33 @@
 function fs_cosmo_sesscrosssl(sessList, classPairs, surfType, template, ...
-    combineHemi, classifier, funcPath)
+    outFolderStr, combineHemi, classifier, funcPath)
 % fs_cosmo_sesscrosssl(sessList, classPairs, [surfType = 'sphere', template = 'fsaverage', ...
-%    combineHemi = 0, classifier = '', funcPath])
+%    outFolderStr = 'sl', combineHemi = 0, classifier = '', funcPath])
 %
 % This function does the searchlight analyses for the whole project
 % with CoSMoMVPA. Data were analyzed with FreeSurfer.
 %
 % Inputs:
-%    sessList           <string> or <cell of strings> session code 
+%    sessList           <string> or <cell of strings> session code
 %                        (functional subject folder).
-%    classPairs         <cell of strings> a PxQ (usually is 2) cell matrix 
-%                        for the pairs to be classified. Each row is one 
-%                        classfication pair. 
+%    classPairs         <cell of strings> a PxQ (usually is 2) cell matrix
+%                        for the pairs to be classified. Each row is one
+%                        classfication pair.
 %    surfType           <string> the coordinate file for vertices (
 %                        ('sphere', 'inflated', 'white', 'pial').
-%    template           <string> 'fsaverage' or 'self'. fsaverage is default.
-%    combineHemi        <logical> if the data of two hemispheres will be 
-%                        combined (default is no) [0: run searchlight for 
+%    template           <string> 'fsaverage' or 'self'.
+%    outFolderStr       <string> strings to be added at the beginning of the
+%                        ouput folder (the pseudo-analysis folder).
+%    combineHemi        <logical> if the data of two hemispheres will be
+%                        combined (default is no) [0: run searchlight for
 %                        the two hemnispheres separately; 1: run searchlight
 %                        anlaysis for the whole brain together; 3: run
 %                        analysis for both 0 and 1.
-%    classifier         <numeric> or <strings> or <cells> the classifiers 
+%    classifier         <numeric> or <strings> or <cells> the classifiers
 %                        to be used (only 1).
 %    funcPath           <string> the full path to the functional folder.
 %
 % Output:
-%    For each hemispheres, the results will be saved as a *.mgz file saved 
+%    For each hemispheres, the results will be saved as a *.mgz file saved
 %    at the subject label folder ($SUBJECTS_DIR/subjCode/surf)
 %    For the whole brain, the results will be saved as *.gii
 %
@@ -44,15 +46,19 @@ if nargin < 4 || isempty(template)
     template = '';
 end
 
-if nargin < 5 || isempty(combineHemi)
+if nargin < 5 || isempty(outFolderStr)
+    outFolderStr = 'sl';
+end
+
+if nargin < 6 || isempty(combineHemi)
     combineHemi = 0;
 end
 
-if nargin < 6
+if nargin < 7
     classifier = '';
 end
 
-if nargin < 7 || isempty(funcPath)
+if nargin < 8 || isempty(funcPath)
     funcPath = getenv('FUNCTIONALS_DIR');
 end
 
@@ -87,7 +93,7 @@ for iSess = 1:nSess
     [vtxCell, faceCell] = fs_cosmo_surfcoor(trgSubj, surfType, combineHemi);
     
     %% Load functional data (beta.nii.gz)
-    % load the beta.nii.gz for both hemispheres separately 
+    % load the beta.nii.gz for both hemispheres separately
     dsSurfCell = cellfun(@(x) fs_cosmo_subjds(thisSess, x, template, ...
         funcPath, 'main', 0, 1), hemis, 'uni', false);
     
@@ -110,12 +116,12 @@ for iSess = 1:nSess
     %% conduct searchlight for two hemisphere seprately (and the whole brain)
     for iSL = runSearchlight  % SL = searchlight
         
-        hemiInfo = hemis{iSL}; % hemisphere name
+        thisHemi = hemis{iSL}; % hemisphere name
         
         % waitbar
         progress = (iSess + iSL/max(runSearchlight)) / (nSess * 2);
         progressMsg = sprintf('Subject: %s.  Hemisphere: %s  \n%0.2f%% finished...', ...
-            strrep(subjCode, '_', '\_'), hemiInfo, progress*100);
+            strrep(subjCode, '_', '\_'), thisHemi, progress*100);
         waitbar(progress, waitHandle, progressMsg);
         
         %% Surface setting
@@ -126,18 +132,17 @@ for iSess = 1:nSess
         
         % dataset for this searchlight analysis
         ds_this = dsSurfCell{iSL};
-        
         featureCount = 200;
         
         % run search light analysis
         fs_cosmo_crosssl(ds_this, classPairs, surfDef, featureCount, ...
-            subjCode, hemiInfo, template, classifier);
+            thisSess, thisHemi, template, outFolderStr, funcPath, classifier);
         
     end  % iSL
     
 end  % iSess
 
-% close the waitbar 
-close(waitHandle); 
+% close the waitbar
+close(waitHandle);
 
 end
