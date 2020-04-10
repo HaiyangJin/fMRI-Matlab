@@ -99,10 +99,16 @@ for iRun = 1:nRun
     
     % set iRunStr as '' when there is only "1" run
     iRunStr = erase(num2str(iRun), num2str(nRun^2));
-    analysisName = sprintf('%s%s%s.%s', ...
-        analysisExt, template, iRunStr, hemi); % the analysis name
+    % the analysis name
+    anaPattern = sprintf('%s*%s%s.%s', analysisExt, template, iRunStr, hemi); 
+    anaDir = dir(fullfile(boldPath, anaPattern));
+    
+    if numel(anaDir) ~= 1
+        error('Cannot find the unique file matching the string pattern (%s).',...
+            anaPattern);
+    end
     % the beta file
-    betaFile = fullfile(boldPath, analysisName, 'beta.nii.gz');
+    betaFile = fullfile(boldPath, anaDir.name, 'beta.nii.gz');
     
     % read the paradigm file
     parFile = fullfile(boldPath, runNames{iRun}, parFn);
