@@ -106,7 +106,7 @@ for iRun = 1:nRunFile
             case {'lh', 'rh'}
                 hemiInfo = sprintf(' -surface %s %s', template, hemi);
             case 'mni'
-                hemiInfo = ' -mni305 1';
+                hemiInfo = ' -mni305 2';
         end
         
         % create the commands
@@ -118,10 +118,9 @@ for iRun = 1:nRunFile
             nConditions, nSkip, TR, thisRunFile,...
             refDura);
         fscmd{iRun, iHemi} = fscmd_analysis;
+        
         isnotok = system(fscmd_analysis);
-        if isnotok
-            error('Command (%s) failed.', fscmd_analysis);
-        end
+        assert(~isnotok, 'Command (%s) failed.', fscmd_analysis);
         
     end  % iHemi
     

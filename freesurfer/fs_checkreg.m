@@ -38,10 +38,10 @@ fscmd = cellfun(@(x) sprintf('tkregister-sess -s %s -fsd bold -per-run -bbr-sum'
 
 if isSort
     % run cmds and save the results
-    [isok, cmdOutput] = cellfun(@system, fscmd, 'uni', false);
+    [isnotok, cmdOutput] = cellfun(@system, fscmd, 'uni', false);
     
     % make sure the commands were performed successfully
-    assert(all(~[isok{:}]), 'The ''tkregisgter-sess'' failed for some sessions.');
+    assert(all(~[isnotok{:}]), 'The ''tkregisgter-sess'' failed for some sessions.');
     
     %% sort out the results
     % replace ? with space

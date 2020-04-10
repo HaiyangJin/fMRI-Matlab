@@ -20,6 +20,8 @@ fscmd = cellfun(@(x) sprintf('selxavg3-sess -sf %s -analysis %s -force', ...
 
 % run the analysis
 isnotok = cellfun(@system, fscmd);
-assert(any(isnotok), 'Some commands (selxavg3-sess) failed.');
+assert(all(~isnotok), 'Some commands (selxavg3-sess) failed.');
+
+fscmd = fscmd(:);
 
 end

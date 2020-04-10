@@ -59,13 +59,13 @@ for iHemi = 1:nHemi
         maskFilename, masks{:});
     fscmd{1, iHemi} = fscmd1;
     isnotok = system(fscmd1);
-    assert(~logical(isnotok), 'Command (%s) failed.', fscmd1); 
+    assert(~isnotok, 'Command (%s) failed.', fscmd1); 
     
     % binary the masks
     fscmd2 = sprintf('mri_binarize --i %1$s --min 10e-10 --o %1$s', maskFilename);
     fscmd{2, iHemi} = fscmd2;
     isnotok = system(fscmd2);
-    assert(~logical(isnotok), 'Command (%s) failed.', fscmd2); 
+    assert(~isnotok, 'Command (%s) failed.', fscmd2); 
     
 end
 

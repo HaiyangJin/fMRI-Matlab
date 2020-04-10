@@ -1,4 +1,4 @@
-function [fscmd, isok] = fs_smfunc(sessList, smooth, runList, template, funcPath)
+function [fscmd, isnotok] = fs_smfunc(sessList, smooth, runList, template, funcPath)
 % [fscmd, isok] = fs_smfunc(sessList, [smooth = 5, runList = [allruns],
 %                           template = 'fsaverage', funcPath])
 %
@@ -15,7 +15,7 @@ function [fscmd, isok] = fs_smfunc(sessList, smooth, runList, template, funcPath
 %
 % Output:
 %    fscmd            <cell of strings> FreeSurfer commands used here.
-%    isok             <array of numbers> if fscmd is run successfully. [0
+%    isnotok          <array of numbers> if fscmd is run successfully. [0
 %                      denotes successfully; any positive numbers denote
 %                      the commands failed; -1 denotes cannot find the
 %                      unique unsmoothed data file].
@@ -49,7 +49,7 @@ nHemi = numel(hemis);
 
 % empty array for saving output
 fscmd = cell(nSess, 1);
-isok = cell(nSess, 1);
+isnotok = cell(nSess, 1);
 
 for iSess = 1:nSess
     
@@ -72,7 +72,7 @@ for iSess = 1:nSess
     
     % empty array for saving output
     fscmdTemp = cell(nRun, nHemi);
-    isokTemp = nan(nRun, nHemi);
+    isnotokTemp = nan(nRun, nHemi);
     
     for iRun = 1:nRun
         
@@ -91,7 +91,7 @@ for iSess = 1:nSess
                     'session: %s; run: %s; hemi: %s; template: %s\n'], ...
                     thisSess, thisRun, hemi, template);
                 
-                isokTemp(iRun, iHemi) = -1; % some random number
+                isnotokTemp(iRun, iHemi) = -1; % some random number
                 continue;
             end
             
@@ -108,17 +108,17 @@ for iSess = 1:nSess
                 '--mask %1$smasks/%7$s --no-detrend'], ...
                 runPath, trgSubj, hemi, sm0Fn, smooth, smFn, maskFn);
             fscmdTemp{iRun, iHemi} = fscmd1;
-            isokTemp(iRun, iHemi) = system(fscmd1);
+            isnotokTemp(iRun, iHemi) = system(fscmd1);
             
         end  % iHemi
         
     end  % iRun
     fscmd{iSess, iHemi} = reshape(fscmdTemp, [], 1);
-    isok{iSess, iHemi} = reshape(isokTemp, [], 1);
+    isnotok{iSess, iHemi} = reshape(isnotokTemp, [], 1);
 end % iSess
 
 % save the output as one column
 fscmd = vertcat(fscmd{:});
-isok = vertcat(isok{:});
+isnotok = vertcat(isnotok{:});
 
 end

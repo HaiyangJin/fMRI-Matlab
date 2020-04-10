@@ -74,7 +74,7 @@ fscmd1 = sprintf(['mri_vol2surf --mov %1$s%2$s ',...
     runPath, projFile, trgSubj, hemi, out0Fn, regFile);
 fscmd{1, 1} = fscmd1;
 isnotok = system(fscmd1);
-assert(~logical(isnotok), 'Command (%s) failed.', fscmd1); 
+assert(~isnotok, 'Command (%s) failed.', fscmd1); 
 
 %%%%%% Apply smoothing. e.g., fmcpr.sm0 -> fmcpr.sm5  %%%%%%%%
 if sm > 0
@@ -87,7 +87,7 @@ if sm > 0
         runPath, trgSubj, hemi, out0Fn, sm, outFn, maskFn);
     fscmd{2, 1} = fscmd2;
     isnotok = system(fscmd2);
-    assert(~logical(isnotok), 'Command (%s) failed.', fscmd2); 
+    assert(~isnotok, 'Command (%s) failed.', fscmd2); 
 
 end
 
