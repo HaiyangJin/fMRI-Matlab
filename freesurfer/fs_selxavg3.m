@@ -1,11 +1,25 @@
-function fs_selxavg3(sessidfile, analysisList)
-% This function runs the analysis with all contrasts
+function fscmd = fs_selxavg3(sessidfile, anaList)
+% fscmd = fs_selxavg3(sessidfile, anaList)
+%
+% This function runs the first-level analysis for all analysis and contrasts.
 %
 % Inputs:
-%    sessidfile          the file contains all subject code (bold)
-%    analysisList        the list of analysis names
+%    sessidfile         <string> filename of the session id file. the file 
+%                        contains all session codes.
+%    anaList            <cell of strings> the list of analysis names.
 %
-% Created by Haiyang Jin (19/12/2019)
+% Output:
+%    fscmd              <cell of string> FreeSurfer commands run in the
+%                        current session.
+%
+% Created by Haiyang Jin (19-Dec-2019)
 
-% run the analysis 
-cellfun(@(x) system(sprintf('selxavg3-sess -sf %s -analysis %s -force', sessidfile, x)), analysisList);
+% created the commands
+fscmd = cellfun(@(x) sprintf('selxavg3-sess -sf %s -analysis %s -force', ...
+    sessidfile, x), anaList, 'uni', false);
+
+% run the analysis
+isnotok = cellfun(@system, fscmd);
+assert(any(isnotok), 'Some commands (selxavg3-sess) failed.');
+
+end
