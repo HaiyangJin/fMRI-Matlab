@@ -56,7 +56,8 @@ nContrast = size(contrasts, 1);
 
 % use the string before '.' as the unique name
 strCell = cellfun(@(x) split(x, {'_', '.'}), analysisList, 'uni', false);
-extraStr = unique(cellfun(@(x) x{end-1, 1}, strCell, 'uni', false));
+extraStrs = cellfun(@(x) x{end-1, 1}, strCell, 'uni', false);
+extraStr = unqie(cellfun(@(x) regexp(x, '\D+', 'match'), extraStrs));
 if numel(extraStr) ~= 1; extraStr = {'backup'}; end
 
 % filename of the Matlab file to be saved later
