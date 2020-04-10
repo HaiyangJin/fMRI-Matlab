@@ -57,7 +57,7 @@ nContrast = size(contrasts, 1);
 % use the string before '.' as the unique name
 strCell = cellfun(@(x) split(x, {'_', '.'}), analysisList, 'uni', false);
 extraStrs = cellfun(@(x) x{end-1, 1}, strCell, 'uni', false);
-extraStr = unqie(cellfun(@(x) regexp(x, '\D+', 'match'), extraStrs));
+extraStr = unique(cellfun(@(x) regexp(x, '\D+', 'match'), extraStrs));
 if numel(extraStr) ~= 1; extraStr = {'backup'}; end
 
 % filename of the Matlab file to be saved later
@@ -66,6 +66,7 @@ contraFn = sprintf('Ana%d_Con%d_%s_%s.mat', nAnalysis, nContrast, ...
 
 if exist(contraFn, 'file') && ~force
     load(contraFn, 'contraStruct');
+    fscmd = '';
     fprintf('contraStruct is loaded.\n');
     return;
 end
