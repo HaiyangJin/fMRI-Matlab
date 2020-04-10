@@ -184,7 +184,7 @@ for iPair = 1:nPairs
     conFolder = sprintf('%s-vs-%s', thisPair{:});
     
     % store searchlight results
-    accFn = sprintf('sl.%s.acc', shortName{1});
+    accFn = sprintf('sl.%s%s.acc', shortName{1}, hemi);
     accPath = fullfile(funcPath, sessCode, 'bold', anaFolder, conFolder);
     
     if ismember(hemi, {'lh', 'rh'})
