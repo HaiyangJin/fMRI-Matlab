@@ -118,14 +118,11 @@ if ~exist('nbrhood', 'var') || ~exist('vo', 'var') || ~exist('fo', 'var')
     [nbrhood,vo,fo,~]=cosmo_surficial_neighborhood(ds,surfDef,...
         'count',featureCount, 'metric', metric); % 'radius', r ,
     
-    if isSave
-        % save the the surficial neighborhood file
-        fprintf('\nSaving the surficial neighborhood for %s (%s):\n',...
-            trgSubj, hemi);
-        save(nbhFilename, 'nbrhood', 'vo', 'fo', 'trgSubj', 'hemi',...
-            'template', 'metric', '-v7.3');
-    end
-    
+    % save the the surficial neighborhood file
+    fprintf('\nSaving the surficial neighborhood for %s (%s):\n',...
+        trgSubj, hemi);
+    save(nbhFilename, 'nbrhood', 'vo', 'fo', 'trgSubj', 'hemi',...
+        'template', 'metric', '-v7.3');
 end
 
 % print neighborhood
@@ -147,10 +144,11 @@ for iPair = 1:nPairs
     
     % skip if the pair is not available in this dataset
     if ~all(ismember(thisPair, unique(ds.sa.labels)))
+        warning('Cannot find %s vs. %s in the dataset.', thisPair{:});
         continue;
     end
     
-    % dataset for this classification
+    % dataset for this classification 
     thisPairMask = cosmo_match(ds.sa.labels, thisPair);
     ds_thisPair = cosmo_slice(ds, thisPairMask);
     
