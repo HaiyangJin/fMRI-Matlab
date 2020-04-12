@@ -1,5 +1,5 @@
-function [fscmd, isnotok] = fs_isxconcat(sessid, anaList, conList, outFolder)
-% [fscmd, isnotok] = fs_isxconcat(sessid, anaList, conList, [outFolder='group'])
+function [anaStruct, fscmd] = fs_isxconcat(sessid, anaList, conList, outFolder)
+% [anaStruct, fscmd] = fs_isxconcat(sessid, anaList, conList, [outFolder='group'])
 %
 % This function gathers the first-level results from different participant 
 % together (via isxconcat-sess). [The first step in group analysis].
@@ -15,10 +15,12 @@ function [fscmd, isnotok] = fs_isxconcat(sessid, anaList, conList, outFolder)
 %    outFolder       <string> the name of the output (group) folder.
 %
 % Output:
-%    fscmd           <cell of string> FreeSurfer commands used in the
-%                     current session.
-%    isnotok         <array of numeric> 0: the command successed; other
-%                     numbers: the command failed. 
+%    anaStruct       <struct> a struct includes all analysis, contrast, and
+%                     group names.
+%    fscmd           <cell of string> The first column is FreeSurfer 
+%                     commands used in the current session. And the second 
+%                     column is whether the command successed. 
+%                     [0: successed; other numbers: failed.] 
 %
 % Created by Haiyang Jin (12-Apr-2020)
 
@@ -28,22 +30,29 @@ end
 
 % obtain the analysis and contrast lists
 if isstruct(anaList)
-    % obtain list from the structure
-    analysis = {anaList.analysisName};
-    contrast = {anaList.contrastName};
+   anaStruct = anaList;
+
 else
     % convert to cell if necessary 
     if ischar(anaList); anaList = {anaList}; end
     if ischar(conList); conList = {conList}; end
     
     % create all the possible combinations
-    [analysis, contrast] = ndgrid(anaList, conList);
+    [analysisName, contrastName] = ndgrid(anaList, conList);
+    
+    % create the strucutre to save analysis and contrast names
+    anaStruct = struct('analysisName', analysisName(:), 'contrastName', contrastName(:));
 end
+
+% add group folder name to the structure
+tempStr = repmat({outFolder}, numel(anaStruct), 1);
+[anaStruct.group] = tempStr{:};
 
 % "Isxconcat-sess" stands for "intersubject concatentation." 
 % create strings for all commands
-fscmd = cellfun(@(x, y) sprintf(['isxconcat-sess -sf %s -analysis %s '...
-    '-contrast %s -o %s'], sessid, x, y, outFolder), analysis, contrast, 'uni', false);
+fscmd = arrayfun(@(x) sprintf(['isxconcat-sess -sf %s -analysis %s '...
+    '-contrast %s -o %s'], sessid, anaStruct(x).analysisName, ...
+    anaStruct(x).contrastName, outFolder), 1:numel(anaStruct), 'uni', false);
 
 % run the command
 isnotok = cellfun(@system, fscmd);
@@ -52,6 +61,6 @@ if any(isnotok)
 end
 
 % make the fscmd one column
-fscmd = fscmd';
+fscmd = [fscmd; num2cell(isnotok)]';
 
 end
