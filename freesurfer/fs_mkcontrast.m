@@ -141,7 +141,11 @@ for iAnalysis = 1:nAnalysis
             analysisName, contraStruct(n).contrastName, contraStruct(n).contrastCode);
         fscmd{iAnalysis, iCon} = thisfscmd;
         
-        isnotok = system(thisfscmd);
+        if force ~= 2
+            isnotok = system(thisfscmd);
+        else
+            isnotok = 0;
+        end
         assert(~isnotok, 'Command (%s) failed.', thisfscmd);
         
     end  % iCon
