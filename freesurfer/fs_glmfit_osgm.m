@@ -1,4 +1,4 @@
-function [glmdir, fscmd] = fs_glmfit_osgm(contraPath, yFilename, outFolder)
+function [glmdir, fscmd] = fs_glmfit_osgm(contraPath, yFilename, outFolder, runcmd)
 % [glmdir, fscmd] = fs_glmfit_osgm(contraPath, yFilename, outFolder)
 %
 % This function runs one-sample group mean (osgm) glm analysis (via
@@ -13,6 +13,8 @@ function [glmdir, fscmd] = fs_glmfit_osgm(contraPath, yFilename, outFolder)
 %                       [ces.nii.gz by default.]
 %    outFolder         <string> name of the folder where glm results will
 %                       be saved. [for --glmdir]. ['glm-group' by default.]
+%    runcmd            <logical> run fscmd. 1: run FreeSurfer commands
+%                       (default); 0: do not run.
 %
 % Output: 
 %    glmdir            <cell of strings> full path to glmdir folders. [This
@@ -24,12 +26,16 @@ function [glmdir, fscmd] = fs_glmfit_osgm(contraPath, yFilename, outFolder)
 %
 % Created by Haiyang Jin (12-Apr-2020)
 
-if nargin < 2 || isempty(yFilename)
+if ~exist(yFilename, 'var') || isempty(yFilename)
     yFilename = 'ces.nii.gz';
 end
 
-if nargin < 3 || isempty(outFolder)
+if ~exist('outFolder', 'var') || isempty(outFolder)
     outFolder = 'glm-group';
+end
+
+if ~exist('runcmd', 'var') || isempty(runcmd)
+    runcmd = 1;
 end
 
 % obtain the path to contrast folders
@@ -64,10 +70,14 @@ fscmd = cellfun(@(x, y) sprintf(['mri_glmfit --y %1$s%2$s' ... % the input value
     x, yFilename, y, outFolder), conPaths, fscmd_surf, 'uni', false);
 % Note --wls is no longer recommended because it is incompatible with permutation
 
-% run commands 
-isnotok = cellfun(@system, fscmd);
-if any(isnotok)
-    warning('Some FreeSurfer commands (mri_glmfit) failed.');
+if runcmd
+    % run commands
+    isnotok = cellfun(@system, fscmd);
+    if any(isnotok)
+        warning('Some FreeSurfer commands (mri_glmfit) failed.');
+    end
+else
+    isnotok = zeros(size(fscmd));
 end
 
 % make the fscmd one column
