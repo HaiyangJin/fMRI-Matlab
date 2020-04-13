@@ -20,8 +20,11 @@ fscmd = cellfun(@(x) sprintf('selxavg3-sess -sf %s -analysis %s -force', ...
 
 % run the analysis
 isnotok = cellfun(@system, fscmd);
-assert(all(~isnotok, 'all'), 'Some commands (selxavg3-sess) failed.');
+if any(isnotok)
+    warning('Some FreeSurfer commands (selxavg3-sess) failed.');
+end
 
-fscmd = fscmd(:);
+% make the fscmd one column
+fscmd = [fscmd; num2cell(isnotok)]';
 
 end
