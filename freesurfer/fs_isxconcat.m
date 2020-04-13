@@ -1,5 +1,5 @@
-function [anaStruct, fscmd] = fs_isxconcat(sessid, anaList, conList, outFolder)
-% [anaStruct, fscmd] = fs_isxconcat(sessid, anaList, conList, [outFolder='group'])
+function [anaStruct, fscmd] = fs_isxconcat(sessid, anaList, conList, outFolder, runcmd)
+% [anaStruct, fscmd] = fs_isxconcat(sessid, anaList, conList, [outFolder='group', runcmd = 1])
 %
 % This function gathers the first-level results from different participant 
 % together (via isxconcat-sess). [The first step in group analysis].
@@ -13,6 +13,9 @@ function [anaStruct, fscmd] = fs_isxconcat(sessid, anaList, conList, outFolder)
 %    conList         <cell of string> a list of the contrast names. [If
 %                     anaList is a structure, conList can be empty.]
 %    outFolder       <string> the name of the output (group) folder.
+%    runcmd          <logical> do not run the fscmd and only make the
+%                     FreeSurfer commands. 1: run fscmd (default); 0: do
+%                     not run fscmd.
 %
 % Output:
 %    anaStruct       <struct> a struct includes all analysis, contrast, and
@@ -24,8 +27,12 @@ function [anaStruct, fscmd] = fs_isxconcat(sessid, anaList, conList, outFolder)
 %
 % Created by Haiyang Jin (12-Apr-2020)
 
-if nargin < 4 || isempty(outFolder)
+if ~exist('outFolder', 'var') || isempty(outFolder)
     outFolder = 'group';
+end
+
+if ~exist('runcmd', 'var') || isempty(runcmd)
+    runcmd = 1;
 end
 
 % obtain the analysis and contrast lists
@@ -53,6 +60,9 @@ tempStr = repmat({outFolder}, numel(anaStruct), 1);
 fscmd = arrayfun(@(x) sprintf(['isxconcat-sess -sf %s -analysis %s '...
     '-contrast %s -o %s'], sessid, anaStruct(x).analysisName, ...
     anaStruct(x).contrastName, outFolder), 1:numel(anaStruct), 'uni', false);
+
+% return if do not run fscmd
+if ~runcmd; return; end
 
 % run the command
 isnotok = cellfun(@system, fscmd);
