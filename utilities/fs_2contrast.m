@@ -1,4 +1,4 @@
-function contrast = fs_label2contrast(labelList)
+function contrast = fs_2contrast(labelList)
 % This function obtains the contrast name from the label name when the
 % label name is something like roi.lh.f13.f-vs-o.*label
 %

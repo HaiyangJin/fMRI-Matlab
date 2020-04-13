@@ -64,7 +64,7 @@ end
 
 % detect which overlay is shown 
 if ~isempty(labelFn)
-    contrasts = fs_label2contrast(labelFn);
+    contrasts = fs_2contrast(labelFn);
     whichOverlay = find(cellfun(@(x) contains(overlayFile, x), {contrasts}), 1);
     if isempty(whichOverlay)
         whichOverlay = 0;

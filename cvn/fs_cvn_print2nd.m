@@ -75,7 +75,7 @@ for iSurf = 1: size(surfs, 1)
         [], 0, lookup, 2);
     
     % obtain the contrast name as the figure name
-    theConName = unique(cellfun(@fs_label2contrast, thisSurf, 'uni', false));
+    theConName = unique(cellfun(@fs_2contrast, thisSurf, 'uni', false));
     
     % set the figure name and save it
     set(fig, 'Name', theConName{1});
