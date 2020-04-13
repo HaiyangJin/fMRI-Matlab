@@ -1,20 +1,23 @@
-function [analysisList, fscmd] = fs_mkanalysis(funcRunType, template, nConditions, ...
-    runFilename, refDura, TR, hemis, smooth, nSkip, anaExtra)
-% [analysisList, fscmd] = fs_mkanalysis(funcRunType, template, nConditions, ...
-%    runFilename, refDura, TR, hemis, smooth, nSkip, anaExtra)
+function [anaList, fscmd] = fs_mkanalysis(runType, template, smooth, ...
+    TR, runFilename, nConditions, refDura, hemis, stc, nSkip, anaExtra)
+%[anaList, fscmd] = fs_mkanalysis(runType, template, smooth, ...
+%   TR, runFilename, nConditions, refDura, hemis, stc, nSkip, anaExtra)
 %
 % This function runs mkanalysis-sess in FreeSurfer.
 %
 % Inputs:
-%     funcRunName        <string> 'main' or 'loc'
+%     runType            <string> 'main' or 'loc'.
 %     template           <string> 'fsaverage' or 'self'.
-%     nConditions        <integer> number of conditions (excluded fixation).
+%     smooth             <numeric> smoothing (FWHM).
+%     TR                 <numeric> duration of one TR (seconds).
 %     runFilename        <string> or <cell of string> run filenames.
+%     nConditions        <integer> number of conditions (excluded fixation).
 %     refDura            <numeric> durations of the reference condition.
 %                         (the total duration of one "block" or one "trial")
-%     TR                 <numeric> duration of one TR.
-%     hemis              <cell of strings> or <string> 'lh', 'rh' (and 'mni')
-%     smooth             <numeric> smoothing (FWHM).
+%     hemis              <cell of strings> or <string> 'lh', 'rh' (and
+%                         'mni' or 'mni1').
+%     stc                <string> slice-timing corretion. The argument
+%                         strings for -stc. [siemens, up, down, odd, even].
 %     nSkip              <integer> number of TRs to be skipped at the run
 %                         start.
 %     anaExtra           <string> extra strings to be added to the
@@ -27,17 +30,18 @@ function [analysisList, fscmd] = fs_mkanalysis(funcRunType, template, nCondition
 %     run mkanalysis-sess in FreeSurfer.
 %
 % Example:
-% nCond = 8;
+% smooth = 5;
+% TR = 2;  % secs
 % runFilename = 'run_main.txt';
+% nCond = 8;
 % refDura = 16;  % secs
 % hemis = {'lh', 'rh'};
-% smooth = 5;
+% stc = '';
 % nSkip = 0;  % TRs
-% TR = 2;  % secs
 % anaExtra = 'E1';
 % % make analysis
-% anaList = fs_mkanalysis('main', template, nCond, runFilename, ...
-%     refDura, TR, hemis, smooth, nSkip, anaExtra);
+% [anaList, fscmd] = fs_mkanalysis('main', 'fsaverage', smooth, ...
+%     TR, runFilename, nConditions, refDura, hemis, stc, nSkip, anaExtra)
 %
 % Next step: fs_mkcontrast.m
 %
@@ -47,22 +51,24 @@ if ~ismember(template, {'fsaverage', 'self'})
     error('The template has to be ''fsaverage'' or ''self'' (not ''%s'').', template);
 end
 
-if nargin < 7 || isempty(hemis)
+if nargin < 8 || isempty(hemis)
     hemis = {'lh', 'rh', 'mni'};
 elseif ischar(hemis)
     hemis = {hemis};
 end
 nHemi = numel(hemis);
 
-if nargin < 8 || isempty(smooth)
-    smooth = 0;
+if nargin < 9 || isempty(stc)
+    stcInfo = '';
+else
+    stcInfo = sprintf(' -stc %s', stc);
 end
 
-if nargin < 9 || isempty(nSkip)
+if nargin < 10 || isempty(nSkip)
     nSkip = 0;
 end
 
-if nargin < 10 || isempty(anaExtra)
+if nargin < 11 || isempty(anaExtra)
     anaExtra = '';
 elseif ~startsWith(anaExtra, '_')
     anaExtra = [anaExtra '_'];
@@ -74,10 +80,10 @@ end
 nRunFile = numel(runFilename);
 
 % empty cell for saving analysis names
-analysisList = cell(nRunFile, nHemi);
+anaList = cell(nRunFile, nHemi);
 
 % the paradigm filename
-parFile = [funcRunType '.par'];
+parFile = [runType '.par'];
 
 % empty cell for saving FreeSurfer commands
 fscmd = cell(nRunFile, nHemi);
@@ -97,26 +103,33 @@ for iRun = 1:nRunFile
         % analysis name
         hemi = hemis{iHemi};
         analysisName = sprintf('%s_sm%d_%s%s%s.%s', ...
-            funcRunType, smooth, anaExtra, template, runCode, hemi);
+            runType, smooth, anaExtra, template, runCode, hemi);
         
         % save the analysis names into the cell
-        analysisList(iRun, iHemi) = {analysisName};
+        anaList(iRun, iHemi) = {analysisName};
         
         switch hemi
             case {'lh', 'rh'}
                 hemiInfo = sprintf(' -surface %s %s', template, hemi);
-            case 'mni'
+            case {'mni', 'mni2'}
                 hemiInfo = ' -mni305 2';
+            case 'mni1'
+                hemiInfo = ' -mni305 1';
         end
-        
-        % create the commands
-        fscmd_analysis = sprintf(['mkanalysis-sess -analysis %s %s -fwhm %d -paradigm %s '...
-            '-event-related -nconditions %d -nskip %d -TR %d -runlistfile %s '...
-            '-refeventdur %d '...
-            '-mcextreg -gammafit 2.25 1.25 -polyfit 2 -fsd bold -per-run -force'], ...
-            analysisName, hemiInfo, smooth, parFile, ...
-            nConditions, nSkip, TR, thisRunFile,...
-            refDura);
+                
+        % create the FreeSurfer command
+        fscmd_analysis = sprintf(['mkanalysis-sess -analysis %s'...
+            '%s -fwhm %d%s -fsd bold -per-run '... % preprocessing
+            '-event-related -paradigm %s -TR %d '...  % basic design arguments
+            '-nconditions %d -gammafit 2.25 1.25 -refeventdur %d '... % event-related design arguments
+            '-polyfit 2 -nskip %d -mcextreg ' ... % noise, drift, and temporal filtering options
+            '-runlistfile %s -force'], ... % other options
+            analysisName, ... 
+            hemiInfo, smooth, stcInfo, ... % preprocessing
+            parFile, TR, ... % basic design
+            nConditions, refDura, ... % event-related
+            nSkip, thisRunFile...
+            );
         fscmd{iRun, iHemi} = fscmd_analysis;
         
         isnotok = system(fscmd_analysis);
