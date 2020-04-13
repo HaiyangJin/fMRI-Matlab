@@ -100,10 +100,15 @@ for iAnalysis = 1:nAnalysis
         nLevels = cellfun(@numel, conditionNum);
         
         %% Activation conditions
+        if iscell(thisCon{1})
+            actCon = thisCon{1};
+        else
+            actCon = thisCon(1);
+        end
         % first part of contrast name
-        contrNameAct = sprintf(['%s' repmat('%s', nLevels(1)-1) '-vs-'], thisCon{1});
+        contrNameAct = sprintf(['%s' repmat('-%s', 1, nLevels(1)-1) '-vs-'], actCon{:});
         % first part of contrast code
-        contrCodeAct = ['-a' repmat(' %d', 1, nLevels(1))];
+        contrCodeAct = [' -a %d' repmat(' -a %d', 1, nLevels(1)-1)];
         
         %% Control conditions
         if nLevels(2) == 0
@@ -112,10 +117,15 @@ for iAnalysis = 1:nAnalysis
             conditionNum = conditionNum(1);
             contrCodeCon = '';
         else
+            if iscell(thisCon{2})
+                baseCon = thisCon{2};
+            else
+                baseCon = thisCon(2);
+            end
             % second part of contrast name
-            contrNameCon = sprintf(['%s' repmat('%s', nLevels(2)-1)], thisCon{2});
+            contrNameCon = sprintf(['%s' repmat('-%s', 1, nLevels(2)-1)], baseCon{:});
             % second part of contrast code
-            contrCodeCon = [' -c' repmat(' %d', 1, nLevels(2))];
+            contrCodeCon = [' -c %d' repmat(' -c %d', 1, nLevels(2)-1)];
         end
         
         %% Combine activation and control
