@@ -1,5 +1,8 @@
-function fv_checklevel1(overlayFile)
-% This function displays the results for contrast. 
+function fv_check1st(overlayFile)
+% fv_check1st(overlayFile)
+%
+% This function displays the results for contrast (reuslts of the 
+% first-lelvel analysis). 
 % 
 % Input:
 %     overlayFile          the overlay file to be displayed (have to be the
@@ -20,7 +23,8 @@ if nargin < 1 || isempty(overlayFile)
     end
     
     [theFn, thePath] = uigetfile({fullfile(startPath, '*.*')}', ...
-        'Please select the overlay file(s) you want to display',...
+        ['Please select the overlay file(s) [for results of the first-'...
+        'level analysis] you want to display'],...
         'MultiSelect', 'off');
 
     overlayFile = fullfile(thePath, theFn);
