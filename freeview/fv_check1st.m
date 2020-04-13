@@ -1,12 +1,13 @@
 function fv_check1st(overlayFile)
 % fv_check1st(overlayFile)
 %
-% This function displays the results for contrast (reuslts of the 
-% first-lelvel analysis). 
-% 
+% This function displays the results for contrast (reuslts of the
+% first-lelvel analysis).
+%
 % Input:
-%     overlayFile          the overlay file to be displayed (have to be the
-%                          file in the contrast/ folder)
+%     overlayFile        <string> the overlay file to be displayed (have 
+%                          to be in the contrast/ folder). [If empty,
+%                          a GUI will open for selecting the overlay file.]
 %
 % Output:
 %     display the overlay file on the inflated barin.
@@ -26,10 +27,19 @@ if nargin < 1 || isempty(overlayFile)
         ['Please select the overlay file(s) [for results of the first-'...
         'level analysis] you want to display'],...
         'MultiSelect', 'off');
-
-    overlayFile = fullfile(thePath, theFn);
+    
+else
+    tempdir = dir(overlayFile);
+    assert(~isempty(tempdir), 'Cannot find the overlay file: %s.', overlayFile);
+    
+    thePath = tempdir.folder;
+    theFn = tempdir.name;
     
 end
+
+% the full path to the overlay file
+overlayFile = fullfile(thePath, theFn);
+
 
 % slplit the filename for the overlay file
 strings = strsplit(overlayFile, filesep);
