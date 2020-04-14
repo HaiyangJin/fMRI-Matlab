@@ -34,6 +34,10 @@ function [ds_sess, condInfo] = fs_cosmo_sessds(sessCode, anaName, runList, ...
 % Created by Haiyang Jin (14-Apr-2020)
 
 %% Process the inputs
+if ~exist('funcPath', 'var') || isempty(funcPath)
+    funcPath = getenv('FUNCTIONALS_DIR');
+end
+
 % generate runFolder based on runwise
 if ~exist('runList', 'var') || isempty(runList)
     error('Please define the run file name in the session folder.');
@@ -60,10 +64,6 @@ end
 
 if ~exist('parFn', 'var') || isempty(parFn)
     parFn = '';
-end
-
-if ~exist('funcPath', 'var') || isempty(funcPath)
-    funcPath = getenv('FUNCTIONALS_DIR');
 end
 
 %% Read data and condition names
@@ -118,6 +118,6 @@ end
 condInfo = table;
 condInfo.Label = {labelFn};
 condInfo.nVertices = size(ds_sess.samples, 2);
-condInfo.SubjCode = {sessCode};
+condInfo.SessCode = {sessCode};
 
 end
