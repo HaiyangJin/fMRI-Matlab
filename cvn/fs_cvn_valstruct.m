@@ -16,36 +16,13 @@ function valstruct = fs_cvn_valstruct(surfCell)
 
 valstruct = struct;
 
-funcs = {
-    @fs_readnifti;
-    @load_mgh};
-extStr = {
-    '.nii', '.nii.gz';
-    '.mgh', '.mgz'};
-
-% empty cell for saving data
-data = cell(1, 2);
-
-% read data for two hemispehre separately
-for iHemi = 1:2
-    
-    % detect the extension
-    isext = any(cellfun(@(x) endsWith(surfCell(iHemi), x), extStr), 2);
-    
-    % read data with corresponding function
-    if ~any(isext)
-        data{1, iHemi} = [];
-    else
-        thisFunc = funcs{isext};
-        data{1, iHemi} = thisFunc(surfCell{iHemi});
-    end
-    
-end
+% read the file in surfCell
+surfData = cellfun(@fs_readfunc, surfCell, 'uni', false);
 
 % combine the data for two hemispheres
-valstruct.data = vertcat(data{:});
+valstruct.data = vertcat(surfData{:});
 % calculate the number of vertices
-valstruct.numlh = numel(data{1});
-valstruct.numrh = numel(data{2});
+valstruct.numlh = numel(surfData{1});
+valstruct.numrh = numel(surfData{2});
 
 end
