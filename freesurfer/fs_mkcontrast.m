@@ -11,7 +11,9 @@ function [contraStruct, fscmd] = fs_mkcontrast(analysisList, contrasts, conditio
 %                          second cell is the control condition. (These will
 %                          be used to set the contrast name later);
 %    conditions           <cell of string> the full names of all conditions;
-%    force                <logical> force to make contrast.
+%    force                <logical> force to make contrast. 0: do not force 
+%                          to re-make contrsat [default]; 1: force to 
+%                          re-make contrast; 2: do not run fscmd. 
 %
 % Output:
 %    contraStruct         <structure> a contrast structure which has three
