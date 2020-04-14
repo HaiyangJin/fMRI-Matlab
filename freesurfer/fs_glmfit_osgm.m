@@ -1,5 +1,5 @@
 function [glmdir, fscmd] = fs_glmfit_osgm(contraPath, yFilename, outFolder, runcmd)
-% [glmdir, fscmd] = fs_glmfit_osgm(contraPath, yFilename, outFolder)
+% [glmdir, fscmd] = fs_glmfit_osgm(contraPath, yFilename, outFolder, runcmd)
 %
 % This function runs one-sample group mean (osgm) glm analysis (via
 % mri_glmfit).
@@ -68,7 +68,7 @@ fscmd = cellfun(@(x, y) sprintf(['mri_glmfit --y %1$s%2$s' ... % the input value
     '%3$s' ... % indicates surface-based data (not used for volume data)
     ' --osgm' ... % use One-Sample Group Mean
     ' --glmdir %1$s%4$s' ... % output directory
-    ' --save-eres' ... % save residual error (needed with permutation)
+    ' --eres-save' ... % save residual error (needed for permutation)
     ' --nii.gz'],... % use compressed NIFTI as output format
     x, yFilename, y, outFolder), conPaths, fscmd_surf, 'uni', false);
 % Note --wls is no longer recommended because it is incompatible with permutation
