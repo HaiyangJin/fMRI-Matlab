@@ -1,4 +1,4 @@
-function fs_cvn_print2nd(anaStruct, glmFolder, clusterSigFn, outPath)
+function fs_cvn_print2nd(anaStruct, glmFolder, clusterSigFn, outPath, extraopts)
 % fs_cvn_print2nd(anaStruct, [glmFolder = {'glm-group'}, ...
 % clusterSigFn = 'perm.th30.abs.sig.cluster.nii.gz', outPath = pwd])
 %
@@ -26,16 +26,19 @@ elseif ischar(glmFolder)
     glmFolder = {glmFolder};
 end
 
-if ~exist('clusterSignFn', 'var') || isempty(clusterSigFn)
+if ~exist('clusterSigFn', 'var') || isempty(clusterSigFn)
     clusterSigFn = 'perm.th30.abs.sig.cluster.nii.gz';
 end
 
 % output path
 if ~exist('outPath', 'var') || isempty(outPath)
-    outPath = pwd;
+    outPath = fullfile(pwd, 'Group_level_results');
 end
-outPath = fullfile(outPath, 'Group_level_results');
 if ~exist(outPath, 'dir'); mkdir(outPath); end
+
+if ~exist('extraopts', 'var') || isempty(extraopts)
+    extraopts = [];
+end
 
 % check if glmFolder are paths
 isPath = cellfun(@(x) ~isempty(fileparts(x)), glmFolder);
@@ -60,25 +63,45 @@ rightFiles = strrep(leftFiles, 'lh', 'rh');
 % combine files for left and right hemispheres
 surfs = [leftFiles, rightFiles];
 
+% read the file into structure(s)
+surfStruct = arrayfun(@(x) fs_cvn_valstruct(surfs(x, :)), ...
+    1:size(surfs, 1), 'uni', false);
+
+% calculate the maximum of the absolute data values 
+tempMax = max(cellfun(@(x) max(abs(x.data)), surfStruct));
+
+% use the minimum 5*Integer as the maximum limit
+climMax = ceil(tempMax/5)*5;
+
 % generate figures
-lookup = '';
+clim0 = [-climMax climMax];
+cmap0 = jet(256);  % use jet(256) as the colormap
+thresh0 = 1.3i;  % absolute value of 1.3 (p = 0.05)
+lookup = [];
+wantfig = 2;  % do not show figure with fs_cvn_lookuplmv.m
+
 for iSurf = 1: size(surfs, 1)
     
     % this pair of surfaces
-    thisSurf = surfs(iSurf, :);
-    
-    % read the file into structure
-    valstruct = fs_cvn_valstruct(thisSurf);
-    
+    valstruct = surfStruct{iSurf};
+        
     % generate figures for this pair
-    [fig, lookup] = fs_cvn_lookuplmv('fsaverage', valstruct, [], ...
-        [], 0, lookup, 2);
-    
-    % obtain the contrast name as the figure name
-    theConName = unique(cellfun(@fs_2contrast, thisSurf, 'uni', false));
+    [lookup, rgbimg] = fs_cvn_lookuplmv('fsaverage', valstruct, clim0, ...
+        cmap0, thresh0, lookup, wantfig, extraopts);
     
     % set the figure name and save it
+    fig = figure('Visible','off');
+    imshow(rgbimg); % display lookup results (imagesc + colorbar)
+
+    % obtain the contrast name as the figure name
+    theConName = unique(cellfun(@fs_2contrast, surfs(iSurf, :), 'uni', false));
     set(fig, 'Name', theConName{1});
+    
+    colorbar;
+    colormap(cmap0);
+    caxis(clim0);
+    
+    % print the figure
     print(fig, fullfile(outPath, theConName{1}),'-dpng');
     
 end
