@@ -4,15 +4,21 @@ function [tableout, nCondition] = fs_readpar(parFile, cleanPar)
 %
 % Created by Haiyang Jin (16-Nov-2019)
 
+% try to find the unique *.par file if parFile is a path
 if ~isempty(parFile)
-    [~,~,ext] = fileparts(parFile);
-    if ~strcmp(ext, '.par')
-        error('The extension of the filename is not "par".');
+    [~, ~, theExt] = fileparts(parFile);
+    if isempty(theExt)
+        tempDir = dir(fullfile(parFile, '*.par'));
+        if numel(tempDir) == 1
+            parFile = fullfile(parFile, tempDir.name);
+        else
+            error('Cannot find the unique *.par file at %s', parFile);
+        end
     end
 end
 
 % by default, the OnsetTime will be removed
-if nargin < 2 || isempty(cleanPar)
+if ~exist('cleanPar', 'var') || isempty(cleanPar)
     cleanPar = 1;
 end
 
