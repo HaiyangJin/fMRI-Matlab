@@ -1,4 +1,4 @@
-function [fig, lookup, rgbimg, himg] = fs_cvn_lookuplmv(subjCode, valstruct,...
+function [lookup, rgbimg, himg] = fs_cvn_lookuplmv(subjCode, valstruct,...
     clim0, cmap0, thresh0, lookups, wantfig, extraopts, surfsuffix)
 % [fig, lookup, rgbimg, himg] = fs_cvn_lookuplmv(subjCode,valstruct,...
 %    clim0, cmap0, thresh0, lookup, wantfig, extraopts, surfsuffix)
@@ -110,9 +110,9 @@ rgbimg = vertcat(rgbimgs{:});
 % visualize rgbimg
 switch wantfig
     case 1
-        fig = figure; himg = imshow(rgbimg);
+        figure; himg = imshow(rgbimg);
     case 2
-        fig = figure('Visible','off'); himg = imshow(rgbimg);
+        figure('Visible','off'); himg = imshow(rgbimg);
     otherwise
         himg = [];
 end
