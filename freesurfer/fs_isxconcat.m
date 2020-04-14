@@ -25,6 +25,9 @@ function [anaStruct, fscmd] = fs_isxconcat(sessid, anaList, conList, outFolder, 
 %                     column is whether the command successed. 
 %                     [0: successed; other numbers: failed.] 
 %
+% Next: 
+%  fs_glmfit_osgm.m
+%
 % Created by Haiyang Jin (12-Apr-2020)
 
 if ~exist('outFolder', 'var') || isempty(outFolder)
@@ -61,13 +64,15 @@ fscmd = arrayfun(@(x) sprintf(['isxconcat-sess -sf %s -analysis %s '...
     '-contrast %s -o %s'], sessid, anaStruct(x).analysisName, ...
     anaStruct(x).contrastName, outFolder), 1:numel(anaStruct), 'uni', false);
 
-% return if do not run fscmd
-if ~runcmd; return; end
-
-% run the command
-isnotok = cellfun(@system, fscmd);
-if any(isnotok)
-    warning('Some FreeSurfer commands (isxconcat-sess) failed.');
+if runcmd
+    % run FreeSurfer commands
+    isnotok = cellfun(@system, fscmd);
+    if any(isnotok)
+        warning('Some FreeSurfer commands (isxconcat-sess) failed.');
+    end
+else
+    % do not run fscmd
+    isnotok = zeros(size(fscmd));
 end
 
 % make the fscmd one column

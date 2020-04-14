@@ -24,6 +24,9 @@ function [glmdir, fscmd] = fs_glmfit_osgm(contraPath, yFilename, outFolder, runc
 %                       second column is whether the command successed. 
 %                       [0: successed; other numbers: failed.] 
 %
+% Next:
+%  fs_glmfit_perm.m
+%
 % Created by Haiyang Jin (12-Apr-2020)
 
 if ~exist(yFilename, 'var') || isempty(yFilename)
@@ -71,12 +74,13 @@ fscmd = cellfun(@(x, y) sprintf(['mri_glmfit --y %1$s%2$s' ... % the input value
 % Note --wls is no longer recommended because it is incompatible with permutation
 
 if runcmd
-    % run commands
+    % run FreeSurfer commands
     isnotok = cellfun(@system, fscmd);
     if any(isnotok)
         warning('Some FreeSurfer commands (mri_glmfit) failed.');
     end
 else
+    % do not run fscmd
     isnotok = zeros(size(fscmd));
 end
 
