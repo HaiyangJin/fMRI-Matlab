@@ -27,7 +27,7 @@ if nargin < 2 || isempty(dataOnly)
 end
 
 % make sure the file exists
-assert(exist(niiFilename, 'file'), 'Cannot find the file (%s).', niiFilename);
+assert(logical(exist(niiFilename, 'file')), 'Cannot find the file (%s).', niiFilename);
 
 switch dataOnly
     case 0 
