@@ -1,7 +1,7 @@
 function dt_sl = fs_cosmo_crosssl(ds, classPairs, surfDef, featureCount, ...
-    sessCode, hemi, template, outFolderStr, funcPath, classifier)
+    sessCode, anaName, outPrefix, funcPath, classifier)
 % dt_sl = fs_cosmo_crosssl(ds, classPairs, surfDef, featureCount, ...
-%    sessCode, hemi, template, outFolderStr, funcPath, classifier)
+%    sessCode, anaName, outFolderStr, funcPath, classifier)
 %
 % This function performs the searchlight analysis with cosmoMVPA.
 %
@@ -20,9 +20,9 @@ function dt_sl = fs_cosmo_crosssl(ds, classPairs, surfDef, featureCount, ...
 %    featureCount    <integer> number of features to be used for each
 %                     decoding.
 %    sessCode        <string> subject code in $FUNCTIONALS.
-%    hemi            <string> 'lh', 'rh', or 'both'.
-%    template        <string> 'fsaverage' or 'self'. fsaverage is the default.
-%    outFolderStr    <string> strings to be added at the beginning of the
+
+
+%    outPrefix       <string> strings to be added at the beginning of the
 %                     ouput folder (the pseudo-analysis folder).
 %    funcPath        <string> where to save the output. Default is 
 %                     $FUNCTIONALS_DIR.
@@ -40,11 +40,11 @@ function dt_sl = fs_cosmo_crosssl(ds, classPairs, surfDef, featureCount, ...
 %
 % Created by Haiyang Jin (15-Dec-2019)
 
-if nargin < 9 || isempty(funcPath)
+if ~exist('funcPath', 'var') || isempty(funcPath)
     funcPath = getenv('FUNCTIONALS_DIR');
 end
 
-if nargin < 10 || isempty(classifier)
+if ~exist('classifier', 'var') || isempty(classifier)
     [classifier, ~, shortName, nClass] = cosmo_classifier;
 else
     [classifier, ~, shortName, nClass] = cosmo_classifier(classifier);
@@ -56,10 +56,18 @@ else
     classifier = classifier{1}; % convert cell to string
 end
 
+template = fs_2template(anaName, '', 'fsaverage');
+hemi = fs_2template(anaName, {'lh', 'rh'}, 'both');
+
 % decide whose surface information will be used
 trgSubj = fs_trgsubj(fs_subjcode(sessCode, funcPath), template);
-% load ?h.cortex.label as a mask for surface
-vtxMask = fs_cortexmask(trgSubj, hemi);
+
+if ismember(hemi, {'lh', 'rh'})
+    % load ?h.cortex.label as a mask for surface
+    vtxMask = fs_cortexmask(trgSubj, hemi);
+else
+    vtxMask = 1:size(ds.samples, 2);
+end
 
 % method used for distance
 metric = 'euclidean';
@@ -132,7 +140,7 @@ fprintf('The output surface has %d vertices, %d nodes\n',...
     size(vo,1), size(fo,1));
 
 % folders for saving results (Pseudo-analysis folder)
-anaFolder = sprintf('%s_%s.%s', outFolderStr, template, hemi);
+anaFolder = sprintf('%s_%s.%s', outPrefix, template, hemi);
 
 % define the pairs for classification
 nPairs = size(classPairs, 1);
