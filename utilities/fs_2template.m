@@ -55,4 +55,8 @@ end
 % set the outTemplate as 'multiple' if more than one pattern was found
 outTemplate(sum(vertcat(isAva{:})) > 1) = {'multiple'};
 
+if numel(outTemplate) == 1;
+    outTemplate = outTemplate{1};
+end
+
 end
