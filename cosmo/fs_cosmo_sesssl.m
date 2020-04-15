@@ -140,9 +140,9 @@ for iSess = 1:nSess
     for iHemi = runHemis  
                 
         % waitbar
-        progress = (iSess + iHemi/max(runHemis)) / (nSess * 2);
-        progressMsg = sprintf('Subject: %s.  HemisphereCode: %s  \n%0.2f%% finished...', ...
-            strrep(thisSess, '_', '\_'), iHemi, progress*100);
+        progress = (iSess + iHemi-1/max(runHemis)) / (nSess * 2);
+        progressMsg = sprintf('Subject: %s.  Analysis: %s  \n%0.2f%% finished...', ...
+            strrep(thisSess, '_', '\_'), strrep(anaList{iHemi}, '_', '\_'), progress*100);
         waitbar(progress, waitHandle, progressMsg);
         
         %% Surface setting
