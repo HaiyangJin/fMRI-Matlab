@@ -1,5 +1,6 @@
 function fs_cosmo_sesscrosssl(sessList, classPairs, surfType, template, ...
     outFolderStr, combineHemi, classifier, funcPath)
+% [Deprecated; use fs_cosmo_sesssl.m instead]
 % fs_cosmo_sesscrosssl(sessList, classPairs, [surfType = 'sphere', template = 'fsaverage', ...
 %    outFolderStr = 'sl', combineHemi = 0, classifier = '', funcPath])
 %
