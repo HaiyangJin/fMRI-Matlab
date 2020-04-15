@@ -52,7 +52,7 @@ end
 sumFile = fullfile(funcPath, groupName, anaTemp(:), conTemp(:), glmFolder, statName, sumFn);
 
 % read all the summary files
-sumTCell = cellfun(@fs_readsummary, sumFile, 'uni', false);
+sumTCell = cellfun(@(x) fs_readsummary(x, 1), sumFile, 'uni', false);
 
 % row numbers of each summary data table
 numRows = cellfun(@(x) size(x, 1), sumTCell);
