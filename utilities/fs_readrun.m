@@ -15,26 +15,37 @@ function [runNames, nRun] = fs_readrun(runFn, sessCode, funcPath)
 %
 % Created by Haiyang Jin (08-Dec-2019)
 
-path = fileparts(runFn);
-
-if isempty(path)
-    
-    % get the funcPath from global environment
-    if nargin < 3 || isempty(funcPath)
-        funcPath = getenv('FUNCTIONALS_DIR');
-    end
-    
-    if nargin < 2 || isempty(sessCode)
-        error('Not enough inputs for fs_readrun.');
-    else
-        runFile = fullfile(funcPath, sessCode, 'bold', runFn);
-    end
-else
-    runFile = runFn;
+% get the funcPath from global environment
+if ~exist('funcPath', 'var') || isempty(funcPath)
+    funcPath = getenv('FUNCTIONALS_DIR');
 end
 
-% read the run file
-runNames = fs_readtext(runFile);
+% if runFn is empty
+if (~exist('runFn', 'var') || isempty(runFn)) && ~isempty(sessCode)
+    % find names of all runs
+    boldDir = dir(fullfile(funcPath, sessCode, 'bold'));
+    boldDir([boldDir.isdir]~=1) = [];  % remove non-folders
+    isRun = ~isnan(cellfun(@str2double, {boldDir.name}));
+    runNames = {boldDir(isRun).name};
+    warning('Names of all runs are used by default.');
+else
+    % if path is included in runFn
+    path = fileparts(runFn);
+    
+    if isempty(path)
+        % add path to runFn if sessCode is not empty
+        if ~exist('sessCode', 'var') || isempty(sessCode)
+            error('''sessCode'' is missing.');
+        else
+            runFile = fullfile(funcPath, sessCode, 'bold', runFn);
+        end
+    else
+        runFile = runFn;
+    end
+    
+    % read the run file
+    runNames = fs_readtext(runFile);
+end
 
 % number of runs
 nRun = numel(runNames);

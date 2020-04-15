@@ -1,7 +1,7 @@
 function [ds_sess, condInfo] = fs_cosmo_sessds(sessCode, anaName, runList, ...
     runwise, labelFn, dataFn, parFn, funcPath)
-% [ds_sess, condInfo] = fs_cosmo_sessds(sessCode, anaName, runList, ...
-%    [runwise=0, labelFn='', dataFn='beta.nii.gz', parFn='', funcPath])
+% [ds_sess, condInfo] = fs_cosmo_sessds(sessCode, anaName, [runList='', ...
+%    runwise=0, labelFn='', dataFn='beta.nii.gz', parFn='', funcPath])
 %
 % This function save the functional data on surface (in FreeSurfer) and
 % the condition names as a dataset for using in CoSMoMVPA and others.
@@ -10,7 +10,8 @@ function [ds_sess, condInfo] = fs_cosmo_sessds(sessCode, anaName, runList, ...
 %    sessCode         <string> session code in funcPath.
 %    anaName          <string> analysis name in funcPath.
 %    runList          <string> the filename of the run file (e.g.,
-%                      run_loc.txt.)
+%                      run_loc.txt.) [Default is '' and then names of
+%                      all run folders will be used.]
 %                 OR  <string cell> a list of all the run names. (e.g.,
 %                      {'001', '002', '003'....}.
 %    runwise          <logical> load the data analyzed combining all runs
@@ -33,18 +34,20 @@ function [ds_sess, condInfo] = fs_cosmo_sessds(sessCode, anaName, runList, ...
 %
 % Created by Haiyang Jin (14-Apr-2020)
 
-%% Process the inputs
+%% Deal with inputs
 if ~exist('funcPath', 'var') || isempty(funcPath)
     funcPath = getenv('FUNCTIONALS_DIR');
 end
 
 % generate runFolder based on runwise
 if ~exist('runList', 'var') || isempty(runList)
-    error('Please define the run file name in the session folder.');
-elseif ischar(runList)
+    runList = '';
+end
+
+if ischar(runList)
     % read the file if it is char
     runFolder = fs_readrun(runList, sessCode, funcPath);
-elseif iscellstr(runList) %#ok<ISCLSTR>
+elseif iscellstr(runList) 
     runFolder = runList;
 else
     error('Please make sure ''runList'' is set properly.');
