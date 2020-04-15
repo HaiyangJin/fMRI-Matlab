@@ -140,7 +140,7 @@ fprintf('The output surface has %d vertices, %d nodes\n',...
     size(vo,1), size(fo,1));
 
 % folders for saving results (Pseudo-analysis folder)
-anaFolder = sprintf('%s_%s.%s', outPrefix, template, hemi);
+anaFolder = [outPrefix '_' anaName];
 
 % define the pairs for classification
 nPairs = size(classPairs, 1);
