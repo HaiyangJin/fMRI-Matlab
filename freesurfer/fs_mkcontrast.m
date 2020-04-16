@@ -2,6 +2,8 @@ function [contraStruct, fscmd] = fs_mkcontrast(analysisList, contrasts, conditio
 % [contraStruct, fscmd] = fs_mkcontrast(analysisList, contrasts, conditions, force)
 %
 % This function creates contrast and run mkcontrast-sess in FreeSurfer.
+% IMPORTANT: Please make sure the order of levels in 'condtions' is the
+% same as that in the *.par (paradigm) file.
 %
 % Inputs:
 %    analysisList         <cell of string> a list of all analysis names;
