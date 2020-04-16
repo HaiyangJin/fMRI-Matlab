@@ -47,6 +47,9 @@ else
     runNames = fs_readtext(runFile);
 end
 
+% remove empty cells
+runNames(cellfun(@isempty, runNames)) = [];
+
 % number of runs
 nRun = numel(runNames);
 
