@@ -1,6 +1,6 @@
 function sumTable = fs_read2ndsum(groupName, anaList, conList, glmFolder, ...
     statName, sumFn, funcPath)
-% sumTable = fs_read2ndsum(groupName, anaList, conList, [glmFolder='glm-group', ...
+% sumTable = fs_read2ndsum(groupName, anaList, [conList='', glmFolder='glm-group', ...
 %    statName='osgm', sumFn='perm.th30.abs.sig.cluster.summary', funcPath])
 %
 % This function pools all the summary file (sumFn) together. 
@@ -10,7 +10,8 @@ function sumTable = fs_read2ndsum(groupName, anaList, conList, glmFolder, ...
 %    anaList          <string cell> list of the analysis names within 
 %                      groupName.
 %    conList          <string cell> list of the contrast names within
-%                      anaList.
+%                      anaList. Default is '' and all the contrasts in the
+%                      analysis folders will be used.
 %    glmFolder        <string> name of the glm output folder. Default is 
 %                      'glm-group'.
 %    statName         <string> name of the statistics [contrast] folder.
@@ -27,7 +28,17 @@ function sumTable = fs_read2ndsum(groupName, anaList, conList, glmFolder, ...
 % Created by Haiyang Jin (15-Apr-2020)
 
 if ischar(anaList); anaList = {anaList}; end
-if ischar(conList); conList = {conList}; end
+
+if ~exist('funcPath', 'var') || isempty(funcPath)
+    funcPath = getenv('FUNCTIONALS_DIR');
+end
+
+if ~exist('conList', 'var') || isempty(conList)
+    % use all contrasts in the analysis folders
+    conList = fs_ana2con(anaList, funcPath);
+elseif ischar(conList)
+    conList = {conList}; 
+end
 
 if ~exist('glmFolder', 'var') || isempty(glmFolder)
     glmFolder = 'glm-group';
@@ -39,10 +50,6 @@ end
 
 if ~exist('sumFn', 'var') || isempty(sumFn)
     sumFn = 'perm.th30.abs.sig.cluster.summary';
-end
-
-if ~exist('funcPath', 'var') || isempty(funcPath)
-    funcPath = getenv('FUNCTIONALS_DIR');
 end
 
 % all the possible combinations between anaList and conList

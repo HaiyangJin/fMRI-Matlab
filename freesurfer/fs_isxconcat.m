@@ -11,7 +11,9 @@ function [anaStruct, fscmd] = fs_isxconcat(sessid, anaList, conList, outFolder, 
 %                    <structure> a structure obtained from fs_mkcontrast.m,
 %                     which contains both analysis and contrast names.
 %    conList         <cell of string> a list of the contrast names. [If
-%                     anaList is a structure, conList can be empty.]
+%                     anaList is a struct, conList will be ignored; if 
+%                     anaList is cell and conList is empty, all the
+%                     contrasts in the analysis folders will be used].
 %    outFolder       <string> the name of the output (group) folder.
 %    runcmd          <logical> do not run the fscmd and only make the
 %                     FreeSurfer commands. 1: run fscmd (default); 0: do
@@ -45,7 +47,12 @@ if isstruct(anaList)
 else
     % convert to cell if necessary 
     if ischar(anaList); anaList = {anaList}; end
-    if ischar(conList); conList = {conList}; end
+    
+    if ~exist('conList', 'var') || isempty(conList)
+        conList = fs_ana2con(anaList);
+    elseif ischar(conList)
+        conList = {conList}; 
+    end
     
     % create all the possible combinations
     [analysisName, contrastName] = ndgrid(anaList, conList);

@@ -1,32 +1,33 @@
-function [contraStruct, fscmd] = fs_mkcontrast(analysisList, contrasts, conditions, force)
-% [contraStruct, fscmd] = fs_mkcontrast(analysisList, contrasts, conditions, force)
+function [anaStruct, fscmd] = fs_mkcontrast(anaList, contrasts, conditions, force)
+% [anaStruct, fscmd] = fs_mkcontrast(anaList, contrasts, conditions, force)
 %
 % This function creates contrast and run mkcontrast-sess in FreeSurfer.
 % IMPORTANT: Please make sure the order of levels in 'condtions' is the
-% same as that in the *.par (paradigm) file.
+% same as that in the *.par (paradigm) file. [fs_par2con can be used to
+% obtain the conditions.]
 %
 % Inputs:
-%    analysisList         <cell of string> a list of all analysis names;
+%    anaList              <cell string> a list of all analysis names;
 %    contrasts            <cell> a cell of contrasts to be created. One row
 %                          is one contrast; the conditions in the first cell
 %                          is the activation condition; the conditions in the
 %                          second cell is the control condition. (These will
 %                          be used to set the contrast name later);
-%    conditions           <cell of string> the full names of all conditions;
+%    conditions           <cell string> the full names of all conditions;
 %    force                <logical> force to make contrast. 0: do not force 
 %                          to re-make contrsat [default]; 1: force to 
 %                          re-make contrast; 2: do not run fscmd. 
 %
 % Output:
-%    contraStruct         <structure> a contrast structure which has three
+%    anaaStruct           <struct> a contrast structure which has three
 %                          fieldnames. (analysisName: the ananlysis name;
 %                          contrastName: the contrast name in format of a-vs-b;
 %                          contrastCode: the commands to be used in
 %                          FreeSurfer)
-%                          contraStruct will also be saved as the Matlab
+%                          anaStruct will also be saved as the Matlab
 %                          file and its name will be the initials of all the
 %                          conditions.
-%    fscmd                <cell of strings> FreeSurfer commands run in the
+%    fscmd                <cell string> FreeSurfer commands run in the
 %                          current session.
 %
 % Example:
@@ -40,7 +41,7 @@ function [contraStruct, fscmd] = fs_mkcontrast(analysisList, contrasts, conditio
 %     'word';
 %     'object'};
 % force = 1;
-% contraStruct = fs_mkcontrast(analysisList, contrasts, conditions, force);
+% anaStruct = fs_mkcontrast(anaList, contrasts, conditions, force);
 %
 % Next step: fs_selxavg3.m
 %
@@ -50,16 +51,16 @@ if nargin < 4 || isempty(force)
     force = 0;
 end
 
-if ischar(analysisList)
-    analysisList = {analysisList};
+if ischar(anaList)
+    anaList = {anaList};
 end
 
 % number of analysis names and contrasts
-nAnalysis = numel(analysisList);
+nAnalysis = numel(anaList);
 nContrast = size(contrasts, 1);
 
 % use the string before '.' as the unique name
-strCell = cellfun(@(x) split(x, {'_', '.'}), analysisList, 'uni', false);
+strCell = cellfun(@(x) split(x, {'_', '.'}), anaList, 'uni', false);
 extraStrs = cellfun(@(x) x{end-1, 1}, strCell, 'uni', false);
 extraStr = unique(cellfun(@(x) regexp(x, '\D+', 'match'), extraStrs));
 if numel(extraStr) ~= 1; extraStr = {'backup'}; end
@@ -69,14 +70,14 @@ contraFn = sprintf('Ana%d_Con%d_%s_%s.mat', nAnalysis, nContrast, ...
     cellfun(@(x) x(1), conditions), extraStr{1});
 
 if exist(contraFn, 'file') && ~force
-    load(contraFn, 'contraStruct');
+    load(contraFn, 'anaStruct');
     fscmd = '';
-    fprintf('contraStruct is loaded.\n');
+    fprintf('anaStruct is loaded.\n');
     return;
 end
 
 % empty structure for saving information
-contraStruct = struct;
+anaStruct = struct;
 n = 0;
 
 % empty cell for saving FreeSurfer commands
@@ -85,7 +86,7 @@ fscmd = cell(nAnalysis, nContrast);
 for iAnalysis = 1:nAnalysis
     
     % this analysis name
-    analysisName = analysisList{iAnalysis};
+    analysisName = anaList{iAnalysis};
     
     for iCon = 1:nContrast
         
@@ -98,7 +99,7 @@ for iAnalysis = 1:nAnalysis
         conditionNum = cellfun(@(x) find(startsWith(conditions, x)), thisCon, 'uni', false);
         
         % save the information
-        contraStruct(n).analysisName = analysisName;
+        anaStruct(n).analysisName = analysisName;
         
         % levels of activation and control
         nLevels = cellfun(@numel, conditionNum);
@@ -137,12 +138,12 @@ for iAnalysis = 1:nAnalysis
         contrCode = [contrCodeAct, contrCodeCon];
         
         % create the contrast names and contrast codes
-        contraStruct(n).contrastName = contrName;
-        contraStruct(n).contrastCode = sprintf(contrCode, conditionNum{:});
+        anaStruct(n).contrastName = contrName;
+        anaStruct(n).contrastCode = sprintf(contrCode, conditionNum{:});
         
         % created the commands
         thisfscmd = sprintf('mkcontrast-sess -analysis %s -contrast %s %s', ...
-            analysisName, contraStruct(n).contrastName, contraStruct(n).contrastCode);
+            analysisName, anaStruct(n).contrastName, anaStruct(n).contrastCode);
         fscmd{iAnalysis, iCon} = thisfscmd;
         
         if force ~= 2
@@ -159,7 +160,7 @@ end  % iAnalysis
 fscmd = reshape(fscmd, [], 1);
 
 % save contraStr as Matlab file
-save(contraFn, 'contraStruct', '-v7.3');
-fprintf('contraStruct is saved in %s.\n', contraFn)
+save(contraFn, 'anaStruct', '-v7.3');
+fprintf('anaStruct is saved in %s.\n', contraFn)
 
 end
