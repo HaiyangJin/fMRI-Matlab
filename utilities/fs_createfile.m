@@ -24,6 +24,7 @@ end
 
 % open a new file
 fid = fopen(filename, 'w');
+assert(fid ~= -1, 'Please make sure the directory (%s) exists.', fileparts(filename));
 
 % create the array
 rowFormat = ['%s' repmat(' %s', 1, nColu-1)];
