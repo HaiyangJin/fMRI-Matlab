@@ -1,6 +1,24 @@
-function [tableout, nCondition] = fs_readpar(parFile, cleanPar)
+function [tableout, nCondition] = fs_readpar(parFile, simpPar)
+% [tableout, nCondition] = fs_readpar(parFile, simpPar)
+%
 % This functions read the paradigm file into matlab as a table
-% (Probably too complicated. Needed to be update later.
+% (Probably too complicated. Needed to be update later).
+%
+% Inputs:
+%    parFile          <string> filename of the par file (with path).
+%                      If parFile is not a *.par file (i.e., not ending
+%                      with '.par', it will be treated as a path and this
+%                      function will try to find the unique *.par file in
+%                      that path.
+%    simpPar          <logical> 1: simplify the tableout and only keep the
+%                      condition numbers, weights and labels (removing 
+%                      durations and onset times [default]. 0: save the 
+%                      original parfile content as tableout.
+%
+% Output:
+%    tableout         <table> a table contains necesary information in
+%                      the paradigm file. 
+%    nCondition       <integer> number of conditions.
 %
 % Created by Haiyang Jin (16-Nov-2019)
 
@@ -18,8 +36,8 @@ if ~isempty(parFile)
 end
 
 % by default, the OnsetTime will be removed
-if ~exist('cleanPar', 'var') || isempty(cleanPar)
-    cleanPar = 1;
+if ~exist('simpPar', 'var') || isempty(simpPar)
+    simpPar = 1;
 end
 
 % load the *.par as a one-dimentional cell
@@ -41,23 +59,23 @@ tableNames = {'OnsetTime', 'Condition', 'Duration', 'Weight', 'Label'};
 % Convert it to table
 tmptable = cell2table(cellTran', 'VariableNames', tableNames);
 
-if cleanPar
+if simpPar
     tmptable = tmptable(tmptable.Condition ~= "0", :);  % remove the baseline
 end
 
 % Create the output table
 tableout = table;
-if ~cleanPar
+if ~simpPar
     tableout.OnsetTime = str2double(tmptable.OnsetTime);
 end
 tableout.Condition = str2double(tmptable.Condition);
-if ~cleanPar
+if ~simpPar
     tableout.Duration = str2double(tmptable.Duration);
 end
 tableout.Weight = str2double(tmptable.Weight);
 tableout.Label = tmptable.Label;
 
-if cleanPar
+if simpPar
     tableout = unique(tableout, 'rows'); % remove duplicated rows
     tableout = sortrows(tableout, 'Condition'); % sort rows by condition code
 end
