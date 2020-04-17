@@ -1,0 +1,37 @@
+function allPath = fs_fullfile(varargin)
+% allPath = fs_fullfile(varargin)
+%
+% This function creates the path with all the possible combinations within
+% varargin. 
+%
+% Input:
+%    varargin       Different parts of path separated by ','.
+% 
+% Output:
+%    allPath        <cell string> a list of all the paths.
+%
+% Example:
+% thePath = fs_fullfile('main_path', {'subdir1', 'subdir2'}, 'anotherPath');
+% thePath is 2x1 cell array.
+%     {'main_path/subdir1/anotherPath'}
+%     {'main_path/subdir2/anotherPath'}
+%
+% Created by Haiyang Jin (17-Apr-2020)
+
+pathPart = varargin;
+
+% convert string to cell
+isOne = cellfun(@ischar, pathPart);
+pathPart(isOne) = cellfun(@(x) {x}, varargin(isOne), 'uni', false);
+
+% create all possible combinations 
+pathComb = cell(size(pathPart));
+[pathComb{:}] = ndgrid(pathPart{:});
+
+% make strings in each cell to one column
+pathCell = cellfun(@(x) x(:), pathComb, 'uni', false);
+
+% create the path
+allPath = fullfile(pathCell{:});
+
+end
