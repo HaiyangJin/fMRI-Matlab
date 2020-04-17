@@ -120,24 +120,6 @@ if ~exist('runcmd', 'var') || isempty(runcmd)
     runcmd = 1;
 end
 
-%% Generate the *.mat filename for saving analysis and contrast information
-% use the string before '.' as the unique name (for *.mat filename)
-strCell = cellfun(@(x) split(x, {'_', '.'}), anaList, 'uni', false);
-extraStrs = cellfun(@(x) x{end-1, 1}, strCell, 'uni', false);
-extraStr = unique(cellfun(@(x) regexp(x, '\D+', 'match'), extraStrs));
-if numel(extraStr) ~= 1; extraStr = {'backup'}; end
-
-% filename of the Matlab file to be saved later
-contraFn = sprintf('Ana%d_Con%d_%s_%s.mat', nAnalysis, nContrast, ...
-    cellfun(@(x) x(1), conditions), extraStr{1});
-
-if exist(contraFn, 'file') && ~runcmd
-    load(contraFn, 'conStruct');
-    fscmd = '';
-    fprintf('conStruct (%s) is loaded.\n', contraFn);
-    return;
-end
-
 %% Create names and codes for each contrast
 % empty cell for saving contrast names, codes and methods
 conCell = cell(nContrast, 3);
@@ -226,8 +208,5 @@ end
 
 %% Create conStruct including analysis and contrast information
 conStruct = table2struct(table(analysisName, contrastName, contrastCode, contrastMethod));
-
-save(contraFn, 'conStruct', '-v7.3');
-fprintf('conStruct is saved in %s.\n', contraFn)
 
 end
