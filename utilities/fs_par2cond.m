@@ -73,4 +73,9 @@ end
 % save the unique label names
 conditions = condTable.Label;
 
+% display the condition names (with order)
+fprintf('\nThe condination names are:\n');
+disp(conditions);
+fprintf('Please make sure they are in the same order as that in the par file.\n');
+
 end
