@@ -202,6 +202,9 @@ else
     isnotok = zeros(size(fscmd));
 end
 
+% add isnotok to fscmd
+fscmd = horzcat(fscmd, num2cell(isnotok));
+
 %% Create conStruct including analysis and contrast information
 conStruct = table2struct(table(analysisName, contrastName, contrastCode, contrastMethod));
 

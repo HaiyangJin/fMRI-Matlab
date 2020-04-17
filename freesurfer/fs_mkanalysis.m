@@ -155,6 +155,9 @@ else
     isnotok = zeros(size(fscmd));
 end
 
+% add isnotok to fscmd
+fscmd = horzcat(fscmd, num2cell(isnotok));
+
 % finishing message
 if any(isnotok)
     warning('Some FreeSurfer commands (mkanalysis-sess) failed.');
