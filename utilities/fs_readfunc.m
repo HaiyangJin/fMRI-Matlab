@@ -28,7 +28,7 @@ exts = {
 % functions
 funcs = {
     @fs_readnifti;
-    @load_mg};
+    @load_mgh};
 
 %% Read filename
 % identify the extension

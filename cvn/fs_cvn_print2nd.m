@@ -58,7 +58,7 @@ end
 theFiles = fullfile(glmPath, 'osgm', clusterSigFn);
 
 % only keep the files for left hemisphere
-leftFiles = theFiles';
+leftFiles = theFiles(:); % make sure theFiles is only one column
 leftFiles(contains(leftFiles, 'rh')) = [];
 % find the corresponding files for right hemisphere
 rightFiles = strrep(leftFiles, 'lh', 'rh');
