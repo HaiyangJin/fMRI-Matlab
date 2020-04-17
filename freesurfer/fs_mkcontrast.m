@@ -202,11 +202,15 @@ else
     isnotok = zeros(size(fscmd));
 end
 
-if any(isnotok)
-    warning('Some FreeSurfer commands (mkcontrast-sess) failed.');
-end
-
 %% Create conStruct including analysis and contrast information
 conStruct = table2struct(table(analysisName, contrastName, contrastCode, contrastMethod));
+
+% finishing message
+if any(isnotok)
+    warning('Some FreeSurfer commands (mkcontrast-sess) failed.');
+elseif runcmd
+    fprintf('Contrasts are created successfully!\n');
+end
+
 
 end
