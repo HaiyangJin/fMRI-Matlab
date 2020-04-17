@@ -1,5 +1,5 @@
-function [anaStruct, fscmd] = fs_isxconcat(sessid, anaList, conList, outFolder, runcmd)
-% [anaStruct, fscmd] = fs_isxconcat(sessid, anaList, conList, [outFolder='group', runcmd = 1])
+function [conStruct, fscmd] = fs_isxconcat(sessid, anaList, conList, groupFolder, runcmd)
+% [conStruct, fscmd] = fs_isxconcat(sessid, anaList, conList, [groupFolder='group', runcmd = 1])
 %
 % This function gathers the first-level results from different participant 
 % together (via isxconcat-sess). [The first step in group analysis].
@@ -14,13 +14,13 @@ function [anaStruct, fscmd] = fs_isxconcat(sessid, anaList, conList, outFolder, 
 %                     anaList is a struct, conList will be ignored; if 
 %                     anaList is cell and conList is empty, all the
 %                     contrasts in the analysis folders will be used].
-%    outFolder       <string> the name of the output (group) folder.
+%    groupFolder     <string> the name of the output (group) folder.
 %    runcmd          <logical> do not run the fscmd and only make the
 %                     FreeSurfer commands. 1: run fscmd (default); 0: do
 %                     not run fscmd.
 %
 % Output:
-%    anaStruct       <struct> a struct includes all analysis, contrast, and
+%    conStruct       <struct> a struct includes all analysis, contrast, and
 %                     group names.
 %    fscmd           <cell of string> The first column is FreeSurfer 
 %                     commands used in the current session. And the second 
@@ -32,8 +32,8 @@ function [anaStruct, fscmd] = fs_isxconcat(sessid, anaList, conList, outFolder, 
 %
 % Created by Haiyang Jin (12-Apr-2020)
 
-if ~exist('outFolder', 'var') || isempty(outFolder)
-    outFolder = 'group';
+if ~exist('groupFolder', 'var') || isempty(groupFolder)
+    groupFolder = 'group';
 end
 
 if ~exist('runcmd', 'var') || isempty(runcmd)
@@ -42,7 +42,7 @@ end
 
 % obtain the analysis and contrast lists
 if isstruct(anaList)
-   anaStruct = anaList;
+   conStruct = anaList;
 
 else
     % convert to cell if necessary 
@@ -58,18 +58,18 @@ else
     [analysisName, contrastName] = ndgrid(anaList, conList);
     
     % create the strucutre to save analysis and contrast names
-    anaStruct = struct('analysisName', analysisName(:), 'contrastName', contrastName(:));
+    conStruct = struct('analysisName', analysisName(:), 'contrastName', contrastName(:));
 end
 
 % add group folder name to the structure
-tempStr = repmat({outFolder}, numel(anaStruct), 1);
-[anaStruct.group] = tempStr{:};
+tempStr = repmat({groupFolder}, numel(conStruct), 1);
+[conStruct.group] = tempStr{:};
 
 % "Isxconcat-sess" stands for "intersubject concatentation." 
 % create strings for all commands
 fscmd = arrayfun(@(x) sprintf(['isxconcat-sess -sf %s -analysis %s '...
-    '-contrast %s -o %s'], sessid, anaStruct(x).analysisName, ...
-    anaStruct(x).contrastName, outFolder), 1:numel(anaStruct), 'uni', false);
+    '-contrast %s -o %s'], sessid, conStruct(x).analysisName, ...
+    conStruct(x).contrastName, groupFolder), 1:numel(conStruct), 'uni', false);
 
 if runcmd
     % run FreeSurfer commands

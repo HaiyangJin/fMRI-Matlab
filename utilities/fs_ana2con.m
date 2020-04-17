@@ -1,5 +1,5 @@
-function [conList, anaStruct] = fs_ana2con(anaList, funcPath)
-% [conList, anaStruct] = fs_ana2con(anaList, funcPath)
+function [conList, conStruct] = fs_ana2con(anaList, funcPath)
+% [conList, conStruct] = fs_ana2con(anaList, funcPath)
 %
 % This funciton read the contrast names within the analysis folders.
 %
@@ -10,7 +10,7 @@ function [conList, anaStruct] = fs_ana2con(anaList, funcPath)
 %
 % Output:
 %    conList           <cell string> list of contrast names.
-%    anaStruct         <struct> contains the information of analysis 
+%    conStruct         <struct> contains the information of analysis 
 %                       (analysisName) and contrast (contrastName) names. 
 %
 % Created by Haiyang Jin (16-Apr-2020)
@@ -31,7 +31,7 @@ conDir = vertcat(dirCell{:});
 conNames = cellfun(@(x) erase(x, '.mat'), {conDir.name}, 'uni', false)';
 conList = unique(conNames);
 
-%% Create anaStruct 
+%% Create conStruct 
 % repeat anlysis names to match the number of contrasts
 numCons = cellfun(@numel, dirCell);
 anaNames = arrayfun(@(x, y) repmat(x, y, 1), anaList, numCons, 'uni', false);
@@ -39,6 +39,6 @@ anaNames = arrayfun(@(x, y) repmat(x, y, 1), anaList, numCons, 'uni', false);
 % create cell to save analysis and contrast names
 anaconCell = horzcat(vertcat(anaNames{:}), conNames);
 % convert to struct
-anaStruct = cell2struct(anaconCell, {'analysisName', 'contrastName'}, 2);
+conStruct = cell2struct(anaconCell, {'analysisName', 'contrastName'}, 2);
 
 end
