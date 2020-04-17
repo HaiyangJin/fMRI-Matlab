@@ -1,16 +1,22 @@
-function contrast = fs_2contrast(fnList)
-% contrast = fs_2contrast(fnList)
+function contrast = fs_2contrast(fnList, delimiter, conSign)
+% contrast = fs_2contrast(fnList, [delimiter='.', conSign='-vs-'])
 %
 % This function obtains the contrast name from the strings (e.g., a label 
 % name when the label name is something like roi.lh.f13.f-vs-o.*label). It
 % will obtain the strings around '-vs-'.
 %
 % Input:
-%    labelList          <string> a string.
-%                    OR <string cell> a list of strings.
+%    fnList          <string> OR <cell string> a list of strings.
+%    delimiter       <string> delimiter used to parse the fnList into
+%                     multiple parts and contrast name will be one of the
+%                     strings. Default is '.', which is for obtaining
+%                     contrast from label name. filesep can be used to
+%                     obtain contrast name from a path.
+%    conSign         <string> contrast sign, i.e., the unique strings in
+%                     the contrast names. Default is '-vs-'.  
 %
 % Output:
-%    contrast           <string cell> a cell of contrast names.
+%    contrast        <cell string> or <string> a cell of contrast names.
 %
 % Created by Haiyang Jin (11-Dec-2019)
 
@@ -21,24 +27,23 @@ if ischar(fnList)
     back2char = 1;
 end
 
-% transponse if there is only one row
-if size(fnList, 1) == 1
-    fnList = fnList';
+if ~exist('delimiter', 'var') || isempty(delimiter)
+    % defualt is for extracting contrast from label names
+    delimiter = '.'; 
 end
 
-nLabel = numel(fnList);
-contrastCell = cell(size(fnList));
-
-% obtain the contrast name for each string
-for iLabel = 1:nLabel
-    
-    labelName = fnList{iLabel};
-    
-    % find the "." to identify the contrast name
-    [conStart, conEnd] = regexp(labelName, '\w*\-vs\-\w*'); % pattern (word-vs-word)
-    contrastCell(iLabel) = {labelName(conStart:conEnd)};
-
+if ~exist('conSign', 'var') || isempty(conSign)
+    conSign = '-vs-';
 end
+
+% split the fnList by delimiter
+strsCell = cellfun(@(x) strsplit(x, delimiter), fnList, 'uni', false);
+
+% find the string containts '-vs-'
+isVs = cellfun(@(x) contains(x, conSign), strsCell, 'uni', false);
+
+% only keep the strings containing '-vs-'
+contrastCell = cellfun(@(x, y) x{y}, strsCell, isVs, 'uni', false);
 
 if back2char
     contrast = contrastCell{1};
