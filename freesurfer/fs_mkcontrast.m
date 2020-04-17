@@ -1,5 +1,6 @@
-function [anaStruct, fscmd] = fs_mkcontrast(anaList, contrasts, conditions, force)
-% [anaStruct, fscmd] = fs_mkcontrast(anaList, contrasts, conditions, force)
+function [conStruct, fscmd] = fs_mkcontrast(anaList, contrasts, conditions, method, runcmd)
+% [conStruct, fscmd] = fs_mkcontrast(anaList, contrasts, conditions, ...
+%                      [method=1, runcmd=1])
 %
 % This function creates contrast and run mkcontrast-sess in FreeSurfer.
 % IMPORTANT: Please make sure the order of levels in 'condtions' is the
@@ -7,59 +8,120 @@ function [anaStruct, fscmd] = fs_mkcontrast(anaList, contrasts, conditions, forc
 % obtain the conditions.]
 %
 % Inputs:
-%    anaList              <cell string> a list of all analysis names;
-%    contrasts            <cell> a cell of contrasts to be created. One row
-%                          is one contrast; the conditions in the first cell
-%                          is the activation condition; the conditions in the
-%                          second cell is the control condition. (These will
-%                          be used to set the contrast name later);
-%    conditions           <cell string> the full names of all conditions;
-%    force                <logical> force to make contrast. 0: do not force 
-%                          to re-make contrsat [default]; 1: force to 
-%                          re-make contrast; 2: do not run fscmd. 
+%    anaList           <cell string> a list of all analysis names;
+%    contrasts         <cell> a cell of contrasts to be created. One row
+%                       is one contrast; the conditions in the first cell
+%                       is the activation condition; the conditions in the
+%                       second cell is the control condition. 
+%                      [If multiple levels need to be used for the 
+%                       activation or control conditions, put the multiple
+%                       levels in one cell.]
+%                      [use 'base' in the second cell if you want to
+%                       contrast the activation conditons against the baseline; 
+%                       if the second cell is ''(without space), all the
+%                       conditions will be used as the control condition]
+%                      [IMPORTANT: you may want to check 'method' below if
+%                       you want to use initials of conditions in the
+%                       contrast names (e.g., 'f' for 'faces'; 'w' for
+%                       'wrods').]
+%    conditions        <cell string> the full names of all conditions;
+%                       [conditions can be obtained from fs_par2cond.m]
+%    method            <integer> which method (function) to be used identify 
+%                       the condition number for each contrasts. 
+%    runcmd            <logical> whether run the fscmd in FreeSufer (i.e.,
+%                       make contrasts in FreeSurfer). 1: run fscmd
+%                       [default]; 0: do not run fscmds and only output
+%                       conStruct and fscmd.
 %
 % Output:
-%    anaaStruct           <struct> a contrast structure which has three
-%                          fieldnames. (analysisName: the ananlysis name;
-%                          contrastName: the contrast name in format of a-vs-b;
-%                          contrastCode: the commands to be used in
-%                          FreeSurfer)
-%                          anaStruct will also be saved as the Matlab
-%                          file and its name will be the initials of all the
-%                          conditions.
-%    fscmd                <cell string> FreeSurfer commands run in the
-%                          current session.
+%    conStruct         <struct> a contrast structure which has three
+%                       fieldnames. (analysisName: the ananlysis name;
+%                       contrastName: the contrast name in format of a-vs-b;
+%                       contrastCode: the commands to be used in FreeSurfer).
+%                       conStruct will also be saved as the Matlab
+%                       file and its name will be the initials of all the
+%                       conditions.
+%    fscmd             <cell string> FreeSurfer commands run in the
+%                       current session.
+%
+%%%%%%%%%%%%%%%%%%%% Methods %%%%%%%%%%%%%%%%%%%%
+% % avaiable functions to identify condition numbers for contrasts (from conditions) 
+% methodFuncs = {
+%     @startsWith;  % 1: when contrasts match beginning of condtion names.
+%     @endsWith;    % 2: when contrasts match ending of condtion names.
+%     @contains;    % 3: when contrasts are contained in condtion names.
+%     @strcmp;      % 4: only when contrasts match condition names (case sensitive)
+%     @strcmpi;     % 5: only when contrasts match condition names (case insensitive).
+%     };
+% % 4 and 5 are not applicable when multiple levels are used as activation or
+% % control condtions.
 %
 % Example:
-% anaList [obtained from fs_mkanalysis.m]
+% anaList = {'main_sm5.lh', 'main_sm5.rh'}; % [obtained from fs_mkanalysis.m]
 % contrasts = {
-%     'face', 'word';
+%     'face_1', 'base';
 %     'face', 'object';
-%     'word', 'object';};
+%     'fa', 'obj';
+%     'face2', {'object', 'word'};
+%     {'o', 'w'}, 'f';
+%     {'f', 'o', 'w'}, ''};
 % conditions = {
-%     'face';
+%     'face_1';
+%     'face2';
 %     'word';
-%     'object'};
-% force = 1;
-% anaStruct = fs_mkcontrast(anaList, contrasts, conditions, force);
+%     'object'}; % can be obtained from fs_par2cond.m.
+% method = 1;  % startsWith
+% conStruct = fs_mkcontrast(anaList, contrasts, conditions, method, 0);
+%
+% Outputs of this example:
+% Contrast names and codes are:
+%     'face_1-vs-baseline'      ' -a 1'                                       'startsWith'
+%     'face-vs-object'          ' -a 1 -a 2 -c 4'                             'startsWith'
+%     'fa-vs-obj'               ' -a 1 -a 2 -c 4'                             'startsWith'
+%     'face2-vs-object-word'    ' -a 2 -c 3 -c 4'                             'startsWith'
+%     'o-w-vs-f'                ' -a 3 -a 4 -c 1 -c 2'                        'startsWith'
+%     'f-o-w-vs-all'            ' -a 1 -a 2 -a 3 -a 4 -c 1 -c 2 -c 3 -c 4'    'startsWith'
 %
 % Next step: fs_selxavg3.m
 %
 % Created by Haiyang Jin (19-Dec-2019)
 
-if nargin < 4 || isempty(force)
-    force = 0;
-end
+%% Deal with inputs
 
-if ischar(anaList)
-    anaList = {anaList};
-end
-
-% number of analysis names and contrasts
+if ischar(anaList); anaList = {anaList}; end
 nAnalysis = numel(anaList);
 nContrast = size(contrasts, 1);
 
-% use the string before '.' as the unique name
+if ~exist('method', 'var') || isempty(method)
+    method = ones(nContrast, 1);
+elseif numel(method) == 1
+    method = repmat(method, nContrast, 1);
+elseif numel(method) ~= nContrast
+    error(['The length of ''method'' (%d) has to be 1 or the same number ' ...
+        'of contrasts (%d).'], numel(method), nContrast);
+end
+
+isAva = method <= 5 & method >0;
+assert(all(isAva), 'No function is pre-defined for the method (%d).', method(~isAva));
+
+% avaiable functions to identify condition numbers for contrasts (from conditions) 
+methodFuncs = {
+    @startsWith;  % 1: when contrasts match beginning of condtion names.
+    @endsWith;    % 2: when contrasts match ending of condtion names.
+    @contains;    % 3: when contrasts are contained in condtion names.
+    @strcmp;      % 4: only when contrasts match condition names (case sensitive)
+    @strcmpi;     % 5: only when contrasts match condition names (case insensitive).
+    };
+% 4 and 5 are not applicable when multiple levels are used as activation or
+% control condtions.
+methods = methodFuncs(method);
+
+if ~exist('runcmd', 'var') || isempty(runcmd)
+    runcmd = 1;
+end
+
+%% Generate the *.mat filename for saving analysis and contrast information
+% use the string before '.' as the unique name (for *.mat filename)
 strCell = cellfun(@(x) split(x, {'_', '.'}), anaList, 'uni', false);
 extraStrs = cellfun(@(x) x{end-1, 1}, strCell, 'uni', false);
 extraStr = unique(cellfun(@(x) regexp(x, '\D+', 'match'), extraStrs));
@@ -69,98 +131,103 @@ if numel(extraStr) ~= 1; extraStr = {'backup'}; end
 contraFn = sprintf('Ana%d_Con%d_%s_%s.mat', nAnalysis, nContrast, ...
     cellfun(@(x) x(1), conditions), extraStr{1});
 
-if exist(contraFn, 'file') && ~force
-    load(contraFn, 'anaStruct');
+if exist(contraFn, 'file') && ~runcmd
+    load(contraFn, 'conStruct');
     fscmd = '';
-    fprintf('anaStruct is loaded.\n');
+    fprintf('conStruct (%s) is loaded.\n', contraFn);
     return;
 end
 
-% empty structure for saving information
-anaStruct = struct;
-n = 0;
+%% Create names and codes for each contrast
+% empty cell for saving contrast names, codes and methods
+conCell = cell(nContrast, 3);
 
-% empty cell for saving FreeSurfer commands
-fscmd = cell(nAnalysis, nContrast);
-
-for iAnalysis = 1:nAnalysis
+for iCon = 1:nContrast
+        
+    % this contrast
+    thisCon = contrasts(iCon, :);
+    methodFunc = methods{iCon, 1};
     
-    % this analysis name
-    analysisName = anaList{iAnalysis};
+    % the number of activation and control condition
+    conditionNum = cellfun(@(x) find(methodFunc(conditions, x)), thisCon, 'uni', false);
     
-    for iCon = 1:nContrast
-        
-        n = n + 1;
-        
-        % this contrast
-        thisCon = contrasts(iCon, :);
-        
-        % the number of activation and control condition
-        conditionNum = cellfun(@(x) find(startsWith(conditions, x)), thisCon, 'uni', false);
-        
-        % save the information
-        anaStruct(n).analysisName = analysisName;
-        
-        % levels of activation and control
-        nLevels = cellfun(@numel, conditionNum);
-        
-        %% Activation conditions
-        if iscell(thisCon{1})
-            actCon = thisCon{1};
-        else
-            actCon = thisCon(1);
-        end
-        % first part of contrast name
-        contrNameAct = sprintf(['%s' repmat('-%s', 1, nLevels(1)-1) '-vs-'], actCon{:});
-        % first part of contrast code
-        contrCodeAct = [' -a %d' repmat(' -a %d', 1, nLevels(1)-1)];
-        
-        %% Control conditions
-        if nLevels(2) == 0
-            % if there is no control condition [NULL will be used as
-            % control condition]
-            conditionNum = conditionNum(1);
-            contrCodeCon = '';
-        else
-            if iscell(thisCon{2})
-                baseCon = thisCon{2};
-            else
-                baseCon = thisCon(2);
-            end
-            % second part of contrast name
-            contrNameCon = sprintf(['%s' repmat('-%s', 1, nLevels(2)-1)], baseCon{:});
-            % second part of contrast code
-            contrCodeCon = [' -c %d' repmat(' -c %d', 1, nLevels(2)-1)];
-        end
-        
-        %% Combine activation and control
-        contrName = [contrNameAct, contrNameCon];
-        contrCode = [contrCodeAct, contrCodeCon];
-        
-        % create the contrast names and contrast codes
-        anaStruct(n).contrastName = contrName;
-        anaStruct(n).contrastCode = sprintf(contrCode, conditionNum{:});
-        
-        % created the commands
-        thisfscmd = sprintf('mkcontrast-sess -analysis %s -contrast %s %s', ...
-            analysisName, anaStruct(n).contrastName, anaStruct(n).contrastCode);
-        fscmd{iAnalysis, iCon} = thisfscmd;
-        
-        if force ~= 2
-            isnotok = system(thisfscmd);
-        else
-            isnotok = 0;
-        end
-        assert(~isnotok, 'Command (%s) failed.', thisfscmd);
-        
-    end  % iCon
+    % numbers of levels in activation and control
+    nLevels = cellfun(@numel, conditionNum);
+    assert(nLevels(1) ~= 0, ['Cannot find the condition number for '...
+        'the activation (%d) conditions.'], nLevels(1));
     
-end  % iAnalysis
+    %%%%%%%%%%%% Activation conditions %%%%%%%%%%%%
+    if iscell(thisCon{1})
+        actCon = thisCon{1};
+    else
+        actCon = thisCon(1);
+    end
+    % first part of contrast name
+    contrNameAct = sprintf(['%s' repmat('-%s', 1, numel(actCon)-1) '-vs-'], actCon{:});
+    % first part of contrast code
+    contrCodeAct = sprintf(['-a %d' repmat(' -a %d', 1, nLevels(1)-1)], conditionNum{1});
+    
+    %%%%%%%%%%%% Control conditions %%%%%%%%%%%%
+    if nLevels(2) == 0
+        % if there is no control condition [NULL will be used as
+        % control condition]
+        contrNameCon = 'baseline';
+        contrCodeCon = '';
+    else
+        if iscell(thisCon{2})
+            baseCon = thisCon{2};
+        else
+            baseCon = thisCon(2);
+        end
+        % second part of contrast name
+        contrNameCon = sprintf(['%s' repmat('-%s', 1,numel(baseCon)-1)], baseCon{:});
+        if isempty(contrNameCon) && nLevels(2) == numel(conditions)
+            contrNameCon = 'all';
+        end
+        % second part of contrast code
+        contrCodeCon = sprintf([' -c %d' repmat(' -c %d', 1, nLevels(2)-1)], conditionNum{2});
+    end
+    
+    %%%%%%%%%%%% Combine activation and control %%%%%%%%%%%%
+    conCell{iCon, 1} = [contrNameAct, contrNameCon];
+    conCell{iCon, 2} = [contrCodeAct, contrCodeCon];
+    conCell{iCon, 3} = func2str(methodFunc);
 
-fscmd = reshape(fscmd, [], 1);
+end  % iCon
+    
+% display the contrast names and codes
+fprintf('Contrast names and codes are:\n');
+disp(conCell);
 
-% save contraStr as Matlab file
-save(contraFn, 'anaStruct', '-v7.3');
-fprintf('anaStruct is saved in %s.\n', contraFn)
+%% Create FreeSurfer commans for creating contrasts
+% create all the combinations of analyses and contrasts
+[anaTemp, conTemp] = ndgrid(1:nAnalysis, 1:nContrast);
+
+analysisName = anaList(anaTemp(:))';
+contrastName = conCell(conTemp(:), 1);
+contrastCode = conCell(conTemp(:), 2);
+contrastMethod = conCell(conTemp(:), 3);
+
+% create FreeSurfer commands
+fscmd = arrayfun(@(x) sprintf('mkcontrast-sess -analysis %s -contrast %s %s', ...
+    analysisName{x}, contrastName{x}, contrastCode{x}), 1:numel(analysisName), 'uni', false)';
+
+%% Run FreeSurfer commands if needed
+if runcmd
+    % run all the FreeSurfer commands
+    isnotok = cellfun(@system, fscmd);
+else
+    isnotok = zeros(size(fscmd));
+end
+
+if any(isnotok)
+    warning('Some FreeSurfer commands (mkcontrast-sess) failed.');
+end
+
+%% Create conStruct including analysis and contrast information
+conStruct = table2struct(table(analysisName, contrastName, contrastCode, contrastMethod));
+
+save(contraFn, 'conStruct', '-v7.3');
+fprintf('conStruct is saved in %s.\n', contraFn)
 
 end
