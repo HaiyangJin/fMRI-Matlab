@@ -74,9 +74,6 @@ fscmd = arrayfun(@(x) sprintf(['isxconcat-sess -sf %s -analysis %s '...
 if runcmd
     % run FreeSurfer commands
     isnotok = cellfun(@system, fscmd);
-    if any(isnotok)
-        warning('Some FreeSurfer commands (isxconcat-sess) failed.');
-    end
 else
     % do not run fscmd
     isnotok = zeros(size(fscmd));
@@ -84,5 +81,11 @@ end
 
 % make the fscmd one column
 fscmd = [fscmd; num2cell(isnotok)]';
+
+if any(isnotok)
+    warning('Some FreeSurfer commands (isxconcat-sess) failed.');
+elseif runcmd
+    fprintf('\nisxconcat-sess finished without error.\n');
+end
 
 end

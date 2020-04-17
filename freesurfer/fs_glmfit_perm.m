@@ -75,9 +75,6 @@ fscmd = cellfun(@(x) sprintf(['mri_glmfit-sim --glmdir %s --perm %s '...
 if overwrite ~= 2
     % run FreeSurfer commands
     isnotok = cellfun(@system, fscmd);
-    if any(isnotok)
-        warning('Some FreeSurfer commands (mri_glmfit) failed.');
-    end
 else
     % do not run fscmd
     isnotok = zeros(size(fscmd));
@@ -85,5 +82,11 @@ end
 
 % make the fscmd one column
 fscmd = [fscmd; num2cell(isnotok)]';
+
+if any(isnotok)
+    warning('Some FreeSurfer commands (mri_glmfit) failed.');
+elseif overwrite ~= 2
+    fprintf('\nmri_glmfit-sim finished without error.\n');
+end
 
 end

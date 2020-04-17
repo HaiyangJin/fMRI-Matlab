@@ -76,9 +76,6 @@ fscmd = cellfun(@(x, y) sprintf(['mri_glmfit --y %1$s%2$s' ... % the input value
 if runcmd
     % run FreeSurfer commands
     isnotok = cellfun(@system, fscmd);
-    if any(isnotok)
-        warning('Some FreeSurfer commands (mri_glmfit) failed.');
-    end
 else
     % do not run fscmd
     isnotok = zeros(size(fscmd));
@@ -89,5 +86,11 @@ fscmd = [fscmd; num2cell(isnotok)]';
 
 % full path to glmdir
 glmdir = fullfile(conPaths, outFolder);
+
+if any(isnotok)
+    warning('Some FreeSurfer commands (mri_glmfit) failed.');
+elseif runcmd
+    fprintf('\nmri_glmfit finished without error.\n');
+end
 
 end

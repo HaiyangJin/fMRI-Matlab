@@ -53,9 +53,6 @@ fscmd = cellfun(@(x) sprintf('selxavg3-sess -sf %s -analysis %s %s', ...
 if overwrite ~= 2
     % run the analysis
     isnotok = cellfun(@system, fscmd);
-    if any(isnotok)
-        warning('Some FreeSurfer commands (selxavg3-sess) failed.');
-    end
 else
     % do not run fscmd
     isnotok = zeros(size(fscmd));
@@ -63,5 +60,11 @@ end
 
 % make the fscmd one column
 fscmd = [fscmd; num2cell(isnotok)]';
+
+if any(isnotok)
+    warning('Some FreeSurfer commands (selxavg3-sess) failed.');
+elseif overwrite ~= 2
+    fprintf('\nselxavg3-sess finished without error.\n');
+end
 
 end

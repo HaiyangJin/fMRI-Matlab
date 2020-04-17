@@ -209,7 +209,7 @@ conStruct = table2struct(table(analysisName, contrastName, contrastCode, contras
 if any(isnotok)
     warning('Some FreeSurfer commands (mkcontrast-sess) failed.');
 elseif runcmd
-    fprintf('Contrasts are created successfully!\n');
+    fprintf('\nmkcontrast-sess finished without error.\n');
 end
 
 
