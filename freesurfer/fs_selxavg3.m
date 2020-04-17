@@ -33,7 +33,7 @@ runArg = run{runwise + 1};
 if ~exist('overwrite', 'var') || isempty(overwrite)
     overwrite = 0;
 end
-ow = {'', ' -overwite', ''};
+ow = {'', ' -overwrite', ''};
 owArg = ow{overwrite + 1};
 
 % argument for -max-threads
