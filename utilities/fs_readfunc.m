@@ -5,8 +5,9 @@ function surfData = fs_readfunc(filename)
 %
 % Input:
 %    filename         <string> the to-be-read filename (with path). [If
-%                      filename is empty, the output will be a cell string
-%                      includes all the file type can be read with
+%                      filename is empty, the output will be []; if 
+%                      filename is 'ext', the output will be a cell string 
+%                      includes all the file type can be read with 
 %                      fs_readfunc.m.
 %
 % Output:
@@ -25,6 +26,9 @@ funcs = {
     @load_mgh};
 
 if ~exist('filename', 'var') || isempty(filename)
+    surfData = [];
+    return;
+elseif ischar(filename) && strcmp(filename, 'ext')
     surfData = exts(:);
     return;
 end
