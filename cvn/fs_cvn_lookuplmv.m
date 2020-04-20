@@ -1,13 +1,13 @@
-function [lookup, rgbimg, himg] = fs_cvn_lookuplmv(subjCode, valstruct,...
-    clim0, cmap0, thresh0, lookups, wantfig, extraopts, surfsuffix)
-% [fig, lookup, rgbimg, himg] = fs_cvn_lookuplmv(subjCode,valstruct,...
-%    clim0, cmap0, thresh0, lookup, wantfig, extraopts, surfsuffix)
+function [lookup, rgbimg, himg] = fs_cvn_lookuplmv(trgSubj, valstruct, ...
+    clim0, cmap0, thresh0, lookups, wantfig, extraopts)
+% [fig, lookup, rgbimg, himg] = fs_cvn_lookuplmv(trgSubj,valstruct,...
+%    clim0, cmap0, thresh0, lookup, wantfig, extraopts)
 %
 % This function uses (copies) cvn codes to plot surface data on lateral, 
 % medial, and ventral viewpoints at the same time.
 %
 % Inputs:
-%    subjCode         <string> subject code in $SUBJECTS_DIR.
+%    trgSubj          <string> whose coordiantes will be used for plotting.
 %    valstruct        <struct> struct('data',<L+R x 1>,'numlh',L,'numrh',R) 
 %                      to create images for both hemispheres side by side.  
 %                      In this case, hemi, view_az_el_tilt, and Lookup must 
@@ -23,8 +23,6 @@ function [lookup, rgbimg, himg] = fs_cvn_lookuplmv(subjCode, valstruct,...
 %                      himg. 
 %    extraopts        <cell> a cell vector of extra options to 
 %                      cvnlookupimages.m. Default: {}.
-%    surfsuffix       <string>  'orig' or 'DENSETRUNCpt'. Default is 'orig' 
-%                      which means standard non-dense FreeSurfer surfaces.
 %
 % Output:
 %    fig:             <figure hanlde> for saving the image as pdf.
@@ -41,8 +39,16 @@ function [lookup, rgbimg, himg] = fs_cvn_lookuplmv(subjCode, valstruct,...
 %
 % Created by Haiyang Jin (13-Apr-2020)
 
-if ~exist('subjCode', 'var') || isempty(subjCode)
-    subjCode = 'fsaverage';
+surfsuffix = 'orig';  % default is standard non-dense surfaces
+if ~exist('valstruct', 'var') || isempty(valstruct)
+    % deal with valstruct data
+    valstruct = valstruct_create(trgSubj,surfsuffix);
+    valstruct.data = randn(size(valstruct.data));
+elseif ~isstruct(valstruct)
+    error('Please make sure ''valstruct'' is struct.'); 
+end
+if ~exist('subjCode', 'var') || isempty(trgSubj)
+    trgSubj = 'fsaverage';
 end
 if ~exist('cmap0','var') || isempty(cmap0)
     cmap0 = jet(256);
@@ -59,17 +65,7 @@ end
 if ~exist('extraopts','var') || isempty(extraopts)
     extraopts = {};
 end
-if ~exist('surfsuffix','var') || isempty(surfsuffix)
-    surfsuffix = 'orig';  % default is standard non-dense surfaces
-end
 
-if ~exist('valstruct', 'var') || isempty(valstruct)
-    % deal with valstruct data
-    valstruct = valstruct_create(subjCode,surfsuffix);
-    valstruct.data = randn(size(valstruct.data));
-elseif ~isstruct(valstruct)
-    error('Please make sure ''valstruct'' is struct.'); 
-end
 % deal with color range
 if ~exist('clim0', 'var') || isempty(clim0)
     clim0 = prctile(valstruct.data(:),[1 99]);
@@ -97,7 +93,7 @@ viewpt = {
     };
 
 %% generate image
-[~,lookup,rgbimgs] = cellfun(@(x, y) cvnlookupimages(subjCode,...
+[~,lookup,rgbimgs] = cellfun(@(x, y) cvnlookupimages(trgSubj,...
     valstruct, viewhemis, x, y,...
     'surftype',surftype,'surfsuffix',surfsuffix,...
     'imageres',imageres,'rgbnan',0.5, ... %'text',upper(viewhemis),
