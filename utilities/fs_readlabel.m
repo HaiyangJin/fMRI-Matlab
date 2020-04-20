@@ -4,7 +4,7 @@ function [dataMatrix, nVtx] = fs_readlabel(subjCode, labelFn)
 % load label file in FreeSurfer to matrix in Matlab
 %
 % Inputs:
-%     subjCode        <string> subject code in SUBJECTS_DIR or full path  
+%     subjCode        <string> subject code in SUBJECTS_DIR or full path
 %                      to this subject code folder. [Tip: if you want to
 %                      inspect the subject in the current working
 %                      directory, run fv_checkrecon('./labelFn').
@@ -23,14 +23,20 @@ filepath = fileparts(subjCode);
 if isempty(filepath)
     % use SUBJECTS_DIR as the default subject path
     labelFile = fullfile(getenv('SUBJECTS_DIR'), subjCode, 'label', labelFn);
-    
 else
     % use the label filename directly
     labelFile = subjCode;
 end
 
 % make sure the label file is available
-assert(logical(exist(labelFile, 'file')), 'Cannot find the label file: %s.', labelFile);
+if ~exist(labelFile, 'file')
+    if endsWith(labelFile, '.label')
+        warning('Cannot find the label file: %s for %s.', labelFile, subjCode);
+    end
+    dataMatrix = [];
+    nVtx = [];
+    return;
+end
 
 % read the label file
 labelMatrix = importdata(labelFile, ' ', 2);
