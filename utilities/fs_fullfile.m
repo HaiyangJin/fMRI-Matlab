@@ -18,6 +18,21 @@ function allPath = fs_fullfile(varargin)
 %
 % Created by Haiyang Jin (17-Apr-2020)
 
+%% Make sure not all varargin are full path
+isOne = cellfun(@numel, varargin) == 1;
+if all(isOne)
+    isFilesep = cellfun(@(x) contains(x, filesep), pathInfo);
+else
+    isFilesep = false;
+end
+
+% copy varargin to allPath if all varargin is a full path
+if all(isFilesep)
+    allPath = pathInfo;
+    return;
+end
+
+%% Combine all the inputs to make the path
 pathPart = varargin;
 
 % convert string to cell
