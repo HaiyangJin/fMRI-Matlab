@@ -53,7 +53,7 @@ for iSess = 1:nSess
     for iAna = 1:nAnalysis
         
         thisAna = analysisName{iAna};
-        hemi = fs_hemi(thisAna);
+        hemi = fs_2hemi(thisAna);
         
         sigFile = fullfile(funcPath, thisSess, 'bold',...
             thisAna, contrastName, 'sig.nii.gz');

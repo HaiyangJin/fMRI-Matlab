@@ -29,7 +29,7 @@ end
 filenames = cellfun(@(x, y) [x y], nameCell, extCell, 'uni', false);
 
 % hemi for each file
-hemis = cellfun(@fs_hemi, filenames, 'UniformOutput', false);
+hemis = cellfun(@fs_2hemi, filenames, 'UniformOutput', false);
 
 % number of different hemipheres
 nHemi = numel(unique(hemis));

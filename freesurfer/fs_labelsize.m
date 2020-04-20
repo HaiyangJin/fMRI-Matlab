@@ -38,7 +38,7 @@ if nargin < 6 || isempty(thmin)
     thmin = 0.001;
 end
 
-hemi = fs_hemi(labelFn);
+hemi = fs_2hemi(labelFn);
 subjCode = fs_subjcode(sessCode, funcPath);
 
 % label file

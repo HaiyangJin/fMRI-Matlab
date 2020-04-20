@@ -44,7 +44,7 @@ overlayFile = fullfile(thePath, theFn);
 % slplit the filename for the overlay file
 strings = strsplit(overlayFile, filesep);
 
-hemi = fs_hemi(strings(end-2));
+hemi = fs_2hemi(strings(end-2));
 contrast = strings{end-1};
 theLabel = sprintf('%s.%s', hemi, contrast);
 funcPath = fullfile(filesep, strings{1:end-5});

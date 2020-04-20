@@ -85,7 +85,7 @@ if ~hemiOnly
     vtxROI = dtMatrix(:, 1);
 end
 
-hemi = fs_hemi(labelFn);  % which hemisphere
+hemi = fs_2hemi(labelFn);  % which hemisphere
 
 % read the run file
 [runNames, nRun] = fs_readrun(runFn, sessCode, funcPath);

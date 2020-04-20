@@ -34,7 +34,7 @@ if ischar(labelFn) && length(labelFn) < 3 % if only contains info of hemi
     labelFn = '';
 elseif ischar(labelFn) % if only one label but it is char
     labelFn = {labelFn};
-    hemi = fs_hemi(labelFn);
+    hemi = fs_2hemi(labelFn);
 else % 
     % make sure all labels are for the same hemisphere
     [hemi, nHemi] = fs_hemi_multi(labelFn);

@@ -1,7 +1,15 @@
-function hemi = fs_hemi(filename)
+function hemi = fs_2hemi(filename)
+% hemi = fs_2hemi(filename)
+%
 % This function determine the hemisphere based on the filename
 %
-% Created by Haiyang Jin (18/11/2019)
+% Input:
+%    filename       <string> filename to be checked.
+%
+% Output:
+%    hemi           <string> the hemi information.
+%
+% Created by Haiyang Jin (18-Nov-2019)
 
 if contains(filename, filesep)
     [~, fn, ext] = fileparts(filename);
