@@ -31,6 +31,8 @@ conDir = vertcat(dirCell{:});
 conNames = cellfun(@(x) erase(x, '.mat'), {conDir.name}, 'uni', false)';
 conList = unique(conNames);
 
+assert(~isempty(conList), 'Cannot find any contrast within %s.\n', anaList{:});
+
 %% Create conStruct 
 % repeat anlysis names to match the number of contrasts
 numCons = cellfun(@numel, dirCell);
