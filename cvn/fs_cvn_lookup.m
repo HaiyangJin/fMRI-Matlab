@@ -1,19 +1,19 @@
-function [lookup, rgbimg, himg] = fs_cvn_lookup(trgSubj, valstruct, ...
-    clim0, cmap0, thresh0, lookups, wantfig, extraopts)
-% [fig, lookup, rgbimg, himg] = fs_cvn_lookuplmv(trgSubj,valstruct,...
-%    clim0, cmap0, thresh0, lookup, wantfig, extraopts)
+function [lookup, rgbimg, himg] = fs_cvn_lookup(trgSubj, view, valstruct, ...
+    thresh0, lookups, wantfig, extraopts)
+% [fig, lookup, rgbimg, himg] = fs_cvn_lookup(trgSubj,view,valstruct,...
+%    thresh0, lookup, wantfig, extraopts)
 %
 % This function uses (copies) cvn codes to plot surface data on lateral, 
 % medial, and ventral viewpoints at the same time.
 %
 % Inputs:
 %    trgSubj          <string> whose coordiantes will be used for plotting.
+%    view             <integer> which views are used to display the
+%                      results. More see below. 
 %    valstruct        <struct> struct('data',<L+R x 1>,'numlh',L,'numrh',R) 
 %                      to create images for both hemispheres side by side.  
 %                      In this case, hemi, view_az_el_tilt, and Lookup must 
 %                      be cell arrays.
-%    clim0            <numeric> colormap limits. e.g., [-2, 2].
-%    cmap0            <string> colormap for input image (default = jet).
 %    thresh0          <numeric> display threshold. overlayalpha =
 %                      ,val>threshold. Only show activation within the
 %                      threshold.
@@ -33,13 +33,34 @@ function [lookup, rgbimg, himg] = fs_cvn_lookup(trgSubj, valstruct, ...
 %                      <res>x<res>x3.
 %    himg             <image handle>
 %
+%
+% Views:
+%    1  vertical layout(one column): lateral, medial, ventrcal;
+%    2     
+%
 % Dependency:
 %    cvn codes: https://github.com/kendrickkay/knkutils.git
 %               https://github.com/kendrickkay/cvncode.git
 %
 % Created by Haiyang Jin (13-Apr-2020)
 
+% View information
+viewStr = {'lmv'};
+viewpt = {
+    % 1
+    {{[270, 0, 0], [90, 0, 0]}; ...  % lateral
+    {[90, 0, 0], [270, 0, 0]}; ...  % mdeidal
+    {[270, -89, 0], [90, -89, 0]}}; % ventral
+    %2
+    {{[0, 0, 0], [0, 0, 0]}}
+    };
+
 surfsuffix = 'orig';  % default is standard non-dense surfaces
+if ~exist('view', 'var') || isempty(view)
+    view = 1;
+elseif ischar(view)
+    view = find(strcmp(view, viewStr));
+end
 if ~exist('valstruct', 'var') || isempty(valstruct)
     % deal with valstruct data
     valstruct = valstruct_create(trgSubj,surfsuffix);
@@ -47,17 +68,11 @@ if ~exist('valstruct', 'var') || isempty(valstruct)
 elseif ~isstruct(valstruct)
     error('Please make sure ''valstruct'' is struct.'); 
 end
-if ~exist('subjCode', 'var') || isempty(trgSubj)
+if ~exist('trgSubj', 'var') || isempty(trgSubj)
     trgSubj = 'fsaverage';
 end
-if ~exist('cmap0','var') || isempty(cmap0)
-    cmap0 = jet(256);
-end
 if ~exist('thresh0','var') || isempty(thresh0)
-    thresh0 = [];
-end
-if ~exist('lookup', 'var') || isempty(lookups)
-    lookups = {''; ''; ''};
+    thresh0 = 1.3010i;
 end
 if ~exist('wantfig','var') || isempty(wantfig)
     wantfig = 1;
@@ -66,15 +81,25 @@ if ~exist('extraopts','var') || isempty(extraopts)
     extraopts = {};
 end
 
-% deal with color range
-if ~exist('clim0', 'var') || isempty(clim0)
-    clim0 = prctile(valstruct.data(:),[1 99]);
-end
-
 % deal with viewhemis based on valstruct
 hemis = {'lh', 'rh'};
-isHemi = ismember({'numlh', 'numrh'}, fieldnames(valstruct));
+isHemi = cellfun(@(x) valstruct.(x)~=0, {'numlh', 'numrh'});
 viewhemis = hemis(isHemi);
+
+% views for the hemi
+thisviewpt = cellfun(@(x) x(:, isHemi), viewpt{view, :}, 'uni', false);
+
+if ~exist('lookups','var') || isempty(lookups)
+    lookups = repmat({''}, size(thisviewpt, 1), 1);
+end
+
+if numel(viewhemis) == 1
+    surfdata = valstruct.data;
+    viewhemis = viewhemis{1};
+    thisviewpt = cellfun(@(x) x{1}, thisviewpt, 'uni', false);
+else
+    surfdata = valstruct;
+end
 
 %% Some other general setting
 if isreal(thresh0)
@@ -85,22 +110,22 @@ end
 surftype = 'inflated';
 imageres = 1000;
 
-% viewpoints
-viewpt = {
-    {[270, 0, 0], [90, 0, 0]};  % lateral
-    {[90, 0, 0], [270, 0, 0]};  % mdeidal
-    {[270, -89, 0], [90, -89, 0]} % ventral
-    };
-
 %% generate image
 [~,lookup,rgbimgs] = cellfun(@(x, y) cvnlookupimages(trgSubj,...
-    valstruct, viewhemis, x, y,...
+    surfdata, viewhemis, x, y,...
     'surftype',surftype,'surfsuffix',surfsuffix,...
     'imageres',imageres,'rgbnan',0.5, ... %'text',upper(viewhemis),
-    'clim',clim0,'colormap',cmap0,threshopt{:},extraopts{:}), ...
-    viewpt, lookups, 'uni', false);
+    threshopt{:},extraopts{:}), ...
+    thisviewpt, lookups, 'uni', false);
 
 % combine the three images
+widths = cellfun(@(x) size(x, 2), rgbimgs);
+diff = max(widths) - widths;
+if any(diff)
+    extra = arrayfun(@(x, y) 0.5 * ones(size(x{1}, 1), y, 3), rgbimgs, diff, 'uni', false);
+    rgbimgs = cellfun(@horzcat, rgbimgs, extra, 'uni', false);
+end
+
 rgbimg = vertcat(rgbimgs{:});
 
 % visualize rgbimg
