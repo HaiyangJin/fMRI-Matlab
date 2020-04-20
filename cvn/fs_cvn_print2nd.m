@@ -8,10 +8,10 @@ function fs_cvn_print2nd(sigPathInfo, sigFn, outPath, extraopts)
 % p-values before corrections.
 %
 % Inputs:
-%    sigPathInfo    <cell> a 1xQ or Px1 cell. All the path and filename 
-%                    information to theto-be-printed files. Each row is 
-%                    one layer (level) ofthe path and all the paths will 
-%                    be combined in order(with all possible combinations). 
+%    sigPathInfo    <cell> a 1xQ or Px1 cell. All the path and filename
+%                    information to theto-be-printed files. Each row is
+%                    one layer (level) ofthe path and all the paths will
+%                    be combined in order(with all possible combinations).
 %                    [fileInfo will be dealt with fs_fullfile.m]
 %    sigFn          <string> the filename of the cluster p value file
 %                    (e.g., perm.th30.abs.sig.cluster.nii.gz by default).
@@ -21,13 +21,13 @@ function fs_cvn_print2nd(sigPathInfo, sigFn, outPath, extraopts)
 %
 % Output:
 %    images of group-level results saved at outPath.
-% 
+%
 % Example:
 % sigPathInfo = {
 %     'group';  % group folders
 %     {'analysis1', 'analysis2'};
 %     {'contrast1', 'contrast2', 'contrast3'};
-%     'glm-group'; 
+%     'glm-group';
 %     'osgm'};
 %
 % Created by Haiyang Jin (13-Apr-2020)
@@ -45,7 +45,7 @@ needsFull = ~isExist & ~isFullPath;
 if any(needsFull)
     sigPath(needsFull) = fullfile(getenv('FUNCTIONALS_DIR'), sigPath(needsFull));
 end
-    
+
 isExist = cellfun(@(x) exist(x, 'dir'), sigPath);
 if any(~isExist)
     noFiles = sigPath(~isExist);
@@ -85,7 +85,7 @@ surfs = [leftFiles, rightFiles];
 surfStruct = arrayfun(@(x) fs_cvn_valstruct(surfs(x, :)), ...
     1:size(surfs, 1), 'uni', false);
 
-% calculate the maximum of the absolute data values 
+% calculate the maximum of the absolute data values
 tempMax = max(cellfun(@(x) max(abs(x.data)), surfStruct));
 
 % use the minimum 5*Integer as the maximum limit
@@ -94,9 +94,11 @@ climMax = ceil(tempMax/5)*5;
 % generate figures
 clim0 = [-climMax climMax];
 cmap0 = jet(256);  % use jet(256) as the colormap
-thresh0 = 1.3i;  % absolute value of 1.3 (p = 0.05)
+thresh0 = 1.3010i;  % absolute value of 1.3 (p = 0.05)
 lookup = [];
 wantfig = 2;  % do not show figure with fs_cvn_lookuplmv.m
+
+extraopts = [extraopts, {'cmap', cmap0, 'clim', clim0}];
 
 nSurf = size(surfs, 1);
 for iSurf = 1: nSurf
@@ -106,15 +108,15 @@ for iSurf = 1: nSurf
     
     % this pair of surfaces
     valstruct = surfStruct{iSurf};
-        
+    
     % generate figures for this pair
-    [lookup, rgbimg] = fs_cvn_lookuplmv('fsaverage', valstruct, clim0, ...
-        cmap0, thresh0, lookup, wantfig, extraopts);
+    [lookup, rgbimg] = fs_cvn_lookuplmv('fsaverage', 1, valstruct, ...
+        thresh0, lookup, wantfig, extraopts);
     
     % set the figure name and save it
     fig = figure('Visible','off');
     imshow(rgbimg); % display lookup results (imagesc + colorbar)
-
+    
     % obtain the contrast name as the figure name
     theConName = unique(cellfun(@(x) fs_2contrast(x, filesep), surfs(iSurf, :), 'uni', false));
     set(fig, 'Name', theConName{1});
@@ -123,8 +125,14 @@ for iSurf = 1: nSurf
     colormap(cmap0);
     caxis(clim0);
     
+    thisOut = fullfile(outPath, [theConName{1} '.png']);
     % print the figure
-    print(fig, fullfile(outPath, theConName{1}),'-dpng');
+    try
+        % https://github.com/altmany/export_fig
+        export_fig(thisOut, '-png','-transparent','-m2');
+    catch
+        print(fig, thisOut,'-dpng');
+    end
     
 end
 
