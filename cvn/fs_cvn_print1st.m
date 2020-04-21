@@ -137,7 +137,7 @@ for iLabel = 1:nLabel
                 'roimask',thisRoi, 'roicolor',[1, 1, 1], 'roiwidth', 1}];
             
             % make image for this file
-            [lookup, rgbimg] = fs_cvn_lookuplmv(trgSubj, 2, thisSurf, ...
+            [lookup, rgbimg] = fs_cvn_lookup(trgSubj, 1, thisSurf, ...
                 thresh0, lookup, wantfig, thisExtraopts);
             
             % clear lookup if necessary

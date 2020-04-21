@@ -110,7 +110,7 @@ for iSurf = 1: nSurf
     valstruct = surfStruct{iSurf};
     
     % generate figures for this pair
-    [lookup, rgbimg] = fs_cvn_lookuplmv('fsaverage', 1, valstruct, ...
+    [lookup, rgbimg] = fs_cvn_lookup('fsaverage', 1, valstruct, ...
         thresh0, lookup, wantfig, extraopts);
     
     % set the figure name and save it
