@@ -1,5 +1,5 @@
-function fs_cvn_print1st(sessList, anaList, labelList, sigFn, outPath, extraopts, funcPath)
-% fs_cvn_print1st(sessList, anaList, labelList, [sigFn='sig.nii.gz', ...
+function fs_cvn_print1st(sessList, anaList, labelList, sigFn, thresh, outPath, extraopts, funcPath)
+% fs_cvn_print1st(sessList, anaList, labelList, [sigFn='sig.nii.gz', thresh=1.301i...
 %    outPath=[pwd'/First_level_results'], extraopts={}, funcPath])
 %
 % This function prints the first-level results and the labels in label/.
@@ -11,6 +11,9 @@ function fs_cvn_print1st(sessList, anaList, labelList, sigFn, outPath, extraopts
 %                     names.
 %    sigFn           <string> name of the to-be-printed file [Default is
 %                     sig.nii.gz].
+%    thresh0         <numeric> display threshold. overlayalpha =
+%                     ,val>threshold. Only show activation within the
+%                     threshold.
 %    outPath         <string> where to save the output images. [current
 %                     folder by default].
 %    extraopts       extra options for cvnlookupimages.m.
@@ -40,6 +43,9 @@ end
 
 if ~exist('sigFn', 'var') || isempty(sigFn)
     sigFn = 'sig.nii.gz';
+end
+if ~exist('thresh', 'var') || isempty(thresh)
+    thresh = 1.3010i;  % 0.05
 end
 % output path
 if ~exist('outPath', 'var') || isempty(outPath)
@@ -75,6 +81,7 @@ for iLabel = 1:nLabel
     
     % threshold for plotting
     thresh0 = fs_2sig(thisLabel)/10 * 1i;
+    if isempty(thresh0); thresh0 = thresh; end
     
     % identify the cooresponding analysis name
     theseAna = endsWith(anaList, thisHemi);
@@ -136,8 +143,8 @@ for iLabel = 1:nLabel
             thisExtraopts = [extraopts, {'cmap',cmap0, 'clim', thisclim0, ...
                 'roimask',thisRoi, 'roicolor',[1, 1, 1], 'roiwidth', 1}];
             
-            % make image for this file
-            [lookup, rgbimg] = fs_cvn_lookup(trgSubj, 1, thisSurf, ...
+            %%%%%%% make image for this file %%%%%%%%
+            [lookup, rgbimg] = fs_cvn_lookup(trgSubj, 2, thisSurf, ...
                 thresh0, lookup, wantfig, thisExtraopts);
             
             % clear lookup if necessary
