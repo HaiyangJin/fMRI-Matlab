@@ -27,10 +27,16 @@ if exist('hemi', 'var')
     end
 end
 
-valstruct = struct;
 
-% read the file in surfCell
-surfData = cellfun(@fs_readfunc, surfCell, 'uni', false);
+if iscellstr(surfCell)
+    % if it is filename within surfCell, read the files 
+    surfData = cellfun(@fs_readfunc, surfCell, 'uni', false);
+elseif any(cellfun(@isnumeric, surfCell))
+    % if it is data within surfCell
+    surfData = surfCell;
+end
+
+valstruct = struct;
 
 % combine the data for two hemispheres
 valstruct.data = vertcat(surfData{:});
