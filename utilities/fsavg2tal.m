@@ -1,4 +1,5 @@
 function outpoints = fsavg2tal(inpoints)
+% DEPRECATED: use mni2tal.m instead.
 % This function converts freesurfer (fsaverage or MNI305) to Talairach
 %
 % Created by Haiyang Jin (13/11/2019)
