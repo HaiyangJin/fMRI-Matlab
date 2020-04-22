@@ -6,16 +6,24 @@ function outpoints = mni2tal(inpoints)
 %  (N being the number of points)
 % outpoints is the coordinate matrix with Talairach points
 % Matthew Brett 10/8/99
-
-% Note by Haiyang
+%
+%%%%%%%%%%%%%%%%%%%% Noted by Haiyang %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % More explanation could be found at:
 % http://imaging.mrc-cbu.cam.ac.uk/imaging/MniTalairach#Approach_2:_a_non-linear_transform_of_MNI_to_Talairach
-% And the MNI should refer to MNI152.
-% This script should be used in FreeSurfer to obtain the Talairach
-% coordinates
+% The "inverse" function is tal2mni.m
+%
+% And I'm not quite sure MNI here refers to MNI152 or MNI305 (but fee like
+% it refers to MNI152).
+%
+% This script are used in FreeSurfer to obtain the Talairach
+% coordinates from MNI305 (fsaverage).
 % (https://surfer.nmr.mgh.harvard.edu/fswiki/CoordinateSystems).
+% In TkSurfer:
+%      Vertex Talairach = mni2tal(Vertex MNI Talairach)
+% In TkMedit:
+%      Talairach = mni2tal(MNI Talairach)
+%
 % Usage: mni2tal( [10 12 14] ) % mni2tal([x y z])
-
 
 dimdim = find(size(inpoints) == 3);
 if isempty(dimdim)
