@@ -1,13 +1,14 @@
-function outpoints = fsavg2mni(inpoints)
-% outpoints = fsavg2mni(inpoints)
+function outpoints = fs_fsavg2mni(inpoints)
+% outpoints = fs_fsavg2mni(inpoints)
 % 
-% This function converts fsaverage (MNI305) to MNI152.
+% This function converts fsaverage (MNI305 or MNI Talairach) to MNI152.
 % Parameters are obtained from FreeSurf website.
 % https://surfer.nmr.mgh.harvard.edu/fswiki/CoordinateSystems (check 8)
 %
 % Input:
 %    inpoints    <numeric array> a P x 3 matrix. Each row is one point and
 %                 the three columns are [R A S].
+%
 % Output:
 %    outpoints   <numeric array> a P x 3 matrix in MNI152 space.
 %
