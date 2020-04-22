@@ -1,4 +1,5 @@
 function outpoints = selfras2tal(inpoints, subjCode)
+% DEPRECATED: use fs_ras2tal.m instead.
 % This function converts self RAS to Talairach RAS. 
 %
 % Created by Haiyang Jin (13/11/2019)
