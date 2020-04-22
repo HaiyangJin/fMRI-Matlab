@@ -7,6 +7,7 @@ function outpoints = fs_ras2tal(inpoints, subjCode, struPath)
 %
 % In TkSurfer:
 %    Vertex Talairach = fs_ras2tal(Vertex RAS, subjCode);
+%    [vertex RAS should be the coordiantes on ?h.orig]
 % In TkMedit:
 %    Volume Talairach = fs_ras2tal(Volume RAS, subjcode);
 %

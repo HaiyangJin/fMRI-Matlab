@@ -8,7 +8,7 @@ function outpoints = fs_ras2fsavg(inpoints, subjCode, struPath)
 %
 % In TkSurfer:
 %    Vertex MNI Talairach = fs_ras2fsavg(Vertex RAS, subjCode);
-%    [vertex RAS should be the coordiantes on ?h.white (to be confirmed)]
+%    [vertex RAS should be the coordiantes on ?h.orig]
 % In TkMedit:
 %    MNI Talairach = fs_ras2fsavg(Volume RAS, subjCode);
 %
