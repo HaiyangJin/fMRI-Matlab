@@ -34,10 +34,9 @@ end
 
 % path and filename of the label file
 labelFn = sprintf('%s.cortex.label', hemi);
-labelPath = fullfile(struPath, subjCode, 'label');
 
 % load the label information
-labelData = fs_readlabel(fullfile(labelPath, labelFn));
+labelData = fs_readlabel(labelFn, subjCode, struPath);
 
 % outputs
 corMask = labelData(:, 1);

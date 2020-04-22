@@ -16,7 +16,7 @@ if nargin < 3
 end
 
 % load label file
-dataMat = fs_readlabel(subjCode, labelFn);
+dataMat = fs_readlabel(labelFn, subjCode);
 
 % get the surface data
 surfData = dataMat(:, 5);  % the fifth column will be the surface data

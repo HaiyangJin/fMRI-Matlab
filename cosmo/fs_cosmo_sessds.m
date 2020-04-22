@@ -103,7 +103,7 @@ ds_all = cosmo_stack(dsCell,1);
 if ~isempty(labelFn)
     
     % load the label file
-    tempMask = fs_readlabel(fs_subjcode(sessCode, funcPath), labelFn);
+    tempMask = fs_readlabel(labelFn, fs_subjcode(sessCode, funcPath));
     vtxMask = tempMask(:, 1);
     
     % create mask for the label file

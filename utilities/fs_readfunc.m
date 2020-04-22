@@ -1,5 +1,5 @@
 function surfData = fs_readfunc(filename)
-% surfData = fs_readsurffunc(filename)
+% surfData = fs_readfunc(filename)
 %
 % This function reads the surface functional data in FreeSurfer.
 %

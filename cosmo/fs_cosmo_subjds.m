@@ -81,7 +81,7 @@ end
 
 % converting the label file to logical matrix
 if ~hemiOnly
-    dtMatrix = fs_readlabel(subjCode, labelFn);
+    dtMatrix = fs_readlabel(labelFn, subjCode);
     vtxROI = dtMatrix(:, 1);
 end
 

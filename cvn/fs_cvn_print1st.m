@@ -125,7 +125,7 @@ for iLabel = 1:nLabel
             end
             
             % read the label
-            thisMat = fs_readlabel(subjCode,thisLabel);
+            thisMat = fs_readlabel(thisLabel, subjCode);
             
             % initialize a mask including all vertices
             thisRoi = zeros(size(thisSurf.data));
