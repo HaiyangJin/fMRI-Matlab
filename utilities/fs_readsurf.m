@@ -21,10 +21,12 @@ function [coords, faces] = fs_readsurf(surfFn, subjCode, struPath)
 %                    making that face.
 %
 % Surface files [faces for all these files should be the same]:
+%   ?h.orig
 %   ?h.white
 %   ?h.pial
 %   ?h.inflated
 %   ?h.sphere
+%   ?h.smoothwm*
 %
 % Dependency: 
 %    FreeSurfer Matlab functions.

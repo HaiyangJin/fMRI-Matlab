@@ -19,8 +19,6 @@ function curv = fs_readcurv(curvFn, subjCode, struPath)
 % Curvature files:
 %   ?h.area
 %   ?h.curv
-%   ?h.orig
-%   ?h.smoothwm*
 %   ?h.sulc
 %   ?h.volume
 %
