@@ -51,7 +51,7 @@ end
 if ~exist('outPath', 'var') || isempty(outPath)
     outPath = fullfile(pwd, 'First_level_results');
 end
-outPath = fullfile(outPath, sigFn);
+% outPath = fullfile(outPath, sigFn);
 
 if ~exist('extraopts', 'var') || isempty(extraopts)
     extraopts = {};
@@ -92,14 +92,14 @@ for iLabel = 1:nLabel
     
     % the contrast and the hemi information
     thisCon = fs_2contrast(theLabel);
-    thisHemi = fs_2hemi(theLabel);
+    labelHemi = fs_2hemi(theLabel);
     
     % threshold for plotting
     thresh0 = fs_2sig(theLabel)/10 * 1i;
     if isempty(thresh0); thresh0 = thresh; end
     
     % identify the cooresponding analysis name
-    theseAna = endsWith(anaList, thisHemi);
+    theseAna = endsWith(anaList, labelHemi);
     theAnaList = anaList(theseAna);
     nAna = numel(theAnaList);
     
@@ -109,6 +109,12 @@ for iLabel = 1:nLabel
         % update thisHemi based on the analysis name
         thisHemi = fs_2hemi(thisAna);
         
+        if isempty(labelHemi)
+            theLabelName = [theLabel '_' thisHemi];
+        else
+            theLabelName = theLabel;
+        end
+        
         for iSess = 1:nSess
             
             % session and subject code
@@ -116,15 +122,13 @@ for iLabel = 1:nLabel
             subjCode = fs_subjcode(thisSess, funcPath);
             
             % waitbar
-            progress = ((iLabel-1) * nSess + iSess-1) / (nLabel * nSess);
+            progress = ((iLabel-1) * nSess * iAna + iSess-1) / (nLabel * nSess * nAna);
             waitMsg = sprintf('Label: %s   nTheLabel: %d   SubjCode: %s \n%0.2f%% finished...', ...
-                strrep(theLabel, '_', '\_'), nTheLabel, strrep(subjCode, '_', '\_'), progress*100);
+                strrep(theLabelName, '_', '\_'), nTheLabel, strrep(subjCode, '_', '\_'), progress*100);
             waitbar(progress, waitHandle, waitMsg);
             
-            % template and the target subject [whose coordinates will be
-            % used]
-            template = fs_2template(thisAna);
-            trgSubj = fs_trgsubj(subjCode, template);
+            % the target subject [whose coordinates will be used
+            trgSubj = fs_trgsubj(subjCode, fs_2template(thisAna));
             
             % full path to the to-be-printed file
             sigFile = fullfile(funcPath, thisSess, 'bold', thisAna, thisCon, sigFn);
@@ -145,11 +149,11 @@ for iLabel = 1:nLabel
             isEmptyMat = cellfun(@isempty, thisMat);
             thisMat(isEmptyMat) = [];
             
-            % create roi mask array and string
+            % create roi mask for the label and roi name string
             maskStr = '';
             if isempty(thisMat)
                 thisRoi = {zeros(nVtx, 1)};
-                if endsWith(theLabel, '.label')
+                if endsWith(theLabelName, '.label')
                     maskStr = 'NoLabel || ';
                 end
             else
@@ -159,16 +163,23 @@ for iLabel = 1:nLabel
             % create parts of the output filename
             nTheLabel = numel(thisRoi);
             theLabelNames = theseLabel(~isEmptyMat);
-            if all(isEmptyMat); theLabelNames = {theLabel}; end
+            if all(isEmptyMat); theLabelNames = {theLabelName}; end
             labelNames = sprintf(['%s' repmat(' || %s', 1, nTheLabel-1)], theLabelNames{:});
             
-            % process the setting for printing
-            thisExtraopts = [extraopts, {'cmap',cmap0, 'clim', thisclim0, ...
-                'roimask',thisRoi, 'roicolor',roicolors(1:nTheLabel, :), 'roiwidth', 1}];
+           
+            % process the extra setting for printing
+            thisExtraopts = [extraopts, {...
+                'cmap',cmap0, 'clim', thisclim0...
+                }];
             
             %%%%%%% make image for this file %%%%%%%%
             [lookup, rgbimg] = fs_cvn_lookup(trgSubj, 2, thisSurf, ...
-                thresh0, lookup, wantfig, thisExtraopts);
+                lookup, wantfig, thisExtraopts, ...
+                'thresh0', thresh0, ...
+                'roimask',thisRoi, ...
+                'roicolor',roicolors(1:nTheLabel, :), ...
+                'roiwidth', ones(nTheLabel, 1), ...
+                'annot', 'aparc');
             
             % clear lookup if necessary
             if ~strcmp(trgSubj, 'fsaverage')
