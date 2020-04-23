@@ -57,6 +57,15 @@ if isLabel
         'the analysis name (%s) does not match that in the label name (%s).'],...
         anaName, labelFn);
     conName = fs_2contrast(labelFn);
+    
+    % make sure the label exists
+    if isempty(fs_readlabel(labelFn, subjCode, struPath))
+        roisize = [];
+        talCoor = [];
+        VtxMax = [];
+        nVtx = [];
+        return; 
+    end
     fscmd_label = sprintf(' --clabel %s', fullfile(struPath, subjCode, ...
         'label', labelFn));
 else
