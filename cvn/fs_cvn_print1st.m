@@ -81,18 +81,14 @@ nSess = numel(sessList);
 for iLabel = 1:nLabel
     
     theseLabel = labelList{iLabel};
+    if ischar(theseLabel); theseLabel = {theseLabel}; end
     
-    if ischar(theseLabel)
-        theLabel = theseLabel;
-        nTheLabel = 1;
-    elseif iscell(theseLabel)
-        [~, nHemiTemp] = fs_hemi_multi(theseLabel);
-        assert(nHemiTemp == 1, 'These labels are not for the same hemisphere.');
-        % the contrast, hemi, and threshold for the first label will
-        % be used for printing the activation.
-        theLabel = theseLabel{1};
-        nTheLabel = numel(theseLabel);
-    end
+    [~, nHemiTemp] = fs_hemi_multi(theseLabel);
+    assert(nHemiTemp == 1, 'These labels are not for the same hemisphere.');
+    % the contrast, hemi, and threshold for the first label will
+    % be used for printing the activation.
+    theLabel = theseLabel{1};
+    nTheLabel = numel(theseLabel);
     
     % the contrast and the hemi information
     thisCon = fs_2contrast(theLabel);
@@ -144,35 +140,27 @@ for iLabel = 1:nLabel
                 thisclim0 = clim0;
             end
             
-            % initialize a mask including all vertices
-            maskStr = '';
+            % read the label and remove empty cells
+            thisMat = cellfun(@(x) fs_readlabel(x, subjCode), theseLabel, 'uni', false);
+            isEmptyMat = cellfun(@isempty, thisMat);
+            thisMat(isEmptyMat) = [];
             
-            % read the label and create roi masks
-            if nTheLabel == 1
-                thisMat = fs_readlabel(theLabel, subjCode);
-                
-                if isempty(thisMat)
-                    thisRoi = zeros(nVtx, 1);
-                    if endsWith(theLabel, '.label')
-                        maskStr = 'NoLabel || ';
-                    end
-                else
-                    thisRoi = {makeroi(nVtx, thisMat(:, 1))};
+            % create roi mask array and string
+            maskStr = '';
+            if isempty(thisMat)
+                thisRoi = {zeros(nVtx, 1)};
+                if endsWith(theLabel, '.label')
+                    maskStr = 'NoLabel || ';
                 end
-                labelNames = theLabel;
-            elseif iscell(theseLabel)
-                thisMat = cellfun(@(x) fs_readlabel(x, subjCode), theseLabel, 'uni', false);
-                isEmptyMat = cellfun(@isempty, thisMat);
-                thisMat(isEmptyMat) = [];
-                
-                
+            else
                 thisRoi = cellfun(@(x) makeroi(nVtx, x(:, 1)), thisMat, 'uni', false);
-                
-                nTheLabel = numel(thisRoi);
-                thelabelNames = theseLabel(~isEmptyMat);
-                labelNames = sprintf(['%s' repmat(' || %s', 1, nTheLabel-1)], thelabelNames{:});
             end
             
+            % create parts of the output filename
+            nTheLabel = numel(thisRoi);
+            theLabelNames = theseLabel(~isEmptyMat);
+            if all(isEmptyMat); theLabelNames = {theLabel}; end
+            labelNames = sprintf(['%s' repmat(' || %s', 1, nTheLabel-1)], theLabelNames{:});
             
             % process the setting for printing
             thisExtraopts = [extraopts, {'cmap',cmap0, 'clim', thisclim0, ...
