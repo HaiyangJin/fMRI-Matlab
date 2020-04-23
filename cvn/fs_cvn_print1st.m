@@ -66,6 +66,13 @@ clim0 = [];
 cmap0 = jet(256);  % use jet(256) as the colormap
 lookup = [];
 wantfig = 2;  % do not show figure with fs_cvn_lookuplmv.m
+% colors for roi contours
+roicolors = [
+    1, 1, 1;  % white
+    1, 1, 0;  % yellow
+    1, 0, 1;  % Magenta / Fuchsia
+    0, 0, 1;  % blue
+    ];
 
 nLabel = numel(labelList);
 nSess = numel(sessList);
@@ -73,14 +80,26 @@ nSess = numel(sessList);
 %% For each label
 for iLabel = 1:nLabel
     
-    thisLabel = labelList{iLabel};
+    theseLabel = labelList{iLabel};
+    
+    if ischar(theseLabel)
+        theLabel = theseLabel;
+        nTheLabel = 1;
+    elseif iscell(theseLabel)
+        [~, nHemiTemp] = fs_hemi_multi(theseLabel);
+        assert(nHemiTemp == 1, 'These labels are not for the same hemisphere.');
+        % the contrast, hemi, and threshold for the first label will
+        % be used for printing the activation.
+        theLabel = theseLabel{1};
+        nTheLabel = numel(theseLabel);
+    end
     
     % the contrast and the hemi information
-    thisCon = fs_2contrast(thisLabel);
-    thisHemi = fs_2hemi(thisLabel);
+    thisCon = fs_2contrast(theLabel);
+    thisHemi = fs_2hemi(theLabel);
     
     % threshold for plotting
-    thresh0 = fs_2sig(thisLabel)/10 * 1i;
+    thresh0 = fs_2sig(theLabel)/10 * 1i;
     if isempty(thresh0); thresh0 = thresh; end
     
     % identify the cooresponding analysis name
@@ -102,8 +121,8 @@ for iLabel = 1:nLabel
             
             % waitbar
             progress = ((iLabel-1) * nSess + iSess-1) / (nLabel * nSess);
-            waitMsg = sprintf('Label: %s    SubjCode: %s \n%0.2f%% finished...', ...
-                strrep(thisLabel, '_', '\_'), strrep(subjCode, '_', '\_'), progress*100);
+            waitMsg = sprintf('Label: %s   nTheLabel: %d   SubjCode: %s \n%0.2f%% finished...', ...
+                strrep(theLabel, '_', '\_'), nTheLabel, strrep(subjCode, '_', '\_'), progress*100);
             waitbar(progress, waitHandle, waitMsg);
             
             % template and the target subject [whose coordinates will be
@@ -116,6 +135,7 @@ for iLabel = 1:nLabel
             
             % read data
             thisSurf = fs_cvn_valstruct(sigFile, thisHemi);
+            nVtx = numel(thisSurf.data);
             
             % set colormap limit based on the data if necessary
             if isempty(clim0)
@@ -124,24 +144,39 @@ for iLabel = 1:nLabel
                 thisclim0 = clim0;
             end
             
-            % read the label
-            thisMat = fs_readlabel(thisLabel, subjCode);
-            
             % initialize a mask including all vertices
-            thisRoi = zeros(size(thisSurf.data));
-            maskStr = 'NoLabel || ';
+            maskStr = '';
             
-            if ~isempty(thisMat)
-                maskStr = '';
-                % create binary masks
-                thisRoi(thisMat(:, 1)) = 1;
-            elseif ~endsWith(thisLabel, '.label')
-                maskStr = '';
+            % read the label and create roi masks
+            if nTheLabel == 1
+                thisMat = fs_readlabel(theLabel, subjCode);
+                
+                if isempty(thisMat)
+                    thisRoi = zeros(nVtx, 1);
+                    if endsWith(theLabel, '.label')
+                        maskStr = 'NoLabel || ';
+                    end
+                else
+                    thisRoi = {makeroi(nVtx, thisMat(:, 1))};
+                end
+                labelNames = theLabel;
+            elseif iscell(theseLabel)
+                thisMat = cellfun(@(x) fs_readlabel(x, subjCode), theseLabel, 'uni', false);
+                isEmptyMat = cellfun(@isempty, thisMat);
+                thisMat(isEmptyMat) = [];
+                
+                
+                thisRoi = cellfun(@(x) makeroi(nVtx, x(:, 1)), thisMat, 'uni', false);
+                
+                nTheLabel = numel(thisRoi);
+                thelabelNames = theseLabel(~isEmptyMat);
+                labelNames = sprintf(['%s' repmat(' || %s', 1, nTheLabel-1)], thelabelNames{:});
             end
+            
             
             % process the setting for printing
             thisExtraopts = [extraopts, {'cmap',cmap0, 'clim', thisclim0, ...
-                'roimask',thisRoi, 'roicolor',[1, 1, 1], 'roiwidth', 1}];
+                'roimask',thisRoi, 'roicolor',roicolors(1:nTheLabel, :), 'roiwidth', 1}];
             
             %%%%%%% make image for this file %%%%%%%%
             [lookup, rgbimg] = fs_cvn_lookup(trgSubj, 2, thisSurf, ...
@@ -158,7 +193,7 @@ for iLabel = 1:nLabel
             imshow(rgbimg); % display lookup results (imagesc + colorbar)
             
             % obtain the contrast name as the figure name
-            imgName = sprintf('%s%s || %s', maskStr, thisLabel, thisSess);
+            imgName = sprintf('%s%s || %s', maskStr, labelNames, thisSess);
             set(fig, 'Name', imgName);
             
             colorbar;
@@ -166,7 +201,7 @@ for iLabel = 1:nLabel
             caxis(thisclim0);
             
             % print the figure
-            theOutPath = fullfile(outPath, thisLabel);
+            theOutPath = fullfile(outPath, theLabel);
             if ~exist(theOutPath, 'dir'); mkdir(theOutPath); end
             thisOut = fullfile(theOutPath, [imgName '.png']);
             
@@ -183,4 +218,10 @@ end   % iLabel
 
 close(waitHandle);
 
+end
+
+function theroi = makeroi(nVtx, maskVtx)
+% create a roi binary mask
+theroi = zeros(nVtx, 1);
+theroi(maskVtx) = 1;
 end
