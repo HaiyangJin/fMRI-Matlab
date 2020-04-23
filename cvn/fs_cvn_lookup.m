@@ -1,7 +1,7 @@
 function [lookup, rgbimg, himg] = fs_cvn_lookup(trgSubj, view, valstruct, ...
-    thresh0, lookups, wantfig, extraopts)
+    lookups, wantfig, extraopts, varargin)
 % [lookup, rgbimg, himg] = fs_cvn_lookup(trgSubj,view,valstruct,...
-%    thresh0, lookups, wantfig, extraopts)
+%    [lookups, wantfig, extraopts, varargin])
 %
 % This function uses (copies) cvn codes to plot surface data on lateral,
 % medial, and ventral viewpoints at the same time.
@@ -14,14 +14,28 @@ function [lookup, rgbimg, himg] = fs_cvn_lookup(trgSubj, view, valstruct, ...
 %                      to create images for both hemispheres side by side.
 %                      In this case, hemi, view_az_el_tilt, and Lookup must
 %                      be cell arrays.
-%    thresh0          <numeric> display threshold. Default is [] which
-%                      means no thresholding.
 %    lookups          <struct> the Lookup to re-use.
 %    wantfig          <logical/integer> whether to show a figure. 1: show
 %                      figure (default); 2: do not show figure, but output
 %                      himg.
 %    extraopts        <cell> a cell vector of extra options to
 %                      cvnlookupimages.m. Default: {}.
+%
+% Varargin:         
+%    'annot'          <string> name of the annotation files. e.g., 'aparc',
+%                      'aparc.a2009s', 'aparc.a2005s'
+%    'annotwidth'     <numeric> the width of the annotation lines.
+%    'annotname'      <cell string> list of parcellation names in 'aparc'.
+%                      e.g. 'fusiform' for 'aparc' (in 'annot').
+%    'thresh0'        <numeric> real number for numbers with sign and
+%                      non-real number is treated as abosolute threshold.
+%    'roimask'        <cell numeric> Vx1 binary mask (or cell array for 
+%                      multiple ROIs) for an ROI to draw on final RGB image.
+%                      For more plese check cvnlookupimages.m. IMPORTANT: 
+%                      to display annotations, roi mask has to be set here.
+%    'roiwidth'       <numeric vector> width for the roi contour.
+%    'roicolor'       <numeric array> ColorSpec or RGB color for ROI outline(s).
+%    ...              For more, please check cvnlookupimages.m.   
 %
 % Output:
 %    lookup:          <struct> Structure containing lookup information.
@@ -31,10 +45,9 @@ function [lookup, rgbimg, himg] = fs_cvn_lookup(trgSubj, view, valstruct, ...
 %                      <res>x<res>x3.
 %    himg             <image handle>
 %
-%
 % Views:
 %    1  vertical layout (one column): lateral, medial, ventrcal;
-%    2  two columns: first: lateral, medial, ventrcal; 
+%    2  two columns: first: lateral, medial, ventrcal;
 %                    second: frontal, occipital;
 %    3  vertical layout (one column): frontal, occipital;
 %
@@ -47,7 +60,41 @@ function [lookup, rgbimg, himg] = fs_cvn_lookup(trgSubj, view, valstruct, ...
 %
 % Created by Haiyang Jin (13-Apr-2020)
 
-% View information
+%% Parse inputs with default settings
+%default options
+defaultOpt=struct(...
+    ...  % new options
+    'annot', '',... % do not display annotation
+    'annotwidth', 0.5,... % width of the annotation lines
+    'annotname', '', ... % cell list of all annot areas to be displayed
+    'thresh0',0.0001i,...
+    ...  % options in cvnlookupimages
+    'roimask',[],...
+    'roiwidth',{.5},...
+    'roicolor',{[]},...
+    'surfsuffix','orig',...
+    'rgbnan',0.5,... % the background color (gray)
+    'hemiborder',2,...
+    'hemibordercolor',0.5,... % set the border as gray
+    'imageres', 1000, ...
+    'surftype','inflated'...
+    );
+
+% parse options
+options=fs_mergestruct(defaultOpt, varargin{:});
+
+% Some other general setting
+thresh0 = options.thresh0;
+if isreal(thresh0)
+    threshopt = {'threshold',thresh0};
+else
+    threshopt = {'absthreshold',imag(thresh0)};
+end
+
+bgcolor = options.rgbnan;
+surfsuffix = options.surfsuffix;
+
+%%%%%%%%%%%%% View information %%%%%%%%%%%%%%%%
 viewStr = {'lmv', 'lmvfo', 'fo'};
 viewpt = {
     % 1
@@ -65,7 +112,6 @@ viewpt = {
     {[0, 0, 0], [0, 0, 0]}}          % occipital
     };
 
-surfsuffix = 'orig';  % default is standard non-dense surfaces
 if ~exist('view', 'var') || isempty(view)
     view = 1;
 elseif ischar(view)
@@ -81,9 +127,7 @@ if ~exist('valstruct', 'var') || isempty(valstruct)
 elseif ~isstruct(valstruct)
     error('Please make sure ''valstruct'' is struct.');
 end
-if ~exist('thresh0','var') || isempty(thresh0)
-    thresh0 = 0.0001i;
-end
+
 if ~exist('wantfig','var') || isempty(wantfig)
     wantfig = 1;
 end
@@ -103,6 +147,35 @@ if ~exist('lookups','var') || isempty(lookups)
     lookups = repmat({''}, size(thisviewpt, 1), 1);
 end
 
+%% Add annotations as roi masks if necessary
+% process roi masks
+roimasks = options.roimask;
+if isnumeric(roimasks) && ~isempty(roimasks); roimasks = {roimasks}; end
+nRoi = numel(roimasks);
+roicolor = options.roicolor;
+roiwidth = options.roiwidth;
+
+% load settings for adding annotations as extra masks
+annot = options.annot;
+annotwidth = options.annotwidth;
+annotname = options.annotname;
+
+% make name and load the annotation files
+annotFn = cellfun(@(x) sprintf('%s.%s.annot', x, annot), viewhemis, 'uni', false);
+[annots, aColor] = cellfun(@(x) fs_readannot(x, trgSubj, annotname), annotFn, 'uni', false);
+
+% combine annotations across hemispheres
+annotCom = horzcat(annots{:});
+nAnnot = size(annotCom, 1);
+
+% mask cell for annotations
+theAnnot = arrayfun(@(x) vertcat(annotCom{x, :}), 1:nAnnot, 'uni', false)';
+% annotation colors
+aUniColor = vertcat(aColor{:});
+aUniColor = aUniColor(1:nAnnot, :);
+
+%% generate image
+% process hemi related information
 if numel(viewhemis) == 1
     surfdata = valstruct.data;
     viewhemis = viewhemis{1};
@@ -111,28 +184,22 @@ else
     surfdata = valstruct;
 end
 
-%% Some other general setting
-if isreal(thresh0)
-    threshopt = {'threshold',thresh0};
-else
-    threshopt = {'absthreshold',imag(thresh0)};
-end
-surftype = 'inflated';
-imageres = 1000;  % image resolution
-bgcolor = 0.5;  % background color: gray
-
-%% generate image
+% generate the image
 [~,lookup,rgbimgs] = cellfun(@(x, y) cvnlookupimages(trgSubj,...
     surfdata, viewhemis, x, y,...
-    'surftype',surftype,'surfsuffix',surfsuffix,...
-    'imageres',imageres,'rgbnan',bgcolor, ... %'text',upper(viewhemis),
+    'surftype',options.surftype,...
+    'surfsuffix',surfsuffix,...
+    'rgbnan',bgcolor, ... %'text',upper(viewhemis),
+    'roimask',[roimasks;theAnnot], ...
+    'roicolor',[roicolor; aUniColor], ...
+    'roiwidth', [repmat(roiwidth, nRoi, 1); repmat(annotwidth, nAnnot, 1)], ...
+    'hemiborder',options.hemiborder,...
+    'hemibordercolor',options.hemibordercolor,... % set the border as gray
+    'imageres', options.imageres, ...
     threshopt{:},extraopts{:}), ...
     thisviewpt, lookups, 'uni', false);
 
-% remove the black lines
-rgbimgs = cellfun(@(x) img_noline(x, bgcolor), rgbimgs, 'uni', false);
-
- % format the rgbimg in images
+% format the rgbimg in images
 switch view
     case {1, 3}
         rgbimg = img_vertcat(bgcolor, rgbimgs{:});
@@ -191,18 +258,5 @@ end
 
 % combine all rgbimg
 rgbimgH = horzcat(imgCells{:});
-
-end
-
-%% Remove the black lines in rgbimg
-function rgbimgNL = img_noline(rgbimgIn, bgcolor)
-
-% use the first layer to decide which of the columns are the black lines
-isLine = rgbimgIn(:, :, 1) == 0;
-lineIndex = all(isLine, 1);
-
-% use background color to fill the black lines
-rgbimgNL = rgbimgIn;
-rgbimgNL(:, lineIndex, :) = bgcolor;
 
 end
