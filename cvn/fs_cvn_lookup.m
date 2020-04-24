@@ -1,7 +1,7 @@
 function [lookup, rgbimg, himg] = fs_cvn_lookup(trgSubj, view, valstruct, ...
-    lookups, wantfig, extraopts, varargin)
+    extraopts, varargin)
 % [lookup, rgbimg, himg] = fs_cvn_lookup(trgSubj,view,valstruct,...
-%    [lookups, wantfig, extraopts, varargin])
+%    [lookups, extraopts, varargin])
 %
 % This function uses (copies) cvn codes to plot surface data on lateral,
 % medial, and ventral viewpoints at the same time.
@@ -15,13 +15,13 @@ function [lookup, rgbimg, himg] = fs_cvn_lookup(trgSubj, view, valstruct, ...
 %                      In this case, hemi, view_az_el_tilt, and Lookup must
 %                      be cell arrays.
 %    lookups          <struct> the Lookup to re-use.
-%    wantfig          <logical/integer> whether to show a figure. 1: show
-%                      figure (default); 2: do not show figure, but output
-%                      himg.
 %    extraopts        <cell> a cell vector of extra options to
 %                      cvnlookupimages.m. Default: {}.
 %
 % Varargin:         
+%    'wantfig'        <logical/integer> whether to show a figure. 1: show
+%                      figure (default); 2: do not show figure, but output
+%                      himg.
 %    'annot'          <string> name of the annotation files. e.g., 'aparc',
 %                      'aparc.a2009s', 'aparc.a2005s'
 %    'annotwidth'     <numeric> the width of the annotation lines.
@@ -64,6 +64,7 @@ function [lookup, rgbimg, himg] = fs_cvn_lookup(trgSubj, view, valstruct, ...
 %default options
 defaultOpt=struct(...
     ...  % new options
+    'wantfig', 1, ... % show the figure
     'annot', '',... % do not display annotation
     'annotwidth', 0.5,... % width of the annotation lines
     'annotname', '', ... % cell list of all annot areas to be displayed
@@ -126,10 +127,6 @@ if ~exist('valstruct', 'var') || isempty(valstruct)
     valstruct.data = randn(size(valstruct.data));
 elseif ~isstruct(valstruct)
     error('Please make sure ''valstruct'' is struct.');
-end
-
-if ~exist('wantfig','var') || isempty(wantfig)
-    wantfig = 1;
 end
 if ~exist('extraopts','var') || isempty(extraopts)
     extraopts = {};
@@ -210,7 +207,7 @@ switch view
 end
 
 % visualize rgbimg
-switch wantfig
+switch options.wantfig
     case 1
         figure; himg = imshow(rgbimg);
     case 2
