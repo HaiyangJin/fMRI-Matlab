@@ -1,6 +1,6 @@
-function fs_cvn_print1st(sessList, anaList, labelList, sigFn, thresh, outPath, extraopts, funcPath)
+function fs_cvn_print1st(sessList, anaList, labelList, sigFn, thresh, outPath, funcPath)
 % fs_cvn_print1st(sessList, anaList, labelList, [sigFn='sig.nii.gz', thresh=1.301i...
-%    outPath=[pwd'/First_level_results'], extraopts={}, funcPath])
+%    outPath=[pwd'/First_level_results'], funcPath])
 %
 % This function prints the first-level results and the labels in label/.
 %
@@ -16,7 +16,6 @@ function fs_cvn_print1st(sessList, anaList, labelList, sigFn, thresh, outPath, e
 %                     threshold.
 %    outPath         <string> where to save the output images. [current
 %                     folder by default].
-%    extraopts       extra options for cvnlookupimages.m.
 %    funcPath        <string> the path to functional folder [Default is
 %                     $FUNCTIONALS_DIR].
 %
@@ -52,10 +51,6 @@ if ~exist('outPath', 'var') || isempty(outPath)
     outPath = fullfile(pwd, 'First_level_results');
 end
 % outPath = fullfile(outPath, sigFn);
-
-if ~exist('extraopts', 'var') || isempty(extraopts)
-    extraopts = {};
-end
 
 if ~exist('funcPath', 'var') || isempty(funcPath)
     funcPath = getenv('FUNCTIONALS_DIR');
@@ -157,7 +152,7 @@ for iLabel = 1:nLabel
                     maskStr = 'NoLabel || ';
                 end
             else
-                thisRoi = cellfun(@(x) makeroi(nVtx, x(:, 1)), thisMat, 'uni', false);
+                thisRoi = cellfun(@(x) makeroi(nVtx, x(:, 1)), thisMat, 'uni', false)';
             end
             
             % create parts of the output filename
@@ -168,17 +163,15 @@ for iLabel = 1:nLabel
             
            
             % process the extra setting for printing
-            thisExtraopts = [extraopts, {...
-                'cmap',cmap0, 'clim', thisclim0...
-                }];
+            thisExtraopts = {'cmap',cmap0, 'clim', thisclim0};
             
             %%%%%%% make image for this file %%%%%%%%
             [~, lookup, rgbimg] = fs_cvn_lookup(trgSubj, -2, thisSurf, lookup, ... 
                 'cvnopts', thisExtraopts, ...
                 'wantfig', wantfig, ...
                 'thresh0', thresh0, ...
-                'roimask',thisRoi, ...
-                'roicolor',roicolors(1:nTheLabel, :), ...
+                'roimask', thisRoi, ...
+                'roicolor', roicolors(1:nTheLabel, :), ...
                 'roiwidth', ones(nTheLabel, 1), ...
                 'annot', 'aparc');
             
