@@ -359,9 +359,13 @@ switch options.wantfig
 end
 
 % deal with output
+if viewIdx > 0
+    lookup = lookup{1};
+end
+
 if nargout == 0
     assignin('base','rawimg',rawimg);
-    assignin('base','Lookup',lookup);
+    assignin('base','lookup',lookup);
     assignin('base','rgbimg',rgbimg);
     assignin('base','himg',himg);
 else
