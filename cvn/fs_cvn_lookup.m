@@ -1,25 +1,22 @@
-function varargout= fs_cvn_lookup(trgSubj, view, valstruct, lookups, ...
-    extraopts, varargin)
+function varargout= fs_cvn_lookup(trgSubj,viewIdx,valstruct,lookups,varargin)
 % [rawimg, lookup, rgbimg, himg] = fs_cvn_lookup(trgSubj,view,valstruct,...
-%    [lookups, extraopts, varargin])
+%    [lookups, varargin])
 %
 % This function uses (copies) cvn codes to plot surface data on lateral,
 % medial, and ventral viewpoints at the same time.
 %
 % Inputs:
 %    trgSubj          <string> whose coordiantes will be used for plotting.
-%    view             <integer> which views are used to display the
+%    viewIdx          <integer> which views are used to display the
 %                      results. More see below.
 %    valstruct        <struct> struct('data',<L+R x 1>,'numlh',L,'numrh',R)
 %                      to create images for both hemispheres side by side.
 %                      In this case, hemi, view_az_el_tilt, and Lookup must
 %                      be cell arrays. [if valstruct is 'nodata', no data
 %                      will be displayed on the image (i.e., the brain
-%                      only); 'nodatalh' only displays left hemisphere; 
+%                      only); 'nodatalh' only displays left hemisphere;
 %                      'nodatarh' only displays right hemisphere.]
 %    lookups          <struct> the Lookup to re-use.
-%    extraopts        <cell> a cell vector of extra options to
-%                      cvnlookupimages.m. Default: {}.
 %
 % Varargin:
 %    'wantfig'        <logical/integer> whether to show a figure. 1: show
@@ -38,20 +35,23 @@ function varargout= fs_cvn_lookup(trgSubj, view, valstruct, lookups, ...
 %                      to display annotations, roi mask has to be set here.
 %    'roiwidth'       <numeric vector> width for the roi contour.
 %    'roicolor'       <numeric array> ColorSpec or RGB color for ROI outline(s).
-%    ...              For more, please check cvnlookupimages.m.
+%    'cvnopts'        <cell> extra options used in cvnlookupimages.m,
+%                      i.e., varargin in cvnlooupimages. [all settings here
+%                      will overwrite the above settings in cvnlookupimagrs.m 
+%    ...              <For more> please check cvnlookupimages.m.
 %
 % Output (varargout):
 %    rawimg           <> We can directly call imagesc on rawimg. This might
 %                      be useful for quickly playing around with colormaps
 %                      and color ranges.
-%                      e.g. figure; imagesc(rawimg,[0 25]); colormap(jet(256)); axis image;
+%                 e.g. figure; imagesc(rawimg,[0 25]); colormap(jet(256)); axis image;
 %    lookup:          <struct> Structure containing lookup information.
 %                      Can speed up multiple lookups with the same viewpoint.
 %                  OR <cell array> if two hemis provided in input.
 %    rgbimg:          <numeric array> output containing RGB image:
 %                      <res>x<res>x3.
 %    himg             <image handle> can be used to draw ROI with:
-%                      Rmask = drawroipoly(himg,Lookup);
+%                 e.g. Rmask = drawroipoly(himg,Lookup);
 %
 % Views:
 %    1  vertical layout (one column): lateral, medial, ventrcal;
@@ -82,7 +82,7 @@ function varargout= fs_cvn_lookup(trgSubj, view, valstruct, lookups, ...
 % Created by Haiyang Jin (13-Apr-2020)
 
 %% Parse inputs with default settings
-%default options
+% default options
 defaultOpt=struct(...
     ...  % new options
     'wantfig', 1, ... % show the figure
@@ -90,6 +90,7 @@ defaultOpt=struct(...
     'annotwidth', 0.5,... % width of the annotation lines
     'annotname', '', ... % cell list of all annot areas to be displayed
     'thresh0',[],...
+    'clim0', [], ...
     ...  % options in cvnlookupimages
     'roimask',[],...
     'roiwidth',{.5},...
@@ -99,7 +100,9 @@ defaultOpt=struct(...
     'hemiborder',2,...
     'hemibordercolor',0.5,... % set the border as gray
     'imageres', 1000, ...
-    'surftype','inflated'...
+    'surftype','inflated', ...
+    'xyextent', [1 1],...
+    'cvnopts', {{}}... % extra options used in cvnlookupimages.m
     );
 
 % parse options
