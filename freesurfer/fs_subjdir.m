@@ -1,4 +1,4 @@
-function subjList = fs_subjdir(struPath, strPattern)
+function [struPath, subjList] = fs_subjdir(struPath, strPattern)
 % function subjList = fs_subjdir(struPath, strPattern)
 %
 % This function set up 'SUBJECTS_DIR' and output the subject code list.
@@ -9,6 +9,7 @@ function subjList = fs_subjdir(struPath, strPattern)
 %                    folders.
 %
 % Output:
+%    struPath       <string> path to the structural folder.
 %    subjList       <cell of strings> a list of subject codes.
 %    save struPath to $SUBJECTS_DIR if applicable.
 %

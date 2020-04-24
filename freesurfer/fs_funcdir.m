@@ -1,4 +1,4 @@
-function sessList = fs_funcdir(funcPath, strPattern)
+function [funcPath, sessList] = fs_funcdir(funcPath, strPattern)
 % sessList = fs_funcdir(funcPath, strPattern)
 %
 % This function creates the structure for a project.
@@ -11,6 +11,7 @@ function sessList = fs_funcdir(funcPath, strPattern)
 %                      can be "Face*" (without quotes).
 %
 % Output:
+%    funcPath         <string> path to the functional folder.
 %    sessList         <cell of strings> a list of session codes.
 %    save funcPath to $FUNCTIONALS_DIR if applicable.
 %
