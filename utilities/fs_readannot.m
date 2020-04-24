@@ -1,5 +1,5 @@
-function [rois, roiColors, nVtxRoi] = fs_readannot(annotFn, subjCode, roiName, struPath, extraopts)
-% [rois, roiColors, nVtxRoi] = fs_readannot([annotFn, subjCode, roiName, struPath, extraopts])
+function varargout = fs_readannot(annotFn, subjCode, roiName, struPath, extraopts)
+% [rois, roiColors, roiList, nVtxRoi] = fs_readannot([annotFn, subjCode, roiName, struPath, extraopts])
 %
 % This funciton reads the annotation files and output the binary masks for
 % all the parcellations (rois) and their colors.
@@ -22,6 +22,7 @@ function [rois, roiColors, nVtxRoi] = fs_readannot(annotFn, subjCode, roiName, s
 %    rois            <cell logical> a list of binary masks for each
 %                     roiName.
 %    roiColors       <cell numeric> Px3. RGB color for each roiName.
+%    roiList         <cell string> list of roi names in the annotFn file.
 %    nVtxRoi         <cell integer> P. number of vertices in each roiName.
 %
 % Dependency:
@@ -58,9 +59,7 @@ end
 % make sure the annot file is available
 if ~exist(annotFile, 'file')
     % warning('Cannot find the annotation file: %s for %s.', annotFile, subjCode);
-    rois = {};
-    roiColors = {};
-    nVtxRoi = [];
+    varargout = {{}, {}, {}, []}; 
     return;
 end
 
@@ -90,6 +89,12 @@ roiCell = arrayfun(@(x) label == x, roiCode, 'uni', false);
 
 % save the colors as [0, 1]
 roiColors = ctab.table(roiIndices, 1:3)/255;
+
+% save the output
+varargout{1} = rois;
+varargout{2} = roiColors;
+varargout{3} = roiList;
+varargout{4} = nVtxRoi;
 
 end
 
