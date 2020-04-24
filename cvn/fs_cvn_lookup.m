@@ -53,26 +53,55 @@ function varargout= fs_cvn_lookup(trgSubj,viewIdx,valstruct,lookups,varargin)
 %    himg             <image handle> can be used to draw ROI with:
 %                 e.g. Rmask = drawroipoly(himg,Lookup);
 %
-% Views:
-%    1  vertical layout (one column): lateral, medial, ventrcal;
-%    2  two columns: first: lateral, medial, ventrcal;
-%                    second: frontal, occipital;
-%    3  vertical layout (one column): frontal, occipital;
-%
 %
 % % Example 1: show random activations on both hemispheres with view 1
-% fs_cvn_lookup('fsaverage', 1);
+% fs_cvn_lookup('fsaverage', 3);
 %
 % % Example 2: show random activations on left hemisphere with view 1
 % valstruct.numlh = 163842;
 % valstruct.data = randn(valstruct.numlh,1);
-% fs_cvn_lookup('fsaverage', 1, valstruct);
+% fs_cvn_lookup('fsaverage', 3, valstruct);
 %
 % % Example 3: show brain only (no data)
-% fs_cvn_lookup('fsaverage', 1, 'nodata');
+% fs_cvn_lookup('fsaverage', -1, 'nodata');
 %
 % % Example 4: show annotations without data
-% fs_cvn_lookup('fsaverage', 1, 'nodata', [], '', 'annot', 'aparc');
+% fs_cvn_lookup('fsaverage', 3, 'nodata', [], 'annot', 'aparc');
+%
+% % Example 5: only show annotation for fusiform area with aparc
+% fs_cvn_lookup('fsaverage', 3, 'nodatarh', [], 'annot', 'aparc', ...
+%    'annotname', 'fusiform');
+%
+% View indices (Part 1, multiple views):
+%  -1  vertical layout (one column): lateral, medial, ventrcal;
+%  -2  two columns: first: lateral, medial, ventrcal;
+%                    second: frontal, occipital;
+%  -3  vertical layout (one column): frontal, occipital;
+%
+% View indices (part 2, single view) [from cvnlookup]:
+%      VIEWPOINT        SURFACE            HEMIFLIP  RES  FSAVG      XYEXTENT 
+%  1 {'occip'           'sphere'                   0 1000    0         [1 1]} ...
+%  2 {'occip'           'inflated'                 0  500    0         [1 1]} ...
+%  3 {'ventral'         'inflated'                 1  500    0         [1 1]} ...
+%  4 {'parietal'        'inflated'                 0  500    0         [1 1]} ...
+%  5 {'medial'          'inflated'                 0  500    0         [1 1]} ...
+%  6 {'lateral'         'inflated'                 0  500    0         [1 1]} ...
+%  7 {'medial-ventral'  'inflated'                 0  500    0         [1 1]} ...
+%  8 {'ventral'         'gVTC.flat.patch.3d'       1 2000    0         [160 0]} ...   % 12.5 pixels per mm
+%  9 {''                'gEVC.flat.patch.3d'       0 1500    0         [120 0]} ...   % 12.5 pixels per mm
+% 10 {''                'full.flat.patch.3d'       0 1500    1         [290 0]} ...   % 5.17 pixels per mm
+% 11 {'ventral-lateral' 'inflated'                 1 1000    0         [1 1]} ...
+% 12 {'lateral-auditory' 'inflated'                0 1000    0         [1 1]} ...
+% 13 {''                'full.flat.patch.3d'       0 1500    0         []} ...
+% 14 {'superior'        'inflated'                 0  500    0         [1 1]} ...
+% 15 {'frontal'         'inflated'                 0  500    0         [1 1]} ...
+%    OR
+% 'occipA1' through 'occipA8' where A can also be B or C
+%    OR
+% a fully specified cell vector with the options listed above. note that VIEWPOINT 
+% can take the format {viewpt viewhemis}. for example, consider the following:
+% fs_cvn_lookup('subj01',{ {{[0 0 110] [0 0 -110]} {'lh' 'rh'}} 'full.flat.patch.3d' 0 1500 0 []}, ...
+%             [],[],'cvnopts', {'savelookup',false});
 %
 % Dependency:
 %    cvn codes from Kendrick Kay:
@@ -109,32 +138,19 @@ defaultOpt=struct(...
 options=fs_mergestruct(defaultOpt, varargin{:});
 % Some other general setting
 thresh0 = options.thresh0;
+clim0 = options.clim0;
 surfsuffix = options.surfsuffix;
 bgcolor = options.rgbnan;
 surftype = options.surftype;
+imageres = options.imageres;
+xyextent = options.xyextent;
+extraopts = options.cvnopts;
 
-%%%%%%%%%%%%% View information %%%%%%%%%%%%%%%%
 viewStr = {'lmv', 'lmvfo', 'fo'};
-viewpt = {
-    % 1
-    {{[270, 0, 0], [90, 0, 0]}; ...  % lateral
-    {[90, 0, 0], [270, 0, 0]}; ...   % mdeidal
-    {[270, -89, 0], [90, -89, 0]}};  % ventral
-    % 2
-    {{[270, 0, 0], [90, 0, 0]}; ...  % lateral
-    {[90, 0, 0], [270, 0, 0]}; ...   % mdeidal
-    {[270, -89, 0], [90, -89, 0]};   % ventral
-    {[180, 0, 0], [180, 0, 0]};      % frontal
-    {[0, 0, 0], [0, 0, 0]}}          % occipital
-    % 3
-    {{[180, 0, 0], [180, 0, 0]};     % frontal
-    {[0, 0, 0], [0, 0, 0]}}          % occipital
-    };
-
-if ~exist('view', 'var') || isempty(view)
-    view = 1;
-elseif ischar(view)
-    view = find(strcmp(view, viewStr));
+if ~exist('viewIdx', 'var') || isempty(viewIdx)
+    viewIdx = 3;
+elseif ischar(viewIdx)
+    viewIdx = -find(strcmp(viewIdx, viewStr));
 end
 if ~exist('trgSubj', 'var') || isempty(trgSubj)
     trgSubj = 'fsaverage';
@@ -146,14 +162,13 @@ if ~exist('valstruct', 'var') || isempty(valstruct)
     valstruct.data = randn(size(valstruct.data));
 elseif ischar(valstruct) && startsWith(valstruct, 'nodata')
     % do not show any data
-    isNoHemi = strcmp(['num' valstruct(7:end)], hemiInfo);
+    isHemiTemp = strcmp(['num' valstruct(7:end)], hemiInfo);
     % create valstruct data with all zeros
     valstruct = valstruct_create(trgSubj,surfsuffix);
-    %     valstruct = rmfield(valstruct, hemiInfo(isNoHemi));
-    if any(isNoHemi)
-        valstruct.(hemiInfo{isNoHemi}) = 0;
-        valstruct.data = valstruct.data(1: sum(valstruct.(hemiInfo{~isNoHemi})));
-    end
+    
+    % remove the unwanted hemisphere
+    valstruct = rmfield(valstruct, hemiInfo{~isHemiTemp});
+    valstruct.data = valstruct.data(1: sum(valstruct.(hemiInfo{isHemiTemp})));
     thresh0 = 1i;
 elseif ~isstruct(valstruct)
     error('Please make sure ''valstruct'' is struct.');
@@ -167,8 +182,94 @@ isHemi = ismember(hemiInfo, fieldnames(valstruct));
 if all(isHemi); isHemi = cellfun(@(x) valstruct.(x)~=0, hemiInfo); end
 viewhemis = erase(hemiInfo(isHemi), 'num');
 
-% views for the hemi
-thisviewpt = cellfun(@(x) x(:, isHemi), viewpt{view, :}, 'uni', false);
+% set color limit if it is empty
+if isempty(clim0)
+  clim0 = prctile(valstruct.data(:),[1 99]);
+end
+
+%% Load the viewponit(s)
+
+if isnumeric(viewIdx) && viewIdx < 0
+    % view indices Part 1
+    view_number = -viewIdx;
+    
+    %%%%%%%%%%%%% View information %%%%%%%%%%%%%%%%
+    allviewpt = {
+        % 1
+        {{[270, 0, 0], [90, 0, 0]}; ...  % lateral
+        {[90, 0, 0], [270, 0, 0]}; ...   % mdeidal
+        {[270, -89, 0], [90, -89, 0]}};  % ventral
+        % 2
+        {{[270, 0, 0], [90, 0, 0]}; ...  % lateral
+        {[90, 0, 0], [270, 0, 0]}; ...   % mdeidal
+        {[270, -89, 0], [90, -89, 0]};   % ventral
+        {[180, 0, 0], [180, 0, 0]};      % frontal
+        {[0, 0, 0], [0, 0, 0]}}          % occipital
+        % 3
+        {{[180, 0, 0], [180, 0, 0]};     % frontal
+        {[0, 0, 0], [0, 0, 0]}}          % occipital
+        };
+    
+    % views for the hemi
+    thisviewpt = cellfun(@(x) x(:, isHemi), allviewpt{view_number, :}, 'uni', false);
+    
+else
+    % view indices Part 2
+    view_number = viewIdx;
+    
+    %%%%%%%%%%%%%%%% This part is copied from cvnlookup.m %%%%%%%%%%%%%%%%
+    % define some views. inherited from cvnvisualizeanatomicalresults.m:
+    allviews = { ...
+        {'occip'           'sphere'                   0 1000    0         [1 1]} ...
+        {'occip'           'inflated'                 0 1000    0         [1 1]} ...
+        {'ventral'         'inflated'                 1 1000    0         [1 1]} ...
+        {'parietal'        'inflated'                 0  500    0         [1 1]} ...
+        {'medial'          'inflated'                 0  500    0         [1 1]} ...
+        {'lateral'         'inflated'                 0  500    0         [1 1]} ...
+        {'medial-ventral'  'inflated'                 0  500    0         [1 1]} ...
+        {'ventral'         'gVTC.flat.patch.3d'       1 2000    0         [160 0]} ...   % 12.5 pixels per mm
+        {''                'gEVC.flat.patch.3d'       0 1500    0         [120 0]} ...   % 12.5 pixels per mm
+        {''                'full.flat.patch.3d'       0 1500    1         [290 0]} ...   % 5.17 pixels per mm
+        {'ventral-lateral' 'inflated'                 1 1000    0         [1 1]} ...
+        {'lateral-auditory' 'inflated'                0 1000    0         [1 1]} ...
+        {''                'full.flat.patch.3d'       0 1500    0         []} ...
+        {'superior'        'inflated'                 0  500    0         [1 1]} ...
+        {'frontal'         'inflated'                 0  500    0         [1 1]} ...
+        };
+    
+    % load view parameters
+    if isnumeric(view_number)
+        view = allviews{view_number};   % view
+        viewname = view{1};             % ventral, occip, etc.
+        surftype = view{2};             % inflated, sphere, etc.
+        hemiflip = view{3};             % flip hemispheres?
+        imageres = view{4};             % resolution
+        fsaverage0 = view{5};           % want to map to fsaverage?
+        xyextent = view{6};             % xy extent to show
+    elseif ischar(view_number)
+        viewname = view_number;
+        surftype = 'sphere';
+        hemiflip = 0;
+        imageres = 1000;
+        fsaverage0 = 0;
+        xyextent = [1 1];
+    else
+        viewname = view_number{1};
+        surftype = view_number{2};
+        hemiflip = view_number{3};
+        imageres = view_number{4};
+        fsaverage0 = view_number{5};
+        xyextent = view_number{6};
+    end
+    if fsaverage0
+        assert(isequal(surfsuffix,'orig'),'only orig surface data can be put onto fsaverage');
+        surfsuffix = 'fsaverage';     % set to fsaverage non-dense surface
+    end
+    
+    [viewpt, ~, viewhemis] = cvnlookupviewpoint(trgSubj,viewhemis,viewname,surftype);
+    
+    thisviewpt = {viewpt};
+end
 
 if ~exist('lookups','var') || isempty(lookups)
     lookups = repmat({''}, size(thisviewpt, 1), 1);
@@ -212,14 +313,6 @@ if numel(annotwidth) ~= nAnnot
     annotwidth = repmat(annotwidth, nAnnot, 1);
 end
 
-%% Load the viewponits
-% hemi
-if numel(viewhemis) == 1
-    thisviewpt = cellfun(@(x) x{1}, thisviewpt, 'uni', false);
-end
-
-% [viewpt, viewhemis, viewhemi] = cvnlookupviewpoint(trgSubj,viewhemis,viewname,surftype);
-
 %% generate image
 if isreal(thresh0)
     threshopt = {'threshold',thresh0};
@@ -229,26 +322,30 @@ end
 
 [rawimg,lookup,rgbimgs] = cellfun(@(x, y) cvnlookupimages(trgSubj,...
     valstruct, viewhemis, x, y,...
+    'xyextent',xyextent, ...
     'surftype', surftype,...
     'surfsuffix', surfsuffix,...
+    'clim', clim0, ...
     'rgbnan', bgcolor, ... %'text',upper(viewhemis),
     'roimask', [roimasks;theAnnot], ...
     'roicolor', [roicolor; aUniColor], ...
     'roiwidth', [roiwidth; annotwidth], ...
     'hemiborder', options.hemiborder,...
     'hemibordercolor', options.hemibordercolor,... % set the border as gray
-    'imageres', options.imageres, ...
+    'imageres', imageres, ...
     threshopt{:},extraopts{:}), ...
     thisviewpt, lookups, 'uni', false);
 
 % format the rgbimg in images
-switch view
-    case {1, 3}
+switch viewIdx
+    case {-1, -3}
         rgbimg = img_vertcat(bgcolor, rgbimgs{:});
-    case 2
+    case -2
         rgbimg1 = img_vertcat(bgcolor, rgbimgs{1:3});
         rgbimg2 = img_vertcat(bgcolor, rgbimgs{4:5});
         rgbimg = img_horzcat(bgcolor, rgbimg1, rgbimg2);
+    otherwise
+        rgbimg = rgbimgs{1};
 end
 
 % visualize rgbimg
