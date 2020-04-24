@@ -69,6 +69,7 @@ if ~exist('extraopts', 'var') || isempty(extraopts)
     extraopts = {};
 end
 
+%% Read files
 % the full path to the sig files
 thefiles = fullfile(sigPath, sigFn);
 
@@ -100,6 +101,7 @@ wantfig = 2;  % do not show figure with fs_cvn_lookuplmv.m
 
 extraopts = [extraopts, {'cmap', cmap0, 'clim', clim0}];
 
+%% Create figure for every surf
 nSurf = size(surfs, 1);
 for iSurf = 1: nSurf
     
@@ -110,7 +112,7 @@ for iSurf = 1: nSurf
     valstruct = surfStruct{iSurf};
     
     % generate figures for this pair
-    [lookup, rgbimg] = fs_cvn_lookup('fsaverage', 1, valstruct, ...
+    [~, lookup, rgbimg] = fs_cvn_lookup('fsaverage', 1, valstruct, ...
         lookup, extraopts, 'wantfig', wantfig, 'thresh0', thresh0);
     
     % set the figure name and save it

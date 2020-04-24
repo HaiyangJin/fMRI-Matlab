@@ -1,6 +1,6 @@
-function [lookup, rgbimg, himg] = fs_cvn_lookup(trgSubj, view, valstruct, ...
+function varargout= fs_cvn_lookup(trgSubj, view, valstruct, lookups, ...
     extraopts, varargin)
-% [lookup, rgbimg, himg] = fs_cvn_lookup(trgSubj,view,valstruct,...
+% [rawimg, lookup, rgbimg, himg] = fs_cvn_lookup(trgSubj,view,valstruct,...
 %    [lookups, extraopts, varargin])
 %
 % This function uses (copies) cvn codes to plot surface data on lateral,
@@ -37,13 +37,18 @@ function [lookup, rgbimg, himg] = fs_cvn_lookup(trgSubj, view, valstruct, ...
 %    'roicolor'       <numeric array> ColorSpec or RGB color for ROI outline(s).
 %    ...              For more, please check cvnlookupimages.m.   
 %
-% Output:
+% Output (varargout):
+%    rawimg           <> We can directly call imagesc on rawimg. This might
+%                      be useful for quickly playing around with colormaps
+%                      and color ranges.
+%                      e.g. figure; imagesc(rawimg,[0 25]); colormap(jet(256)); axis image;
 %    lookup:          <struct> Structure containing lookup information.
 %                      Can speed up multiple lookups with the same viewpoint.
 %                  OR <cell array> if two hemis provided in input.
 %    rgbimg:          <numeric array> output containing RGB image:
 %                      <res>x<res>x3.
-%    himg             <image handle>
+%    himg             <image handle> can be used to draw ROI with:
+%                      Rmask = drawroipoly(himg,Lookup);
 %
 % Views:
 %    1  vertical layout (one column): lateral, medial, ventrcal;
@@ -214,6 +219,19 @@ switch options.wantfig
         figure('Visible','off'); himg = imshow(rgbimg);
     otherwise
         himg = [];
+end
+
+% deal with output
+if nargout == 0
+    assignin('base','rawimg',rawimg);
+    assignin('base','Lookup',lookup);
+    assignin('base','rgbimg',rgbimg);
+    assignin('base','himg',himg);
+else
+    varargout{1} = rawimg;
+    varargout{2} = lookup;
+    varargout{3} = rgbimg;
+    varargout{4} = himg;
 end
 
 end
