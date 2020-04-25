@@ -3,7 +3,8 @@ function varargout= fs_cvn_lookup(trgSubj,viewIdx,valstruct,lookups,varargin)
 %    [lookups, varargin])
 %
 % This function uses (copies) cvn codes to plot surface data on lateral,
-% medial, and ventral viewpoints at the same time.
+% medial, and ventral viewpoints at the same time. When the viewIdx is
+% positive integer, you can also draw ROI [please check <himg> below].
 %
 % Inputs:
 %    trgSubj          <string> whose coordiantes will be used for plotting.
@@ -26,8 +27,10 @@ function varargout= fs_cvn_lookup(trgSubj,viewIdx,valstruct,lookups,varargin)
 %                      'aparc.a2009s', 'aparc.a2005s'
 %    'annotwidth'     <numeric> the width of the annotation lines.
 %    'annotname'      <cell string> list of parcellation names in 'aparc'.
-%                      e.g. 'fusiform' for 'aparc' (in 'annot').
-%    'thresh0'        <numeric> real number for numbers with sign and
+%                      e.g. 'fusiform' for 'aparc' (in 'annot'). To get the
+%                      list of the names for certain annotation, you may
+%                      try [~, ~, roiList] = fs_readannot('lh.aparc');
+%    'thresh'        <numeric> real number for numbers with sign and
 %                      non-real number is treated as abosolute threshold.
 %    'roimask'        <cell numeric> Vx1 binary mask (or cell array for
 %                      multiple ROIs) for an ROI to draw on final RGB image.
@@ -37,7 +40,7 @@ function varargout= fs_cvn_lookup(trgSubj,viewIdx,valstruct,lookups,varargin)
 %    'roicolor'       <numeric array> ColorSpec or RGB color for ROI outline(s).
 %    'cvnopts'        <cell> extra options used in cvnlookupimages.m,
 %                      i.e., varargin in cvnlooupimages. [all settings here
-%                      will overwrite the above settings in cvnlookupimagrs.m 
+%                      will overwrite the above settings in cvnlookupimagrs.m
 %    ...              <For more> please check cvnlookupimages.m.
 %
 % Output (varargout):
@@ -58,7 +61,8 @@ function varargout= fs_cvn_lookup(trgSubj,viewIdx,valstruct,lookups,varargin)
 % fs_cvn_lookup('fsaverage', 3);
 %
 % % Example 2: show random activations on left hemisphere with view 1
-% valstruct.numlh = 163842;
+% valstruct.numlh = 163842;  % This number is not arbitrary.
+% valstruct.numrh = 0;
 % valstruct.data = randn(valstruct.numlh,1);
 % fs_cvn_lookup('fsaverage', 3, valstruct);
 %
@@ -66,12 +70,13 @@ function varargout= fs_cvn_lookup(trgSubj,viewIdx,valstruct,lookups,varargin)
 % fs_cvn_lookup('fsaverage', -1, 'nodata');
 %
 % % Example 4: show annotations without data
-% fs_cvn_lookup('fsaverage', 3, 'nodata', [], 'annot', 'aparc');
+% fs_cvn_lookup('fsaverage', 3, 'nodatalh', [], 'annot', 'aparc');
 %
 % % Example 5: only show annotation for fusiform area with aparc
 % fs_cvn_lookup('fsaverage', 3, 'nodatarh', [], 'annot', 'aparc', ...
 %    'annotname', 'fusiform');
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%% View options %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % View indices (Part 1, multiple views):
 %  -1  vertical layout (one column): lateral, medial, ventrcal;
 %  -2  two columns: first: lateral, medial, ventrcal;
@@ -79,7 +84,7 @@ function varargout= fs_cvn_lookup(trgSubj,viewIdx,valstruct,lookups,varargin)
 %  -3  vertical layout (one column): frontal, occipital;
 %
 % View indices (part 2, single view) [from cvnlookup]:
-%      VIEWPOINT        SURFACE            HEMIFLIP  RES  FSAVG      XYEXTENT 
+%      VIEWPOINT        SURFACE            HEMIFLIP  RES  FSAVG      XYEXTENT
 %  1 {'occip'           'sphere'                   0 1000    0         [1 1]} ...
 %  2 {'occip'           'inflated'                 0  500    0         [1 1]} ...
 %  3 {'ventral'         'inflated'                 1  500    0         [1 1]} ...
@@ -98,10 +103,11 @@ function varargout= fs_cvn_lookup(trgSubj,viewIdx,valstruct,lookups,varargin)
 %    OR
 % 'occipA1' through 'occipA8' where A can also be B or C
 %    OR
-% a fully specified cell vector with the options listed above. note that VIEWPOINT 
+% a fully specified cell vector with the options listed above. note that VIEWPOINT
 % can take the format {viewpt viewhemis}. for example, consider the following:
 % fs_cvn_lookup('subj01',{ {{[0 0 110] [0 0 -110]} {'lh' 'rh'}} 'full.flat.patch.3d' 0 1500 0 []}, ...
 %             [],[],'cvnopts', {'savelookup',false});
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Dependency:
 %    cvn codes from Kendrick Kay:
@@ -118,8 +124,8 @@ defaultOpt=struct(...
     'annot', '',... % do not display annotation
     'annotwidth', 0.5,... % width of the annotation lines
     'annotname', '', ... % cell list of all annot areas to be displayed
-    'thresh0',[],...
-    'clim0', [], ...
+    'thresh',[],...
+    'clim', [], ...
     ...  % options in cvnlookupimages
     'roimask',[],...
     'roiwidth',{.5},...
@@ -137,8 +143,8 @@ defaultOpt=struct(...
 % parse options
 options=fs_mergestruct(defaultOpt, varargin{:});
 % Some other general setting
-thresh0 = options.thresh0;
-clim0 = options.clim0;
+thresh = options.thresh;
+clim = options.clim;
 surfsuffix = options.surfsuffix;
 bgcolor = options.rgbnan;
 surftype = options.surftype;
@@ -167,9 +173,11 @@ elseif ischar(valstruct) && startsWith(valstruct, 'nodata')
     valstruct = valstruct_create(trgSubj,surfsuffix);
     
     % remove the unwanted hemisphere
-    valstruct = rmfield(valstruct, hemiInfo{~isHemiTemp});
-    valstruct.data = valstruct.data(1: sum(valstruct.(hemiInfo{isHemiTemp})));
-    thresh0 = 1i;
+    if any(isHemiTemp)
+        valstruct.(hemiInfo{~isHemiTemp}) = 0;
+        valstruct.data = valstruct.data(1: valstruct.(hemiInfo{isHemiTemp}));
+    end
+    thresh = 1i;
 elseif ~isstruct(valstruct)
     error('Please make sure ''valstruct'' is struct.');
 end
@@ -183,8 +191,8 @@ if all(isHemi); isHemi = cellfun(@(x) valstruct.(x)~=0, hemiInfo); end
 viewhemis = erase(hemiInfo(isHemi), 'num');
 
 % set color limit if it is empty
-if isempty(clim0)
-  clim0 = prctile(valstruct.data(:),[1 99]);
+if isempty(clim)
+    clim = prctile(valstruct.data(:),[1 99]);
 end
 
 %% Load the viewponit(s)
@@ -314,10 +322,10 @@ if numel(annotwidth) ~= nAnnot
 end
 
 %% generate image
-if isreal(thresh0)
-    threshopt = {'threshold',thresh0};
+if isreal(thresh)
+    threshopt = {'threshold',thresh};
 else
-    threshopt = {'absthreshold',imag(thresh0)};
+    threshopt = {'absthreshold',imag(thresh)};
 end
 
 [rawimg,lookup,rgbimgs] = cellfun(@(x, y) cvnlookupimages(trgSubj,...
@@ -325,7 +333,7 @@ end
     'xyextent',xyextent, ...
     'surftype', surftype,...
     'surfsuffix', surfsuffix,...
-    'clim', clim0, ...
+    'clim', clim, ...
     'rgbnan', bgcolor, ... %'text',upper(viewhemis),
     'roimask', [roimasks;theAnnot], ...
     'roicolor', [roicolor; aUniColor], ...
@@ -359,10 +367,7 @@ switch options.wantfig
 end
 
 % deal with output
-if viewIdx > 0
-    lookup = lookup{1};
-end
-
+if viewIdx > 0; lookup = lookup{1}; end
 if nargout == 0
     assignin('base','rawimg',rawimg);
     assignin('base','lookup',lookup);
