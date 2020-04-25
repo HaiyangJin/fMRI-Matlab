@@ -19,6 +19,8 @@ function fs_cvn_print1st(sessList, anaList, labelList, outPath, varargin)
 %    'clim'          <numeric array> limits for the color map. The Default
 %                     empty, which will display responses from %1 to 99%.
 %    'cmap'          <> use which color map, default is jet.
+%    'viewpt'        <integer> the viewpoitns to be used. More see
+%                     fs_cvn_lookup.m. Default is -2.
 %    'roicolors'     <numeric array> colors to be used for the label roi
 %                     masks.
 %    'markPeak'      <logical> mark the location of the peak response.
@@ -44,6 +46,7 @@ waitHandle = waitbar(0, 'Preparing for printing first-level results...');
 defaultOpts = struct(...
     'sigFn', 'sig.nii.gz', ...
     'thresh', 1.3010i, ...
+    'viewpt', -2, ...
     'roicolors', {[1, 1, 1;  % white
     1, 1, 0;  % yellow
     1, 0, 1;  % Magenta / Fuchsia
@@ -61,6 +64,7 @@ defaultOpts = struct(...
 options = fs_mergestruct(defaultOpts, varargin);
 
 % generate settings
+viewpt = options.viewpt;
 clim = options.clim;
 cmap = options.cmap;  % use jet(256) as the colormap
 lookup = options.lookup;
@@ -202,7 +206,7 @@ for iLabel = 1:nLabel
             
             %% Make the image
             %%%%%%% make image for this file %%%%%%%%
-            [~, lookup, rgbimg] = fs_cvn_lookup(trgSubj, -2, thisSurf, lookup, ...
+            [~, lookup, rgbimg] = fs_cvn_lookup(trgSubj, viewpt, thisSurf, lookup, ...
                 'cvnopts', thisExtraopts, ...
                 'wantfig', wantfig, ...
                 'thresh', thresh0, ...
@@ -232,7 +236,7 @@ for iLabel = 1:nLabel
                 labelTable.SubjCode = [];
                 
                 pos = get(fig, 'Position'); %// gives x left, y bottom, width, height
-                set(fig, 'Position', [pos(1:2) max(1050, pos(3)) pos(4)+400]);
+                set(fig, 'Position', [pos(1:2) max(1050, pos(3)) pos(4)+max(pos(4)/pos(3)*1000-600, 500)]);
                 % Get the table in string form.
                 TString = evalc('disp(labelTable)');
                 % Use TeX Markup for bold formatting and underscores.
