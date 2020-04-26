@@ -1,4 +1,4 @@
-function labelTable = fs_labelinfo(labelFn, subjCode, struPath)
+function labelTable = fs_labelinfo(labelList, subjList, struPath)
 % labelTable = fs_labelinfo(labelFn, subjCode, struPath)
 %
 % This function gathers the information about the label file.
@@ -15,7 +15,7 @@ function labelTable = fs_labelinfo(labelFn, subjCode, struPath)
 % Output:
 %    labelInfo       <struct> includes information about the label file.
 %      .SubjCode       <cell> the input subjCode save as a cell.
-%      .LabelName      <cell> the input labelFn (without path) but save as 
+%      .LabelName      <cell> the input labelFn (without path) but save as
 %                       a cell.
 %      .Max            <numeric> the peak response value.
 %      .VtxMax         <integer> vertex index of the peak response.
@@ -29,23 +29,40 @@ function labelTable = fs_labelinfo(labelFn, subjCode, struPath)
 %
 % Created by Haiyang Jin (22-Apr-2020)
 
-if ~exist('labelFn', 'var') || isempty(labelFn)
-    labelFn = 'lh.cortex.label';
-    warning('''%s'' is loaded by default.', labelFn);
+if ~exist('labelList', 'var') || isempty(labelList)
+    labelList = {'lh.cortex.label'};
+    warning('''%s'' is loaded by default.', labelList{1});
+elseif ischar(labelList)
+    labelList = {labelList};
 end
-if ~exist('subjCode', 'var') || isempty(subjCode)
-    subjCode = 'fsaverage';
-    warning('''%s'' is used as ''subjCode'' by default.', subjCode);
+if ~exist('subjList', 'var') || isempty(subjList)
+    subjList = {'fsaverage'};
+    warning('''%s'' is used as ''subjCode'' by default.', subjList{1});
+elseif ischar(subjList)
+    subjList = {subjList};
 end
 if ~exist('struPath', 'var') || isempty(struPath)
     struPath = getenv('SUBJECTS_DIR');
 end
 
+% all the possible combinations
+[tempList, tempSubj] = ndgrid(labelList, subjList);
+
+% read the label information
+labelInfoCell = cellfun(@(x, y) labelinfo(x, y, struPath), tempList(:), tempSubj(:), 'uni', false);
+
+labelTable = vertcat(labelInfoCell{:});
+
+end
+
+%% Obtain the label information separately
+function labelInfo = labelinfo(labelFn, subjCode, struPath)
+
 % read the label file
 [labelMat, nVtx] = fs_readlabel(labelFn, subjCode, struPath);
 
 if isempty(labelMat)
-    labelTable = [];
+    labelInfo = [];
     return;
 end
 
@@ -73,6 +90,6 @@ Size = labelSize;
 NVtxs = nVtx;
 
 % save the out information as table
-labelTable = table(SubjCode, LabelName, Max, VtxMax, Size, MNI305, Talairach, NVtxs);
+labelInfo = table(SubjCode, LabelName, Max, VtxMax, Size, MNI305, Talairach, NVtxs);
 
 end
