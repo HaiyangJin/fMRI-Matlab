@@ -122,7 +122,7 @@ defaultOpt=struct(...
     ...  % new options
     'wantfig', 1, ... % show the figure
     'annot', '',... % do not display annotation
-    'annotwidth', 0.5,... % width of the annotation lines
+    'annotwidth', {0.5},... % width of the annotation lines
     'annotname', '', ... % cell list of all annot areas to be displayed
     'thresh',[],...
     'clim', [], ...
@@ -291,7 +291,7 @@ nRoi = numel(roimasks);
 roicolor = options.roicolor;
 roiwidth = options.roiwidth;
 % use roicolor and roiwidth for all rois if their numbers do not match
-if numel(roicolor) ~= nRoi
+if size(roicolor, 1) ~= nRoi
     roicolor = repmat(roicolor, nRoi, 1);
 end
 if numel(roiwidth) ~= nRoi
@@ -317,6 +317,7 @@ theAnnot = arrayfun(@(x) vertcat(annotCom{x, :}), 1:nAnnot, 'uni', false)';
 aUniColor = vertcat(aColor{:});
 aUniColor = aUniColor(1:nAnnot, :);
 % annotwidth
+if ~iscell(annotwidth); annotwidth = {annotwidth}; end
 if numel(annotwidth) ~= nAnnot
     annotwidth = repmat(annotwidth, nAnnot, 1);
 end

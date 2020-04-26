@@ -59,7 +59,7 @@ end
 % make sure the annot file is available
 if ~exist(annotFile, 'file')
     % warning('Cannot find the annotation file: %s for %s.', annotFile, subjCode);
-    varargout = {{}, {}, {}, []}; 
+    varargout = {{}, [], {}, []}; 
     return;
 end
 
