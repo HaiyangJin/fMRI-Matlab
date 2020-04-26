@@ -1,6 +1,5 @@
 function fs_cvn_print1st(sessList, anaList, labelList, outPath, varargin)
-% fs_cvn_print1st(sessList, anaList, labelList, [sigFn='sig.nii.gz', thresh=1.301i...
-%    outPath=[pwd'/First_level_results'], funcPath])
+% fs_cvn_print1st(sessList, anaList, labelList, outPath, varargin)
 %
 % This function prints the first-level results and the labels in label/.
 %
@@ -19,6 +18,8 @@ function fs_cvn_print1st(sessList, anaList, labelList, outPath, varargin)
 %    'clim'          <numeric array> limits for the color map. The Default
 %                     empty, which will display responses from %1 to 99%.
 %    'cmap'          <> use which color map, default is jet.
+%    'annot'         <string> which annotation will be used. Default is
+%                     '', i.e., not display annotation file.
 %    'viewpt'        <integer> the viewpoitns to be used. More see
 %                     fs_cvn_lookup.m. Default is -2.
 %    'roicolors'     <numeric array> colors to be used for the label roi
@@ -54,8 +55,10 @@ defaultOpts = struct(...
     ]}, ...
     'clim', [], ...
     'cmap', jet(256), ...
+    'annot', '', ...
     'lookup', [], ...
     'wantfig', 2, ...
+    'cvnopts', {{}}, ...
     'showInfo', 0, ...
     'markPeak', 0, ... % mark the peak response in the label
     'funcPath', getenv('FUNCTIONALS_DIR'), ...
@@ -67,11 +70,13 @@ options = fs_mergestruct(defaultOpts, varargin);
 viewpt = options.viewpt;
 clim = options.clim;
 cmap = options.cmap;  % use jet(256) as the colormap
+annot = options.annot;  % the annotation file
 lookup = options.lookup;
 wantfig = options.wantfig;  % do not show figure with fs_cvn_lookuplmv.m
 roicolors = options.roicolors;
 showInfo = options.showInfo;
 markPeak = options.markPeak;
+cnvopts = options.cvnopts;
 
 sigFn = options.sigFn;
 thresh = options.thresh;  % 0.05
@@ -144,7 +149,7 @@ for iLabel = 1:nLabel
             subjCode = fs_subjcode(thisSess, funcPath);
             
             % waitbar
-            progress = ((iLabel-1) * nSess * iAna + iSess-1) / (nLabel * nSess * nAna);
+            progress = ((iLabel-1)*nSess*nAna + (iAna-1)*nSess + iSess-1) / (nLabel*nSess*nAna);
             waitMsg = sprintf('Label: %s   nTheLabel: %d   SubjCode: %s \n%0.2f%% finished...', ...
                 strrep(theLabelName, '_', '\_'), nTheLabel, strrep(subjCode, '_', '\_'), progress*100);
             waitbar(progress, waitHandle, waitMsg);
@@ -202,7 +207,7 @@ for iLabel = 1:nLabel
             labelNames = sprintf(['%s' repmat(' || %s', 1, nTheLabel-1)], theLabelNames{:});
             
             % process the extra setting for printing
-            thisExtraopts = {'cmap',cmap, 'clim', thisclim0};
+            thisExtraopts = [{'cmap',cmap, 'clim', thisclim0}, cnvopts];
             
             %% Make the image
             %%%%%%% make image for this file %%%%%%%%
@@ -212,8 +217,8 @@ for iLabel = 1:nLabel
                 'thresh', thresh0, ...
                 'roimask', rois, ...
                 'roicolor', roicolor, ...
-                'roiwidth', ones(numel(rois), 1), ...
-                'annot', 'aparc');
+                'roiwidth', repmat({1}, numel(rois), 1), ...
+                'annot', annot);
             
             % clear lookup if necessary
             if ~strcmp(trgSubj, 'fsaverage')
