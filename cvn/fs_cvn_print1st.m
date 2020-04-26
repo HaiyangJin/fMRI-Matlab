@@ -272,6 +272,8 @@ for iLabel = 1:nLabel
                 print(fig, thisOut,'-dpng');
             end
             
+            close(fig); 
+            
         end   % iSess
     end   % iAna
 end   % iLabel

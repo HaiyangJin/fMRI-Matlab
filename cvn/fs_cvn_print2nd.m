@@ -136,6 +136,7 @@ for iSurf = 1: nSurf
         print(fig, thisOut,'-dpng');
     end
     
+    close(fig);
 end
 
 % save the filenames of the data file
