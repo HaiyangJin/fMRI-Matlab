@@ -1,5 +1,5 @@
 function varargout = fs_readlabel(labelFn, subjCode, struPath)
-% [labelMat, vtxMax, maxResp, nVtx] = fs_readlabel(labelFn, [subjCode='fsaverage', struPath])
+% [labelMat, nVtx] = fs_readlabel(labelFn, [subjCode='fsaverage', struPath])
 %
 % This function loads label file in FreeSurfer to matrix in Matlab. Note:
 % all the vertex indices are added one when loading into Matlab. This is
@@ -18,8 +18,6 @@ function varargout = fs_readlabel(labelFn, subjCode, struPath)
 %
 % Outputs:
 %    labelMat        <numeric array> the data matrix from the label file.
-%    vtxMax          <integer> vertex index of the peak response.
-%    maxResp         <numeric> the value of the peak response.
 %    nVtx            <numeric> number of vertices.
 %
 % Example 1 (read a label in the current working directory):
@@ -71,18 +69,12 @@ labelMat = dataMat.data;
 % starts from 1
 labelMat(:, 1) = labelMat(:, 1) + 1;
 
-% find the vertex index for the peak response
-[maxResp, maxIdx] = max(labelMat(:, 5));
-vtxMax = labelMat(maxIdx, 1);
-
 % number of vertices
 nVtx = str2double(dataMat.textdata{2, 1});
 
 % save the output
 varargout{1} = labelMat;
-varargout{2} = vtxMax;
-varargout{3} = maxResp;
-varargout{4} = nVtx;
+varargout{2} = nVtx;
 
 %% From read_label.m [backup]
 % % open it as an ascii file
