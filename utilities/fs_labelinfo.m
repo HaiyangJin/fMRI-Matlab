@@ -1,5 +1,5 @@
-function labelInfo = fs_labelinfo(labelFn, subjCode, struPath)
-% labelInfo = fs_labelinfo(labelFn, subjCode, struPath)
+function labelTable = fs_labelinfo(labelFn, subjCode, struPath)
+% labelTable = fs_labelinfo(labelFn, subjCode, struPath)
 %
 % This function gathers the information about the label file.
 %
@@ -14,8 +14,9 @@ function labelInfo = fs_labelinfo(labelFn, subjCode, struPath)
 %
 % Output:
 %    labelInfo       <struct> includes information about the label file.
-%      .SubjCode       <string> the input subjCode.
-%      .Labelname      <string> the input labelFn (without path).
+%      .SubjCode       <cell> the input subjCode save as a cell.
+%      .LabelName      <cell> the input labelFn (without path) but save as 
+%                       a cell.
 %      .Max            <numeric> the peak response value.
 %      .VtxMax         <integer> vertex index of the peak response.
 %      .Size           <numeric> the size (area) of the label in mm^2.
@@ -43,11 +44,16 @@ end
 % read the label file
 [labelMat, nVtx] = fs_readlabel(labelFn, subjCode, struPath);
 
-% find the peak vertice
-[maxValue, vtxMax] = max(labelMat(:, 5));
+if isempty(labelMat)
+    labelTable = [];
+    return;
+end
+
+% maximum response
+[maxResp, maxIdx] = max(labelMat(:, 5));
 
 % coordiantes in RAS, MNI305(fsaverage) and Talairach space
-RAS = labelMat(vtxMax, 2:4);
+RAS = labelMat(maxIdx, 2:4);
 MNI305 = fs_ras2fsavg(RAS, subjCode);
 Talairach = mni2tal(MNI305);
 
@@ -55,19 +61,18 @@ Talairach = mni2tal(MNI305);
 labelSize = fs_labelarea(labelFn, subjCode, struPath);
 
 %% Create a struct to save all the information
-labelInfo = struct;
-
 % inputs
-labelInfo.SubjCode = subjCode;
+SubjCode = {subjCode};
 [~, fn, ext] = fileparts(labelFn);
-labelInfo.Labelname = [fn ext];
+LabelName = {[fn ext]};
 
 % outinformation
-labelInfo.Max = maxValue;
-labelInfo.VtxMax = vtxMax;
-labelInfo.Size = labelSize;
-labelInfo.MNI305 = MNI305;
-labelInfo.Talairach = Talairach;
-labelInfo.NVtxs = nVtx;
+Max = maxResp;
+VtxMax = labelMat(maxIdx, 1);
+Size = labelSize;
+NVtxs = nVtx;
+
+% save the out information as table
+labelTable = table(SubjCode, LabelName, Max, VtxMax, Size, MNI305, Talairach, NVtxs);
 
 end
