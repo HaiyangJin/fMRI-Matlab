@@ -18,6 +18,8 @@ function fs_cvn_print1st(sessList, anaList, labelList, outPath, varargin)
 %    'clim'          <numeric array> limits for the color map. The Default
 %                     empty, which will display responses from %1 to 99%.
 %    'cmap'          <> use which color map, default is jet.
+%    'subfolder'     <numeric> which subfolder to save the outputs. 0: no
+%                     subfolder [Default]; 1: use subjCode; 2: use the Label.  
 %    'annot'         <string> which annotation will be used. Default is
 %                     '', i.e., not display annotation file.
 %    'viewpt'        <integer> the viewpoitns to be used. More see
@@ -52,9 +54,11 @@ defaultOpts = struct(...
     1, 1, 0;  % yellow
     1, 0, 1;  % Magenta / Fuchsia
     0, 0, 1;  % blue
+    0, 0, 0;  % black
     ]}, ...
     'clim', [], ...
     'cmap', jet(256), ...
+    'subfolder', 1, ...
     'annot', '', ...
     'lookup', [], ...
     'wantfig', 2, ...
@@ -70,6 +74,7 @@ options = fs_mergestruct(defaultOpts, varargin);
 viewpt = options.viewpt;
 clim = options.clim;
 cmap = options.cmap;  % use jet(256) as the colormap
+subfolder = options.subfolder+1; % subfolder for saving the images
 annot = options.annot;  % the annotation file
 lookup = options.lookup;
 wantfig = options.wantfig;  % do not show figure with fs_cvn_lookuplmv.m
@@ -172,10 +177,9 @@ for iLabel = 1:nLabel
             end
             
             % read the label and remove empty cells
-            [thisMat, maxCell] = cellfun(@(x) fs_readlabel(x, subjCode), theseLabel, 'uni', false);
+            thisMat = cellfun(@(x) fs_readlabel(x, subjCode), theseLabel, 'uni', false);
             isEmptyMat = cellfun(@isempty, thisMat);
             thisMat(isEmptyMat) = [];
-            maxCell(isEmptyMat) = [];
             
             % create roi mask for the label and roi name string
             maskStr = '';
@@ -193,7 +197,8 @@ for iLabel = 1:nLabel
                 
                 % mark the peak in the label
                 if markPeak
-                    rois = [thisRoi; cellfun(@(x) makeroi(nVtx, x), maxCell, 'uni', false)'];
+                    tempLabelT = fs_labelinfo(theseLabel, subjCode);
+                    rois = [thisRoi; arrayfun(@(x) makeroi(nVtx, x), tempLabelT.VtxMax, 'uni', false)];
                     roicolor = repmat(roicolor, 2, 1);
                 else
                     rois = thisRoi;
@@ -201,7 +206,6 @@ for iLabel = 1:nLabel
             end
             
             % create parts of the output filename
-            
             theLabelNames = theseLabel(~isEmptyMat);
             if all(isEmptyMat); theLabelNames = {theLabelName}; end
             labelNames = sprintf(['%s' repmat(' || %s', 1, nTheLabel-1)], theLabelNames{:});
@@ -237,7 +241,7 @@ for iLabel = 1:nLabel
             % Load and show the (first) label related information
             if showInfo && ~all(isEmptyMat)
                 labelCell = cellfun(@(x) fs_labelinfo(x, subjCode), theLabelNames, 'uni', false);
-                labelTable = struct2table(vertcat(labelCell{:}));
+                labelTable = vertcat(labelCell{:});
                 labelTable.SubjCode = [];
                 
                 pos = get(fig, 'Position'); %// gives x left, y bottom, width, height
@@ -261,7 +265,9 @@ for iLabel = 1:nLabel
             caxis(thisclim0);
             
             % print the figure
-            theOutPath = fullfile(outPath, theLabel);
+            subfolders = {'', subjCode, theLabel};
+            
+            theOutPath = fullfile(outPath, subfolders{subfolder});
             if ~exist(theOutPath, 'dir'); mkdir(theOutPath); end
             thisOut = fullfile(theOutPath, [imgName '.png']);
             
