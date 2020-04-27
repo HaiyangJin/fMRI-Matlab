@@ -113,7 +113,7 @@ for iSurf = 1: nSurf
     
     % generate figures for this pair
     [~, lookup, rgbimg] = fs_cvn_lookup('fsaverage', -2, valstruct, ...
-        lookup, 'cvnopts', extraopts, 'wantfig', wantfig, 'thresh0', thresh0);
+        lookup, 'cvnopts', extraopts, 'wantfig', wantfig, 'thresh', thresh0);
     
     % set the figure name and save it
     fig = figure('Visible','off');
