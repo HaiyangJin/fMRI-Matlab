@@ -14,25 +14,26 @@ function fs_cvn_print1st(sessList, anaList, labelList, outPath, varargin)
 % Optional inputs (varargin):
 %    'sigFn'         <string> name of the to-be-printed file [Default is
 %                     sig.nii.gz].
+%    'viewpt'        <integer> the viewpoitns to be used. More see
+%                     fs_cvn_lookup.m. Default is -2.
 %    'thresh'        <numeric> display threshold. Default is 1.3010 (abs).
 %    'clim'          <numeric array> limits for the color map. The Default
 %                     empty, which will display responses from %1 to 99%.
 %    'cmap'          <> use which color map, default is jet.
+%    'roicolors'     <numeric array> colors to be used for the label roi
+%                     masks.
+%    'lookup'        <> setting used for cvnlookupimage.
 %    'subfolder'     <numeric> which subfolder to save the outputs. 0: no
 %                     subfolder [Default]; 1: use subjCode; 2: use the Label.  
 %    'annot'         <string> which annotation will be used. Default is
 %                     '', i.e., not display annotation file.
-%    'viewpt'        <integer> the viewpoitns to be used. More see
-%                     fs_cvn_lookup.m. Default is -2.
-%    'roicolors'     <numeric array> colors to be used for the label roi
-%                     masks.
 %    'markPeak'      <logical> mark the location of the peak response.
 %                     Default is 0.
 %    'showInfo'      <logical> show label information in the figure.
 %                     Default is 0, i.e., do not show the label information.
 %    'wantfig'       <logical/integer> Default is 2, i.e., do not show the
 %                     figure. More please check fs_cvn_lookup.
-%    'lookup'        <> setting used for cvnlookupimage.
+%    'cvnopts'       <cell> extra options for cvnlookupimages.m.
 %    'funcPath'      <string> the path to functional folder [Default is
 %                     $FUNCTIONALS_DIR].
 %
@@ -48,25 +49,25 @@ waitHandle = waitbar(0, 'Preparing for printing first-level results...');
 
 defaultOpts = struct(...
     'sigfn', 'sig.nii.gz', ...
-    'thresh', 1.3010i, ...
     'viewpt', -2, ...
+    'thresh', 1.3010i, ...
+    'clim', [], ...
+    'cmap', jet(256), ...
     'roicolors', {[1, 1, 1;  % white
     1, 1, 0;  % yellow
     1, 0, 1;  % Magenta / Fuchsia
     0, 0, 1;  % blue
     0, 0, 0;  % black
     ]}, ...
-    'clim', [], ...
-    'cmap', jet(256), ...
+    'lookup', [], ...
     'subfolder', 1, ...
     'annot', '', ...
-    'lookup', [], ...
+    'markpeak', 0, ... % mark the peak response in the label
+    'showinfo', 0, ...
     'wantfig', 2, ...
     'cvnopts', {{}}, ...
-    'showinfo', 0, ...
-    'markpeak', 0, ... % mark the peak response in the label
     'funcpath', getenv('FUNCTIONALS_DIR'), ...
-    'strupath', getenv('SUBJECTS_DIR'));
+    'strupath', getenv('SUBJECTS_DIR'));  % not in use now
 
 options = fs_mergestruct(defaultOpts, varargin);
 
