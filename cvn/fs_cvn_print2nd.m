@@ -26,6 +26,8 @@ function fs_cvn_print2nd(sigPathInfo, sigFn, outPath, varargin)
 %                     empty, which will display responses from %1 to 99%.
 %    'cmap'          <> use which color map, default is jet.
 %    'lookup'        <> setting used for cvnlookupimage.
+%    'cluOutline'    <logical> whether show the outlines of clusters as
+%                     different colors.
 %    'annot'         <string> which annotation will be used. Default is
 %                     '', i.e., not display annotation file.
 %    'wantfig'       <logical/integer> Default is 2, i.e., do not show the
@@ -55,10 +57,12 @@ defaultOpts = struct(...
     'clim', [], ...
     'cmap', jet(256), ...
     'lookup', [], ...
+    'cluoutline', 0, ...
+    'cluoutcolor', 1, ...
     'annot', '', ...
     'wantfig', 2, ...
     'cvnopts', {{}}, ...
-    'funcpath', getenv('FUNCTIONALS_DIR'), ... % not in use now
+    'funcpath', getenv('FUNCTIONALS_DIR'), ...
     'strupath', getenv('SUBJECTS_DIR')); % not in use now
 
 options = fs_mergestruct(defaultOpts, varargin);
@@ -69,25 +73,29 @@ thresh = options.thresh;  % absolute value of 1.3 (p = 0.05)
 clim = options.clim;
 cmap = options.cmap;  % use jet(256) as the colormap
 lookup = options.lookup;
+cluOutline = options.cluoutline;
+cluOutColor = options.cluoutcolor;
+
 annot = options.annot;
 wantfig = options.wantfig;  % do not show figure with fs_cvn_lookuplmv.m
 cvnopts = options.cvnopts;
+funcPath = options.funcpath;
 
 % make the path
 sigPath = fs_fullfile(sigPathInfo{:});
 
 % whether the sigPath exist
-isExist = cellfun(@(x) exist(x, 'file'), sigPath);
+isExist1 = cellfun(@(x) ~isempty(dir(x)), sigPath);
 isFullPath = cellfun(@(x) startsWith(x, filesep), sigPath);
-needsFull = ~isExist & ~isFullPath;
+needsFull = ~isExist1 & ~isFullPath;
 
 if any(needsFull)
-    sigPath(needsFull) = fullfile(getenv('FUNCTIONALS_DIR'), sigPath(needsFull));
+    sigPath(needsFull) = fullfile(funcPath, sigPath(needsFull));
 end
 
-isExist = cellfun(@(x) exist(x, 'dir'), sigPath);
-if any(~isExist)
-    noFiles = sigPath(~isExist);
+isExist2 = cellfun(@(x) exist(x, 'dir'), sigPath);
+if any(~isExist2)
+    noFiles = sigPath(~isExist2);
     error('Cannot find the path: %s.\n', noFiles{:});
 end
 
@@ -135,6 +143,34 @@ else
     clim0 = clim;
 end
 
+% show the cluster outlines if needed
+if cluOutline
+    % show annotations (in the osgm/)
+    annotFiles = cellfun(@(x) strrep(x, 'cluster.nii.gz', 'ocn.annot'), surfs, 'uni', false);
+    [roiHemis, roicolortemp] = cellfun(@(x) fs_readannot(x, '', '', 1), annotFiles, 'uni', false);
+    
+    % complementary the other hemi (with all 0)
+    zeroL = cellfun(@(x) x.numrh, surfStruct, 'uni', false);
+    roitempL = cellfun(@(x1, x2) cellfun(@(y) [y; zeros(x2, 1)], x1, 'uni', false), ...
+        roiHemis(:, 1), zeroL', 'uni', false);
+    zeroR = cellfun(@(x) x.numlh, surfStruct, 'uni', false);
+    roitempR = cellfun(@(x1, x2) cellfun(@(y) [zeros(x2, 1); y], x1, 'uni', false), ...
+        roiHemis(:, 2), zeroR', 'uni', false);
+    
+    % all the cluster outlines
+    roiall = cellfun(@vertcat, roitempL, roitempR, 'uni', false)';
+    
+    % use self defined colors in fs_colors
+    if cluOutColor
+        roicolorL = cellfun(@(x) fs_colors(numel(x)), roitempL, 'uni', false);
+        roicolorR = cellfun(@(x) fs_colors(numel(x)), roitempR, 'uni', false);
+        roicolors = cellfun(@vertcat, roicolorL, roicolorR, 'uni', false);
+    else
+        roicolors = arrayfun(@(x) vertcat(roicolortemp{x, :}), 1:size(roicolortemp, 1), 'uni', false)';
+    end
+    
+end
+
 %% Create figure for every surf
 nSurf = size(surfs, 1);
 for iSurf = 1: nSurf
@@ -144,14 +180,19 @@ for iSurf = 1: nSurf
     
     % this pair of surfaces
     valstruct = surfStruct{iSurf};
+    thisroi = roiall{iSurf};
+    thisroicolor = roicolors{iSurf};
     
     % generate figures for this pair
     [~, lookup, rgbimg] = fs_cvn_lookup('fsaverage', viewpt, valstruct, ...
         lookup, 'cvnopts', [cvnopts, {'cmap', cmap, 'clim', clim0}], ...
-                'wantfig', wantfig, ...
-                'thresh', thresh, ...
-                'annot', annot); 
-            
+        'wantfig', wantfig, ...
+        'thresh', thresh, ...
+        'roimask', thisroi, ...
+        'roicolor', thisroicolor, ...
+        'roiwidth', {0.5}, ...
+        'annot', annot);
+    
     % set the figure name and save it
     fig = figure('Visible','off');
     imshow(rgbimg); % display lookup results (imagesc + colorbar)
