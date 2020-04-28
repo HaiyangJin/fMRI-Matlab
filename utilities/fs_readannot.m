@@ -1,5 +1,5 @@
-function varargout = fs_readannot(annotFn, subjCode, roiName, struPath, extraopts)
-% [rois, roiColors, roiList, nVtxRoi] = fs_readannot([annotFn, subjCode, roiName, struPath, extraopts])
+function varargout = fs_readannot(annotFn, subjCode, roiName, rmEmpty, struPath, extraopts)
+% [rois, roiColors, roiList, nVtxRoi] = fs_readannot([annotFn, subjCode, roiName, rmEmpty, struPath, extraopts])
 %
 % This funciton reads the annotation files and output the binary masks for
 % all the parcellations (rois) and their colors.
@@ -13,6 +13,8 @@ function varargout = fs_readannot(annotFn, subjCode, roiName, struPath, extraopt
 %                     fsaverage.
 %    roiName         <cell string> a list of parcellation (roi) names to be
 %                     output. Default is all roi names.
+%    rmEmpty         <logical> whether remove the empty annotation. Default
+%                     is do not remove the empty annotation. 
 %    struPath        <string> $SUBJECTS_DIR.
 %    extraopts       <integer> if true (>0), disp running output; if false
 %                     (==0), be quiet and do not display any running
@@ -33,6 +35,9 @@ function varargout = fs_readannot(annotFn, subjCode, roiName, struPath, extraopt
 if ~exist('annotFn', 'var') || isempty(annotFn)
     annotFn = 'lh.aparc.annot';
     warning('''%s'' is loaded by default.', annotFn);
+end
+if ~exist('rmEmpty', 'var') || isempty(rmEmpty)
+    rmEmpty = 0;
 end
 if ~exist('extraopts', 'var') || isempty(extraopts)
     extraopts = 0;
@@ -90,11 +95,18 @@ roiCell = arrayfun(@(x) label == x, roiCode, 'uni', false);
 % save the colors as [0, 1]
 roiColors = ctab.table(roiIndices, 1:3)/255;
 
+% detect the empty annotation if necessary
+if rmEmpty
+    isEmpty = cellfun(@(x) x == 0, nVtxRoi);
+else
+    isEmpty = zeros(size(nVtxRoi));
+end
+
 % save the output
-varargout{1} = rois;
-varargout{2} = roiColors;
-varargout{3} = roiList;
-varargout{4} = nVtxRoi;
+varargout{1} = rois(~isEmpty);
+varargout{2} = roiColors(~isEmpty, :);
+varargout{3} = roiList(~isEmpty);
+varargout{4} = nVtxRoi(~isEmpty);
 
 end
 
