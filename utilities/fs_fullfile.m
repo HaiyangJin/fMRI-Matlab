@@ -1,4 +1,4 @@
-function allPath = fs_fullfile(varargin)
+function [allPath, pathCell] = fs_fullfile(varargin)
 % allPath = fs_fullfile(varargin)
 %
 % This function creates the path with all the possible combinations within
