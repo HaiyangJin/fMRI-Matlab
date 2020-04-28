@@ -1,22 +1,70 @@
-function sumTable = fs_readsummary(filename, toMNI152)
-% sumTable = fs_readsummary(filename, [toMNI152=0])
+function sumTable = fs_readsummary(sumPathInfo, toMNI152, outPath, outFn)
+% sumTable = fs_readsummary(filename, [toMNI152=0, outPath=pwd, outFn='summary.csv'])
 %
 % This function reads the summary file generated in FreeSurfer (mainly by
 % mri_surfcluster).
 %
 % Inputs:
-%    filename       <string> filename of the summary file (with path).
-%    toMNI152       <logical> whether converts the coordinates (from
-%                    MNI305) to MNI152 space.
+%    sumPathInfo     <cell> a 1xQ or Px1 cell. All the path and filename
+%                     information to theto-be-printed files. Each row is
+%                     one layer (level) ofthe path and all the paths will
+%                     be combined in order(with all possible combinations).
+%                     [fileInfo will be dealt with fs_fullfile.m]
+%    toMNI152        <logical> whether converts the coordinates (from
+%                     MNI305) to MNI152 space.
+%    outPath         <string> where to save the output images. [current
+%                     folder by default].
+%    outFn           <string> the name of the output file. Default is
+%                     'summary.csv'.
 %
 % Output:
-%    sumTable       <table> a table of the information in the summary file.
+%    sumTable        <table> a table of the information in the summary file.
 %
 % Created by Haiyang Jin (15-Apr-2020)
 
 if ~exist('toMNI152', 'var') || isempty(toMNI152)
     toMNI152 = 0;
 end
+if ~exist('outPath', 'var') || isempty(outPath)
+    outPath = fullfile(pwd, 'Summary');
+end
+if ~exist('outFn', 'var') || isempty(outFn)
+    outFn = 'Summary.csv';
+end
+
+%% Read the summary files
+% create the path to the summary files
+sumFiles = fs_fullfile(sumPathInfo{:});
+nFile = numel(sumFiles);
+
+% read the summary files
+sumTableCell = cellfun(@(x) readsummary(x, toMNI152), sumFiles, 'uni', false);
+
+%% Gather the information for the summary files
+% find which have multiple levels
+isMulti = cellfun(@(x) iscell(x) && numel(x) ~= 1, sumPathInfo);
+multiLevels = sumPathInfo(isMulti);
+
+% repeat the multiple levels for each table
+[~, levels] = fs_fullfile(multiLevels{:});
+levelCell = [levels{:}];
+levelNames = arrayfun(@(x) sprintf('Name%d', x), 1:size(levelCell, 2), 'uni', false);
+infoTableCell = arrayfun(@(x) cell2table(repmat(levelCell(x, :), size(sumTableCell{x}, 1), 1), ...
+    'VariableNames', levelNames), 1: nFile, 'uni', false)';
+
+%% Combine the two tables and save as a file
+% combine variable tables and the file information table
+sumCell = cellfun(@horzcat, infoTableCell, sumTableCell, 'uni', false);
+sumTable = vertcat(sumCell{:});
+
+% Save the sumTable as a file
+outFile = fullfile(outPath, outFn);
+writetable(sumTable, outFile);
+
+end
+
+%% read summary file separately
+function theTable = readsummary(filename, toMNI152)
 
 [~, ~, ext] = fileparts(filename);
 assert(strcmp(ext, '.summary'), ['The extension of the file has to be '...
@@ -48,7 +96,7 @@ if toMNI152
     % obtain MNI305 coordinates
     MNI305 = dataTable(:, cellfun(@(x) startsWith(x, 'MNI305'), dataTable.Properties.VariableNames));
     % convert to MNI152 coordinates
-    MNI152 = array2table(fsavg2mni(MNI305{:, :}), 'VariableNames', ...
+    MNI152 = array2table(fs_fsavg2mni(MNI305{:, :}), 'VariableNames', ...
         strrep(MNI305.Properties.VariableNames, '305', '152'));
     % combine MNI152 coordinates to MNI305
     dataTable = horzcat(dataTable, MNI152);
@@ -57,7 +105,7 @@ end
 %% Obtain other infromation and combine tables
 % obtain other information
 otherInfo = struct;
-otherInfo.Hemi = {infoCell{16, 1}{2}};
+otherInfo.Hemi = infoCell{16, 1}(2);
 otherInfo.Bonferroni = infoCell{24, 1}{2};
 otherInfo.Sign = infoCell{27, 1}{3};
 otherInfo.Threshold = infoCell{25, 1}{3};
@@ -66,10 +114,10 @@ otherInfo.CWPvalue = infoCell{29, 1}{4};
 otherTable = repmat(struct2table(otherInfo), size(dataTable, 1), 1);
 
 % combine the data and other information table
-sumTable = horzcat(dataTable, otherTable);
+theTable = horzcat(dataTable, otherTable);
 
 % add hemi ('l' or 'r') to cluster number
-sumTable.ClusterNo = arrayfun(@(x, y) [upper(y{1}(1)) num2str(x)], ...
-    sumTable.ClusterNo, sumTable.Hemi, 'uni', false);
+theTable.ClusterNo = arrayfun(@(x, y) [upper(y{1}(1)) num2str(x)], ...
+    theTable.ClusterNo, theTable.Hemi, 'uni', false);
 
 end
