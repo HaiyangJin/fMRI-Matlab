@@ -1,4 +1,4 @@
-function isok = fv_label(subjCode, labelFn, outputPath, overlayFile, ...
+function isok = fv_label(subjCode, labelList, outPath, overlayFile, ...
     threshold, colorLabel, saveSS)
 % isok = fv_label(subjCode, labelFn, outputPath, overlayFile, ...
 %    threshold, colorLabel, saveSS)
@@ -29,28 +29,28 @@ isok = 1;
 %% Obtain information from input arguments
 % determine if there is label information to be shown
 % if there is label information, 
-if ischar(labelFn) && length(labelFn) < 3 % if only contains info of hemi
-    hemi = labelFn;
-    labelFn = '';
-elseif ischar(labelFn) % if only one label but it is char
-    labelFn = {labelFn};
-    hemi = fs_2hemi(labelFn);
+if ischar(labelList) && length(labelList) < 3 % if only contains info of hemi
+    hemi = labelList;
+    labelList = '';
+elseif ischar(labelList) % if only one label but it is char
+    labelList = {labelList};
+    hemi = fs_2hemi(labelList);
 else % 
     % make sure all labels are for the same hemisphere
-    [hemi, nHemi] = fs_hemi_multi(labelFn);
+    [hemi, nHemi] = fs_hemi_multi(labelList);
     if nHemi ~= 1
         error('Please make sure all labels used are for the same hemisphere.');
     end
 end
-nLabel = numel(labelFn); % number of labels for visualization
+nLabel = numel(labelList); % number of labels for visualization
 
 
-if nargin < 5 || isempty(threshold)
+if ~exist('threshold', 'var') || isempty(threshold)
     threshold = '2,4';
 end
 
-if nargin < 3 || isempty(outputPath)
-    outputPath = fullfile('.');
+if ~exist('outPath', 'var') || isempty(outPath)
+    outPath = pwd;
 end
 
 % create the freesurfer commands for the functional data
@@ -63,8 +63,8 @@ else
 end
 
 % detect which overlay is shown 
-if ~isempty(labelFn)
-    contrasts = fs_2contrast(labelFn);
+if ~isempty(labelList)
+    contrasts = fs_2contrast(labelList);
     whichOverlay = find(cellfun(@(x) contains(overlayFile, x), {contrasts}), 1);
     if isempty(whichOverlay)
         whichOverlay = 0;
@@ -78,22 +78,13 @@ else
 end
 
 % colors used for labels
-if nargin < 7 || isempty(colorLabel)
+if ~exist('colorLabel', 'var') || isempty(colorLabel)
     colorLabel = {'#FFFFFF', '#33cc33', '#0000FF', '#FFFF00'}; % white, green, blue, yellow
 end
 
-if nargin < 8 || isempty(saveSS)
+if ~exist('saveSS', 'var') || isempty(saveSS)
     saveSS = 0;
 end
-
-outputFolder = sprintf('Label_Screenshots%s_%s', template, strrep(threshold, ',', '-'));
-outputPath = fullfile(outputPath, outputFolder);
-if ~exist(outputPath, 'dir'); mkdir(outputPath); end % create the folder if necessary
-
-
-%% Create commands for each "section"
-% FreeSurfer setup 
-structPath = getenv('SUBJECTS_DIR');
 
 % if show ?h.inflated of fsaverage (probably this should be determined by
 % the overlay file???)
@@ -102,6 +93,14 @@ if contains('fsaverage', overlayFile)
 else
     template = 'self';
 end
+outputFolder = sprintf('Label_Screenshots%s_%s', template, strrep(threshold, ',', '-'));
+outPath = fullfile(outPath, outputFolder);
+if ~exist(outPath, 'dir'); mkdir(outPath); end % create the folder if necessary
+
+
+%% Create commands for each "section"
+% FreeSurfer setup 
+structPath = getenv('SUBJECTS_DIR');
 
 % surface files and the annotation file
 trgSubj = fs_trgsubj(subjCode, template);
@@ -118,7 +117,7 @@ fscmd_surf = sprintf(['freeview -f %s:'... % the ?h.inflated file
 fscmd_label = '';
 for iLabel = 1:nLabel
     
-    theLabelFn = labelFn{iLabel};
+    theLabelFn = labelList{iLabel};
     thelabelFile = fullfile(structPath, subjCode, 'label', theLabelFn); % label file
     thelabelColor = colorLabel{iLabel};
     
@@ -140,16 +139,16 @@ end
 fscmd_camera = fs_camangle(contrast, hemi);
 
 % the filename of the screenshot
-if isempty(labelFn)
+if isempty(labelList)
     nameLabels = '';
 else
-    nameLabels = sprintf(repmat('%s:', 1, nLabel), labelFn{:});
+    nameLabels = sprintf(repmat('%s:', 1, nLabel), labelList{:});
     nameLabels = erase(nameLabels, {'roi.', '.label'}); % shorten filenames
 end
 
 if saveSS
     outputFn = sprintf('%s%s%s_%d.png', nameLabels, subjCode, template, whichOverlay);
-    outputFile = fullfile(outputPath, outputFn);
+    outputFile = fullfile(outPath, outputFn);
     fscmd_output = sprintf(' -ss %s', outputFile); %
 else
     fscmd_output = '';
@@ -157,7 +156,7 @@ end
 
 %% combine the commands and run 
 % combine the command together
-fscmd = [fscmd_surf fscmd_label fscmd_overlay fscmd_camera fscmd_output];
+fscmd = [fscmd_surf fscmd_label fscmd_overlay fscmd_camera fscmd_output '&'];
 
 % run the freesurfer command
 system(fscmd);
