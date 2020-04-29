@@ -12,8 +12,9 @@ function sumTable = fs_readsummary(sumPathInfo, toMNI152, outPath, outFn)
 %                     [fileInfo will be dealt with fs_fullfile.m]
 %    toMNI152        <logical> whether converts the coordinates (from
 %                     MNI305) to MNI152 space.
-%    outPath         <string> where to save the output images. [current
-%                     folder by default].
+%    outPath         <string> where to save the output images. If outPath 
+%                     is 'none', no file will be created. Default is the 
+%                     current folder.
 %    outFn           <string> the name of the output file. Default is
 %                     'summary.csv'.
 %
@@ -35,7 +36,6 @@ end
 %% Read the summary files
 % create the path to the summary files
 sumFiles = fs_fullfile(sumPathInfo{:});
-nFile = numel(sumFiles);
 
 % read the summary files
 sumTableCell = cellfun(@(x) readsummary(x, toMNI152), sumFiles, 'uni', false);
@@ -50,16 +50,19 @@ multiLevels = sumPathInfo(isMulti);
 levelCell = [levels{:}];
 levelNames = arrayfun(@(x) sprintf('Name%d', x), 1:size(levelCell, 2), 'uni', false);
 infoTableCell = arrayfun(@(x) cell2table(repmat(levelCell(x, :), size(sumTableCell{x}, 1), 1), ...
-    'VariableNames', levelNames), 1: nFile, 'uni', false)';
+    'VariableNames', levelNames), 1: numel(levelCell), 'uni', false)';
 
 %% Combine the two tables and save as a file
 % combine variable tables and the file information table
+if isempty(infoTableCell); infoTableCell = {[]}; end
 sumCell = cellfun(@horzcat, infoTableCell, sumTableCell, 'uni', false);
 sumTable = vertcat(sumCell{:});
 
 % Save the sumTable as a file
-outFile = fullfile(outPath, outFn);
-writetable(sumTable, outFile);
+if ~strcmp(outPath, 'none')
+    outFile = fullfile(outPath, outFn);
+    writetable(sumTable, outFile);
+end
 
 end
 
