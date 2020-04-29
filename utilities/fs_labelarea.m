@@ -36,8 +36,12 @@ if ~isempty(labelPath)
     curvFile = fullfile(labelPath, '..', 'surf', curvFile);
 end
 
+% read the area for fsaverage if the label is on fsaverage surface
+template = fs_2template(labelFn, '', 'self');
+trgSubj = fs_trgsubj(subjCode, template);
+
 % areas for all vertices
-area = fs_readcurv(curvFile, subjCode, struPath);
+area = fs_readcurv(curvFile, trgSubj, struPath);
 
 % sum the areas of vertices in the label
 labelarea = sum(area(labelMat(:, 1)));
