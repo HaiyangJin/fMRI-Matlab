@@ -1,6 +1,6 @@
 function fs_cvn_print2nd(sigPathInfo, sigFn, outPath, varargin)
 % fs_cvn_print2nd(sigPath, [sigFn = 'perm.th30.abs.sig.cluster.nii.gz', ..
-%   outPath=pwd, extraopts={}])
+%   outPath=pwd, varargin])
 %
 % This function prints the results of second level (group level) analysis.
 % 'perm.th30.abs.sig.cluster.nii.gz' usually is the significant clusters
@@ -26,8 +26,11 @@ function fs_cvn_print2nd(sigPathInfo, sigFn, outPath, varargin)
 %                     empty, which will display responses from %1 to 99%.
 %    'cmap'          <> use which color map, default is jet.
 %    'lookup'        <> setting used for cvnlookupimage.
-%    'cluOutline'    <logical> whether show the outlines of clusters as
+%    'outline'       <logical> whether show the outlines of clusters as
 %                     different colors.
+%    'outcolor'      <integer> 1: show the default color in fs_colors;
+%                      0: show the default color in the corresponding
+%                      annotation file.
 %    'annot'         <string> which annotation will be used. Default is
 %                     '', i.e., not display annotation file.
 %    'wantfig'       <logical/integer> Default is 2, i.e., do not show the
@@ -49,7 +52,7 @@ function fs_cvn_print2nd(sigPathInfo, sigFn, outPath, varargin)
 %
 % Created by Haiyang Jin (13-Apr-2020)
 
-%% Deal with input
+%% Deal with inputs
 
 defaultOpts = struct(...
     'viewpt', -2, ...
@@ -57,9 +60,10 @@ defaultOpts = struct(...
     'clim', [], ...
     'cmap', jet(256), ...
     'lookup', [], ...
-    'cluoutline', 0, ...
-    'cluoutcolor', 1, ...
+    'outline', 0, ...
+    'outcolor', 1, ...
     'annot', '', ...
+    'showinfo', 0, ...
     'wantfig', 2, ...
     'cvnopts', {{}}, ...
     'funcpath', getenv('FUNCTIONALS_DIR'), ...
@@ -67,21 +71,21 @@ defaultOpts = struct(...
 
 options = fs_mergestruct(defaultOpts, varargin);
 
-
 viewpt = options.viewpt;
 thresh = options.thresh;  % absolute value of 1.3 (p = 0.05)
 clim = options.clim;
 cmap = options.cmap;  % use jet(256) as the colormap
 lookup = options.lookup;
-cluOutline = options.cluoutline;
-cluOutColor = options.cluoutcolor;
+cluOutline = options.outline;
+cluOutColor = options.outcolor;
 
 annot = options.annot;
+showInfo = options.showinfo;
 wantfig = options.wantfig;  % do not show figure with fs_cvn_lookuplmv.m
 cvnopts = options.cvnopts;
 funcPath = options.funcpath;
 
-% make the path
+% make the path for the sig files
 sigPath = fs_fullfile(sigPathInfo{:});
 
 % whether the sigPath exist
@@ -112,7 +116,7 @@ end
 outPath = fullfile(outPath, sigFn);
 if ~exist(outPath, 'dir'); mkdir(outPath); end
 
-%% Read files
+%% Read sig files
 % the full path to the sig files
 thefiles = fullfile(sigPath, sigFn);
 
@@ -124,10 +128,11 @@ rightFiles = strrep(leftFiles, 'lh', 'rh');
 
 % combine files for left and right hemispheres
 surfs = [leftFiles, rightFiles];
+nSurf = size(surfs, 1);
 
 % read the file into structure(s)
 surfStruct = arrayfun(@(x) fs_cvn_valstruct(surfs(x, :)), ...
-    1:size(surfs, 1), 'uni', false);
+    1:nSurf, 'uni', false);
 
 % Calculate the colorbar limit if it is empty
 if isempty(clim)
@@ -143,6 +148,7 @@ else
     clim0 = clim;
 end
 
+%% Read other files if needed
 % show the cluster outlines if needed
 if cluOutline
     % show annotations (in the osgm/)
@@ -168,11 +174,20 @@ if cluOutline
     else
         roicolors = arrayfun(@(x) vertcat(roicolortemp{x, :}), 1:size(roicolortemp, 1), 'uni', false)';
     end
-    
+else
+    roiall = repmat({[]}, nSurf, 1);
+    roicolors = roiall;
+end
+
+% read the cluster information 
+if showInfo
+    % show the cluster information in *.summary if necessary
+    sumFiles = cellfun(@(x) strrep(x, 'cluster.nii.gz', 'cluster.summary'), surfs, 'uni', false);
+    sumHemiCell = arrayfun(@(x) fs_readsummary(x, 0, 'none'), sumFiles, 'uni', false);
+    sumCell = arrayfun(@(x) vertcat(sumHemiCell{x, :}), 1:size(sumHemiCell, 1), 'uni', false)';
 end
 
 %% Create figure for every surf
-nSurf = size(surfs, 1);
 for iSurf = 1: nSurf
     
     % print message
@@ -200,6 +215,29 @@ for iSurf = 1: nSurf
     % obtain the contrast name as the figure name
     theConName = unique(cellfun(@(x) fs_2contrast(x, filesep), surfs(iSurf, :), 'uni', false));
     set(fig, 'Name', theConName{1});
+    
+    % Load and show the group (second) level results information
+    if showInfo 
+
+        sumTable = sumCell{iSurf};
+        sumTable.WghtVtx = [];
+        sumTable.Hemi = [];
+        
+        pos = get(fig, 'Position'); %// gives x left, y bottom, width, height
+        set(fig, 'Position', [pos(1:2) max(1050, pos(3)) pos(4)+max(pos(4)/pos(3)*1000-600, 200)]);
+        % Get the table in string form.
+        TString = evalc('disp(sumTable)');
+        % Use TeX Markup for bold formatting and underscores.
+        TString = strrep(TString,'<strong>','\bf');
+        TString = strrep(TString,'</strong>','\rm');
+        TString = strrep(TString,'_','\_');
+        % Get a fixed-width font.
+        FixedWidth = get(0,'FixedWidthFontName');
+        % Output the table using the annotation command.
+        annotation(gcf,'Textbox','String',TString,'Interpreter','Tex',...
+            'FontName',FixedWidth,'Units','Normalized',...
+            'Position',[0.01 0 1 0.1],'FontSize',12,'LineStyle','none');
+    end
     
     colorbar;
     colormap(cmap);
