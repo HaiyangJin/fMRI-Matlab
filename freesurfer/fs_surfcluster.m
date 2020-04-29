@@ -56,7 +56,9 @@ end
 
 isLabel = endsWith(labelFn, '.label');
 hemi = fs_2hemi(anaName);
+template = fs_2template(anaName);
 subjCode = fs_subjcode(sessCode, funcPath);
+trgSubj = fs_trgsubj(subjCode, template);
 
 % create cmd for label if needed
 if isLabel
@@ -88,7 +90,7 @@ outFile = fullfile(outPath, outFn);
 % create and run FreeSurfer commands
 fscmd = sprintf(['mri_surfcluster --in %s --subject %s ' ...
     '--surf white --thmin %d --hemi %s --sum %s --nofixmni%s'], ...
-    sigfile, subjCode, thmin, hemi, outFile, fscmd_label);
+    sigfile, trgSubj, thmin, hemi, outFile, fscmd_label);
 isnotok = system(fscmd);
 assert(~isnotok, 'FreeSurfer commands (mri_surfcluster) failed.');
 
