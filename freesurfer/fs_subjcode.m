@@ -1,22 +1,39 @@
-function subjCode = fs_subjcode(sessCode, funcPath)
-% subjCode = fs_subjcode(sessCode, funcPath)
+function subjList = fs_subjcode(sessList, funcPath, forceCell)
+% subjList = fs_subjcode(sessList, funcPath, forceCell
 %
 % This function converts the subject code for bold into subject code in
 % $SUBJECTS_DIR
 %
 % Inputs:
-%    sessCode         <string> session code in funcPath.
+%    sessList         <cell string> list of session codes in funcPath.
 %    funcPath         <string> the full path to the functional folder.
+%    forceCell        <logical> 1: force the output to be cell; 0: convert
+%                      the 'subjList' as string if possible. Default is 0.
 %
 % Output:
-%    subjCode         <string> subject code in %SUBJECTS_DIR.
+%    subjList         <cell string> list of subject code in %SUBJECTS_DIR.
 %
 % Created by Haiyang Jin (10-Dec-2019)
 
 % use the path saved in the global environment if needed
-if nargin < 2 || isempty(funcPath)
+if ~exist('funcPath', 'var') || isempty(funcPath)
     funcPath = getenv('FUNCTIONALS_DIR');
 end
+if ~exist('forceCell', 'var') || isempty(forceCell)
+    forceCell = 0;
+end
+
+if ischar(sessList); sessList = {sessList}; end
+
+subjList = cellfun(@(x) subjcode(x, funcPath), sessList, 'uni', false);
+
+if numel(subjList) == 1 && ~forceCell
+    subjList = subjList{1};
+end
+
+end
+
+function subjCode = subjcode(sessCode, funcPath)
 
 % error if cannot find the sessCode in that folder
 if ~exist(fullfile(funcPath, sessCode), 'dir')
