@@ -21,14 +21,15 @@ function [allPath, pathCell] = fs_fullfile(varargin)
 %% Make sure not all varargin are full path
 isOne = cellfun(@numel, varargin) == 1;
 if all(isOne)
-    isFilesep = cellfun(@(x) contains(x, filesep), pathInfo);
+    isFilesep = cellfun(@(x) contains(x, filesep), varargin);
 else
     isFilesep = false;
 end
 
 % copy varargin to allPath if all varargin is a full path
 if all(isFilesep)
-    allPath = pathInfo;
+    allPath = varargin;
+    pathCell = {};
     return;
 end
 
