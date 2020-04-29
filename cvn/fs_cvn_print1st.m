@@ -241,7 +241,7 @@ for iLabel = 1:nLabel
                 labelTable.SubjCode = [];
                 
                 pos = get(fig, 'Position'); %// gives x left, y bottom, width, height
-                set(fig, 'Position', [pos(1:2) max(1050, pos(3)) pos(4)+max(pos(4)/pos(3)*1000-600, 500)]);
+                set(fig, 'Position', [pos(1:2) max(1150, pos(3)) pos(4)+max(ceil(pos(4)/pos(3)*1000)-600, 500)]);
                 % Get the table in string form.
                 TString = evalc('disp(labelTable)');
                 % Use TeX Markup for bold formatting and underscores.
