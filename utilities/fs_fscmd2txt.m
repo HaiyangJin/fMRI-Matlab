@@ -21,7 +21,7 @@ function fscmd = fs_fscmd2txt(outFn, outPath, varargin)
 %
 % Created by Haiyang Jin (18-Apr-2020)
 
-if ~exist('filename', 'var') || isempty(outFn)
+if ~exist('outFn', 'var') || isempty(outFn)
     outFn = 'fscmd.txt';
 end
 

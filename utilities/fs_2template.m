@@ -31,7 +31,7 @@ if ~exist('patternCells', 'var') || isempty(patternCells)
 end
 nPattern = numel(patternCells);
 
-if ~exist('', 'var') || isempty(defaultStr)
+if ~exist('defaultStr', 'var') || isempty(defaultStr)
     defaultStr = {'unknown'};
 elseif ischar(defaultStr)
     defaultStr = {defaultStr};

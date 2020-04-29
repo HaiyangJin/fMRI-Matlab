@@ -1,5 +1,5 @@
 function labelTable = fs_labelinfo(labelList, subjList, struPath)
-% labelTable = fs_labelinfo(labelFn, subjCode, struPath)
+% labelTable = fs_labelinfo(labelList, subjList, struPath)
 %
 % This function gathers the information about the label file.
 %
