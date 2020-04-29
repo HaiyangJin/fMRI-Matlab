@@ -62,7 +62,7 @@ for iSess = 1:nSess
             hemi, fthresh*10, contrastName, extraLabelInfo);
         
         % draw labels manually with FreeSurfer
-        fv_drawlabel(subjCode, hemi, sigFile, labelName, fthresh);
+            fscmdCell{iSess, iAna, iCon} = fv_drawlabel(subjCode, thisAna, sigFile, labelName, fthresh);
         
     end
     

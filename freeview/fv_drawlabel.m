@@ -1,30 +1,44 @@
-function fv_drawlabel(subjCode, hemi, sigFile, labelname, fthresh)
-% fv_drawlabel(subjCode, hemi, sigFile, labelname, fthresh)
+function fscmd = fv_drawlabel(subjCode, anaName, sigFile, labelname, fthresh, runcmd)
+% fscmd = fv_drawlabel(subjCode, anaName, sigFile, labelname, fthresh, runcmd)
 %
 % This function uses "tksurfer" in FreeSurfer to draw label 
 % 
 % Inputs:
 %    subjCode         <string> subject code in $SUBJECTS_DIR.
-%    hemi             <string> which hemispheres (must be 'lh' or 'rh').
+%    anaName          <string> the analysis name.
 %    fileSig          <string> usually the sig.nii.gz from localizer scans.
 %    labelname        <string> the label name you want to use for this
-%                     label.
+%                      label.
 %    fthresh          <string> or <numeric> the overlay threshold minimal 
-%                     value .
+%                      value.
+%    runcmd           <logical> 0: do not run but only make fscmd; 1: run
+%                      FreeSurfer commands. Default is 1.
+%
 % Output:
+%    fscmd            <string> FreeSurfer commands used.
 %    a label file saved in the label folder
 %
 % Created by Haiyang Jin (10-Dec-2019)
 % For furture development, I should included to define the limits of
 % p-values.
 
-if nargin < 5 % || isempty(fthresh)
+hemi = fs_2hemi(anaName);
+
+if ~exist('fthresh', 'var') || isempty(fthresh)
     fthresh = '';
 elseif isnumeric(fthresh)
     fthresh = num2str(fthresh);
 end
 
+if ~exist('runcmd', 'var') || isempty(runcmd)
+    runcmd = 1;
+end
+
 subjPath = getenv('SUBJECTS_DIR');
+
+% find the template for this analysis
+template = fs_2template(anaName, '', 'self');
+trgSubj = fs_trgsubj(subjCode, template);
 
 % open a message box to display information
 CreateStruct.Interpreter = 'tex';
@@ -32,6 +46,7 @@ CreateStruct.WindowStyle = 'modal';
 % msgbox('\fontsize{18} Now is big =)', CreateStruct)
 
 message = {sprintf('\\fontsize{20}SubjCode: %s', replace(subjCode, '_', '-'));
+    sprintf('template: %s', template);
     sprintf('label: %s', labelname);
     sprintf('fthresh: %s', fthresh)};
 title = 'The current session...';
@@ -40,11 +55,16 @@ f = msgbox(message,title, CreateStruct);
 movegui(f, 'northeast');
 
 % create FreeSurfer command and run it
+
 fscmd = sprintf('tksurfer %s %s inflated -aparc -overlay %s',...
-    subjCode, hemi, sigFile);
+    trgSubj, hemi, sigFile);
 if ~isempty(fthresh)
     fscmd = sprintf('%s -fthresh %s', fscmd, fthresh);
 end
+
+% finish this command if do not need to run fscmd
+if ~runcmd; close(f); return; end
+
 system(fscmd);
 
 %%%%%%%%%%%%%%%% Manual working in FreeSurfer %%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -65,7 +85,7 @@ system(fscmd);
 labelFile = fullfile(subjPath, subjCode, 'label', labelname);
 
 % rename and move this label file
-tempLabelFile = fullfile(subjPath, subjCode, 'label.label');
+tempLabelFile = fullfile(subjPath, trgSubj, 'label.label');
 
 if exist(tempLabelFile, 'file')
     movefile(tempLabelFile, labelFile);
