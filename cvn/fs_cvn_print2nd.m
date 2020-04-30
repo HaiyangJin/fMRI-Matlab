@@ -139,8 +139,8 @@ if isempty(clim)
     % calculate the maximum of the absolute data values
     tempMax = max(cellfun(@(x) max(abs(x.data)), surfStruct));
     
-    % use the minimum 5*Integer as the maximum limit
-    climMax = ceil(tempMax/5)*5;
+    % use the ceil of the maximum value as the maximum limit
+    climMax = ceil(tempMax);
     
     % generate figures
     clim0 = [-climMax climMax];
