@@ -1,15 +1,15 @@
-function outpoints = fs_ras2tal(inpoints, subjCode, struPath)
-% outpoints = fs_ras2tal(inpoints, subjCode)
+function outpoints = fs_self2tal(inpoints, subjCode, struPath)
+% outpoints = fs_self2tal(inpoints, subjCode)
 %
 % This function converts self RAS to Talairach coordinates. But the output
 % is not exactly he Talairach coordinates, see:
 % (https://surfer.nmr.mgh.harvard.edu/fswiki/CoordinateSystems).
 %
 % In TkSurfer:
-%    Vertex Talairach = fs_ras2tal(Vertex RAS, subjCode);
+%    Vertex Talairach = fs_self2tal(Vertex RAS, subjCode);
 %    [vertex RAS should be the coordiantes on ?h.orig]
 % In TkMedit:
-%    Volume Talairach = fs_ras2tal(Volume RAS, subjcode);
+%    Volume Talairach = fs_self2tal(Volume RAS, subjcode);
 %
 % Inputs:
 %    inpoints        <numeric array> RAS on self surface [real world].
@@ -29,7 +29,7 @@ if ~exist('struPath', 'var') || isempty(struPath)
 end
 
 % from Vertex RAS (or Volume RAS) to MNI305 RAS (fsaverage or MNI Talairach)
-outpoints1 = fs_ras2fsavg(inpoints, subjCode, struPath);
+outpoints1 = fs_self2fsavg(inpoints, subjCode, struPath);
 
 % from MNI305 RAS (fsaverage or MNI Talairach) to Talairach
 outpoints = mni2tal(outpoints1);

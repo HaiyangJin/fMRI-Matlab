@@ -1,5 +1,5 @@
-function outpoints = fs_ras2fsavg(inpoints, subjCode, struPath)
-% outpoints = fs_ras2fsavg(inpoints, subjCode, [struPath])
+function outpoints = fs_self2fsavg(inpoints, subjCode, struPath)
+% outpoints = fs_self2fsavg(inpoints, subjCode, [struPath])
 %
 % This functions converts self surface (or volume) RAS [in real world] to 
 % MNI305 (fsaverage) RAS [shown as MNI Talairach in tksurfer (surface 
@@ -7,10 +7,10 @@ function outpoints = fs_ras2fsavg(inpoints, subjCode, struPath)
 % https://surfer.nmr.mgh.harvard.edu/fswiki/CoordinateSystems (2).
 %
 % In TkSurfer:
-%    Vertex MNI Talairach = fs_ras2fsavg(Vertex RAS, subjCode);
+%    Vertex MNI Talairach = fs_self2fsavg(Vertex RAS, subjCode);
 %    [vertex RAS should be the coordiantes on ?h.orig]
 % In TkMedit:
-%    MNI Talairach = fs_ras2fsavg(Volume RAS, subjCode);
+%    MNI Talairach = fs_self2fsavg(Volume RAS, subjCode);
 %
 % Inputs:
 %    inpoints        <numeric array> RAS on self surface [real world].
@@ -48,8 +48,9 @@ Torig = fs_TNorig(subjCode, 't');
 Norig = fs_TNorig(subjCode, 'n');
 
 % converting RAS
-inRAS = horzcat(inpoints, ones(size(inpoints, 1), 1))';
-outRAS = talMat * Norig / Torig * inRAS;
+% inRAS = horzcat(inpoints, ones(size(inpoints, 1), 1))';
+% outRAS = talMat * Norig / Torig * inRAS;
+outRAS = talMat * Norig / Torig / inpoints;
 
 outpoints = outRAS';
 

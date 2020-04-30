@@ -71,7 +71,7 @@ end
 
 % coordiantes in RAS, MNI305(fsaverage) and Talairach space
 RAS = labelMat(maxIdx, 2:4);
-MNI305 = fs_ras2fsavg(RAS, subjCode);
+MNI305 = fs_self2fsavg(RAS, subjCode);
 Talairach = mni2tal(MNI305);
 
 % label area (in mm^2)
