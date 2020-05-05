@@ -48,9 +48,8 @@ Torig = fs_TNorig(subjCode, 't');
 Norig = fs_TNorig(subjCode, 'n');
 
 % converting RAS
-% inRAS = horzcat(inpoints, ones(size(inpoints, 1), 1))';
-% outRAS = talMat * Norig / Torig * inRAS;
-outRAS = talMat * Norig / Torig / inpoints;
+inRAS = horzcat(inpoints, ones(size(inpoints, 1), 1))';
+outRAS = talMat * Norig / Torig * inRAS;
 
 outpoints = outRAS';
 
