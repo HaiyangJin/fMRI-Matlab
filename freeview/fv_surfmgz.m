@@ -1,40 +1,62 @@
-function mgzFile = fv_surfmgz(mgzFile, surfType, threshold)
-% function fv_surfmgz(mgzFile, surfType, threshold)
+function [mgzFile, fscmd] = fv_surfmgz(mgzFile, varargin)
+% [mgzFile, fscmd] = fv_surfmgz(mgzFile, varargin)
 %
 % This function displays *.mgz file (for surface) in FreeView. [For
 % displaying *.mgz for volume, please use fv_volmgz.m instead.]
 %
 % Inputs: 
-%     mgzFile            <string> or <a cell of strings> *.mgz file (with 
-%                        path) [fv_mgz.m could be used to open a gui for 
-%                        selecting files.]
-%     surfType           <string> the base surface file to be displayed
-%                        ('inflated', 'white', 'pial', 'sphere')
-%     threshold          <string> the threshold used for mgzFile
-%                        [low,(mid,)high(,percentile)]
+%    mgzFile          <string> or <a cell of strings> *.mgz file (with 
+%                      path) [fv_mgz.m could be used to open a gui for 
+%                      selecting files.]
+%
+% Varargin:
+%    'surftype'       <cell string> the surface type to be displayed
+%                      Default is 'infalted'; 
+%    'thresh'         <string> threshold to be displayed in Freeview.
+%                      Default is ''. 
+%    'annot'          <string> name of the annotation files. Default is '', 
+%                      which will display 'aparc'. Others:'a2009s',
+%                      'a2005s';
+%    'runcmd'         <logical> 1: run the fscmd to open freeview. 0: do
+%                      not run freeview and only output fscmd.
 %
 % Output:
-%     Open FreeView to display the mgz (mgh) file
+%    mgzFile          <string> the filename of mgzFile displayed in
+%                      freeview.
+%    fscmd            <string> the FreeSurfer command used here.
+%
+% Example: display the inflated surface:
+% fv_surfmgz;
 %
 % Created by Haiyang Jin (21-Jan-2020)
 
 dispMgz = 1;
 
-if nargin < 1 || isempty(mgzFile)
+% default options
+defaultOpt=struct(...
+    'surftype', 'inflated', ... % surface type
+    'thresh', '', ... % default threshold
+    'annot', '',... % display aparc
+    'runcmd', 1 ... 
+    );
+
+options = fs_mergestruct(defaultOpt, varargin);
+
+surfType = options.surftype;
+threshold = options.thresh;
+annot = options.annot;
+runcmd = options.runcmd;
+
+if ischar(surfType); surfType = {surfType}; end
+if ~isempty(annot) && ~startsWith(annot, '.')
+    annot = ['.' annot];
+end
+
+if ~exist('mgzFile', 'var') || isempty(mgzFile)
     dispMgz = 0; % do not display the mgz File (only display the surface)
 elseif ischar(mgzFile)
     % convert mgzFile to a cell if it is string
     mgzFile = {mgzFile}; 
-end
-
-if nargin < 2 || isempty(surfType)
-    surfType = {'inflated'};
-elseif ischar(surfType)
-    surfType = {surfType};
-end
-
-if nargin < 3 || isempty(threshold)
-    threshold = ''; % 0.5,1
 end
 
 if dispMgz
@@ -102,7 +124,8 @@ for iHemi = 1:nHemi
     end
     
     % file for the anaotation file
-    annotFile = fullfile(thePath, '..', 'label', [thisHemi '.aparc.annot']); % annotation file
+    annotFn = sprintf('%s.aparc%s.annot', thisHemi, annot);
+    annotFile = fullfile(thePath, '..', 'label', annotFn); % annotation file
     assert(logical(exist(annotFile, 'file')));  % make sure the file is avaiable
     
     % cmd for surface file with annotation 
@@ -126,6 +149,6 @@ fscmd_other = ' -colorscale -layout 1 -viewport 3d';
 
 % put all commands together
 fscmd = ['freeview' fscmd_hemi fscmd_other];
-system(fscmd);
+if runcmd; system(fscmd); end
 
 end

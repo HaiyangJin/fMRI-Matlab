@@ -71,7 +71,7 @@ fprintf('\nDisplaying %s files in FreeView...\n\n', fvString{isBoth + 1});
 if isBoth
     mgzFile = fv_volmgz(mgzFile);
 else
-    mgzFile = fv_surfmgz(mgzFile, surfType);
+    mgzFile = fv_surfmgz(mgzFile, 'surftype', surfType);
 end
 
 end
