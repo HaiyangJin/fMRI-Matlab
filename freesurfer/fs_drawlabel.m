@@ -1,5 +1,5 @@
-function fscmd = fs_drawlabel(sessList, anaList, conList, fthresh, extraLabelInfo, funcPath)
-% fscmd = fs_drawlabel(sessList, anaList, conList, fthresh, extraLabelInfo, funcPath)
+function fscmd = fs_drawlabel(sessList, anaList, conList, fthresh, extraLabelInfo, runcmd, funcPath)
+% fscmd = fs_drawlabel(sessList, anaList, conList, fthresh, extraLabelInfo, runcmd, funcPath)
 %
 % This function use FreeSurfer ("tksurfer") to draw labels.
 %
@@ -15,6 +15,8 @@ function fscmd = fs_drawlabel(sessList, anaList, conList, fthresh, extraLabelInf
 %    extraLabelInfo  <string> extra label information added to the end
 %                     of the label name.
 %    funcPath       <string> the full path to the functional folder.
+%    runcmd         <logical> 1: run FreeSurfer commands; 0: do not run
+%                    but only output FreeSurfer commands. 
 %
 % Output:
 %    fscmd          <string> FreeSurfer commands used.
@@ -30,30 +32,36 @@ nAna = numel(anaList);
 if ischar(conList); conList = {conList}; end
 nCon = numel(conList);
 
-if nargin < 4 || isempty(fthresh)
+if ~exist('fthresh', 'var') || isempty(fthresh)
     fthresh = 2; % p < .01
 end
-if nargin < 5 || isempty(extraLabelInfo)
+if ~exist('extraLabelInfo', 'var') || isempty(extraLabelInfo)
     extraLabelInfo = '';
 elseif ~strcmp(extraLabelInfo(end), '.')
     extraLabelInfo = [extraLabelInfo, '.'];
 end
 
-if nargin < 6 || isempty(funcPath)
+if ~exist('runcmd', 'var') || isempty(runcmd)
+    runcmd = 1;
+end
+
+if ~exist('funcPath', 'var') || isempty(funcPath)
     funcPath = getenv('FUNCTIONALS_DIR');
 end
 
+
 %% Draw labels for all participants for both hemispheres
 fscmdCell = cell(nSess, nAna, nCon);
-for iSess = 1:nSess
+for iAna = 1:nAna
     
-    thisSess = sessList{iSess};
-    subjCode = fs_subjcode(thisSess, funcPath);
+    thisAna = anaList{iAna};
+    hemi = fs_2hemi(thisAna);
     
-    for iAna = 1:nAna
+    for iSess = 1:nSess
         
-        thisAna = anaList{iAna};
-        hemi = fs_2hemi(thisAna);
+        thisSess = sessList{iSess};
+        subjCode = fs_subjcode(thisSess, funcPath);
+        
         
         for iCon = 1:nCon
             
@@ -66,11 +74,12 @@ for iSess = 1:nSess
                 hemi, fthresh*10, thisCon, extraLabelInfo);
             
             % draw labels manually with FreeSurfer
-            fscmdCell{iSess, iAna, iCon} = fv_drawlabel(subjCode, thisAna, sigFile, labelName, fthresh);
+            fscmdCell{iSess, iAna, iCon} = fv_drawlabel(subjCode, thisAna, sigFile, labelName, fthresh, runcmd);
             
         end  % iCon
-    end  % iAna
-end  % iSess
+    end  % iSess
+end  % iAna
+
 
 % make the FreeSurfer commands to one role
 fscmd = fscmdCell(:);
