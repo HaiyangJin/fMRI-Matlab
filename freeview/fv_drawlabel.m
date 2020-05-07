@@ -40,19 +40,22 @@ subjPath = getenv('SUBJECTS_DIR');
 template = fs_2template(anaName, '', 'self');
 trgSubj = fs_trgsubj(subjCode, template);
 
-% open a message box to display information
-CreateStruct.Interpreter = 'tex';
-CreateStruct.WindowStyle = 'modal';
-% msgbox('\fontsize{18} Now is big =)', CreateStruct)
-
-message = {sprintf('\\fontsize{20}SubjCode: %s', replace(subjCode, '_', '-'));
-    sprintf('template: %s', template);
-    sprintf('label: %s', labelname);
-    sprintf('fthresh: %s', fthresh)};
-title = 'The current session...';
-f = msgbox(message,title, CreateStruct);
-
-movegui(f, 'northeast');
+if runcmd
+    
+    % open a message box to display information
+    CreateStruct.Interpreter = 'tex';
+    CreateStruct.WindowStyle = 'modal';
+    % msgbox('\fontsize{18} Now is big =)', CreateStruct)
+    
+    message = {sprintf('\\fontsize{20}SubjCode: %s', replace(subjCode, '_', '-'));
+        sprintf('template: %s', template);
+        sprintf('label: %s', labelname);
+        sprintf('fthresh: %s', fthresh)};
+    title = 'The current session...';
+    f = msgbox(message,title, CreateStruct);
+    
+    movegui(f, 'northeast');
+end
 
 % create FreeSurfer command and run it
 
@@ -63,7 +66,7 @@ if ~isempty(fthresh)
 end
 
 % finish this command if do not need to run fscmd
-if ~runcmd; close(f); return; end
+if ~runcmd; return; end
 
 system(fscmd);
 
