@@ -162,7 +162,7 @@ fscmd = horzcat(fscmd, num2cell(isnotok));
 if any(isnotok)
     warning('Some FreeSurfer commands (mkanalysis-sess) failed.');
 elseif runcmd
-    fprintf('\nmkanalysis-sess finished with error.\n');
+    fprintf('\nmkanalysis-sess finished without error.\n');
 end
 
 end
