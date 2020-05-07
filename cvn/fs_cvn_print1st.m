@@ -172,6 +172,13 @@ for iLabel = 1:nLabel
                 thisclim0 = clim;
             end
             
+            % process colormap if necessary
+            if ischar(cmap) && strcmp(cmap, 'fs_heatscale')
+                climMax = max(abs(thisclim0));
+                cmap = fs_heatscale(imag(thresh0), climMax);
+                thisclim0 = [-climMax, climMax];
+            end
+            
             % read the label and remove empty cells
             thisMat = cellfun(@(x) fs_readlabel(x, subjCode), theseLabel, 'uni', false);
             isEmptyMat = cellfun(@isempty, thisMat);
