@@ -30,8 +30,16 @@ function varargout= fs_cvn_lookup(trgSubj,viewIdx,valstruct,lookups,varargin)
 %                      e.g. 'fusiform' for 'aparc' (in 'annot'). To get the
 %                      list of the names for certain annotation, you may
 %                      try [~, ~, roiList] = fs_readannot('lh.aparc');
-%    'thresh'        <numeric> real number for numbers with sign and
+%    'thresh'         <numeric> real number for numbers with sign and
 %                      non-real number is treated as abosolute threshold.
+%    'clim'           <numeric array> limits for the color map. The Default
+%                     empty, which will display responses from %1 to 99%.
+%    'cmap'           <string or colormap array> use which color map, 
+%                      default is jet(256). 
+%                     'fsheatscale': use the heatscale in FreeSurfer and
+%                      use 'fminmax' as the boundary.
+%    'fminmax'        <numeric vector> 1x2 vector. will be used when 'cmap'
+%                      is 'fsheatscale'. It will cover 'clim' and 'thresh'.
 %    'roimask'        <cell numeric> Vx1 binary mask (or cell array for
 %                      multiple ROIs) for an ROI to draw on final RGB image.
 %                      For more plese check cvnlookupimages.m. IMPORTANT:
@@ -126,6 +134,8 @@ defaultOpt=struct(...
     'annotname', '', ... % cell list of all annot areas to be displayed
     'thresh',[],...
     'clim', [], ...
+    'cmap', jet(256), ...
+    'fminmax', [2 5], ... 0.01 0.00001
     ...  % options in cvnlookupimages
     'roimask',[],...
     'roiwidth',{.5},...
@@ -145,6 +155,8 @@ options=fs_mergestruct(defaultOpt, varargin{:});
 % Some other general setting
 thresh = options.thresh;
 clim = options.clim;
+cmap = options.cmap;
+fminmax = options.fminmax;
 surfsuffix = options.surfsuffix;
 bgcolor = options.rgbnan;
 surftype = options.surftype;
@@ -193,6 +205,13 @@ viewhemis = erase(hemiInfo(isHemi), 'num');
 % set color limit if it is empty
 if isempty(clim)
     clim = prctile(valstruct.data(:),[1 99]);
+end
+
+% set colormap
+if ischar(cmap) && strcmp(cmap, 'fsheatscale')
+    cmap = fs_heatscale(fminmax(1), fminmax(2));
+    thresh = fminmax(1) * 1i;
+    clim = [-fminmax(2), fminmax(2)];
 end
 
 %% Load the viewponit(s)
@@ -335,6 +354,7 @@ end
     'surftype', surftype,...
     'surfsuffix', surfsuffix,...
     'clim', clim, ...
+    'cmap', cmap, ... % this might be covered by later arguments
     'rgbnan', bgcolor, ... %'text',upper(viewhemis),
     'roimask', [roimasks;theAnnot], ...
     'roicolor', [roicolor; aUniColor], ...

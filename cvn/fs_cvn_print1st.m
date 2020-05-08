@@ -17,9 +17,16 @@ function fs_cvn_print1st(sessList, anaList, labelList, outPath, varargin)
 %    'viewpt'        <integer> the viewpoitns to be used. More see
 %                     fs_cvn_lookup.m. Default is -2.
 %    'thresh'        <numeric> display threshold. Default is 1.3010 (abs).
+%                     For example, '1.3i' will display values <-1.3 and
+%                     >1.3; '1.3' will display values > 1.3 (but not
+%                     <-1.3).
 %    'clim'          <numeric array> limits for the color map. The Default
 %                     empty, which will display responses from %1 to 99%.
-%    'cmap'          <> use which color map, default is jet.
+%    'cmap'          <string or colormap array> use which color map, 
+%                     default is jet(256). 
+%                    'fsheatscale': use the heatscale in FreeSurfer; 'thresh'
+%                     will be used as 'fmin' and the maximum absolute value 
+%                     of 'clim' will be used as 'fmax'.
 %    'roicolors'     <numeric array> colors to be used for the label roi
 %                     masks.
 %    'lookup'        <> setting used for cvnlookupimage.
@@ -173,10 +180,15 @@ for iLabel = 1:nLabel
             end
             
             % process colormap if necessary
-            if ischar(cmap) && strcmp(cmap, 'fs_heatscale')
-                climMax = max(abs(thisclim0));
-                cmap = fs_heatscale(imag(thresh0), climMax);
-                thisclim0 = [-climMax, climMax];
+            if ischar(cmap) && strcmp(cmap, 'fsheatscale')
+                fmax = max(abs(thisclim0));
+                if isreal(thresh0)
+                    fmin=thresh0; 
+                else
+                    fmin = imag(thresh0);
+                end
+                cmap = fs_heatscale(fmin, fmax);
+                thisclim0 = [-fmax, fmax];
             end
             
             % read the label and remove empty cells
