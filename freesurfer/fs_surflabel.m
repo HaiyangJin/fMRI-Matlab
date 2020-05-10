@@ -1,5 +1,5 @@
-function [outTable, fscmd] = fs_surflabel(sessList, labelList, anaList, outPath)
-% [outTable, fscmd] = fs_surflabel(sessList, labelList, anaList, outPath)
+function [outTable, fscmd] = fs_surflabel(sessList, labelList, anaList, thmin, outPath)
+% [outTable, fscmd] = fs_surflabel(sessList, labelList, anaList, thmin, outPath)
 %
 % This function gathers information of the label files via mri_surfcluster.
 %
@@ -8,6 +8,8 @@ function [outTable, fscmd] = fs_surflabel(sessList, labelList, anaList, outPath)
 %    labelList       <cell string> a list of label names.
 %    anaList         <cell string> a list of analysis names. This will be
 %                     used to read the corresponding sig.nii.gz.
+%    thmin           <numeric> the minimal threshold. Default is [], which
+%                     will use the default in fs_surfcluster.m (i.e.,1.3).
 %    outPath         <string> where the outputs are saved.
 %
 % Output:
@@ -17,6 +19,9 @@ function [outTable, fscmd] = fs_surflabel(sessList, labelList, anaList, outPath)
 %
 % Created by Haiyang Jin (26-Apr-2020)
 
+if ~exist('thmin', 'var') || isempty(thmin)
+    thmin = [];
+end
 if ~exist('outPath', 'var') || isempty(outPath)
     outPath = pwd;
 end
@@ -61,8 +66,7 @@ for iSess = 1:nSess
             
             % run mri_surfcluster
             [tableCell{iSess, iLabel, iAna}, fscmdCell{iSess, iLabel, iAna}] ...
-                = fs_surfcluster(thisSess, thisAna,...
-                thisLabel, '', '', outPath);
+                = fs_surfcluster(thisSess, thisAna, thisLabel, '', thmin, outPath);
             
         end % iAna
     end % iLabel
