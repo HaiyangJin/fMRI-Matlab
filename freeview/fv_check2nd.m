@@ -50,11 +50,13 @@ surfPath = fullfile(getenv('SUBJECTS_DIR'), 'fsaverage', 'surf', filesep);
 % hemi 
 hemi = fs_2template(thePath, {'lh', 'rh'});
 
-% create the FreeSurfer (freeview) command
+% ?h.aparc.annot file
+aparcFile = fullfile(surfPath, '..', 'label', sprintf('%s.aparc.annot', hemi));
 fscmd = sprintf(['freeview -f %1$s%2$s.inflated:curvature=%1$s%2$s.curv' ...
     ':annot=%3$s:edgethickness=0:annot_outline=1'...
-    ':overlay=%4$s:overlay_threshold=1.3,3'...
-    ' -viewport 3d'], surfPath, hemi{1}, theAnnot, theOverlay);
+    ':annot=%4$s:edgethickness=0:annot_outline=1'...
+    ':overlay=%5$s:overlay_threshold=1.3,3'...
+    ' -viewport 3d'], surfPath, hemi, aparcFile, theAnnot, theOverlay);
 
 system(fscmd);
 
