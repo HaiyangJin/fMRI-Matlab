@@ -56,7 +56,7 @@ end
 
 isLabel = endsWith(labelFn, '.label');
 hemi = fs_2hemi(anaName);
-template = fs_2template(anaName);
+template = fs_2template(anaName, '', 'self');
 subjCode = fs_subjcode(sessCode, funcPath);
 trgSubj = fs_trgsubj(subjCode, template);
 
