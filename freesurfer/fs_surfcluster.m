@@ -15,7 +15,7 @@ function [labelTable, fscmd] = fs_surfcluster(sessCode, anaName,...
 %                      folder.
 %    sigFn            <string> based on which data file to obtain the
 %                      cluster. Default is sig.nii.gz.
-%    thmin            <string> the minimal threshold. Default is 1.3.
+%    thmin            <numeric> the minimal threshold. Default is 1.3.
 %    outPath          <string> where the temporary output file is saved.
 %    funcPath         <string> the full path to the functional folder.
 %    struPath         <string> $SUBJECTS_DIR.
@@ -84,7 +84,8 @@ end
 sigfile = fullfile(funcPath, sessCode, 'bold', anaName, conName, sigFn);
 
 % create the freesurfer command
-outFn = sprintf('cluster=%s=%s=%s.txt', anaName, labelFn, subjCode);
+outFn = sprintf('cluster=%s=%s=%s=thmin%0.2f.txt', anaName, labelFn, ...
+    subjCode, thmin);
 outFile = fullfile(outPath, outFn);
 
 % create and run FreeSurfer commands
