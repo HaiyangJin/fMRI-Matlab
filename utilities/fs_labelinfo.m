@@ -1,4 +1,4 @@
-function labelTable = fs_labelinfo(labelList, subjList, byCluster, struPath)
+function labelTable = fs_labelinfo(labelList, subjList, byCluster, fmin, struPath)
 % labelTable = fs_labelinfo(labelList, subjList, byCluster=0, struPath)
 %
 % This function gathers the information about the label file.
@@ -13,6 +13,9 @@ function labelTable = fs_labelinfo(labelList, subjList, byCluster, struPath)
 %    byCluster       <logical> whether output the information for clusters
 %                     separately if there are multiple contiguous clusters
 %                     for the label. Default is 0.
+%    fmin            <numeric> The (absolute) minimum value for vertices to
+%                     be used for summarizing information. Default is 0,
+%                     i.e., all vertices will be used.
 %    struPath        <string> $SUBJECTS_DIR.
 %
 % Output:
@@ -51,6 +54,9 @@ end
 if ~exist('byCluster', 'var') || isempty(byCluster)
     byCluster = 0;
 end
+if ~exist('fmin', 'var') || isempty(fmin)
+    fmin = 0;
+end
 if ~exist('struPath', 'var') || isempty(struPath)
     struPath = getenv('SUBJECTS_DIR');
 end
@@ -59,7 +65,7 @@ end
 [tempList, tempSubj] = ndgrid(labelList, subjList);
 
 % read the label information
-labelInfoCell = cellfun(@(x, y) labelinfo(x, y, byCluster, struPath),...
+labelInfoCell = cellfun(@(x, y) labelinfo(x, y, byCluster, fmin, struPath),...
     tempList(:), tempSubj(:), 'uni', false);
 
 labelTable = vertcat(labelInfoCell{:});
@@ -67,10 +73,10 @@ labelTable = vertcat(labelInfoCell{:});
 end
 
 %% Obtain the label information separately
-function labelInfo = labelinfo(labelFn, subjCode, byCluster, struPath)
+function labelInfo = labelinfo(labelFn, subjCode, byCluster, fmin, struPath)
 
 % get the cluster (contiguous)
-[clusterNo, nCluster] = fs_clusterlabel(labelFn, subjCode);
+[clusterNo, nCluster] = fs_clusterlabel(labelFn, subjCode, fmin);
 
 % read the label file
 labelMat = fs_readlabel(labelFn, subjCode, struPath);
@@ -114,7 +120,10 @@ VtxMax = arrayfun(@(x, y) x{1}(y, 1), matCell, maxIdx);
 Size = labelSize;
 NVtxs = cellfun(@(x) size(x, 1), matCell);
 
+% save fmin
+fmin = repmat(fmin, numel(clusters), 1);
+
 % save the out information as table
-labelInfo = table(SubjCode, LabelName, ClusterNo, Max, VtxMax, Size, MNI305, Talairach, NVtxs);
+labelInfo = table(SubjCode, LabelName, ClusterNo, Max, VtxMax, Size, MNI305, Talairach, NVtxs, fmin);
 
 end
