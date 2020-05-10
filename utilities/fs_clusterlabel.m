@@ -1,48 +1,56 @@
-function [clusterNo, nCluster, iterNo] = fs_clusterlabel(labelFn, subjCode, excludeRng)
-% [clusterNo, nCluster, iterNo] = fs_clusterlabel(labelFn, subjCode, excludeRng)
+function [clusterNo, nCluster, iterNo] = fs_clusterlabel(labelFn, subjCode, fmin)
+% [clusterNo, nCluster, iterNo] = fs_clusterlabel(labelFn, subjCode, fmin)
 %
 % This function assigns the vertices in one label into contiguous clusters.
 %
 % Inputs:
 %    labelFn       <string> the file name of the label file (without path).
+%               or <numeric array> The first column has to be the vertex
+%                   indices. 'fmin' will be ignored if the number of column
+%                   is smaller than 5.
 %    subjCode      <string> subject code in $SUBJECTS_DIR.
-%    excludeRng    <numeric vector> 1x2 numeric array. The minimum and
-%                   maximum boundaries of the exclusion range. The
-%                   exclusion range will be applied to the fifth column of
-%                   the label file. Default is [0 0], i.e., all vertices
-%                   will be included.
+%    fmin          <numeric> The (absolute) minimum value for vertices to
+%                   be used for assigning a cluster index. Default is 0,
+%                   i.e., all vertices will be used.
 %
 % Output:
 %    clusterNo     <integer vector> Px1 intger. Cluster index for each
-%                   vertex in the label file. -1 denotes the vertex is
-%                   within the exclusion range.
+%                   vertex in the label file. -1 denotes the vertex's value
+%                   is smaller than 'fmin'.
 %    nCluster      <integer> total number of the clusters.
 %    iterNo        <integer vector> Px1 intger. Iteration index for each
-%                   vertex in the label file. -1 denotes the vertex is
-%                   within the exclusion range.
+%                   vertex in the label file. -1 denotes the vertex's value
+%                   is smaller than 'fmin'.
 %
 % Created by Haiyang Jin (10-May-2020)
 
-%% Find vertices outside excludeRng
+%% Find vertices larger than fmin
 
-if ~exist('excludeRng', 'var') || isempty(excludeRng)
-    excludeRng = [0 0];
+if ~exist('fmin', 'var') || isempty(fmin)
+    fmin = 0;
 end
 
-% read the label
-labelMat = fs_readlabel(labelFn, subjCode);
+if ischar(labelFn)
+    % read the label
+    labelMat = fs_readlabel(labelFn, subjCode);
+else
+    labelMat = labelFn;
+end
 
-% find vertices outside the excludeRng
-isCluster = labelMat(:, 5) <= excludeRng(1) | labelMat(:, 5) >= excludeRng(2);
+if size(labelMat, 2) >= 5
+    % find vertices larger than fmin
+    isCluster = abs(labelMat(:, 5)) >= fmin;
+else
+    isCluster = true(size(labelMat, 1), 1);
+end
 
-% return if no vertices are outside the excludeRng
+% return if no vertices are larger than fmin
 if ~any(isCluster)
-    warning('All vertices are within the ''excludeRng (%d %d)''.', ...
-        excludeRng(1), excludeRng(2));
+    warning('All vertices are smaller than ''fmin (%d)''.', fmin);
     clusterNo = -ones(size(labelMat, 1), 1);
     nCluster = 0;
     iterNo = -ones(size(labelMat, 1), 1);
-    return
+    return;
 end
 
 %% Assign the cluster indices
