@@ -1,4 +1,4 @@
-function [clusterNo, nCluster, iterNo] = fs_clustervtx(vtxIdx, nbrVtx)
+function [clusterNo, nCluster, iterNo] = fs_clustervtx(vtxIdx, nbrVtx, vtxValue)
 % [clusterNo, nCluster, iterNo] = fs_clustervtx(vtxIdx, nbrVtx)
 %
 % This function assigns vtxIdx into different clusters based on their
@@ -9,6 +9,8 @@ function [clusterNo, nCluster, iterNo] = fs_clustervtx(vtxIdx, nbrVtx)
 %    nbrVtx         <cell> neighborhood vertices for the corresponding
 %                    vertex in vtxIdx. Can be obtained via
 %                    fs_neighborvtx.m.
+%    vtxValue       <numeric array> PxQ numeric array. Values for each
+%                    vertex.
 %
 % Outputs
 %    cluserNo       <integer array> PxQ integer array. The cluster index
@@ -18,6 +20,10 @@ function [clusterNo, nCluster, iterNo] = fs_clustervtx(vtxIdx, nbrVtx)
 %                    for each vertex when they are assigned to one cluster.
 %
 % Created by Haiyang Jin (10-May-2020)
+
+if ~exist('vtxValue', 'var') || isempty(vtxValue)
+    vtxValue = ones(size(vtxIdx));
+end
 
 % assign zeros
 clusterNo = zeros(size(vtxIdx));
@@ -34,8 +40,9 @@ while ~all(clusterNo)
     % find all un-assigned vertices
     unassign = vtxIdx(~clusterNo);
     
-    % use the first as starting point to find cluster
-    theVtx = unassign(1);
+    % use the vertex whose absolute value is largest as the starting point
+    [~, maxIdx] = max(abs(vtxValue(~clusterNo)));
+    theVtx = unassign(maxIdx);
     
     % iteration number restart for each cluster
     iterNum = 0;
