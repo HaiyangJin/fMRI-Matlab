@@ -1,5 +1,5 @@
-function labelTable = fs_labelinfo(labelList, subjList, sepCluster, struPath)
-% labelTable = fs_labelinfo(labelList, subjList, sepCluster=0, struPath)
+function labelTable = fs_labelinfo(labelList, subjList, byCluster, struPath)
+% labelTable = fs_labelinfo(labelList, subjList, byCluster=0, struPath)
 %
 % This function gathers the information about the label file.
 %
@@ -10,7 +10,7 @@ function labelTable = fs_labelinfo(labelList, subjList, sepCluster, struPath)
 %                     'lh.cortex.label'.
 %    subjCode        <string> subject code in struPath. Default is
 %                     fsaverage.
-%    sepCluster      <logical> whether output the information for clusters
+%    byCluster       <logical> whether output the information for clusters
 %                     separately if there are multiple contiguous clusters
 %                     for the label. Default is 0.
 %    struPath        <string> $SUBJECTS_DIR.
@@ -48,8 +48,8 @@ if ~exist('subjList', 'var') || isempty(subjList)
 elseif ischar(subjList)
     subjList = {subjList};
 end
-if ~exist('sepCluster', 'var') || isempty(sepCluster)
-    sepCluster = 0;
+if ~exist('byCluster', 'var') || isempty(byCluster)
+    byCluster = 0;
 end
 if ~exist('struPath', 'var') || isempty(struPath)
     struPath = getenv('SUBJECTS_DIR');
@@ -59,7 +59,7 @@ end
 [tempList, tempSubj] = ndgrid(labelList, subjList);
 
 % read the label information
-labelInfoCell = cellfun(@(x, y) labelinfo(x, y, sepCluster, struPath),...
+labelInfoCell = cellfun(@(x, y) labelinfo(x, y, byCluster, struPath),...
     tempList(:), tempSubj(:), 'uni', false);
 
 labelTable = vertcat(labelInfoCell{:});
@@ -67,7 +67,7 @@ labelTable = vertcat(labelInfoCell{:});
 end
 
 %% Obtain the label information separately
-function labelInfo = labelinfo(labelFn, subjCode, sepCluster, struPath)
+function labelInfo = labelinfo(labelFn, subjCode, byCluster, struPath)
 
 % get the cluster (contiguous)
 [clusterNo, nCluster] = fs_clusterlabel(labelFn, subjCode);
@@ -80,7 +80,7 @@ if isempty(labelMat)
     return;
 end
 
-if sepCluster
+if byCluster
     clusters = transpose(1:nCluster);
     matCell = arrayfun(@(x) labelMat(clusterNo == x, :), clusters, 'uni', false);
 else
