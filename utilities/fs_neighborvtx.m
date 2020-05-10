@@ -1,11 +1,12 @@
-function nbrVtx = fs_neighborvtx(vtxIdx, subjCode, outCell)
-% nbrVtx = fs_neighborvtx(vtxIdx, subjCode, outCell)
+function nbrVtx = fs_neighborvtx(vtxIdx, hemi, subjCode, outCell)
+% nbrVtx = fs_neighborvtx(vtxIdx, hemi, subjCode, outCell)
 % 
 % This function gathers all the neighbor vertices for each vertex.
 %
 % Inputs:
 %    vtxIdx         <integer array> PxQ integer array. Indices of vertices. 
 %                    Default is all vertices, which will take fo rever.
+%    hemi           <string> 'lh' or 'rh'. 
 %    subjCode       <string> subject code in $SUBJECTS_DIR.
 %    outCell        <logical> 1 [default]: save the output as cell. 0: save
 %                    the output as integer vector if possible.
@@ -27,8 +28,12 @@ if ~exist('outCell', 'var') || isempty(outCell)
     outCell = 1;
 end
 
+if ~exist('hemi', 'var') || isempty(hemi)
+    hemi = 'lh';
+    warning('''%s'' is used as ''hemi'' by default.', hemi);
+end
 % load faces
-[~, faces] = fs_readsurf('lh.white', subjCode);
+[~, faces] = fs_readsurf([hemi '.white'], subjCode);
 
 % use all vertices by default
 if ~exist('vtxIdx', 'var') || isempty(vtxIdx)
