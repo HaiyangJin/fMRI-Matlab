@@ -46,7 +46,7 @@ trgSubj = fs_trgsubj(subjCode, template);
 area = fs_readcurv(curvFile, trgSubj, struPath);
 
 % calculate the all vertices by default
-if ~exist('vertices', 'var') || isempty(vtxIdx)
+if ~exist('vtxIdx', 'var') || isempty(vtxIdx)
     vtxIdx = labelMat(:, 1);
 end
 
