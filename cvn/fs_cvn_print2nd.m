@@ -207,6 +207,7 @@ for iSurf = 1: nSurf
         'roicolor', thisroicolor, ...
         'roiwidth', {0.5}, ...
         'annot', annot);
+    close all;
     
     % set the figure name and save it
     fig = figure('Visible','off');

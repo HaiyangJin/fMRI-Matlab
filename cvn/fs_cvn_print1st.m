@@ -271,6 +271,7 @@ for iLabel = 1:nLabel
                 'roicolor', roicolor, ...
                 'roiwidth', repmat({1}, numel(rois), 1), ...
                 'annot', annot);
+            close all;
             
             % clear lookup if necessary
             if ~strcmp(trgSubj, 'fsaverage')
