@@ -11,7 +11,7 @@ function fscmd = fs_drawlabel(sessList, anaList, conList, fthresh, extraLabelInf
 %                    analysis (i.e., the names of the analysis folders).
 %    conList        <string> contrast name used glm (i.e., the names of
 %                    contrast folders).
-%    fthresh        <numeric> significance level (default is f13 (.05)).
+%    fthresh        <numeric> significance level (default is 2 (.01)).
 %    extraLabelInfo  <string> extra label information added to the end
 %                     of the label name.
 %    funcPath       <string> the full path to the functional folder.

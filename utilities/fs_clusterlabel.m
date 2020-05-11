@@ -53,7 +53,7 @@ end
 
 % return if no vertices are larger than fmin
 if ~any(isCluster)
-    warning('All vertices are smaller than ''fmin (%d)''.', fmin);
+    warning('Values for all vertices are smaller than ''fmin (%d)''.', fmin);
     clusterNo = -ones(size(labelMat, 1), 1);
     nCluster = 0;
     iterNo = -ones(size(labelMat, 1), 1);
