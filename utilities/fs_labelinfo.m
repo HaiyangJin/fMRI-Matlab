@@ -1,7 +1,7 @@
-function labelTable = fs_labelinfo(labelList, subjList, byCluster, fmin, struPath)
-% labelTable = fs_labelinfo(labelList, subjList, byCluster=0, struPath)
+function labelTable = fs_labelinfo(labelList, subjList, varargin)
+% labelTable = fs_labelinfo(labelList, subjList, varargin)
 %
-% This function gathers the information about the label file.
+% This function gathers the information of the label files.
 %
 % Inputs:
 %    labelFn         <string> filename of the label file (with or without
@@ -10,13 +10,20 @@ function labelTable = fs_labelinfo(labelList, subjList, byCluster, fmin, struPat
 %                     'lh.cortex.label'.
 %    subjCode        <string> subject code in struPath. Default is
 %                     fsaverage.
-%    byCluster       <logical> whether output the information for clusters
+%
+% Optional (varargin):
+%    'bycluster'     <logical> whether output the information for clusters
 %                     separately if there are multiple contiguous clusters
 %                     for the label. Default is 0.
-%    fmin            <numeric> The (absolute) minimum value for vertices to
+%    'fmin'          <numeric> The (absolute) minimum value for vertices to
 %                     be used for summarizing information. Default is 0,
 %                     i.e., all vertices will be used.
-%    struPath        <string> $SUBJECTS_DIR.
+%    'isndgrid'      <logical> 1 [default]: all the combinations of
+%                     labelList and subjList will be created, i.e.,
+%                     summarize all labels in labelList for each subject
+%                     separately. 0: only summarize the first label for the
+%                     first subject, ect...
+%    'strupath'      <string> $SUBJECTS_DIR.
 %
 % Output:
 %    labelInfo       <struct> includes information about the label file.
@@ -36,8 +43,22 @@ function labelTable = fs_labelinfo(labelList, subjList, byCluster, fmin, struPat
 %                       Talairach space (use the same method used in
 %                       FreeSurfer converting from MNI305 to Talairach).
 %      .NVtxs          <integer> number of vertices in this label.
+%      .fmin           <numeric> the minimum threshold.
 %
 % Created by Haiyang Jin (22-Apr-2020)
+
+defaultOpts = struct(...
+    'bycluster', 0, ...
+    'fmin', 0, ...
+    'isndgrid', 1, ...
+    'strupath', getenv('SUBJECTS_DIR') ...
+);
+
+opts = fs_mergestruct(defaultOpts, varargin{:});
+byCluster = opts.bycluster;
+fmin = opts.fmin;
+isndgrid = opts.isndgrid;
+struPath = opts.strupath;
 
 if ~exist('labelList', 'var') || isempty(labelList)
     labelList = {'lh.cortex.label'};
@@ -51,18 +72,16 @@ if ~exist('subjList', 'var') || isempty(subjList)
 elseif ischar(subjList)
     subjList = {subjList};
 end
-if ~exist('byCluster', 'var') || isempty(byCluster)
-    byCluster = 0;
-end
-if ~exist('fmin', 'var') || isempty(fmin)
-    fmin = 0;
-end
-if ~exist('struPath', 'var') || isempty(struPath)
-    struPath = getenv('SUBJECTS_DIR');
-end
 
-% all the possible combinations
-[tempList, tempSubj] = ndgrid(labelList, subjList);
+if isndgrid
+    % all the possible combinations
+    [tempList, tempSubj] = ndgrid(labelList, subjList);
+else
+    assert(numel(labelList) == numel(subjList), ['The number of labels '...
+        'has to be the same as that of subjects when ''ndgrid'' is not used.']);
+    tempList = labelList;
+    tempSubj = subjList;
+end
 
 % read the label information
 labelInfoCell = cellfun(@(x, y) labelinfo(x, y, byCluster, fmin, struPath),...
@@ -73,10 +92,10 @@ labelTable = vertcat(labelInfoCell{:});
 end
 
 %% Obtain the label information separately
-function labelInfo = labelinfo(labelFn, subjCode, byCluster, fmin, struPath)
+function labelInfo = labelinfo(labelFn, subjCode, byCluster, fmin0, struPath)
 
 % get the cluster (contiguous)
-[clusterNo, nCluster] = fs_clusterlabel(labelFn, subjCode, fmin);
+[clusterNo, nCluster] = fs_clusterlabel(labelFn, subjCode, fmin0);
 
 % read the label file
 labelMat = fs_readlabel(labelFn, subjCode, struPath);
@@ -100,12 +119,14 @@ maxResp = arrayfun(@(x, y) x{1}(y, 5), matCell, maxIdx);
 
 % coordiantes in RAS, MNI305(fsaverage) and Talairach space
 RAS = arrayfun(@(x, y) x{1}(y, 2:4), matCell, maxIdx, 'uni', false);
-MNI305 = cellfun(@(x) fs_self2fsavg(x, subjCode), RAS, 'uni', false);
-Talairach = cellfun(@mni2tal, MNI305, 'uni', false);
+theMNI305 = cellfun(@(x) fs_self2fsavg(x, subjCode), RAS, 'uni', false);
+theTal = cellfun(@mni2tal, theMNI305, 'uni', false);
+MNI305 = vertcat(theMNI305{:});
+Talairach = vertcat(theTal{:});
 
 % label area (in mm^2)
 labelSize = cellfun(@(x) fs_labelarea(labelFn, subjCode, x(:, 1), struPath),...
-    matCell, 'uni', false);
+    matCell, 'uni', true);
 
 %% Create a struct to save all the information
 % inputs
@@ -121,7 +142,7 @@ Size = labelSize;
 NVtxs = cellfun(@(x) size(x, 1), matCell);
 
 % save fmin
-fmin = repmat(fmin, numel(clusters), 1);
+fmin = repmat(fmin0, numel(clusters), 1);
 
 % save the out information as table
 labelInfo = table(SubjCode, LabelName, ClusterNo, Max, VtxMax, Size, MNI305, Talairach, NVtxs, fmin);
