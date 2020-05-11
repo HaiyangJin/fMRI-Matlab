@@ -5,13 +5,16 @@ function fs_cvn_print1st(sessList, anaList, labelList, outPath, varargin)
 %
 % Inputs:
 %    sessList        <cell string> list of session codes (in funcPath).
-%    anaList         <cell string> list of analysis names.
+%    anaList         <cell string> list of analysis names. Default is empty
+%                     and no overlay will be displayed.
 %    labelList       <cell string> list of label names or list of contrast
 %                     names.
 %    outPath         <string> where to save the output images. [current
 %                     folder by default].
 %
 % Optional inputs (varargin):
+%    'waitbar'       <logical> 1 [default]: show the wait bar; 0: do not
+%                     show the wait bar.
 %    'sigFn'         <string> name of the to-be-printed file [Default is
 %                     sig.nii.gz].
 %    'viewpt'        <integer> the viewpoitns to be used. More see
@@ -22,16 +25,18 @@ function fs_cvn_print1st(sessList, anaList, labelList, outPath, varargin)
 %                     <-1.3).
 %    'clim'          <numeric array> limits for the color map. The Default
 %                     empty, which will display responses from %1 to 99%.
-%    'cmap'          <string or colormap array> use which color map, 
-%                     default is jet(256). 
+%    'cmap'          <string or colormap array> use which color map,
+%                     default is jet(256).
 %                    'fsheatscale': use the heatscale in FreeSurfer; 'thresh'
-%                     will be used as 'fmin' and the maximum absolute value 
+%                     will be used as 'fmin' and the maximum absolute value
 %                     of 'clim' will be used as 'fmax'.
 %    'roicolors'     <numeric array> colors to be used for the label roi
 %                     masks.
 %    'lookup'        <> setting used for cvnlookupimage.
 %    'subfolder'     <numeric> which subfolder to save the outputs. 0: no
-%                     subfolder [Default]; 1: use subjCode; 2: use the Label.  
+%                     subfolder [Default]; 1: use subjCode; 2: use the Label.
+%    'suffixstr'     <string> extra strings to be added at the end of the
+%                     image name. Default is ''.
 %    'annot'         <string> which annotation will be used. Default is
 %                     '', i.e., not display annotation file.
 %    'markPeak'      <logical> mark the location of the peak response.
@@ -49,20 +54,19 @@ function fs_cvn_print1st(sessList, anaList, labelList, outPath, varargin)
 %
 % Created by Haiyang Jin (20-Apr-2020)
 
-% waitbar
-waitHandle = waitbar(0, 'Preparing for printing first-level results...');
-
 %% Deal with intputs
 
 defaultOpts = struct(...
+    'waitbar', 1, ...
     'sigfn', 'sig.nii.gz', ...
     'viewpt', -2, ...
-    'thresh', 1.3010i, ...
+    'thresh', [], ...
     'clim', [], ...
     'cmap', jet(256), ...
     'roicolors', {fs_colors}, ...
     'lookup', [], ...
     'subfolder', 1, ...
+    'suffixstr', '', ...
     'annot', '', ...
     'markpeak', 0, ... % mark the peak response in the label
     'showinfo', 0, ...
@@ -73,6 +77,12 @@ defaultOpts = struct(...
 
 options = fs_mergestruct(defaultOpts, varargin);
 
+% show progress bar (if needed)
+wait = options.waitbar;
+if wait
+    waitHandle = waitbar(0, 'Preparing for printing first-level results...');
+end
+
 % generate settings
 viewpt = options.viewpt;
 clim = options.clim;
@@ -80,6 +90,7 @@ cmap = options.cmap;  % use jet(256) as the colormap
 subfolder = options.subfolder+1; % subfolder for saving the images
 annot = options.annot;  % the annotation file
 lookup = options.lookup;
+imgNameExtra = options.suffixstr;
 wantfig = options.wantfig;  % do not show figure with fs_cvn_lookuplmv.m
 roicolors = options.roicolors;
 showInfo = options.showinfo;
@@ -90,10 +101,14 @@ sigFn = options.sigfn;
 thresh = options.thresh;  % 0.05
 funcPath = options.funcpath;
 
+if ~isempty(imgNameExtra) && ~startsWith(imgNameExtra, ' || ')
+    imgNameExtra = [' || ' imgNameExtra];
+end
+
 % some maybe nonsense default
 if ischar(sessList); sessList = {sessList}; end
 if ~exist('anaList', 'var') || isempty(anaList)
-    anaList = {'loc_sm5_self.lh', 'loc_sm5_self.rh'};
+    anaList = {'nooverlay.lh', 'nooverlay.rh'};
 elseif ischar(anaList)
     anaList = {anaList};
 end
@@ -131,7 +146,13 @@ for iLabel = 1:nLabel
     
     % threshold for plotting
     thresh0 = fs_2sig(theLabel)/10 * 1i;
-    if isempty(thresh0); thresh0 = thresh; end
+    if ~isempty(thresh)
+        % use thresh if it is not empty
+        thresh0 = thresh;
+    elseif isempty(thresh0)
+        % use default 1.3 if they are both empty
+        thresh0 = 1.3i;
+    end
     
     % identify the cooresponding analysis name
     theseAna = endsWith(anaList, labelHemi);
@@ -157,16 +178,25 @@ for iLabel = 1:nLabel
             subjCode = fs_subjcode(thisSess, funcPath);
             
             % waitbar
-            progress = ((iLabel-1)*nSess*nAna + (iAna-1)*nSess + iSess-1) / (nLabel*nSess*nAna);
-            waitMsg = sprintf('Label: %s   nTheLabel: %d   SubjCode: %s \n%0.2f%% finished...', ...
-                strrep(theLabelName, '_', '\_'), nTheLabel, strrep(subjCode, '_', '\_'), progress*100);
-            waitbar(progress, waitHandle, waitMsg);
+            if wait
+                wait = ((iLabel-1)*nSess*nAna + (iAna-1)*nSess + iSess-1) / (nLabel*nSess*nAna);
+                waitMsg = sprintf('Label: %s   nTheLabel: %d   SubjCode: %s \n%0.2f%% finished...', ...
+                    strrep(theLabelName, '_', '\_'), nTheLabel, strrep(subjCode, '_', '\_'), wait*100);
+                waitbar(wait, waitHandle, waitMsg);
+            end
             
             % the target subject [whose coordinates will be used
-            trgSubj = fs_trgsubj(subjCode, fs_2template(thisAna));
+            trgSubj = fs_trgsubj(subjCode, fs_2template(thisAna, '', 'self'));
             
-            % full path to the to-be-printed file
-            sigFile = fullfile(funcPath, thisSess, 'bold', thisAna, thisCon, sigFn);
+            if ~startsWith(thisAna, 'nooverlay')
+                % full path to the to-be-printed file
+                sigFile = fullfile(funcPath, thisSess, 'bold', thisAna, thisCon, sigFn);
+            else
+                tempNVtx = size(fs_readsurf([thisHemi '.inflated'], trgSubj), 1);
+                sigFile = zeros(tempNVtx, 1); 
+                tempLabelMat = fs_readlabel(theLabel, subjCode);
+                sigFile(tempLabelMat(:, 1)) = tempLabelMat(:, 5);
+            end
             
             % read data
             thisSurf = fs_cvn_valstruct(sigFile, thisHemi);
@@ -174,19 +204,21 @@ for iLabel = 1:nLabel
             
             % set colormap limit based on the data if necessary
             if isempty(clim)
-                thisclim0 = prctile(thisSurf.data(:),[1 99]);
+                theunique = sort(unique(thisSurf.data(:)))';
+                thisclim0 = theunique([2, end]);
             else
                 thisclim0 = clim;
             end
             
             % process colormap if necessary
+            if isreal(thresh0)
+                fmin = thresh0;
+            else
+                fmin = imag(thresh0);
+            end
+            
             if ischar(cmap) && strcmp(cmap, 'fsheatscale')
                 fmax = max(abs(thisclim0));
-                if isreal(thresh0)
-                    fmin=thresh0; 
-                else
-                    fmin = imag(thresh0);
-                end
                 cmap = fs_heatscale(fmin, fmax);
                 thisclim0 = [-fmax, fmax];
             end
@@ -199,7 +231,7 @@ for iLabel = 1:nLabel
             % create roi mask for the label and roi name string
             maskStr = '';
             if isempty(thisMat)
-                rois = []; 
+                rois = [];
                 roicolor = [];
                 nTheLabel = 1;
                 if endsWith(theLabelName, '.label')
@@ -212,7 +244,8 @@ for iLabel = 1:nLabel
                 
                 % mark the peak in the label
                 if markPeak
-                    tempLabelT = fs_labelinfo(theseLabel, subjCode);
+                    tempLabelT = fs_labelinfo(theseLabel, subjCode, ...
+                        'bycluster', 1, 'fmin', fmin);
                     rois = [thisRoi; arrayfun(@(x) makeroi(nVtx, x), tempLabelT.VtxMax, 'uni', false)];
                     roicolor = repmat(roicolor, 2, 1);
                 else
@@ -250,17 +283,26 @@ for iLabel = 1:nLabel
             imshow(rgbimg); % display lookup results (imagesc + colorbar)
             
             % obtain the contrast name as the figure name
-            imgName = sprintf('%s%s || %s', maskStr, labelNames, thisSess);
+            imgName = sprintf('%s%s || %s%s', maskStr, labelNames, thisSess, imgNameExtra);
             set(fig, 'Name', imgName);
             
             % Load and show the (first) label related information
             if showInfo && ~all(isEmptyMat)
-                labelCell = cellfun(@(x) fs_labelinfo(x, subjCode), theLabelNames, 'uni', false);
+                labelCell = cellfun(@(x) fs_labelinfo(x, subjCode, ...
+                    'bycluster', 1, 'fmin', fmin), theLabelNames, 'uni', false);
                 labelTable = vertcat(labelCell{:});
+                labelTable.Properties.VariableNames{3} = 'No';
                 labelTable.SubjCode = [];
+                labelTable.fmin = [];
                 
                 pos = get(fig, 'Position'); %// gives x left, y bottom, width, height
-                set(fig, 'Position', [pos(1:2) max(1150, pos(3)) pos(4)+max(ceil(pos(4)/pos(3)*1000)-600, 500)]);
+                switch viewpt
+                    case 3
+                        pos4Extra = 1500;
+                    otherwise
+                        pos4Extra = max(ceil(pos(4)/pos(3)*1000)-600, 500);
+                end
+                set(fig, 'Position', [pos(1:2) max(1150, pos(3)) pos(4)+pos4Extra]);
                 % Get the table in string form.
                 TString = evalc('disp(labelTable)');
                 % Use TeX Markup for bold formatting and underscores.
@@ -293,13 +335,13 @@ for iLabel = 1:nLabel
                 print(fig, thisOut,'-dpng');
             end
             
-            close(fig); 
+            close(fig);
             
         end   % iSess
     end   % iAna
 end   % iLabel
 
-close(waitHandle);
+if wait; close(waitHandle); end
 
 end
 
