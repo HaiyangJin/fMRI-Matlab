@@ -1,5 +1,5 @@
 function valstruct = fs_cvn_valstruct(surfCell, hemi)
-% valstruct = fs_cvn_valstruct(surfCell)
+% valstruct = fs_cvn_valstruct(surfCell, hemi)
 %
 % This function reads surfCell and make it suitable for fs_cvn_lookuplmv.m
 % or cvnlookupimages.m.
@@ -19,14 +19,13 @@ function valstruct = fs_cvn_valstruct(surfCell, hemi)
 % if hemi is not empty
 if exist('hemi', 'var')
     if strcmp(hemi, 'lh')
-        surfCell = {surfCell, ''};
+        surfCell = {surfCell, []};
     elseif strcmp(hemi, 'rh')
-        surfCell = {'', surfCell};
+        surfCell = {[], surfCell};
     else
         error('''hemi'' has to be ''lh'' or ''rh'' (not %s).', hemi);
     end
 end
-
 
 if iscellstr(surfCell)
     % if it is filename within surfCell, read the files 
