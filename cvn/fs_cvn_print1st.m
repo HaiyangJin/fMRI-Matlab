@@ -300,8 +300,10 @@ for iLabel = 1:nLabel
                 switch viewpt
                     case 3
                         pos4Extra = 1500;
+                    case {'ffa'}
+                        pos4Extra = (pos(2)-pos(4))*1;
                     otherwise
-                        pos4Extra = max(ceil(pos(4)/pos(3)*1000)-600, 500);
+                        pos4Extra = max(ceil((pos(2)-pos(4))/(pos(1)-pos(3))*1000)-600, 500);
                 end
                 set(fig, 'Position', [pos(1:2) max(1150, pos(3)) pos(4)+pos4Extra]);
                 % Get the table in string form.
@@ -315,7 +317,7 @@ for iLabel = 1:nLabel
                 % Output the table using the annotation command.
                 annotation(gcf,'Textbox','String',TString,'Interpreter','Tex',...
                     'FontName',FixedWidth,'Units','Normalized',...
-                    'Position',[0 0 1 0.1],'FontSize',12,'LineStyle','none');
+                    'Position',[0 0 1 pos4Extra/2/(pos4Extra/2 + pos(2) - pos(4))],'FontSize',12,'LineStyle','none');
             end
             
             colorbar;
