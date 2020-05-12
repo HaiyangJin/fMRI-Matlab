@@ -164,11 +164,8 @@ imageres = options.imageres;
 xyextent = options.xyextent;
 extraopts = options.cvnopts;
 
-viewStr = {'lmv', 'lmvfo', 'fo'};
 if ~exist('viewIdx', 'var') || isempty(viewIdx)
     viewIdx = 3;
-elseif ischar(viewIdx)
-    viewIdx = -find(strcmp(viewIdx, viewStr));
 end
 if ~exist('trgSubj', 'var') || isempty(trgSubj)
     trgSubj = 'fsaverage';
@@ -240,7 +237,7 @@ if isnumeric(viewIdx) && viewIdx < 0
     % views for the hemi
     thisviewpt = cellfun(@(x) x(:, isHemi), allviewpt{view_number, :}, 'uni', false);
     
-else
+elseif isnumeric(viewIdx) && viewIdx > 0
     % view indices Part 2
     view_number = viewIdx;
     
@@ -296,6 +293,10 @@ else
     [viewpt, ~, viewhemis] = cvnlookupviewpoint(trgSubj,viewhemis,viewname,surftype);
     
     thisviewpt = {viewpt};
+    
+elseif ischar(viewIdx)
+    % decide the viewpt depends on the viewIdx (string)
+    thisviewpt = fs_cvn_viewpt(viewIdx, isHemi);
 end
 
 if ~exist('lookups','var') || isempty(lookups)
