@@ -247,7 +247,7 @@ for iLabel = 1:nLabel
                     tempLabelT = fs_labelinfo(theseLabel, subjCode, ...
                         'bycluster', 1, 'fmin', fmin);
                     rois = [thisRoi; arrayfun(@(x) makeroi(nVtx, x), tempLabelT.VtxMax, 'uni', false)];
-                    roicolor = repmat(roicolor, 2, 1);
+                    roicolor = repmat(roicolor, size(rois, 1), 1);
                 else
                     rois = thisRoi;
                 end
