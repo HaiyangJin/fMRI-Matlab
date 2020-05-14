@@ -13,7 +13,8 @@ function [labelMatCell, cluVtxCell] = fs_updatelabel(labelFn, sessCode, outPath,
 %    'ncluster'    <integer> cluster numbers. Default is 1.
 %    'startvtx'    <integer> index of the starting vertex. Default is [].
 %                   If 'startvtx' is used, ncluster will be set as 1 and
-%                   'lowerthresh' will be set as true.
+%                   'lowerthresh' will be set as true. [Not fully
+%                   developed. Ths startvtx might not be the global maxima.]
 %    'maxsize'     <numeric> the maximum cluster size (mm2) [based on
 %                   ?h.white]. Default is 100.
 %    'minsize'     <numeric> the minimum cluster size (mm2) [based on
@@ -28,18 +29,18 @@ function [labelMatCell, cluVtxCell] = fs_updatelabel(labelFn, sessCode, outPath,
 %                   the label range from 1.3 to 8. The values of 1.3:.1:8
 %                   will be used as clustering-forming threshold.
 %                   'lagvalue' will be used if it is not empty.
-%    'lowerthresh' <logical> 1 [default]: release the restriction of the
-%                   KEY threshold and all vertices in the label can be
-%                   assigned to one cluster. 0: only the vertices whose
-%                   values are larger than the KEY threshold can be
-%                   assigned to one cluster. [KEY threshold] can be taken
-%                   as the largest p-value that forms nCluster clusters.
+%    'lowerthresh' <logical> 0 [default]: only the vertices whose values 
+%                   are larger than the KEY threshold can be assigned to
+%                   one cluster. [KEY threshold] can be taken as the 
+%                   largest p-value that forms nCluster clusters. 1: release 
+%                   the restriction of the KEY threshold and all vertices 
+%                   in the label can be assigned to one cluster. 
 %    'warnoverlap' <logical> 1 [default]: dispaly if there are overlapping
 %                   between clusters; 0: do not dispaly.
-%    'smalleronly' <logical> 1 [default]: only include vertices whose
-%                   values are smaller than that of the staring vertex in
-%                   the cluster; 0: include vertices ignoring the values.
-%                   [Maybe not that useful].
+%    'smalleronly' <logical> 0 [default]: include vertices ignoring the 
+%                   values. [Maybe not that useful]. 1: only include  
+%                   vertices whose values are smaller than that of the 
+%                   staring vertex in the cluster; 
 %    'showinfo'    <logical> 0 [default]: show more information; 1: do not
 %                   show label information.
 %
@@ -76,9 +77,9 @@ defaultOpts = struct(...
     'minsize', 20, ...
     'lagnvtx', 10, ...
     'lagvalue', [], ...
-    'lowerthresh', 1, ...
+    'lowerthresh', 0, ...
     'warnoverlap', 1, ...
-    'smalleronly', 1, ...
+    'smalleronly', 0, ...
     'showinfo', 0, ...
     'extraopt1st', {{}} ...
     );
@@ -166,6 +167,7 @@ else
     % simply taken as the largest p-value (smallest FreeSurfer p-values)
     % that identifying nCluster clusters.
     isKeyTh = nClu == nCluster & [true; nClu(1:end-1) ~= nCluster];
+    assert(any(isKeyTh), 'Cannot find %d clusters...', nCluster);
     
     % save the corresponding ClusterNo and iterations
     keyCluNoC = cluNoC(isKeyTh, :);
@@ -209,8 +211,8 @@ else
                 else
                     % all label vertices can be included
                     theAllVtx = allVtx;
-                    theNbrVtx = nbrVtx;
                     theLabelMat = labelMatOrig;
+                    theNbrVtx = nbrVtx;
                 end
                 
                 % udpate the candidate vertices for this label (with
@@ -302,11 +304,12 @@ if nLabelClu > 1
     
     if warnoverlap && any(isOverlap)
         
-        % show overlapping between any pair of clusters
-        arrayfun(@(x) fs_cvn_print1st(sessCode, '', {[labelFn, tempLabelFn(allComb(x, :))]}, outPath, ...
-            'visualimg', 'on', 'waitbar', 0, extraOpt{:}), ...
-            find(isOverlap), 'uni', false);
-        waitfor(msgbox('There is overlapping between sub-labels...', 'Overlapping...', 'warn'));
+        for iOverlap = find(isOverlap)
+            % show overlapping between any pair of clusters
+            fs_cvn_print1st(sessCode, '', {[labelFn, tempLabelFn(allComb(iOverlap, :))]}, outPath, ...
+                'visualimg', 'on', 'waitbar', 0, extraOpt{:});
+            waitfor(msgbox('There is overlapping between sub-labels...', 'Overlapping...', 'warn'));
+        end
     end
 end
 
