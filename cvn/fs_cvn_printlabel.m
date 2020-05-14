@@ -45,8 +45,6 @@ assert(nLabel == numel(sessList), ['The number of labels has to be the '...
 infoCell = cell(nLabel, 1);
 for iLabel = 1:nLabel
     
-    fprintf('Printing the results... [%d/%d]\n', iLabel, nLabel);
-    
     % this label/session/subject
     thisLabel = labelList{iLabel};
     thisSess = sessList{iLabel};
@@ -60,6 +58,9 @@ for iLabel = 1:nLabel
     else
         thmins0 = thmins;
     end
+    
+    fprintf('Printing the results for the label... [%d/%d]<%d>\n', ...
+        iLabel, nLabel, numel(thmins0));
     
     % create the figure
     arrayfun(@(x) fs_cvn_print1st(thisSess, '', thisLabel, outPath, ...
