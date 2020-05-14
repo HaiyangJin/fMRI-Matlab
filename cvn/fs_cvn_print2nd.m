@@ -168,8 +168,8 @@ if cluOutline
     
     % use self defined colors in fs_colors
     if cluOutColor
-        roicolorL = cellfun(@(x) fs_colors(numel(x)), roitempL, 'uni', false);
-        roicolorR = cellfun(@(x) fs_colors(numel(x)), roitempR, 'uni', false);
+        roicolorL = cellfun(@(x) fs_colors(numel(x)*1i), roitempL, 'uni', false);
+        roicolorR = cellfun(@(x) fs_colors(numel(x)*1i), roitempR, 'uni', false);
         roicolors = cellfun(@vertcat, roicolorL, roicolorR, 'uni', false);
     else
         roicolors = arrayfun(@(x) vertcat(roicolortemp{x, :}), 1:size(roicolortemp, 1), 'uni', false)';

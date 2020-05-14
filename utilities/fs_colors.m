@@ -1,13 +1,14 @@
 function outColor = fs_colors(nOutColor)
 % outColor = fs_colors(nColor)
 %
-% This function generates the default colors.
-% 
-% Input: 
-%    nColor       <integer> the number of colors want in the output.
+% This function generates default rgb colors.
+%
+% Input:
+%    nColor       <imaginary number> the number of colors in the output.
+%              or <integer> which colors (rows) in 'colors' to be output.
 %
 % Output:
-%    outColor     <numeric array> nColor x 3. 
+%    outColor     <numeric array> nColor x 3.
 %
 % colors = [
 %     1, 1, 1;  % white
@@ -33,10 +34,17 @@ colors = [
 nColor = size(colors, 1);
 
 if ~exist('nOutColor', 'var') || isempty(nOutColor)
-    nOutColor = nColor;
+    nOutColor = nColor * 1i;
 end
 
-colorIdx = mod((1:nOutColor)-1, nColor)+1;
+% find which rows to be the output
+if isreal(nOutColor)
+    colorIdx = nOutColor;
+else
+    % the first several rows are used in output
+    nOut = imag(nOutColor);
+    colorIdx = mod((1:nOut)-1, nColor)+1;
+end
 
 outColor = colors(colorIdx, :);
 
