@@ -39,9 +39,9 @@ function fs_cvn_print1st(sessList, anaList, labelList, outPath, varargin)
 %                     image name. Default is ''.
 %    'annot'         <string> which annotation will be used. Default is
 %                     '', i.e., not display annotation file.
-%    'markPeak'      <logical> mark the location of the peak response.
+%    'markpeak'      <logical> mark the location of the peak response.
 %                     Default is 0.
-%    'showInfo'      <logical> show label information in the figure.
+%    'showinfo'      <logical> show label information in the figure.
 %                     Default is 0, i.e., do not show the label information.
 %    'wantfig'       <logical/integer> Default is 2, i.e., do not show the
 %                     figure. More please check fs_cvn_lookup.
@@ -78,7 +78,7 @@ defaultOpts = struct(...
     'funcpath', getenv('FUNCTIONALS_DIR'), ...
     'strupath', getenv('SUBJECTS_DIR'));  % not in use now
 
-options = fs_mergestruct(defaultOpts, varargin);
+opts = fs_mergestruct(defaultOpts, varargin);
 
 % show progress bar (if needed)
 showWaitbar = opts.waitbar;
@@ -87,22 +87,23 @@ if showWaitbar
 end
 
 % generate settings
-viewpt = options.viewpt;
-clim = options.clim;
-cmap = options.cmap;  % use jet(256) as the colormap
-subfolder = options.subfolder+1; % subfolder for saving the images
-annot = options.annot;  % the annotation file
-lookup = options.lookup;
-imgNameExtra = options.suffixstr;
-wantfig = options.wantfig;  % do not show figure with fs_cvn_lookuplmv.m
-roicolors = options.roicolors;
-showInfo = options.showinfo;
-markPeak = options.markpeak;
-cnvopts = options.cvnopts;
+viewpt = opts.viewpt;
+clim = opts.clim;
+cmap = opts.cmap;  % use jet(256) as the colormap
+subfolder = opts.subfolder+1; % subfolder for saving the images
+annot = opts.annot;  % the annotation file
+lookup = opts.lookup;
+imgNameExtra = opts.suffixstr;
+wantfig = opts.wantfig;  % do not show figure with fs_cvn_lookuplmv.m
+roicolors = opts.roicolors;
+showInfo = opts.showinfo;
+markPeak = opts.markpeak;
+cnvopts = opts.cvnopts;
 
-sigFn = options.sigfn;
-thresh = options.thresh;  % 0.05
+sigFn = opts.sigfn;
+thresh = opts.thresh;  % 0.05
 visualImg = opts.visualimg;
+funcPath = opts.funcpath;
 
 if ~isempty(imgNameExtra) && ~startsWith(imgNameExtra, ' || ')
     imgNameExtra = [' || ' imgNameExtra];
@@ -304,9 +305,9 @@ for iLabel = 1:nLabel
                     case 3
                         pos4Extra = 1500;
                     case {'ffa'}
-                        pos4Extra = (pos(2)-pos(4))*1;
+                        pos4Extra = pos(4);
                     otherwise
-                        pos4Extra = max(ceil((pos(2)-pos(4))/(pos(1)-pos(3))*1000)-600, 500);
+                        pos4Extra = max(ceil(pos(4)/pos(3)*1000)-600, 400);
                 end
                 set(fig, 'Position', [pos(1:2) max(1150, pos(3)) pos(4)+pos4Extra]);
                 % Get the table in string form.
@@ -320,12 +321,14 @@ for iLabel = 1:nLabel
                 % Output the table using the annotation command.
                 annotation(gcf,'Textbox','String',TString,'Interpreter','Tex',...
                     'FontName',FixedWidth,'Units','Normalized',...
-                    'Position',[0 0 1 pos4Extra/2/(pos4Extra/2 + pos(2) - pos(4))],'FontSize',12,'LineStyle','none');
+                    'Position',[0 0 1 pos4Extra/4/(pos4Extra/2 + pos(4))],'FontSize',12,'LineStyle','none');
             end
             
-            colorbar;
             colormap(cmap);
+            c = colorbar;
             caxis(thisclim0);
+            c.Ticks = ceil(thisclim0(1)):1:floor(thisclim0(2)); 
+            c.TickLength = 0.02;
             
             % print the figure
             subfolders = {'', subjCode, theLabel};
