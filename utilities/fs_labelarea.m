@@ -1,4 +1,4 @@
-function labelarea = fs_labelarea(labelFn, subjCode, vtxIdx, struPath)
+function [labelarea, vtxarea] = fs_labelarea(labelFn, subjCode, vtxIdx, struPath)
 % labelarea = fs_labelarea(labelFn, subjCode, vtxIdx, struPath)
 %
 % This function calculates the area (mm^2) for the label file. [It should
@@ -28,6 +28,12 @@ end
 % load the label matrix
 labelMat = fs_readlabel(labelFn, subjCode, struPath);
 
+if isempty(labelMat)
+    labelarea = 0;
+    vtxarea = [];
+    return;
+end
+
 % decide the hemisphere for the label file
 hemi = fs_2hemi(labelFn);
 curvFile = [hemi '.area'];
@@ -43,7 +49,7 @@ template = fs_2template(labelFn, '', 'self');
 trgSubj = fs_trgsubj(subjCode, template);
 
 % areas for all vertices
-area = fs_readcurv(curvFile, trgSubj, struPath);
+vtxarea = fs_readcurv(curvFile, trgSubj, struPath);
 
 % calculate the all vertices by default
 if ~exist('vtxIdx', 'var') || isempty(vtxIdx)
@@ -51,6 +57,6 @@ if ~exist('vtxIdx', 'var') || isempty(vtxIdx)
 end
 
 % sum the areas of vertices in the label
-labelarea = sum(area(vtxIdx));
+labelarea = sum(vtxarea(vtxIdx));
 
 end
