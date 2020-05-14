@@ -5,7 +5,7 @@ function [clusterNo, nCluster, iterNo] = fs_clustervtx(vtxIdx, nbrVtx, vtxValue,
 % neighborhood vertices.
 %
 % Inputs:
-%    vtxIdx         <integer array> PxQ integer array. Indices of vertices.
+%    vtxIdx         <integer array> Px1 integer array. Indices of vertices.
 %    nbrVtx         <cell> neighborhood vertices for the corresponding
 %                    vertex in vtxIdx. Can be obtained via
 %                    fs_neighborvtx.m.
@@ -44,11 +44,11 @@ while ~all(clusterNo)
     % find all un-assigned vertices
     unassign = vtxIdx(~clusterNo);
     
-
+    
     
     if isempty(vtxStart)
-            % use the vertex whose absolute value is largest as the starting point
-            [~, maxIdx] = max(abs(vtxValue(~clusterNo)));
+        % use the vertex whose absolute value is largest as the starting point
+        [~, maxIdx] = max(abs(vtxValue(~clusterNo)));
         theVtx = unassign(maxIdx);
     else
         theVtx = vtxStart;
