@@ -1,5 +1,5 @@
-function fs_save2label(data, subjCode, labelFn, coordSurf)
-% fs_save2label(dt_cosmo, subjCode, labelFn)
+function labelFile = fs_save2label(data, subjCode, labelFn, coordSurf)
+% fs_save2label(data, subjCode, labelFn)
 %
 % This function converts the surface dataset in CoSMoMVPA to label file in
 % FreeSurfer.
@@ -43,7 +43,7 @@ fid = fopen(labelFile, 'w');
 fprintf(fid, '#!ascii label  from subject %s coords=%s\n', subjCode, coordSurf);
 fprintf(fid, '%d\n', nVtx);
 for vtxID = 1:nVtx
-    fprintf(fid, '%d %5.3f %5.3f %5.3f %f\n', data(vtxID, 1), data(vtxID, 2), ...
+    fprintf(fid, '%d %5.3f %5.3f %5.3f %f\n', data(vtxID, 1)-1, data(vtxID, 2), ...
         data(vtxID, 3), data(vtxID, 4), data(vtxID, 5));  
 end
 fclose(fid);

@@ -27,7 +27,7 @@ if exist('hemi', 'var')
     end
 end
 
-if iscellstr(surfCell)
+if iscellstr(surfCell(~cellfun(@isempty, surfCell)))
     % if it is filename within surfCell, read the files 
     surfData = cellfun(@fs_readfunc, surfCell, 'uni', false);
 elseif any(cellfun(@isnumeric, surfCell))
