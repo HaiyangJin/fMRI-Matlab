@@ -1,4 +1,4 @@
-function [clusterNo, nCluster, iterNo] = fs_clustervtx(vtxIdx, nbrVtx, vtxValue)
+function [clusterNo, nCluster, iterNo] = fs_clustervtx(vtxIdx, nbrVtx, vtxValue, vtxStart)
 % [clusterNo, nCluster, iterNo] = fs_clustervtx(vtxIdx, nbrVtx)
 %
 % This function assigns vtxIdx into different clusters based on their
@@ -24,6 +24,10 @@ function [clusterNo, nCluster, iterNo] = fs_clustervtx(vtxIdx, nbrVtx, vtxValue)
 if ~exist('vtxValue', 'var') || isempty(vtxValue)
     vtxValue = ones(size(vtxIdx));
 end
+if ~exist('vtxStart', 'var') || isempty(vtxStart)
+    vtxStart = [];
+end
+
 
 % assign zeros
 clusterNo = zeros(size(vtxIdx));
@@ -40,9 +44,16 @@ while ~all(clusterNo)
     % find all un-assigned vertices
     unassign = vtxIdx(~clusterNo);
     
-    % use the vertex whose absolute value is largest as the starting point
-    [~, maxIdx] = max(abs(vtxValue(~clusterNo)));
-    theVtx = unassign(maxIdx);
+
+    
+    if isempty(vtxStart)
+            % use the vertex whose absolute value is largest as the starting point
+            [~, maxIdx] = max(abs(vtxValue(~clusterNo)));
+        theVtx = unassign(maxIdx);
+    else
+        theVtx = vtxStart;
+        vtxStart = [];
+    end
     
     % iteration number restart for each cluster
     iterNum = 0;
