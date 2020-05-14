@@ -81,8 +81,8 @@ defaultOpts = struct(...
 options = fs_mergestruct(defaultOpts, varargin);
 
 % show progress bar (if needed)
-wait = options.waitbar;
-if wait
+showWaitbar = opts.waitbar;
+if showWaitbar
     waitHandle = waitbar(0, 'Preparing for printing first-level results...');
 end
 
@@ -181,11 +181,11 @@ for iLabel = 1:nLabel
             subjCode = fs_subjcode(thisSess, funcPath);
             
             % waitbar
-            if wait
-                wait = ((iLabel-1)*nSess*nAna + (iAna-1)*nSess + iSess-1) / (nLabel*nSess*nAna);
+            if showWaitbar
+                waitPerc = ((iLabel-1)*nSess*nAna + (iAna-1)*nSess + iSess-1) / (nLabel*nSess*nAna);
                 waitMsg = sprintf('Label: %s   nTheLabel: %d   SubjCode: %s \n%0.2f%% finished...', ...
-                    strrep(theLabelName, '_', '\_'), nTheLabel, strrep(subjCode, '_', '\_'), wait*100);
-                waitbar(wait, waitHandle, waitMsg);
+                    strrep(theLabelName, '_', '\_'), nTheLabel, strrep(subjCode, '_', '\_'), waitPerc*100);
+                waitbar(waitPerc, waitHandle, waitMsg);
             end
             
             % the target subject [whose coordinates will be used
@@ -348,7 +348,7 @@ for iLabel = 1:nLabel
     end   % iAna
 end   % iLabel
 
-if wait; close(waitHandle); end
+if showWaitbar; close(waitHandle); end
 
 end
 
