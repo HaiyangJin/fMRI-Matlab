@@ -45,6 +45,8 @@ function fs_cvn_print1st(sessList, anaList, labelList, outPath, varargin)
 %                     Default is 0, i.e., do not show the label information.
 %    'wantfig'       <logical/integer> Default is 2, i.e., do not show the
 %                     figure. More please check fs_cvn_lookup.
+%    'visualimg'     <string> 'off' [default]: do not visualize the image;
+%                     'on': visualize the image.
 %    'cvnopts'       <cell> extra options for cvnlookupimages.m.
 %    'funcPath'      <string> the path to functional folder [Default is
 %                     $FUNCTIONALS_DIR].
@@ -71,6 +73,7 @@ defaultOpts = struct(...
     'markpeak', 0, ... % mark the peak response in the label
     'showinfo', 0, ...
     'wantfig', 2, ...
+    'visualimg', 'off', ...
     'cvnopts', {{}}, ...
     'funcpath', getenv('FUNCTIONALS_DIR'), ...
     'strupath', getenv('SUBJECTS_DIR'));  % not in use now
@@ -99,7 +102,7 @@ cnvopts = options.cvnopts;
 
 sigFn = options.sigfn;
 thresh = options.thresh;  % 0.05
-funcPath = options.funcpath;
+visualImg = opts.visualimg;
 
 if ~isempty(imgNameExtra) && ~startsWith(imgNameExtra, ' || ')
     imgNameExtra = [' || ' imgNameExtra];
@@ -280,7 +283,7 @@ for iLabel = 1:nLabel
             
             %% Save the image
             % set the figure name and save it
-            fig = figure('Visible','off');
+            fig = figure('Visible',visualImg);
             imshow(rgbimg); % display lookup results (imagesc + colorbar)
             
             % obtain the contrast name as the figure name
@@ -338,8 +341,9 @@ for iLabel = 1:nLabel
                 print(fig, thisOut,'-dpng');
             end
             
-            close(fig);
-            
+            if strcmp(visualImg, 'off')
+                close(fig);
+            end
         end   % iSess
     end   % iAna
 end   % iLabel
