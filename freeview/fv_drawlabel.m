@@ -54,13 +54,13 @@ if runcmd
     title = 'The current session...';
     f = msgbox(message,title, CreateStruct);
     
-    movegui(f, 'northeast');
+%     movegui(f, 'northeast');
 end
 
 % create FreeSurfer command and run it
-
-fscmd = sprintf('tksurfer %s %s inflated -aparc -overlay %s',...
-    trgSubj, hemi, sigFile);
+titleStr = sprintf('%s==%s==%s', subjCode, labelname, template);
+fscmd = sprintf('tksurfer %s %s inflated -aparc -overlay %s -title %s',...
+    trgSubj, hemi, sigFile, titleStr);
 if ~isempty(fthresh)
     fscmd = sprintf('%s -fthresh %s', fscmd, fthresh);
 end
