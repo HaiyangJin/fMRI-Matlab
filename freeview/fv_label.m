@@ -54,7 +54,8 @@ if ~exist('outPath', 'var') || isempty(outPath)
 end
 
 % create the freesurfer commands for the functional data
-if nargin < 4 || isempty(overlayFile)
+if ~exist('overlayFile', 'var') || isempty(overlayFile)
+    overlayFile = '';
     fscmd_overlay = '';
 else
     fscmd_overlay = sprintf(['overlay=%s:overlay_threshold=%s '...
@@ -88,7 +89,7 @@ end
 
 % if show ?h.inflated of fsaverage (probably this should be determined by
 % the overlay file???)
-if contains('fsaverage', overlayFile)
+if ~isempty(overlayFile) && contains('fsaverage', overlayFile)
     template = 'fsaverage';
 else
     template = 'self';
