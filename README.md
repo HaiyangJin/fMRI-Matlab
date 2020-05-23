@@ -1,4 +1,3 @@
-
 (Working in progress...) \
 Last updated: 23-Jan-2020
 
@@ -33,9 +32,9 @@ Last updated: 23-Jan-2020
 
 <!-- /TOC -->
 
-# Introduction
-
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/d90f46be5ec94928ab6a56244eed0968)](https://app.codacy.com/manual/HaiyangJin/fMRI-Matlab?utm_source=github.com&utm_medium=referral&utm_content=HaiyangJin/fMRI-Matlab&utm_campaign=Badge_Grade_Dashboard)
+
+# Introduction
 
 These Matlab functions mainly call [FreeSurfer](https://surfer.nmr.mgh.harvard.edu/) commands to analyze fMRI data on the surface, perform multivariate pattern analysis (MVPA) with [CoSMoMVPA](http://www.cosmomvpa.org/) toolbox, and visualize some results with [FreeView](https://surfer.nmr.mgh.harvard.edu/fswiki/FreeviewGuide/FreeviewIntroduction).
 
@@ -50,7 +49,6 @@ The following software and toolboxes should be installed properly before using t
 - [NIfTI_20140122](https://www.mathworks.com/matlabcentral/fileexchange/8797-tools-for-nifti-and-analyze-image)
 - [CoSMoMVPA](http://www.cosmomvpa.org/)
 
-
 ## Setup global environment
 As most of the functions in this toolbox call FreeSurfer commands which are linux commands, the path to FreeSurfer needs to be added to the global environment `$PATH`. In addition, the matlab/ folder in FreeSurfer (`$FREESURFER_HOME/matlab/`) also needs to be added to Matlab path. These setups could be accomplished in two ways. Once the setup is finished, the functions should work.
 
@@ -58,7 +56,6 @@ As most of the functions in this toolbox call FreeSurfer commands which are linu
   1. Start a new terminal;
   2. Set all the necessary global environment variables (e.g., `$FREESURFER_HOME`, `$SUBJECTS_DIR`) and set up FreeSurfer (the instruction is available in the [FreeSurfer website](https://surfer.nmr.mgh.harvard.edu/fswiki/DownloadAndInstall#Setup.26Configuration));
   3. Start Matlab in the *same* terminal by running `path-to-matlab-folder/bin/matlab` in the terminal. [You also can add the `path-to-matlab-folder/bin` to `$PATH` by following [this](https://apple.stackexchange.com/questions/358687/right-way-to-add-paths-to-path-in-mojave) and run `matlab` in the terminal].
-
 
 - **Method 2**:
   1. Start Matlab and make sure you added all folders of this toolbox to the Matlab `path`;
@@ -93,35 +90,21 @@ After the preprocessing,
 ## Make analysis
 `fs_mkanalysis()`
 
-
-
-
 ## Make contrast
 `fs_mkcontrast()`
-
-
 
 ## Draw label based on contrast
 `fv_drawlabel()`
 
-
-
 # Group level analysis (???)
 
-
-
 ## Univariate analysis
-
-
-
 
 ## Multivariate analysis
 `fs_fun_cosmo_classification()`
 
-
 ## Searchlight with CoSMoMVPA
 `fs_fun_cosmo_searchlight()`
-
 
 # Data visualization
 
@@ -137,9 +120,7 @@ Run `fv_surfmgz('', 'inflated')` and then select which participants to be displa
 ### Check co-registration
 `fv_checkreg()`
 
-
 ## Check first-level analysis results
-
 
 ### Screenshots for contrast results
 `fs_fun_screenshot_label()`
