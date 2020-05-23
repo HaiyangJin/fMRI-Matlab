@@ -29,12 +29,16 @@ function [labelMatCell, cluVtxCell] = fs_updatelabel(labelFn, sessCode, outPath,
 %                   the label range from 1.3 to 8. The values of 1.3:.1:8
 %                   will be used as clustering-forming threshold.
 %                   'lagvalue' will be used if it is not empty.
-%    'lowerthresh' <logical> 0 [default]: only the vertices whose values 
-%                   are larger than the KEY threshold can be assigned to
-%                   one cluster. [KEY threshold] can be taken as the 
-%                   largest p-value that forms nCluster clusters. 1: release 
-%                   the restriction of the KEY threshold and all vertices 
-%                   in the label can be assigned to one cluster. 
+%    'lowerthresh' <logical> 1 [default]: release the restriction of the 
+%                   KEY threshold and all vertices in the label can be 
+%                   assigned to one cluster. 0: only the vertices whose 
+%                   values are larger than the KEY threshold can be assigned 
+%                   to one cluster. [KEY threshold] can be taken as the 
+%                   largest p-value that forms nCluster clusters. 
+%    'reflabel'    <cell of string> reference (existing) labels. Default is
+%                   '', i.e., no reference lables. Hemisphere information
+%                   in the reflabel will be udpated to match labelFn is
+%                   necessary.
 %    'warnoverlap' <logical> 1 [default]: dispaly if there are overlapping
 %                   between clusters; 0: do not dispaly.
 %    'smalleronly' <logical> 0 [default]: include vertices ignoring the 
@@ -43,6 +47,7 @@ function [labelMatCell, cluVtxCell] = fs_updatelabel(labelFn, sessCode, outPath,
 %                   staring vertex in the cluster; 
 %    'showinfo'    <logical> 0 [default]: show more information; 1: do not
 %                   show label information.
+%    'extraopt1st' <cell> options used in fs_cvn_print1st.m.
 %
 % Outputs:
 %    labelMatCell  <cell> label matrix for each cluster.
@@ -77,7 +82,8 @@ defaultOpts = struct(...
     'minsize', 20, ...
     'lagnvtx', 10, ...
     'lagvalue', [], ...
-    'lowerthresh', 0, ...
+    'lowerthresh', 1, ...
+    'reflabel', '', ...
     'warnoverlap', 1, ...
     'smalleronly', 0, ...
     'showinfo', 0, ...
@@ -93,6 +99,7 @@ minSize = opts.minsize;
 lagNVtx = opts.lagnvtx;
 lagValue = opts.lagvalue;
 lowerThresh = opts.lowerthresh;
+refLabel = opts.reflabel;
 warnoverlap = opts.warnoverlap;
 smallerOnly = opts.smalleronly;
 showInfo = opts.showinfo;
@@ -107,6 +114,12 @@ if ~isempty(startVtx)
     nCluster = 1;
     lowerThresh = 1;
 end
+
+% convert refLabel to cell and match hemisphere information
+if ischar(refLabel); refLabel = {refLabel}; end
+theHemi = fs_2hemi(labelFn);
+oldHemi = setdiff({'lh', 'rh'}, theHemi);
+refLabel = cellfun(@(x) strrep(x, oldHemi{1}, theHemi), refLabel, 'uni', false);
 
 %% Check if the label is available
 % convert sessCode to subjCode
@@ -135,7 +148,7 @@ if labelarea < maxSize && nCluster == 1
 else
     %% Identify the clusters
     % obtain the neighborhood vertices
-    nbrVtx = fs_neighborvtx(labelMatOrig(:, 1), fs_2hemi(labelFn), subjCode);
+    nbrVtx = fs_neighborvtx(labelMatOrig(:, 1), theHemi, subjCode);
     
     % identify all unqiue vertex values
     vtxValues = sort(unique(labelMatOrig(:, 5)));
@@ -294,21 +307,23 @@ if nLabelClu > 1
     fs_cvn_print1st(sessCode, '', {[labelFn, tempLabelFn]}, outPath, ...
         'visualimg', 'on', 'waitbar', 0);
     waitfor(msgbox('Please checking all the sub-labels...'));
+    close all;
     
     % check if there are overlapping between any two clusters
     allComb = nchoosek(1:nLabelClu, 2);
     allPairs = arrayfun(@(x) cluVtxCell(allComb(x, :), :), 1:size(allComb, 1), 'uni', false);
     
     overlapVtx = cellfun(@(x) intersect(x{:}), allPairs, 'uni', false);
-    isOverlap = ~cellfun(@isempty, overlapVtx)';
+    isOverlap = ~cellfun(@isempty, overlapVtx);
     
     if warnoverlap && any(isOverlap)
         
         for iOverlap = find(isOverlap)
             % show overlapping between any pair of clusters
-            fs_cvn_print1st(sessCode, '', {[labelFn, tempLabelFn(allComb(iOverlap, :))]}, outPath, ...
+            fs_cvn_print1st(sessCode, '', {[labelFn refLabel tempLabelFn(allComb(iOverlap, :))]}, outPath, ...
                 'visualimg', 'on', 'waitbar', 0, extraOpt{:});
             waitfor(msgbox('There is overlapping between sub-labels...', 'Overlapping...', 'warn'));
+            close all;
         end
     end
 end
@@ -321,7 +336,7 @@ for iTempLabel = 1:nLabelClu
     thisClusterLabel = tempLabelFn{iTempLabel};
     
     % display this temporary cluster
-    fs_cvn_print1st(sessCode, '', {{thisClusterLabel, labelFn}}, outPath, ...
+    fs_cvn_print1st(sessCode, '', {[labelFn refLabel thisClusterLabel]}, outPath, ...
         'visualimg', 'on', 'waitbar', 0, extraOpt{:});
     
     % input the label names
