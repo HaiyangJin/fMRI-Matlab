@@ -105,6 +105,16 @@ if isempty(labelMat)
     return;
 end
 
+[~, fn, ext] = fileparts(labelFn);
+labelname = [fn ext];
+if nCluster == 0
+    byCluster = 0;
+    nCluster = 1;
+    labelname = [labelname '_ref'];
+else
+    
+end
+
 if byCluster
     clusters = transpose(1:nCluster);
     matCell = arrayfun(@(x) labelMat(clusterNo == x, :), clusters, 'uni', false);
@@ -131,8 +141,7 @@ labelSize = cellfun(@(x) fs_labelarea(labelFn, subjCode, x(:, 1), struPath),...
 %% Create a struct to save all the information
 % inputs
 SubjCode = repmat({subjCode}, numel(clusters), 1);
-[~, fn, ext] = fileparts(labelFn);
-LabelName = repmat({[fn ext]}, numel(clusters), 1);
+LabelName = repmat({labelname}, numel(clusters), 1);
 
 % outinformation
 ClusterNo = clusters;
