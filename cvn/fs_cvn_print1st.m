@@ -251,7 +251,7 @@ for iLabel = 1:nLabel
                     tempLabelT = fs_labelinfo(theseLabel, subjCode, ...
                         'bycluster', 1, 'fmin', fmin);
                     rois = [thisRoi; arrayfun(@(x) makeroi(nVtx, x), tempLabelT.VtxMax, 'uni', false)];
-                    roicolor = repmat(roicolor, size(rois, 1), 1);
+                    roicolor = repmat(roicolor, 2, 1);
                 else
                     rois = thisRoi;
                 end
@@ -284,7 +284,7 @@ for iLabel = 1:nLabel
             
             %% Save the image
             % set the figure name and save it
-            fig = figure('Visible',visualImg);
+            fig = figure('Visible', 'off');
             imshow(rgbimg); % display lookup results (imagesc + colorbar)
             
             % obtain the contrast name as the figure name
@@ -346,6 +346,8 @@ for iLabel = 1:nLabel
             
             if strcmp(visualImg, 'off')
                 close(fig);
+            elseif strcmp(visualImg, 'on')
+                set(fig, 'Visible', 'on');
             end
         end   % iSess
     end   % iAna
