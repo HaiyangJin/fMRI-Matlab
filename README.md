@@ -34,6 +34,9 @@ Last updated: 23-Jan-2020
 <!-- /TOC -->
 
 # Introduction
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/d90f46be5ec94928ab6a56244eed0968)](https://app.codacy.com/manual/HaiyangJin/fMRI-Matlab?utm_source=github.com&utm_medium=referral&utm_content=HaiyangJin/fMRI-Matlab&utm_campaign=Badge_Grade_Dashboard)
+
 These Matlab functions mainly call [FreeSurfer](https://surfer.nmr.mgh.harvard.edu/) commands to analyze fMRI data on the surface, perform multivariate pattern analysis (MVPA) with [CoSMoMVPA](http://www.cosmomvpa.org/) toolbox, and visualize some results with [FreeView](https://surfer.nmr.mgh.harvard.edu/fswiki/FreeviewGuide/FreeviewIntroduction).
 
 **Note**:
