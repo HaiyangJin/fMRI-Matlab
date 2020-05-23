@@ -11,7 +11,7 @@ function varargout = fs_readlabel(labelFn, subjCode, struPath)
 %    labelFn         <string> filename of the label file (with or without
 %                     path). If path is included in labelFn, 'subjCode'
 %                     and struPath will be ignored. Default is
-%                     'lh.cortex.label'.
+%                     'no.label', i.e., no labels.
 %    subjCode        <string> subject code in struPath. Default is
 %                     fsaverage.
 %    struPath        <string> $SUBJECTS_DIR.
@@ -26,8 +26,7 @@ function varargout = fs_readlabel(labelFn, subjCode, struPath)
 % Created by Haiyang Jin (28-Nov-2019)
 
 if ~exist('labelFn', 'var') || isempty(labelFn)
-    labelFn = 'lh.cortex.label';
-    warning('''%s'' is loaded by default.', labelFn);
+    labelFn = 'no.label';
 end
 
 % check if the path is available
