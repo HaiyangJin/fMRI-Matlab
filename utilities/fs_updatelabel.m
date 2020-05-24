@@ -29,22 +29,22 @@ function [labelMatCell, cluVtxCell] = fs_updatelabel(labelFn, sessCode, outPath,
 %                   the label range from 1.3 to 8. The values of 1.3:.1:8
 %                   will be used as clustering-forming threshold.
 %                   'lagvalue' will be used if it is not empty.
-%    'lowerthresh' <logical> 1 [default]: release the restriction of the 
-%                   KEY threshold and all vertices in the label can be 
-%                   assigned to one cluster. 0: only the vertices whose 
-%                   values are larger than the KEY threshold can be assigned 
-%                   to one cluster. [KEY threshold] can be taken as the 
-%                   largest p-value that forms nCluster clusters. 
+%    'lowerthresh' <logical> 1 [default]: release the restriction of the
+%                   KEY threshold and all vertices in the label can be
+%                   assigned to one cluster. 0: only the vertices whose
+%                   values are larger than the KEY threshold can be assigned
+%                   to one cluster. [KEY threshold] can be taken as the
+%                   largest p-value that forms nCluster clusters.
 %    'reflabel'    <cell of string> reference (existing) labels. Default is
 %                   '', i.e., no reference lables. Hemisphere information
 %                   in the reflabel will be udpated to match labelFn is
 %                   necessary.
 %    'warnoverlap' <logical> 1 [default]: dispaly if there are overlapping
 %                   between clusters; 0: do not dispaly.
-%    'smalleronly' <logical> 0 [default]: include vertices ignoring the 
-%                   values. [Maybe not that useful]. 1: only include  
-%                   vertices whose values are smaller than that of the 
-%                   staring vertex in the cluster; 
+%    'smalleronly' <logical> 0 [default]: include vertices ignoring the
+%                   values. [Maybe not that useful]. 1: only include
+%                   vertices whose values are smaller than that of the
+%                   staring vertex in the cluster;
 %    'showinfo'    <logical> 0 [default]: show more information; 1: do not
 %                   show label information.
 %    'extraopt1st' <cell> options used in fs_cvn_print1st.m.
@@ -172,8 +172,6 @@ else
         nCluster = max(nClu);
         warning('Only %d clusters are found in this label.', nCluster);
     end
-    % create empty cell for saving the vertex numbers
-    cluVtxCell = cell(nCluster, 1);
     
     % find the KEY indices, for which the cluster number matches nCluster
     % and that previous cluster number doe not match nCluster. This can be
@@ -187,7 +185,11 @@ else
     keyIterC = iterC(isKeyTh, :);
     
     %% Try to identify clusters matching the size
-    for ith = 1:numel(keyCluNoC)
+    % create empty cell for saving the vertex numbers
+    nKeyCluNoC = numel(keyCluNoC);
+    cluVtxCell = cell(nCluster, nKeyCluNoC);
+    
+    for ith = 1:nKeyCluNoC
         
         % this key ClusterNo and iter
         thisCluNo = keyCluNoC{ith, 1};
@@ -273,90 +275,103 @@ else
             extraVtx = sortBaseMat(1:islarger2-1, 1);
             
             % save all the vertice indices for this cluster
-            cluVtxCell{iClu, 1} = [baseVtx; extraVtx];
+            % each column is one 'ith'
+            cluVtxCell{iClu, ith} = [baseVtx; extraVtx];
             
         end  % iClu  (for each cluster separately)
         
-        % double check the cluster areas
-        checkarea = cellfun(@(x) fs_labelarea(labelFn, subjCode, x), ...
-            cluVtxCell);
-        
-        % move on for displaying results if all cluster areas are larger
-        % than minSize, otherwise, repeate the same progress with another
-        % KEY threshold
-        if all(checkarea > minSize)
-            break;
-        end
-        
-    end
+    end  % ith
+    
+    % remove 'ith' if the area of any temporay label is smaller than
+    % minSize
+    isRemove = cellfun(@(x) any(fs_labelarea(labelFn, subjCode, x) < minSize, 1), cluVtxCell);
+    cluVtxCell(:, isRemove) = [];
     
 end
 
 %% Save the clusters
 % save the label matrix based on the vertex indices for each cluster
 labelMatCell = cellfun(@(x) labelMatOrig(ismember(labelMatOrig(:, 1), x), :), cluVtxCell, 'uni', false);
-nLabelClu = numel(labelMatCell);
 
-% Create temporary files with temporary label names
+% get the number of cluster labels and 'ith'
+[nLabelClu, nTh] = size(labelMatCell);
+% create temporary label names
 tempLabelFn = arrayfun(@(x) sprintf('%s.temp%d.label', erase(labelFn, '.label'), x), 1:nLabelClu, 'uni', false);
-labelfile = cellfun(@(x,y) fs_save2label(x, subjCode, y), labelMatCell, tempLabelFn', 'uni', false);
 
-if nLabelClu > 1
+for iTh = 1:nTh
     
-    % show all clusters together if there are more than one cluster
-    fs_cvn_print1st(sessCode, '', {[labelFn, tempLabelFn]}, outPath, ...
-        'visualimg', 'on', 'waitbar', 0);
-    waitfor(msgbox('Please checking all the sub-labels...'));
-    close all;
+    % Create temporary files with temporary label names
+    labelfile = cellfun(@(x,y) fs_save2label(x, subjCode, y), labelMatCell(:, iTh), tempLabelFn', 'uni', false);
     
-    % check if there are overlapping between any two clusters
-    allComb = nchoosek(1:nLabelClu, 2);
-    allPairs = arrayfun(@(x) cluVtxCell(allComb(x, :), :), 1:size(allComb, 1), 'uni', false);
-    
-    overlapVtx = cellfun(@(x) intersect(x{:}), allPairs, 'uni', false);
-    isOverlap = ~cellfun(@isempty, overlapVtx);
-    
-    if warnoverlap && any(isOverlap)
+    if nLabelClu > 1
         
-        for iOverlap = find(isOverlap)
-            % show overlapping between any pair of clusters
-            fs_cvn_print1st(sessCode, '', {[labelFn refLabel tempLabelFn(allComb(iOverlap, :))]}, outPath, ...
-                'visualimg', 'on', 'waitbar', 0, extraOpt{:});
-            waitfor(msgbox('There is overlapping between sub-labels...', 'Overlapping...', 'warn'));
-            close all;
+        % show all clusters together if there are more than one cluster
+        fs_cvn_print1st(sessCode, '', {[labelFn refLabel tempLabelFn]}, outPath, ...
+            'visualimg', 'on', 'waitbar', 0);
+        %     waitfor(msgbox('Please checking all the sub-labels...'));
+        % input the label names
+        prompt = {'Please checking all the sub-labels...'};
+        dlgtitle = 'Input';
+        dims = [1 35];
+        definput = {'skip?'};
+        checking = inputdlg(prompt,dlgtitle,dims,definput);
+        
+        close all;
+        
+        if strcmp(checking, 'skip')
+            continue;
         end
-    end
-end
-
-% input the label names for each cluster
-for iTempLabel = 1:nLabelClu
-    
-    % this label file name (without and with path)
-    thisLabelFile = labelfile{iTempLabel};
-    thisClusterLabel = tempLabelFn{iTempLabel};
-    
-    % display this temporary cluster
-    fs_cvn_print1st(sessCode, '', {[labelFn refLabel thisClusterLabel]}, outPath, ...
-        'visualimg', 'on', 'waitbar', 0, extraOpt{:});
-    
-    % input the label names
-    prompt = {'Enter the label name for this cluster:'};
-    dlgtitle = 'Input';
-    dims = [1 35];
-    definput = {erase(thisClusterLabel, {'f13.', sprintf('temp%d.', iTempLabel)})};
-    newlabelname = inputdlg(prompt,dlgtitle,dims,definput);
-    
-    close all;
-    
-    % rename or remove the temporary label files
-    if ~isempty(newlabelname)
-        if endsWith(newlabelname, {'remove', 'rm'})
-            delete(thisLabelFile);
-        elseif ~strcmp(newlabelname{1}, thisClusterLabel)
-            movefile(thisLabelFile, strrep(thisLabelFile, thisClusterLabel, newlabelname{1}));
+        
+        % check if there are overlapping between any two clusters
+        allComb = nchoosek(1:nLabelClu, 2);
+        allPairs = arrayfun(@(x) cluVtxCell(allComb(x, :), iTh), 1:size(allComb, 1), 'uni', false);
+        
+        overlapVtx = cellfun(@(x) intersect(x{:}), allPairs, 'uni', false);
+        isOverlap = ~cellfun(@isempty, overlapVtx);
+        
+        if warnoverlap && any(isOverlap)
+            
+            for iOverlap = find(isOverlap)
+                % show overlapping between any pair of clusters
+                fs_cvn_print1st(sessCode, '', {[labelFn refLabel tempLabelFn(allComb(iOverlap, :))]}, outPath, ...
+                    'visualimg', 'on', 'waitbar', 0, extraOpt{:});
+                waitfor(msgbox('There is overlapping between sub-labels...', 'Overlapping...', 'warn'));
+                close all;
+            end
         end
     end
     
-end
+    % input the label names for each cluster
+    for iTempLabel = 1:nLabelClu
+        
+        % this label file name (without and with path)
+        thisLabelFile = labelfile{iTempLabel};
+        thisClusterLabel = tempLabelFn{iTempLabel};
+        
+        % display this temporary cluster
+        fs_cvn_print1st(sessCode, '', {[labelFn refLabel thisClusterLabel]}, outPath, ...
+            'visualimg', 'on', 'waitbar', 0, extraOpt{:});
+        
+        % input the label names
+        prompt = {'Enter the label name for this cluster:'};
+        dlgtitle = 'Input';
+        dims = [1 35];
+        definput = {erase(thisClusterLabel, {'f13.', sprintf('temp%d.', iTempLabel)})};
+        newlabelname = inputdlg(prompt,dlgtitle,dims,definput);
+        
+        close all;
+        
+        % rename or remove the temporary label files
+        if ~isempty(newlabelname)
+            if endsWith(newlabelname, {'remove', 'rm'})
+                delete(thisLabelFile);
+            elseif ~strcmp(newlabelname{1}, thisClusterLabel)
+                movefile(thisLabelFile, strrep(thisLabelFile, thisClusterLabel, newlabelname{1}));
+            end
+        end
+        
+    end  % iTempLabel
+    
+end  % iTh
 
 end
