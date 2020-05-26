@@ -1,5 +1,7 @@
-function [predictTable, ds_out] = cosmo_similarity(ds, classPairs, condName, condWeight, autoscale)
-% [predictTable, ds_combined] = cosmo_similarity(ds, classPairs, condName, condWeight, autoscale)
+function [predTable, ds_out] = cosmo_similarity(ds, classPairs, condName, ...
+    condWeight, dsInfo, autoscale)
+% [predTable, ds_out] = cosmo_similarity(ds, classPairs, condName, ...
+%   condWeight, dsInfo, autoscale)
 %
 % This function quantifies the similarity of the pattern to the two (or more)
 % conditions in classPairs. The pattern could be another condition or the
@@ -14,6 +16,9 @@ function [predictTable, ds_out] = cosmo_similarity(ds, classPairs, condName, con
 %    condWeight       <array of numeric> a PxQ numeric array for the
 %                      weights to be applied to the combination of condName.
 %                      Each row of weights is tested separately.
+%    dsInfo           <structure> Extra information to be saved
+%                      in mvpaTable. E.g., the condition information
+%                      obtained from fs_cosmo_subjds.
 %    autoscale        <logical> scale the sample data before the
 %                      combination. Default is Z scale data.
 %
@@ -27,6 +32,12 @@ function [predictTable, ds_out] = cosmo_similarity(ds, classPairs, condName, con
 %     CoSMoMVPA
 %
 % Created by Haiyang Jin (10-March-2020)
+
+if isempty(ds.samples)
+    predTable = table;
+    ds_out = [];
+    return;
+end
 
 % classPairs needs to be a vector
 if ~ismember(1, size(classPairs)) && numel(classPairs) ~= 1
@@ -51,8 +62,12 @@ if nCond ~= size(condWeight, 2)
     error('The column number of conWeight should equal to the length of condName.');
 end
 
+if ~exist('dsInfo', 'var') || isempty(dsInfo)
+    dsInfo = '';
+end
+
 % scale the data before combination by default
-if nargin < 5 || isempty(autosacle)
+if ~exist('autosacle', 'var') || isempty(autosacle)
     autoscale = 1;
 end
 
@@ -63,7 +78,7 @@ trainMask = cosmo_match(ds.sa.labels, classPairs);
 % quit if classPair is not available is in ds
 if ~sum(trainMask)
     warning('Cannot find the classPairs in the data set.');
-    predictTable = [];
+    predTable = table;
     ds_out = [];
     return;
 else
@@ -139,7 +154,15 @@ end
 dsCell(nWeight+1, 1) = {ds};
 
 % convert cell to table
-predictTable = vertcat(outputCell{:});
+predTable = vertcat(outputCell{:});
 ds_out = cosmo_stack(dsCell);
+
+% combine mvpa data with condition information
+nRow = size(predTable, 1);
+if ~nRow || isempty(dsInfo)
+    predTable = table;
+else
+    predTable = [repmat(dsInfo, nRow, 1), predTable];
+end
 
 end
