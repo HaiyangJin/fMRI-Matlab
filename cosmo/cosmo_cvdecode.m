@@ -23,6 +23,11 @@ function mvpaTable = cosmo_cvdecode(ds, classPairs, condInfo, classifiers)
 %
 % Created by Haiyang Jin (12-Dec-2019)
 
+if isempty(ds.samples)
+    mvpaTable = table;
+    return;
+end
+
 if ~exist('condInfo', 'var') || isempty(condInfo)
     condInfo = '';
 end
