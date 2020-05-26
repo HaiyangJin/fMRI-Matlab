@@ -69,12 +69,12 @@ for iSess = 1:nSess
         theAna = anaList(isAna);
         
         % get data for CoSMoMVPA
-        [ds_subj, condInfo] = cellfun(@(x) fs_cosmo_sessds(thisSess, x, ...
+        [ds_subj, dsInfo] = cellfun(@(x) fs_cosmo_sessds(thisSess, x, ...
             'labelfn', thisLabel, 'runlist', runList, 'runwise', 1), ...
             theAna, 'uni', false);
         
         tempCell = cellfun(@(x, y) cosmo_cvdecode(x, classPairs, y, classifiers),...
-            ds_subj, condInfo, 'uni', false);
+            ds_subj, dsInfo, 'uni', false);
         
         % run classification
         mvpaCell{iSess, iLabel} = vertcat(tempCell{:});

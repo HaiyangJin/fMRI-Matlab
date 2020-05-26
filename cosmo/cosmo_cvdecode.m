@@ -1,5 +1,5 @@
-function mvpaTable = cosmo_cvdecode(ds, classPairs, condInfo, classifiers)
-% mvpaTable = cosmo_cvdecode(ds, classPairs, condInfo, classifiers)
+function mvpaTable = cosmo_cvdecode(ds, classPairs, dsInfo, classifiers)
+% mvpaTable = cosmo_cvdecode(ds, classPairs, dsInfo, classifiers)
 %
 % This function performs leave-one-out cross validation classification with
 % CoSMoMVPA.
@@ -7,16 +7,16 @@ function mvpaTable = cosmo_cvdecode(ds, classPairs, condInfo, classifiers)
 % Inputs:
 %    ds               <strucutre> dataset obtained from fs_cosmo_subjds.
 %    classPairs       <cell of strings> a PxQ (usually is 2) cell matrix
-%                     for the pairs to be classified. Each row is one
-%                     classfication pair.
-%    condInfo         <structure> Extra information to be saved
-%                     in mvpaTable. E.g., the condition information
-%                     obtained from fs_cosmo_subjds.
+%                      for the pairs to be classified. Each row is one
+%                      classfication pair.
+%    dsInfo           <structure> Extra information to be saved
+%                      in mvpaTable. E.g., the condition information
+%                      obtained from fs_cosmo_subjds.
 %    classifiers      <numeric> or <strings> or <cells> the classifiers
-%                     to be used (can be more than 1).
+%                      to be used (can be more than 1).
 %
 % Output:
-%    mvpaTable       the MVPA result table
+%    mvpaTable        <table> the MVPA result table.
 %
 % Dependency:
 %    CoSMoMVPA
@@ -28,8 +28,8 @@ if isempty(ds.samples)
     return;
 end
 
-if ~exist('condInfo', 'var') || isempty(condInfo)
-    condInfo = '';
+if ~exist('dsInfo', 'var') || isempty(dsInfo)
+    dsInfo = '';
 end
 
 if ~exist('classifiers', 'var') || isempty(classifiers)
@@ -110,10 +110,10 @@ end
 
 % combine mvpa data with condition information
 nRow = size(accTable, 1);
-if ~nRow || isempty(condInfo)
+if ~nRow || isempty(dsInfo)
     mvpaTable = table;
 else
-    mvpaTable = [repmat(condInfo, nRow, 1), accTable];
+    mvpaTable = [repmat(dsInfo, nRow, 1), accTable];
 end
 
 end

@@ -1,4 +1,4 @@
-function [ds_sess, condInfo] = fs_cosmo_sessds(sessCode, anaName, varargin)
+function [ds_sess, dsInfo] = fs_cosmo_sessds(sessCode, anaName, varargin)
 % [ds_sess, condInfo] = fs_cosmo_sessds(sessCode, anaName, varargin)
 %
 % This function save the functional data on surface (in FreeSurfer) and
@@ -32,7 +32,7 @@ function [ds_sess, condInfo] = fs_cosmo_sessds(sessCode, anaName, varargin)
 %
 % Outputs:
 %    ds_subj        <struct> data set for CoSMoMVPA.
-%    condInfo       <struct> condition information for this analysis.
+%    dsInfo         <struct> condition information for this analysis.
 %     .Label        <string> the label name.
 %     .Analysis     <string> analysis name.
 %     .nVertices    <integer> number of vertices in this label.
@@ -110,10 +110,10 @@ else
 end
 
 %% Save the condition information
-condInfo = table;
-condInfo.Label = {labelFn};
-condInfo.Analysis = {anaName};
-condInfo.nVertices = size(ds_sess.samples, 2);
-condInfo.SessCode = {sessCode};
+dsInfo = table;
+dsInfo.Label = {labelFn};
+dsInfo.Analysis = {anaName};
+dsInfo.nVertices = size(ds_sess.samples, 2);
+dsInfo.SessCode = {sessCode};
 
 end
