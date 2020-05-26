@@ -8,28 +8,28 @@ function [ds_sess, condInfo] = fs_cosmo_sessds(sessCode, anaName, varargin)
 % later).
 %
 % Inputs:
-%    sessCode         <string> session code in funcPath.
-%    anaName          <string> analysis name in funcPath.
+%    sessCode       <string> session code in funcPath.
+%    anaName        <string> analysis name in funcPath.
 %
 % Varargin:
-%    runlist          <string> the filename of the run file (e.g.,
-%                      run_loc.txt.) [Default is '' and then names of
-%                      all run folders will be used.]
-%                 OR  <string cell> a list of all the run names. (e.g.,
-%                      {'001', '002', '003'....}.
-%    runwise          <logical> load the data analyzed combining all runs
-%                      [runwise = 0; default]; load the data analyzed for
-%                      each run separately [runwise = 1].
-%    labelfn          <string> the label name (without path). Its vertex
-%                      indices will be used as a mask to the dataset, i.e.,
-%                      only the data for vertices in the label sare saved.
-%                      [default: '', i.e., keep data for all vertices.]
-%    datafn           <string> the filename of the to-be-read data file.
-%                      ['beta.nii.gz' by default]
-%    parfn            <string> the filename of the par file. It is empty by
-%                      default and will try to find the par file for that run.
-%    funcpath         <string> the path to the session folder, 
-%                      $FUNCTIONALS_DIR by default.
+%    runlist        <string> the filename of the run file (e.g.,
+%                    run_loc.txt.) [Default is '' and then names of all run
+%                    folders will be used.]
+%               OR  <string cell> a list of all the run names. (e.g.,
+%                    {'001', '002', '003'....}.
+%    runwise        <logical> load the data analyzed combining all runs
+%                    [runwise = 0; default]; load the data analyzed for
+%                    each run separately [runwise = 1].
+%    labelfn        <string> the label name (without path). Its vertex
+%                    indices will be used as a mask to the dataset, i.e.,
+%                    only the data for vertices in the label sare saved.
+%                    [default: '', i.e., keep data for all vertices.]
+%    datafn         <string> the filename of the to-be-read data file.
+%                    ['beta.nii.gz' by default]
+%    parfn          <string> the filename of the par file. It is empty by
+%                    default and will try to find the par file for that run.
+%    funcpath       <string> the path to the session folder, 
+%                    $FUNCTIONALS_DIR by default.
 %
 % Outputs:
 %    ds_subj          <struct> data set for CoSMoMVPA.
@@ -109,6 +109,7 @@ end
 %% Save the condition information
 condInfo = table;
 condInfo.Label = {labelFn};
+condInfo.Analysis = {anaName};
 condInfo.nVertices = size(ds_sess.samples, 2);
 condInfo.SessCode = {sessCode};
 
