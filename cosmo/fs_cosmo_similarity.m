@@ -1,33 +1,36 @@
-function predictTable = fs_cosmo_similarity(sessList, labelList, ...
-    classPairs, condName, condWeight, template, outputPath, funcPath)
-% predictTable = fs_cosmo_similarity(project, labelList, ...
-%     classPairs, condName, condWeight, outputPath)
+function predTable = fs_cosmo_similarity(sessList, anaList, labelList, runList, ...
+    classPairs, condName, condWeight, outPath)
+% fs_cosmo_similarity(sessList, labelList, ...
+%    classPairs, condName, condWeight, template, outputPath, funcPath)
 %
 % This function decodes the similarity of condName to classPairs for all
 % the sessions in the project. libsvm is used in this analysis.
 %
 % Inputs:
-%    sessList            <cell of string> session code in functional folder 
-%                         (bold subject code).
-%    labelList           <cell of strings> a list of label names.
-%    classPairs          <cell of strings> a PxQ (usually is 2) cell matrix 
-%                         for the pairs to be classified. Each row is one 
-%                         classfication pair. 
-%    condName            <cell of strings> a PxQ cell vector for the 
-%                         conditions to be combined for the similarity test.
-%                         The row number should be same as that for
-%                         classPairs. The similarity of condName to
-%                         classPairs will be tested separated for each row.
-%    condWeight          <array of numeric> a PxQ numeric array for the
-%                         weights to be applied to the combination of condName.
-%                         Each row of weights is tested separately.
-%    template            <string> 'fsaverage' or 'self'. fsaverage is the default.
-%    outputPath          <string> where output to be saved.
-%    structPath          the full path to the functional folder.
+%    sessList        <cell string> a list of session codes.
+%    anaList         <cell string> a list of analysis names.
+%    labelList       <cell string> a list of label names.
+%    runList         <string> the filename of the run file (e.g.,
+%                     run_loc.txt.) [Default is '' and then names of
+%                     all run folders will be used.]
+%                OR  <string cell> a list of all the run names. (e.g.,
+%                     {'001', '002', '003'....}.
+%    classPairs      <cell string> a PxQ (usually is 2) cell matrix 
+%                     for the pairs to be classified. Each row is one 
+%                     classfication pair. 
+%    condName        <cell string> a PxQ cell vector for the 
+%                     conditions to be combined for the similarity test.
+%                     The row number should be same as that for classPairs.
+%                     The similarity of condName to classPairs will be
+%                     tested separated for each row.
+%    condWeight      <numeric array> a PxQ numeric array for the
+%                     weights to be applied to the combination of condName.
+%                     Each row of weights is tested separately.
+%    outPath         <string> where output to be saved.
 %
 % Output:
-%    predictTable        <table> the prediction for the new condition and 
-%                         the related information.
+%    predTable        <table> the prediction for the new condition and 
+%                      the related information.
 %
 % Dependencies:
 %    FreeSurfer matlab functions;
@@ -35,94 +38,68 @@ function predictTable = fs_cosmo_similarity(sessList, labelList, ...
 %
 % Created by Haiyang Jin (11-March-2020)
 
-% The row numbers of classPairs and condName should be the same.
+%% Deal with inputs
+% waitbar
+waitHandle = waitbar(0, 'Loading...   0.00% finished');
+
+if ischar(sessList); sessList = {sessList}; end
+nSess = numel(sessList);
+if ischar(anaList); anaList = {anaList}; end
+if ischar(labelList); labelList = {labelList}; end
+nLabel = numel(labelList);
+
+% The row numbers of classPairs and condName have to be the same.
 nClass = size(classPairs, 1);
 assert(nClass == size(condName, 1), ...
     'The row numbers of classPairs and condName should be the same.');
 
-if nargin < 5 || isempty(condWeight)
+if ~exist('condWeight', 'var') || isempty(condWeight)
     condWeight = '';
 elseif size(condWeight, 2) ~= size(condName, 2)
     error('The column numbers of condWeight and condName should be the same.');
 end
 
-if nargin < 6 || isempty(template)
-    template = '';
+if ~exist('outPath', 'var') || isempty(outPath)
+    outPath = '';
 end
-
-if nargin < 7 || isempty(outputPath)
-    outputPath = '';
-end
-
-if nargin < 8 || isempty(funcPath)
-    funcPath = getenv('FUNCTIONALS_DIR');
-end
-
-%% Preparations
-% waitbar
-waitHandle = waitbar(0, 'Loading...   0.00% finished');
-
-% sessions
-nSess = numel(sessList);
-
-% label information
-if ischar(labelList)
-    labelList = {labelList};
-end
-nLabel = numel(labelList);
 
 %% Run cosmo_similarity
 % empty cell for saving prediction table
-cellTable = cell(nSess * nLabel * nClass, 1);
-thisRow = 0;
+predCell = cell(nSess, nLabel);
 
 for iSess = 1:nSess
     
     % this session code
     thisSess = sessList{iSess};
-    info.SubjCode = {thisSess};
     
     for iLabel = 1:nLabel
         
         % this label name
         thisLabel = labelList{iLabel};
-        info.Label = {thisLabel};
+        
+        % waitbar
+        progress = ((iSess-1)*nLabel + iLabel) / (nLabel * nSess);
+        progressMsg = sprintf('Label: %s.  Subject: %s \n%0.2f%% finished...', ...
+            thisLabel, strrep(thisSess, '_', '\_'), progress*100);
+        waitbar(progress, waitHandle, progressMsg);
+        
+        % get the corresponding analysis name
+        isAna = contains(anaList, fs_2hemi(thisLabel));
+        theAna = anaList(isAna);
+        assert(numel(theAna) == 1, ['Please make sure there is only one' ...
+            ' analysis name for each hemisphere']);
         
         % load the data set
-        ds_this = fs_cosmo_subjds(thisSess, thisLabel, template, funcPath, 'main', '', 1);
+        [ds_subj, dsInfo] = fs_cosmo_sessds(thisSess, theAna{1}, ...
+            'labelfn', thisLabel, 'runlist', runList, 'runwise', 1);
         
-        % continue if the ds_this is empty
-        if isempty(ds_this)
-            continue;
-        end
-
-        for iClass = 1:nClass
-            
-            % waitbar
-            progress = ((iSess-1)*nLabel*nClass + (iLabel-1)*nClass + iClass-1)...
-                / (nLabel * nSess * nClass);
-            progressMsg = sprintf('Subject: %s   Label: %s. \n%0.2f%% finished...', ...
-                strrep(thisSess, '_', '\_'), thisLabel, progress*100);
-            waitbar(progress, waitHandle, progressMsg);
-            
-            % the classPair and condName for this decoding
-            thisClass = classPairs(iClass, :);
-            thisCondName = condName(iClass, :);
-            
-            %%%%%%%%%%%%%%% estimate the similarity %%%%%%%%%%%%%%%%%%
-            thisPredictTable = cosmo_similarity(ds_this, thisClass, thisCondName, condWeight);
-            
-            % add the information for this decoding
-            if ~isempty(thisPredictTable)
-                thisTable = horzcat(repmat(struct2table(info), size(thisPredictTable, 1), 1), thisPredictTable);
-            else
-                thisTable = thisPredictTable;
-            end
-            
-            % save this prediction table
-            thisRow = thisRow + 1;
-            cellTable(thisRow, 1) = {thisTable};
-        end
+        %%%%%%%%%%%%%%% estimate the similarity %%%%%%%%%%%%%%%%%%
+        simiCell = arrayfun(@(x, y) cosmo_similarity(ds_subj, ...
+            classPairs(x, :), condName(x, :), condWeight, dsInfo), ...
+            1:nClass, 'uni', false);
+        
+        predCell{iSess, iLabel} = vertcat(simiCell{:});
+    
     end
 end
 
@@ -131,21 +108,20 @@ end
 waitbar(progress, waitHandle, 'Saving data...');
 
 % obtain the predictTable
-predictTable = vertcat(cellTable{:});
+predTable = vertcat(predCell{:});
 
 % the path
-if isempty(outputPath)
-    outputPath = '.';
+if isempty(outPath)
+    outPath = fullfile(pwd, 'Classification');
 end
-outputPath = fullfile(outputPath, 'Classification');
-if ~exist(outputPath, 'dir'); mkdir(outputPath); end
+if ~exist(outPath, 'dir'); mkdir(outPath); end
 
 % the filename
-similarityFn = fullfile(outputPath, 'Main_Similarity');
-save(similarityFn, 'predictTable');
+similarityFn = fullfile(outPath, 'Main_Similarity');
+save(similarityFn, 'predTable');
 
-writetable(predictTable, [similarityFn, '.xlsx']);
-writetable(predictTable, [similarityFn, '.csv']);
+writetable(predTable, [similarityFn, '.xlsx']);
+writetable(predTable, [similarityFn, '.csv']);
 
 % close the waitbar 
 close(waitHandle); 
