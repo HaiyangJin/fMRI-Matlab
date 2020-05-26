@@ -296,7 +296,8 @@ labelMatCell = cellfun(@(x) labelMatOrig(ismember(labelMatOrig(:, 1), x), :), cl
 % get the number of cluster labels and 'ith'
 [nLabelClu, nTh] = size(labelMatCell);
 % create temporary label names
-tempLabelFn = arrayfun(@(x) sprintf('%s.temp%d.label', erase(labelFn, '.label'), x), 1:nLabelClu, 'uni', false);
+% tempLabelFn = arrayfun(@(x) sprintf('%s.temp%d.label', erase(labelFn, '.label'), x), 1:nLabelClu, 'uni', false);
+tempLabelFn = arrayfun(@(x) sprintf('%s.temp%d.label', theHemi, x), 1:nLabelClu, 'uni', false);
 
 for iTh = 1:nTh
     
@@ -356,7 +357,7 @@ for iTh = 1:nTh
         prompt = {'Enter the label name for this cluster:'};
         dlgtitle = 'Input';
         dims = [1 35];
-        definput = {erase(thisClusterLabel, {'f13.', sprintf('temp%d.', iTempLabel)})};
+        definput = {erase(labelFn, 'f13.')};
         newlabelname = inputdlg(prompt,dlgtitle,dims,definput);
         
         close all;
