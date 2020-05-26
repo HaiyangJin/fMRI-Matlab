@@ -1,6 +1,5 @@
 function [ds_sess, condInfo] = fs_cosmo_sessds(sessCode, anaName, varargin)
-% [ds_sess, condInfo] = fs_cosmo_sessds(sessCode, anaName, [runList='', ...
-%    runwise=0, labelFn='', dataFn='beta.nii.gz', parFn='', funcPath])
+% [ds_sess, condInfo] = fs_cosmo_sessds(sessCode, anaName, varargin)
 %
 % This function save the functional data on surface (in FreeSurfer) and
 % the condition names as a dataset for using in CoSMoMVPA and others. A
@@ -32,8 +31,12 @@ function [ds_sess, condInfo] = fs_cosmo_sessds(sessCode, anaName, varargin)
 %                    $FUNCTIONALS_DIR by default.
 %
 % Outputs:
-%    ds_subj          <struct> data set for CoSMoMVPA.
-%    condInfo         <struct> condition information for this analysis.
+%    ds_subj        <struct> data set for CoSMoMVPA.
+%    condInfo       <struct> condition information for this analysis.
+%     .Label        <string> the label name.
+%     .Analysis     <string> analysis name.
+%     .nVertices    <integer> number of vertices in this label.
+%     .SessCode     <string> this session code.
 %
 % Created by Haiyang Jin (14-Apr-2020)
 

@@ -7,8 +7,8 @@ function mvpaTable = fs_cosmo_cvdecode(sessList, anaList, labelList, runList, ..
 % subjects and all pairs.
 %
 % Inputs:
-%    sessList        <cell string> session code in functional folder.
-%    anaList         <cell string>
+%    sessList        <cell string> a list of session codes.
+%    anaList         <cell string> a list of analysis names.
 %    labelList       <cell string> a list of label names.
 %    runList         <string> the filename of the run file (e.g.,
 %                     run_loc.txt.) [Default is '' and then names of
