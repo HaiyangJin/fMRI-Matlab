@@ -96,17 +96,9 @@ dsCell = arrayfun(@(x) fs_cosmo_surface(betaFiles{x}, ...
 ds_all = cosmo_stack(dsCell,1);
 
 %% Apply the label file as mask if necessary
-% load the label file
-tempMask = fs_readlabel(labelFn, fs_subjcode(sessCode, funcPath));
-
-if ~isempty(tempMask)
-    
-    vtxMask = tempMask(:, 1);
-    
-    % create mask for the label file
-    roiMask = zeros(1, size(ds_all.samples, 2));
-    roiMask(vtxMask) = 1;
-    
+if ~isempty(labelFn)
+    % convert label into mask
+    roiMask = fs_label2mask(labelFn, fs_subjcode(sessCode, funcPath), size(ds_all.samples, 2));
     % apply the mask
     ds_sess = cosmo_slice(ds_all, logical(roiMask), 2);
 else
