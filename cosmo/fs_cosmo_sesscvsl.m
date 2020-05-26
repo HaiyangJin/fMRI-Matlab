@@ -136,7 +136,7 @@ for iSess = 1:nSess
         featureCount = 200;
         
         % run search light analysis
-        fs_cosmo_crosssl(ds_this, classPairs, surfDef, featureCount, ...
+        fs_cosmo_cvsl(ds_this, classPairs, surfDef, featureCount, ...
             thisSess, thisHemi, template, outFolderStr, funcPath, classifier);
         
     end  % iSL
