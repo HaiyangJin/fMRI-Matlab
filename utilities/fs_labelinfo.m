@@ -22,7 +22,12 @@ function labelTable = fs_labelinfo(labelList, subjList, varargin)
 %                     labelList and subjList will be created, i.e.,
 %                     summarize all labels in labelList for each subject
 %                     separately. 0: only summarize the first label for the
-%                     first subject, ect...
+%                     first subject, second label for the second subject,
+%                     etc...
+%    'saveall'       <logical> 0 [default]: only save information for the
+%                     available labels. 1: save information for all labels
+%                     files. For unavaiable labels, their information is 
+%                     saved as empty or NaN.
 %    'strupath'      <string> $SUBJECTS_DIR.
 %
 % Output:
@@ -51,6 +56,7 @@ defaultOpts = struct(...
     'bycluster', 0, ...
     'fmin', 0, ...
     'isndgrid', 1, ...
+    'saveall', 0, ...
     'strupath', getenv('SUBJECTS_DIR') ...
 );
 
@@ -58,6 +64,7 @@ opts = fs_mergestruct(defaultOpts, varargin{:});
 byCluster = opts.bycluster;
 fmin = opts.fmin;
 isndgrid = opts.isndgrid;
+saveAll = opts.saveall;
 struPath = opts.strupath;
 
 if ~exist('labelList', 'var') || isempty(labelList)
@@ -84,7 +91,7 @@ else
 end
 
 % read the label information
-labelInfoCell = cellfun(@(x, y) labelinfo(x, y, byCluster, fmin, struPath),...
+labelInfoCell = cellfun(@(x, y) labelinfo(x, y, byCluster, fmin, saveAll, struPath),...
     tempList(:), tempSubj(:), 'uni', false);
 
 labelTable = vertcat(labelInfoCell{:});
@@ -92,7 +99,7 @@ labelTable = vertcat(labelInfoCell{:});
 end
 
 %% Obtain the label information separately
-function labelInfo = labelinfo(labelFn, subjCode, byCluster, fmin0, struPath)
+function labelInfo = labelinfo(labelFn, subjCode, byCluster, fmin0, saveall, struPath)
 
 % get the cluster (contiguous)
 [clusterNo, nCluster] = fs_clusterlabel(labelFn, subjCode, fmin0);
@@ -101,7 +108,21 @@ function labelInfo = labelinfo(labelFn, subjCode, byCluster, fmin0, struPath)
 labelMat = fs_readlabel(labelFn, subjCode, struPath);
 
 if isempty(labelMat)
-    labelInfo = [];
+    if saveall
+        SubjCode = {subjCode};
+        LabelName = {labelFn};
+        ClusterNo = 0;
+        Max = NaN;
+        VtxMax = NaN;
+        Size = 0;
+        MNI305 = {NaN};
+        Talairach = {NaN};
+        NVtxs = 0;
+        fmin = NaN;
+        labelInfo = table(SubjCode, LabelName, ClusterNo, Max, VtxMax, Size, MNI305, Talairach, NVtxs, fmin);
+    else
+        labelInfo = [];
+    end
     return;
 end
 
