@@ -1,17 +1,18 @@
 function mvpaTable = cosmo_crossdecode(ds, classPairs, condInfo, classifiers)
 % mvpaTable = cosmo_crossdecode(ds, classPairs, condInfo, classifiers)
 %
-% This function performs leave-one-out crossvalidation classification with CoSMoMVPA.
+% This function performs leave-one-out cross validation classification with
+% CoSMoMVPA.
 %
 % Inputs:
 %    ds               <strucutre> dataset obtained from fs_cosmo_subjds.
-%    classPairs       <cell of strings> a PxQ (usually is 2) cell matrix 
-%                     for the pairs to be classified. Each row is one 
-%                     classfication pair. 
-%    condInfo         <structure> Extra information to be saved 
-%                     in mvpaTable. E.g., the condition information 
+%    classPairs       <cell of strings> a PxQ (usually is 2) cell matrix
+%                     for the pairs to be classified. Each row is one
+%                     classfication pair.
+%    condInfo         <structure> Extra information to be saved
+%                     in mvpaTable. E.g., the condition information
 %                     obtained from fs_cosmo_subjds.
-%    classifiers      <numeric> or <strings> or <cells> the classifiers 
+%    classifiers      <numeric> or <strings> or <cells> the classifiers
 %                     to be used (can be more than 1).
 %
 % Output:
@@ -22,14 +23,14 @@ function mvpaTable = cosmo_crossdecode(ds, classPairs, condInfo, classifiers)
 %
 % Created by Haiyang Jin (12-Dec-2019)
 
-if nargin < 3 || isempty(condInfo)
+if ~exist('condInfo', 'var') || isempty(condInfo)
     condInfo = '';
 end
 
-if nargin < 4 || isempty(classifiers)
-    [classifiers, classNames, nClass] = cosmo_classifier;
+if ~exist('classifiers', 'var') || isempty(classifiers)
+    [classifiers, classNames, ~, nClass] = cosmo_classifier;
 else
-    [classifiers, classNames, nClass] = cosmo_classifier(classifiers);
+    [classifiers, classNames, ~, nClass] = cosmo_classifier(classifiers);
 end
 
 % MVPA settings
