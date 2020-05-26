@@ -30,6 +30,11 @@ colors = [
     .5, 0, 1;  % purple
     0, 1, 1;  % blue
     0, 0, 0;  % black
+    0, 0, 0;
+    0, 0, 0;
+    0, 0, 0;
+    0, 0, 0;
+    0, 0, 0;
     ];
 nColor = size(colors, 1);
 
