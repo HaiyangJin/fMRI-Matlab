@@ -1,5 +1,5 @@
-function mvpaTable = cosmo_crossdecode(ds, classPairs, condInfo, classifiers)
-% mvpaTable = cosmo_crossdecode(ds, classPairs, condInfo, classifiers)
+function mvpaTable = cosmo_cvdecode(ds, classPairs, condInfo, classifiers)
+% mvpaTable = cosmo_cvdecode(ds, classPairs, condInfo, classifiers)
 %
 % This function performs leave-one-out cross validation classification with
 % CoSMoMVPA.
