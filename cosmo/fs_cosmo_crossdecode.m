@@ -1,5 +1,5 @@
 function [mvpaTable, uniTable, uniLocTable] = fs_cosmo_crossdecode(sessList,...
-    labelList, classPairs, runLoc, template, outputPath, classifiers, funcPath)
+    labelList, classPairs, runLoc, template, outPath, classifiers, funcPath)
 % [mvpaTable, uniTable, uniLocTable] = fs_cosmo_crossdecode(sessList,...
 %    labelList, classPairs, runLoc, template, outputPath, classifiers, funcPath)
 %
@@ -14,7 +14,7 @@ function [mvpaTable, uniTable, uniLocTable] = fs_cosmo_crossdecode(sessList,...
 %                         classfication pair. 
 %    runLoc             <logical> run analyses for localizer scans.
 %    template           <string> 'fsaverage' or 'self'. fsaverage is the default.
-%    outputPath         <string> where output to be saved.
+%    outPath            <string> where output to be saved.
 %    classifiers        <numeric> or <strings> or <cells> the classifiers 
 %                         to be used (only 1).
 %
@@ -29,13 +29,21 @@ if nargin < 5 || isempty(template)
     template = '';
 end
 
-if nargin < 6 || isempty(runLoc)
+if nargin < 4 || isempty(runLoc)
     runLoc = 0;
     warning('Classification (decoding) only performs on main runs by default.');
 end
 
-if nargin < 7 
-    outputPath = '';
+if nargin < 6 
+    outPath = '';
+end
+
+if ~exist('classifiers', 'var') || isempty(classifiers)
+    classifiers = [];
+end
+
+if ~exist('funcPath', 'var') || isempty(funcPath)
+    funcPath = getenv('FUNCTIONALS_DIR');
 end
 
 %% Preparation
@@ -83,7 +91,7 @@ for iSess = 1:nSess
             runSeparate = 0;
             
             [locDsTemp, condInfoTemp] = fs_cosmo_subjds(thisSess, ...
-                thisLabel, template, funcPath, runInfo, smooth, runSeparate);
+                thisLabel, template, '', runInfo, smooth, runSeparate);
             
             uniLocTableTemp = fs_ds2uni(locDsTemp, condInfoTemp);
             uniLocCell(iSess, iLabel) = {uniLocTableTemp};
@@ -96,28 +104,24 @@ for iSess = 1:nSess
         runSeparate = 1;
                 
         [ds_subj, condInfo] = fs_cosmo_subjds(thisSess, ...
-            thisLabel, template, funcPath, outputPath, runInfo, smooth, runSeparate);
+            thisLabel, template, funcPath, runInfo, smooth, runSeparate);
         
         % add more inforamtion about this label
-        [roisize, talCoor, nVtx, VtxMax] = fs_labelsize(thisSess, template, ...
-    thisLabel, funcPath, outputPath);
-        condInfo.roiSize = roisize;
-        condInfo.talCoor = talCoor;
-        condInfo.nVtx = nVtx;
-        condInfo.vtxMax = VtxMax;
-        
-        % convert ds to uniTable
-        uniMainTableTmp = fs_ds2uni(ds_subj, condInfo);
-        uniCell(iSess, iLabel) = {uniMainTableTmp};
-        
+%         tempTable = fs_labelinfo(thisLabel, fs_subjcode(thisSess));
+%         condInfo = horzcat(condInfo, tempTable);
+       
         % run classification if ds_subj is not empty
         if ~isempty(ds_subj)
             mvpaTableTemp = cosmo_cvdecode(ds_subj, classPairs, condInfo, classifiers);
+            % convert ds to uniTable
+            uniMainTableTmp = fs_ds2uni(ds_subj, condInfo);
         else
             mvpaTableTemp = table;
+            uniMainTableTmp = table;
         end
         
         mvpaCell(iSess, iLabel) = {mvpaTableTemp};
+        uniCell(iSess, iLabel) = {uniMainTableTmp};
         
     end
     
@@ -131,29 +135,29 @@ uniTable = vertcat(uniCell{:});
 mvpaTable = vertcat(mvpaCell{:});
 
 %% save data to local
-if isempty(outputPath)
-    outputPath = '.';
+if isempty(outPath)
+    outPath = '.';
 end
-outputPath = fullfile(outputPath, 'Classification');
-if ~exist(outputPath, 'dir'); mkdir(outputPath); end
+outPath = fullfile(outPath, 'Classification');
+if ~exist(outPath, 'dir'); mkdir(outPath); end
 
 % univariate analyses for localizers
 if runLoc
-    locUniFn = fullfile(outputPath, 'Localizer_Univariate');
+    locUniFn = fullfile(outPath, 'Localizer_Univariate');
     save(locUniFn, 'uniLocTable');
     writetable(uniLocTable, [locUniFn, '.xlsx']);
     writetable(uniLocTable, [locUniFn, '.csv']);
 end
 
 % MVPA for main runs
-cosmoFn = fullfile(outputPath, 'Main_CosmoMVPA');
+cosmoFn = fullfile(outPath, 'Main_CosmoMVPA');
 save(cosmoFn, 'mvpaTable');
 mvpaTable(:, 'Confusion') = [];
 writetable(mvpaTable, [cosmoFn, '.xlsx']);
 writetable(mvpaTable, [cosmoFn, '.csv']);
 
 % univariate for main runs
-uniFn = fullfile(outputPath, 'Main_Univariate');
+uniFn = fullfile(outPath, 'Main_Univariate');
 save(uniFn, 'uniTable');
 writetable(uniTable, [uniFn, '.xlsx']);
 writetable(uniTable, [uniFn, '.csv']);
