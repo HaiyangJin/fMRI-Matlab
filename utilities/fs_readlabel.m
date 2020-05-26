@@ -52,7 +52,7 @@ if ~exist(labelFile, 'file')
     if endsWith(labelFile, '.label')
         warning('Cannot find the label file: %s for %s.', labelFile, subjCode);
     end
-    varargout = {[], [], [], []};
+    varargout = {[], []};
     return;
 end
 
