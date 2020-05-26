@@ -4,7 +4,7 @@ function [ds_subj, condInfo] = fs_cosmo_subjds(sessCode, labelFn, template, ...
 %    funcPath, runInfo, smooth, runSeparate)
 %
 % This function load the FreeSurfer surface data as the dataset used for
-% CoSMoMVPA.
+% CoSMoMVPA. [This function probably will be deprecated later.]
 %
 % Inputs:
 %     sessCode         <string> session code in functional folder (bold

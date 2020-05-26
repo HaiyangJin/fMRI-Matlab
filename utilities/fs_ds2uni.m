@@ -1,6 +1,10 @@
 function uniTable = fs_ds2uni(ds, condInfo)
+% uniTable = fs_ds2uni(ds, condInfo)
+%
 % This function convert the ds from CoSMoMVPA to a table for univariate
-% analysis.
+% analysis. 
+% This function will be deprecated later. You may want to use
+% fs_cosmo_readata.m instead.
 %
 % Inputs:
 %     ds                <structure> data set obtained from CoSMoMVPA.
