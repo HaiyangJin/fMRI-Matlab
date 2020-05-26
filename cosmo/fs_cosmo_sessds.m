@@ -1,15 +1,18 @@
-function [ds_sess, condInfo] = fs_cosmo_sessds(sessCode, anaName, runList, ...
-    runwise, labelFn, dataFn, parFn, funcPath)
+function [ds_sess, condInfo] = fs_cosmo_sessds(sessCode, anaName, varargin)
 % [ds_sess, condInfo] = fs_cosmo_sessds(sessCode, anaName, [runList='', ...
 %    runwise=0, labelFn='', dataFn='beta.nii.gz', parFn='', funcPath])
 %
 % This function save the functional data on surface (in FreeSurfer) and
-% the condition names as a dataset for using in CoSMoMVPA and others.
+% the condition names as a dataset for using in CoSMoMVPA and others. A
+% similar function is fs_cosmo_subjds (which probably will be deprecated
+% later).
 %
 % Inputs:
 %    sessCode         <string> session code in funcPath.
 %    anaName          <string> analysis name in funcPath.
-%    runList          <string> the filename of the run file (e.g.,
+%
+% Varargin:
+%    runlist          <string> the filename of the run file (e.g.,
 %                      run_loc.txt.) [Default is '' and then names of
 %                      all run folders will be used.]
 %                 OR  <string cell> a list of all the run names. (e.g.,
@@ -17,15 +20,15 @@ function [ds_sess, condInfo] = fs_cosmo_sessds(sessCode, anaName, runList, ...
 %    runwise          <logical> load the data analyzed combining all runs
 %                      [runwise = 0; default]; load the data analyzed for
 %                      each run separately [runwise = 1].
-%    labelFn          <string> the label name (without path). Its vertex
+%    labelfn          <string> the label name (without path). Its vertex
 %                      indices will be used as a mask to the dataset, i.e.,
 %                      only the data for vertices in the label sare saved.
 %                      [default: '', i.e., keep data for all vertices.]
-%    dataFn           <string> the filename of the to-be-read data file.
+%    datafn           <string> the filename of the to-be-read data file.
 %                      ['beta.nii.gz' by default]
-%    parFn            <string> the filename of the par file. It is empty by
+%    parfn            <string> the filename of the par file. It is empty by
 %                      default and will try to find the par file for that run.
-%    funcPath         <string> the path to the session folder, 
+%    funcpath         <string> the path to the session folder, 
 %                      $FUNCTIONALS_DIR by default.
 %
 % Outputs:
@@ -35,38 +38,31 @@ function [ds_sess, condInfo] = fs_cosmo_sessds(sessCode, anaName, runList, ...
 % Created by Haiyang Jin (14-Apr-2020)
 
 %% Deal with inputs
-if ~exist('funcPath', 'var') || isempty(funcPath)
-    funcPath = getenv('FUNCTIONALS_DIR');
-end
+defaultOpts = struct(...
+    'runlist', '', ...
+    'runwise', 0, ... 
+    'labelfn', '',... 
+    'datafn', 'beta.nii.gz',... 
+    'parfn', '', ... 
+    'funcpath', getenv('FUNCTIONALS_DIR')...
+    );
 
-% generate runFolder based on runwise
-if ~exist('runList', 'var') || isempty(runList)
-    runList = '';
-end
+opts = fs_mergestruct(defaultOpts, varargin);
+
+runList = opts.runlist;
+runwise = opts.runwise;
+labelFn = opts.labelfn;
+dataFn = opts.datafn;
+parFn = opts.parfn;
+funcPath = opts.funcpath;
 
 if ischar(runList)
     % read the file if it is char
     runFolder = fs_readrun(runList, sessCode, funcPath);
-elseif iscellstr(runList) 
+elseif iscell(runList) 
     runFolder = runList;
 else
     error('Please make sure ''runList'' is set properly.');
-end
-
-if ~exist('runwise', 'var') || isempty(runwise)
-    runwise = 0;
-end
-
-if ~exist('labelFn', 'var') || isempty(labelFn)
-    labelFn = '';
-end
-
-if ~exist('dataFn', 'var') || isempty(dataFn)
-    dataFn = 'beta.nii.gz';
-end
-
-if ~exist('parFn', 'var') || isempty(parFn)
-    parFn = '';
 end
 
 %% Read data and condition names
@@ -100,10 +96,11 @@ dsCell = arrayfun(@(x) fs_cosmo_surface(betaFiles{x}, ...
 ds_all = cosmo_stack(dsCell,1);
 
 %% Apply the label file as mask if necessary
-if ~isempty(labelFn)
+% load the label file
+tempMask = fs_readlabel(labelFn, fs_subjcode(sessCode, funcPath));
+
+if ~isempty(tempMask)
     
-    % load the label file
-    tempMask = fs_readlabel(labelFn, fs_subjcode(sessCode, funcPath));
     vtxMask = tempMask(:, 1);
     
     % create mask for the label file
