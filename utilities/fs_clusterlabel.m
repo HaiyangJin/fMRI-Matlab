@@ -44,7 +44,7 @@ end
 
 if size(labelMat, 2) >= 5
     % find vertices larger than fmin
-    isCluster = abs(labelMat(:, 5)) >= fmin;
+    isCluster = abs(labelMat(:, 5)) >= abs(fmin);
     vtxValue = labelMat(isCluster, 5);
 else
     isCluster = true(size(labelMat, 1), 1);

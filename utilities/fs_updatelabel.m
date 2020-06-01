@@ -165,7 +165,9 @@ else
     nbrVtx = fs_neighborvtx(labelMatOrig(:, 1), theHemi, subjCode);
     
     % identify all unqiue vertex values
-    vtxValues = sort(unique(labelMatOrig(:, 5)));
+    values = labelMatOrig(:, 5);
+    assert(all(values>=0)||all(values<=0), 'Values habe to be all positive or all negative.');
+    vtxValues = sort(abs(unique(values)));
     
     % obtain the minimum values to be used as cluster-forming thresholds
     if ~isempty(lagValue)
@@ -284,7 +286,8 @@ else
             
             %%%%% deal with information for this iteration
             baseLabelMat = theLabelMat(thisCluIter == iIter, :);
-            sortBaseMat = sortrows(baseLabelMat, 5, 'descend');
+            [~, theorder] = sort(abs(baseLabelMat(:, 5)), 'descend');
+            sortBaseMat = baseLabelMat(theorder, :);
             
             % calculate the accumulative areas based on vertex values
             accarea2 = arrayfun(@(x) fs_labelarea(labelFn, subjCode, sortBaseMat(1:x, 1)), ...
