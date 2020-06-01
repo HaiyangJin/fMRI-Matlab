@@ -105,6 +105,11 @@ smallerOnly = opts.smalleronly;
 showInfo = opts.showinfo;
 extraOpt = opts.extraopt1st;
 
+if ~exist('outPath', 'var') || isempty(outPath)
+    outPath = fullfile(pwd, 'temporary');
+end
+if ~exist(outPath, 'dir'); mkdir(outPath); end
+
 if showInfo
     extraOpt = [{'annot', 'aparc', 'showinfo', 1, 'markpeak', 1}, extraOpt];
 end
