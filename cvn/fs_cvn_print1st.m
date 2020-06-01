@@ -136,6 +136,7 @@ for iLabel = 1:nLabel
     
     theseLabel = labelList{iLabel};
     if ischar(theseLabel); theseLabel = {theseLabel}; end
+    theseLabel(cellfun(@isempty, theseLabel)) = [];
     
     [~, nHemiTemp] = fs_hemi_multi(theseLabel);
     assert(nHemiTemp == 1, 'These labels are not for the same hemisphere.');
