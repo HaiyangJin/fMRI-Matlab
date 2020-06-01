@@ -29,6 +29,13 @@ function [labelMatCell, cluVtxCell] = fs_updatelabel(labelFn, sessCode, outPath,
 %                   the label range from 1.3 to 8. The values of 1.3:.1:8
 %                   will be used as clustering-forming threshold.
 %                   'lagvalue' will be used if it is not empty.
+%    'maxiter'     <numeric> the maximum number of iterations for
+%                   checking clusters with different clusterwise 
+%                   "threshold". Default is 30. If the interation (i.e., 
+%                   nIter) is larger than 'maxiter' after applying 
+%                   'lagnvtx' and 'lagvalue' , 'maxiter' of 'fmins' will be 
+%                   selected randomly. [If the value is too large, it will 
+%                   take too long to identify the clusters.] 
 %    'lowerthresh' <logical> 1 [default]: release the restriction of the
 %                   KEY threshold and all vertices in the label can be
 %                   assigned to one cluster. 0: only the vertices whose
@@ -82,6 +89,7 @@ defaultOpts = struct(...
     'minsize', 20, ...
     'lagnvtx', 100, ...
     'lagvalue', [], ...
+    'maxiter', 30, ...
     'lowerthresh', 1, ...
     'reflabel', '', ...
     'warnoverlap', 1, ...
@@ -98,6 +106,7 @@ maxSize = opts.maxsize;
 minSize = opts.minsize;
 lagNVtx = opts.lagnvtx;
 lagValue = opts.lagvalue;
+maxIter = opts.maxiter;
 lowerThresh = opts.lowerthresh;
 refLabel = opts.reflabel;
 warnoverlap = opts.warnoverlap;
@@ -168,7 +177,15 @@ else
         fmins = vtxValues(1:lagNVtx:numel(vtxValues));
     end
     
+    % apply the maximum iteration for checking clusters
+    nIter = numel(fmins);
+    if nIter > maxIter
+        fmins = fmins(sort(randperm(nIter, maxIter)));
+        disp(fmins);
+    end
+    
     % identify the clusters with all thresholds
+    fprintf('Identifying the neighbouring... [%d/%d]\n', numel(fmins), nIter); 
     [cluNoC, nCluC, iterC] = arrayfun(@(x) fs_clusterlabel(labelFn, subjCode, x), fmins, 'uni', false); %
     nClu = cell2mat(nCluC);
     
