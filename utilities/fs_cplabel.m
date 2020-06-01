@@ -1,36 +1,42 @@
-function fs_cplabel(sourceStructPath, targetStructPath, labelString, force)
+function fs_cplabel(srcStructPath, trgStructPath, labelString, strPattern, force)
 % This function copies the labels matching labelString from the source 
 % structure path to the target structure path.
 %
 % Inputs:
-%     sourceStructPath     <string> the source structure path
-%     targetStructPath     <string> the target structure path
-%     labelString          <string> the label strings
+%     srcStructPath     <string> the source structure path
+%     trgStructPath     <string> the target structure path
+%     labelString       <string> the label strings
+%     strPattern        <string> string pattern used to identify subject
+%                        folders.
+%     force             <logical> 
 %
 % Output:
 %     copy labels to the target path (in the label/ folder)
 %
 % Created by Haiyang Jin (11-Feb-2020)
 
-if nargin < 3 || isempty(labelString)
+if ~exist('labelString', 'var') || isempty(labelString)
     labelString = '*.label';
 end 
-if nargin < 4 
+if ~exist('strPattern', 'var') || isempty(strPattern)
+    strPattern = '';
+end
+if ~exist('force', 'var') || isempty(force) 
     force = '';
 end
 
-source = fs_subjdir(sourceStructPath);
-target = fs_subjdir(targetStructPath);
+[~, srcList] = fs_subjdir(srcStructPath, strPattern, 0);
+[~, trgList] = fs_subjdir(trgStructPath, strPattern, 0);
 
-isAva = ismember(source.subjList, target.subjList);
+isAva = ismember(trgList, srcList);
 
-if target.nSubj > 0 && ~all(isAva)
-    warning('SubjCode %s is not found in the target folder.', ...
-        source.subjList(isAva));
+if ~isempty(srcList) && ~all(isAva)
+    warning(['SubjCode %s is not found in the target folder. A new folder', ...
+        'will be created...'], trgList(isAva));
 end
 
-cellfun(@(x) fs_copyfile(fullfile(sourceStructPath, x, 'label', labelString), ...
-    fullfile(targetStructPath, x, 'label'), force), ...
-    source.subjList, 'uni', false);
+cellfun(@(x) fs_copyfile(fullfile(srcStructPath, x, 'label', labelString), ...
+    fullfile(trgStructPath, x, 'label'), force), ...
+    srcList, 'uni', false);
 
 end
