@@ -1,5 +1,5 @@
-function [struPath, subjList] = fs_subjdir(struPath, strPattern)
-% function subjList = fs_subjdir(struPath, strPattern)
+function [struPath, subjList] = fs_subjdir(struPath, strPattern, setdir)
+% [struPath, subjList] = fs_subjdir(struPath, strPattern, setdir)
 %
 % This function set up 'SUBJECTS_DIR' and output the subject code list.
 %
@@ -7,6 +7,8 @@ function [struPath, subjList] = fs_subjdir(struPath, strPattern)
 %    struPath       <string> path to $SUBJECTS_DIR folder in FreeSurfer.
 %    strPattern     <string> string pattern used to identify subject
 %                    folders.
+%    setdir         <logical> 1 [default]: setenv SUBJECTS_DIR; 0: do not
+%                    set env.
 %
 % Output:
 %    struPath       <string> path to the structural folder.
@@ -16,14 +18,22 @@ function [struPath, subjList] = fs_subjdir(struPath, strPattern)
 % Created and updated by Haiyang Jin (16-Jan-2020)
 
 % Default path to SUBJECTS_DIR
-if nargin < 1 || isempty(struPath)
+if ~exist('struPath', 'var') || isempty(struPath)
     struPath = getenv('SUBJECTS_DIR');
-else
-    setenv('SUBJECTS_DIR', struPath);
+    setdir = 0;
 end
 
-if nargin < 2 || isempty(strPattern)
+if ~exist('strPattern', 'var') || isempty(strPattern)
     strPattern = '';
+end
+
+if ~exist('setdir', 'var') || isempty(setdir)
+    setdir = 1;
+end
+
+if setdir
+    setenv('SUBJECTS_DIR', struPath);
+    fprintf('SUBJECTS_DIR is set as %s now...\n', struPath);
 end
 
 % subject code information
