@@ -1,5 +1,7 @@
-function fscmd = fv_drawlabel(subjCode, anaName, sigFile, labelname, fthresh, runcmd)
-% fscmd = fv_drawlabel(subjCode, anaName, sigFile, labelname, fthresh, runcmd)
+function fscmd = fv_drawlabel(subjCode, anaName, sigFile, labelname, ...
+    fthresh, extracmd, runcmd)
+% fscmd = fv_drawlabel(subjCode, anaName, sigFile, labelname, ...
+%    fthresh, extracmd, runcmd)
 %
 % This function uses "tksurfer" in FreeSurfer to draw label 
 % 
@@ -11,6 +13,7 @@ function fscmd = fv_drawlabel(subjCode, anaName, sigFile, labelname, fthresh, ru
 %                      label.
 %    fthresh          <string> or <numeric> the overlay threshold minimal 
 %                      value.
+%    extracmd         <string> extra commands for 'tksurfer'. Default is ''.
 %    runcmd           <logical> 0: do not run but only make fscmd; 1: run
 %                      FreeSurfer commands. Default is 1.
 %
@@ -18,6 +21,9 @@ function fscmd = fv_drawlabel(subjCode, anaName, sigFile, labelname, fthresh, ru
 %    fscmd            <string> FreeSurfer commands used.
 %    a label file saved in the label folder
 %
+% Tips:
+% To invert the display of overlay, set extracmd as '-invphaseflag 1'.
+% 
 % Created by Haiyang Jin (10-Dec-2019)
 % For furture development, I should included to define the limits of
 % p-values.
@@ -29,7 +35,9 @@ if ~exist('fthresh', 'var') || isempty(fthresh)
 elseif isnumeric(fthresh)
     fthresh = num2str(fthresh);
 end
-
+if ~exist('extracmd', 'var') || isempty(extracmd)
+    extracmd = '';
+end
 if ~exist('runcmd', 'var') || isempty(runcmd)
     runcmd = 1;
 end
@@ -47,8 +55,8 @@ if runcmd
     CreateStruct.WindowStyle = 'modal';
     % msgbox('\fontsize{18} Now is big =)', CreateStruct)
     
-    message = {sprintf('\\fontsize{20}SubjCode: %s', replace(subjCode, '_', '-'));
-        sprintf('template: %s', template);
+    message = {sprintf('\\fontsize{20}SubjCode: %s', replace(subjCode, '_', '\_'));
+        sprintf('analysis: %s', replace(anaName, '_', '\_'));
         sprintf('label: %s', labelname);
         sprintf('fthresh: %s', fthresh)};
     title = 'The current session...';
@@ -58,9 +66,9 @@ if runcmd
 end
 
 % create FreeSurfer command and run it
-titleStr = sprintf('%s==%s==%s', subjCode, labelname, template);
-fscmd = sprintf('tksurfer %s %s inflated -aparc -overlay %s -title %s',...
-    trgSubj, hemi, sigFile, titleStr);
+titleStr = sprintf('%s==%s==%s', subjCode, labelname, anaName);
+fscmd = sprintf('tksurfer %s %s inflated -aparc -overlay %s -title %s %s',...
+    trgSubj, hemi, sigFile, titleStr, extracmd);
 if ~isempty(fthresh)
     fscmd = sprintf('%s -fthresh %s', fscmd, fthresh);
 end

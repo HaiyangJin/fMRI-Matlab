@@ -1,5 +1,7 @@
-function fscmd = fs_drawlabel(sessList, anaList, conList, fthresh, extraLabelStr, runcmd, funcPath)
-% fscmd = fs_drawlabel(sessList, anaList, conList, fthresh, extraLabelInfo, runcmd, funcPath)
+function fscmd = fs_drawlabel(sessList, anaList, conList, fthresh, ...
+    extraLabelStr, extracmd, runcmd, funcPath)
+% fscmd = fs_drawlabel(sessList, anaList, conList, fthresh, ...
+%    extraLabelStr, extracmd, runcmd, funcPath)
 %
 % This function use FreeSurfer ("tksurfer") to draw labels.
 %
@@ -15,8 +17,12 @@ function fscmd = fs_drawlabel(sessList, anaList, conList, fthresh, extraLabelStr
 %    extraLabelStr  <string> extra label information added to the end
 %                     of the label name.
 %    funcPath       <string> the full path to the functional folder.
+%    extracmd         <string> extra commands for 'tksurfer'. Default is ''.
 %    runcmd         <logical> 1: run FreeSurfer commands; 0: do not run
 %                    but only output FreeSurfer commands. 
+%
+% Tips:
+% To invert the display of overlay, set extracmd as '-invphaseflag 1'.
 %
 % Output:
 %    fscmd          <string> FreeSurfer commands used.
@@ -34,13 +40,14 @@ if ~exist('fthresh', 'var') || isempty(fthresh)
 elseif ~iscell(fthresh)
     fthresh = num2cell(fthresh);
 end
-
 if ~exist('extraLabelStr', 'var') || isempty(extraLabelStr)
     extraLabelStr = {''};
 elseif ischar(extraLabelStr)
     extraLabelStr = {extraLabelStr};
 end
-
+if ~exist('extracmd', 'var') || isempty(extracmd)
+    extracmd = '';
+end
 if ~exist('runcmd', 'var') || isempty(runcmd)
     runcmd = 1;
 end
@@ -71,7 +78,7 @@ labelName = cellfun(@(x1, x2, x3, x4) sprintf('roi.%s.f%d.%s.%slabel', ...
     x1, x2*10, x3, x4), hemi, thresh, con, extraStr, 'uni', false);
 
 % create labels
-fscmdCell = cellfun(@(x1, x2, x3, x4, x5) fv_drawlabel(x1, x2, x3, x4, x5, runcmd), ...
+fscmdCell = cellfun(@(x1, x2, x3, x4, x5) fv_drawlabel(x1, x2, x3, x4, x5, extracmd, runcmd), ...
     subjCode, ana, sigFile, labelName, thresh, 'uni', false);
 
 % make the FreeSurfer commands to one role
