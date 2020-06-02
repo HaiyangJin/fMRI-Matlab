@@ -200,12 +200,30 @@ else
     end
     
     % find the KEY indices, for which the cluster number matches nCluster
-    % and that previous cluster number doe not match nCluster. This can be
-    % simply taken as the largest p-value (smallest FreeSurfer p-values)
-    % that identifying nCluster clusters.
-    isKeyTh = nClu == nCluster & [true; nClu(1:end-1) ~= nCluster];
-    assert(any(isKeyTh), 'Cannot find %d clusters...', nCluster);
+    % and the previous cluster number doe not match nCluster. There can be
+    % multiple KEY indices if nCluster > 1. When nCluster is 1, only the 
+    % largest p-value (smallest FreeSurfer p-values) that that identifying
+    % one cluster will be used.
+    isKeyTh = 0;
+    while ~any(isKeyTh) && nCluster < 11
+        % keep matching the nCluster
+        isKeyTh = nClu == nCluster & [true; nClu(1:end-1) ~= nCluster];
+        if ~any(isKeyTh)
+            warning(['Cannot find %d cluster(s) for %s and use %d ' ...
+                'clusters now...'], nCluster, sessCode, nCluster + 1);
+            % add one if needed
+            nCluster = nCluster + 1;
+        end
+    end
     
+    % only keep the first key if nCluster is 1
+    if nCluster == 1
+        firstKey = find(isKeyTh, 1); 
+        isKeyTh = false(size(isKeyTh));
+        isKeyTh(firstKey) = true;
+    end
+    fprintf('There are %d KEY threshold(s) in total...\n', sum(isKeyTh));
+
     % save the corresponding ClusterNo and iterations
     keyCluNoC = cluNoC(isKeyTh, :);
     keyIterC = iterC(isKeyTh, :);
