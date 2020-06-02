@@ -31,7 +31,7 @@ function [labelMatCell, cluVtxCell] = fs_updatelabel(labelFn, sessCode, outPath,
 %                   'lagvalue' will be used if it is not empty.
 %    'maxiter'     <numeric> the maximum number of iterations for
 %                   checking clusters with different clusterwise 
-%                   "threshold". Default is 30. If the interation (i.e., 
+%                   "threshold". Default is 20. If the interation (i.e., 
 %                   nIter) is larger than 'maxiter' after applying 
 %                   'lagnvtx' and 'lagvalue' , 'maxiter' of 'fmins' will be 
 %                   selected randomly. [If the value is too large, it will 
@@ -80,6 +80,7 @@ function [labelMatCell, cluVtxCell] = fs_updatelabel(labelFn, sessCode, outPath,
 %    Step 5: Save and rename the updated label files.
 %
 % Created by Haiyang Jin (14-May-2020)
+fprintf('Updating %s for %s...\n', labelFn, sessCode);
 
 %% Deal with inputs
 defaultOpts = struct(...
@@ -89,7 +90,7 @@ defaultOpts = struct(...
     'minsize', 20, ...
     'lagnvtx', 100, ...
     'lagvalue', [], ...
-    'maxiter', 30, ...
+    'maxiter', 20, ...
     'lowerthresh', 1, ...
     'reflabel', '', ...
     'warnoverlap', 1, ...
@@ -166,7 +167,7 @@ else
     
     % identify all unqiue vertex values
     values = labelMatOrig(:, 5);
-    assert(all(values>=0)||all(values<=0), 'Values habe to be all positive or all negative.');
+    assert(all(values>=0)||all(values<=0), 'Values have to be all positive or all negative.');
     vtxValues = sort(abs(unique(values)));
     
     % obtain the minimum values to be used as cluster-forming thresholds
@@ -183,11 +184,12 @@ else
     nIter = numel(fmins);
     if nIter > maxIter
         fmins = fmins(sort(randperm(nIter, maxIter)));
+        fprintf('Following thresholds are randomly selected from ''fmin'':\n');
         disp(fmins);
     end
     
     % identify the clusters with all thresholds
-    fprintf('Identifying the neighbouring... [%d/%d]\n', numel(fmins), nIter); 
+    fprintf('Identifying the clusters... [%d/%d]\n', numel(fmins), nIter); 
     [cluNoC, nCluC, iterC] = arrayfun(@(x) fs_clusterlabel(labelFn, subjCode, x), fmins, 'uni', false); %
     nClu = cell2mat(nCluC);
     
@@ -356,7 +358,6 @@ for iTh = 1:nTh
         isOverlap = ~cellfun(@isempty, overlapVtx);
         
         if warnoverlap && any(isOverlap)
-            
             for iOverlap = find(isOverlap)
                 % show overlapping between any pair of clusters
                 fs_cvn_print1st(sessCode, '', {[labelFn refLabel tempLabelFn(allComb(iOverlap, :))]}, outPath, ...
