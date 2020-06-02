@@ -2,7 +2,7 @@ function updateMat = fs_setdifflabel(label1Fn, label2Fn, subjCode, which2update,
 % updateMat = fs_setdifflabel(label1Fn, label2Fn, subjCode, which2update, saveBackup)
 %
 % This function identifies the overlapping between the two labels (similar
-% to the Matlab function 'setdiff') and remove them from the 'which2Trim.
+% to the Matlab function 'setdiff') and remove them from the 'which2update'.
 %
 % Inputs:
 %    label1Fn      <string> the file name of one label.
@@ -35,7 +35,7 @@ theLabels = theLabelFn([which2update, setdiff([1 2], which2update)]);
 labelMatCell = cellfun(@(x) fs_readlabel(x, subjCode), theLabels, 'uni', false);
 vtxCell = cellfun(@(x) x(:, 1), labelMatCell, 'uni', false);
 
-% find the udpated vertices (after removing the overlapping)
+% find the updated vertices (after removing the overlapping)
 updateVtx = setdiff(vtxCell{:});
 
 % save the updated label matrix

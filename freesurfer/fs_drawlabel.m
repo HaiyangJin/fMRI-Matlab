@@ -16,10 +16,10 @@ function fscmd = fs_drawlabel(sessList, anaList, conList, fthresh, ...
 %    fthresh        <numeric> significance level (default is 2 (.01)).
 %    extraLabelStr  <string> extra label information added to the end
 %                     of the label name.
-%    funcPath       <string> the full path to the functional folder.
-%    extracmd         <string> extra commands for 'tksurfer'. Default is ''.
+%    extracmd       <string> extra commands for 'tksurfer'. Default is ''.
 %    runcmd         <logical> 1: run FreeSurfer commands; 0: do not run
 %                    but only output FreeSurfer commands. 
+%    funcPath       <string> the full path to the functional folder.
 %
 % Tips:
 % To invert the display of overlay, set extracmd as '-invphaseflag 1'.
