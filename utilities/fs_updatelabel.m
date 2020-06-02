@@ -401,7 +401,7 @@ for iTh = 1:nTh
         prompt = {'Enter the label name for this cluster:'};
         dlgtitle = 'Input';
         dims = [1 35];
-        definput = {erase(labelFn, 'f13.')};
+        definput = {erase(labelFn, {'f13.', 'manual.'})};
         newlabelname = inputdlg(prompt,dlgtitle,dims,definput);
         
         close all;
