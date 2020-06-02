@@ -1,5 +1,5 @@
-function labelFile = fs_save2label(data, subjCode, labelFn, coordSurf)
-% fs_save2label(data, subjCode, labelFn)
+function labelFile = fs_mklabel(data, subjCode, labelFn, coordSurf)
+% labelFile = fs_mklabel(data, subjCode, labelFn, coordSurf)
 %
 % This function converts the surface dataset in CoSMoMVPA to label file in
 % FreeSurfer.
@@ -17,6 +17,7 @@ function labelFile = fs_save2label(data, subjCode, labelFn, coordSurf)
 %                      'white'.
 % 
 % Output:
+%    labelFile        <string> full filename of the label file.
 %    a label file saved in the label folder.
 %
 % Created by Haiyang Jin (25-Nov-2019)

@@ -44,10 +44,10 @@ updateMat = origMat(ismember(origMat(:, 1), updateVtx), :);
 
 % backup the to-be-updated label
 if saveBackup
-    fs_save2label(origMat, subjCode, [theLabelFn{which2update} '.backup']);
+    fs_mklabel(origMat, subjCode, [theLabelFn{which2update} '.backup']);
 end
 
 % save the updated label
-fs_save2label(updateMat, subjCode, theLabelFn{which2update});
+fs_mklabel(updateMat, subjCode, theLabelFn{which2update});
 
 end

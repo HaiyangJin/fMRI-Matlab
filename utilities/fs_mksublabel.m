@@ -33,6 +33,6 @@ subLabelMat = labelMat(isSub, :);
 newLabelFn = [erase(labelFn, '.label'), infixSubFn, '.label'];
 
 % save the new label
-fs_save2label(subLabelMat, subjCode, newLabelFn);
+fs_mklabel(subLabelMat, subjCode, newLabelFn);
 
 end

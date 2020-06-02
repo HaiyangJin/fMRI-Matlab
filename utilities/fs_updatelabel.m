@@ -327,7 +327,7 @@ tempLabelFn = arrayfun(@(x) sprintf('%s.temp%d.label', theHemi, x), 1:nLabelClu,
 for iTh = 1:nTh
     
     % Create temporary files with temporary label names
-    labelfile = cellfun(@(x,y) fs_save2label(x, subjCode, y), labelMatCell(:, iTh), tempLabelFn', 'uni', false);
+    labelfile = cellfun(@(x,y) fs_mklabel(x, subjCode, y), labelMatCell(:, iTh), tempLabelFn', 'uni', false);
     
     if nLabelClu > 1
         
