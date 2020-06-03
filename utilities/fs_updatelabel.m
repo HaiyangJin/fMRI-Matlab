@@ -80,7 +80,7 @@ function [labelMatCell, cluVtxCell] = fs_updatelabel(labelFn, sessCode, outPath,
 %    Step 5: Save and rename the updated label files.
 %
 % Created by Haiyang Jin (14-May-2020)
-fprintf('Updating %s for %s...\n', labelFn, sessCode);
+fprintf('\nUpdating %s for %s...\n', labelFn, sessCode);
 
 %% Deal with inputs
 defaultOpts = struct(...
@@ -222,7 +222,8 @@ else
         isKeyTh = false(size(isKeyTh));
         isKeyTh(firstKey) = true;
     end
-    fprintf('There are %d KEY threshold(s) in total...\n', sum(isKeyTh));
+    fprintf('There are %d KEY threshold(s) generating %d clusters...\n', ...
+        sum(isKeyTh), nCluster);
 
     % save the corresponding ClusterNo and iterations
     keyCluNoC = cluNoC(isKeyTh, :);
