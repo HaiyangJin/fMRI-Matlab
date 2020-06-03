@@ -1,5 +1,5 @@
-function [clusterNo, nCluster, iterNo] = fs_clusterlabel(labelFn, subjCode, fmin, hemi)
-% [clusterNo, nCluster, iterNo] = fs_clusterlabel(labelFn, subjCode, fmin, hemi)
+function [clusterIdx, nCluster, iterNo] = fs_clusterlabel(labelFn, subjCode, fmin, hemi)
+% [clusterIdx, nCluster, iterNo] = fs_clusterlabel(labelFn, subjCode, fmin, hemi)
 %
 % This function assigns the vertices in one label into contiguous clusters.
 %
@@ -16,7 +16,7 @@ function [clusterNo, nCluster, iterNo] = fs_clusterlabel(labelFn, subjCode, fmin
 %                   a numeric array. Which hemisphere is labelFn from.
 %
 % Output:
-%    clusterNo     <integer vector> Px1 intger. Cluster index for each
+%    clusterIdx    <integer vector> Px1 intger. Cluster index for each
 %                   vertex in the label file. -1 denotes the vertex's value
 %                   is smaller than 'fmin'.
 %    nCluster      <integer> total number of the clusters.
@@ -54,7 +54,7 @@ end
 % return if no vertices are larger than fmin
 if ~any(isCluster)
     warning('Values for all vertices are smaller than ''fmin (%d)''.', fmin);
-    clusterNo = -ones(size(labelMat, 1), 1);
+    clusterIdx = -ones(size(labelMat, 1), 1);
     nCluster = 0;
     iterNo = -ones(size(labelMat, 1), 1);
     return;
@@ -72,13 +72,13 @@ nbrVtx = fs_neighborvtx(clusterVtx, hemi, subjCode);
 
 %% Save the cluster index information
 % create vector for all vertices (with -1)
-clusterNo = zeros(size(isCluster));
+clusterIdx = zeros(size(isCluster));
 iterNo = zeros(size(isCluster));
-clusterNo(~isCluster) = -1;
+clusterIdx(~isCluster) = -1;
 iterNo(~isCluster) = -1;
 
 % save the cluster indices
-clusterNo(isCluster) = theClusterNo;
+clusterIdx(isCluster) = theClusterNo;
 iterNo(isCluster) = theIterNo;
 
 end
