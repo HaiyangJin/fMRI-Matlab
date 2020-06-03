@@ -1,7 +1,5 @@
-function labelFile = fs_cvn_drawlabel(sessCode, anaName, conName, fthresh, ...
-    extraLabelStr, viewIdx, extraopt)
-% labelFile = fs_cvn_drawlabel(sessCode, anaName, conName, fthresh, ...
-%    extraLabelStr, viewIdx, extraopt)
+function labelFile = fs_cvn_drawlabel(sessCode, anaName, conName, varargin)
+% labelFile = fs_cvn_drawlabel(sessCode, anaName, conName, varargin)
 %
 % This function draws labels with fs_cvn_lookup.m. 
 % 
@@ -13,31 +11,43 @@ function labelFile = fs_cvn_drawlabel(sessCode, anaName, conName, fthresh, ...
 %                    analysis (i.e., the names of the analysis folders).
 %    conName        <string> contrast name used glm (i.e., the names of
 %                    contrast folders).
-%    fthresh        <numeric> significance level (default is 2 (.01)).
-%    extraLabelStr  <string> extra label information added to the end
-%                    of the label name.
-%    viewIdx        <numeric> the viewpoint index. Please check
+%
+% Optional (varargin):
+%    'viewIdx'      <numeric> the viewpoint index. Please check
 %                    fs_cvn_lookup.m for more information.
-%    extraopt       <cell> extra options used in fs_cvn_lookup.m.
+%    'fthresh'      <numeric> significance level (default is 1.3 (.05)).
+%    'extraStr'     <string> extra label information added to the end
+%                    of the label name.
+%    'reflabel'     <string> reference labels. Default is ''.
+%    'ncluster'     <integer> expected number of clusters.
+%    'extraopt'     <cell> extra options used in fs_cvn_lookup.m.
 %
 % Output:
 %    labelFile      <string> full filename of the label file.
 %
 % Created by Haiyang Jin (2-Jun-2020)
 
-if ~exist('fthresh', 'var') || isempty(fthresh)
-    fthresh = 1.3; % p < .05
-end
-if ~exist('extraLabelStr', 'var') || isempty(extraLabelStr)
-    extraLabelStr = '';
-elseif ~endsWith(extraLabelStr, '.')
+%% Deal with inputs
+defaultOpts = struct(...
+    'viewidx', 3, ...
+    'fthresh', 1.3, ...
+    'extrastr', 'manual', ...
+    'reflabel', '', ...
+    'ncluster', 1, ...
+    'extraopt', {{}} ...
+    );
+
+opts = fs_mergestruct(defaultOpts, varargin);
+
+viewIdx = opts.viewidx;
+fthresh = opts.fthresh;
+extraLabelStr = opts.extrastr;
+refLabel = opts.reflabel;
+nCluster = opts.ncluster;
+extraopt = opts.extraopt;
+
+if ~endsWith(extraLabelStr, '.')
     extraLabelStr = [extraLabelStr '.'];
-end
-if ~exist('viewIdx', 'var') || isempty(viewIdx)
-    viewIdx = 3;
-end
-if ~exist('extraopt', 'var') || isempty(extraopt)
-    extraopt = {};
 end
 
 % subject information
@@ -52,30 +62,52 @@ sigFile = fullfile(getenv('FUNCTIONALS_DIR'), sessCode, 'bold', anaName, ...
 surfData = fs_readfunc(sigFile);
 valstruct = fs_cvn_valstruct(surfData, hemi);
 
+% reference label
+hemiLabel = fs_2hemi(refLabel);
+if ~strcmp(hemiLabel, hemi)
+    refLabel = strrep(refLabel, hemiLabel, hemi);
+end
+roiMask = fs_label2mask(refLabel, subjCode, numel(surfData));
+
 % display the figure
-extraopt = [{'thresh', fthresh * 1i}, extraopt{:}];
+extraopt = [{'thresh', fthresh * 1i, 'roimask', roiMask}, extraopt{:}];
 [~,Lookup,~,himg] = fs_cvn_lookup(trgSubj,viewIdx,valstruct,'',extraopt{:});
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%% manually draw ROI %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Note: drawroipoly.m is valid only on spherical surfaces.
-roimask = drawroipoly(himg,Lookup);
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+try
+    %%%%%%%%%%%%%%%%%%%%%%%% manually draw ROI %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Note: drawroipoly.m is valid only on spherical surfaces.
+    roimask = drawroipoly(himg,Lookup);
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+catch
+    labelFile = '';
+    return;
+end
 
 % save vertex indices and values
-data(:, 1) = 1:numel(roimask);
-data(:, 5) = surfData;
+labelMat(:, 1) = 1:numel(roimask);
+labelMat(:, 5) = surfData;
 
 % read ?h.white and obtain the coordinates
 coord = fs_readsurf([hemi '.white'], subjCode);
-data(:, 2:4) = coord;
+labelMat(:, 2:4) = coord;
 
 % apply the mask
-data(~roimask, :) = [];
+labelMat(~roimask, :) = [];
 
+% check the cluster numbers in lable matrix
+[~, nLabelClu] = fs_clusterlabel(labelMat, subjCode, fthresh, hemi);
+if nLabelClu ~= nCluster
+    warning('There are %d clusters in the label (not %d).', nLabelClu, nCluster);
+end
+% isTheLabel = ismember(clusterIdx, 1:nCluster);
+% % remove vertices for other clusters
+% labelMat(~isTheLabel, :) = [];
+
+%% Save the label
 % make label file name
 labelFn = sprintf('roi.%s.f%d.%s.%slabel', hemi, fthresh*10, conName, extraLabelStr);
 
 % make the label
-labelFile = fs_mklabel(data, subjCode, labelFn, 'white');
+labelFile = fs_mklabel(labelMat, subjCode, labelFn, 'white');
 
 end
