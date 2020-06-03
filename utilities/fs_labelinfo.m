@@ -4,11 +4,11 @@ function labelTable = fs_labelinfo(labelList, subjList, varargin)
 % This function gathers the information of the label files.
 %
 % Inputs:
-%    labelFn         <string> filename of the label file (with or without
+%    labelList       <string> filename of the label file (with or without
 %                     path). If path is included in labelFn, 'subjCode'
 %                     and struPath will be ignored. Default is
 %                     'lh.cortex.label'.
-%    subjCode        <string> subject code in struPath. Default is
+%    subjList        <string> subject code in struPath. Default is
 %                     fsaverage.
 %
 % Optional (varargin):
