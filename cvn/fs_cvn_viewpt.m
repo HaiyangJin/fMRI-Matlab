@@ -18,6 +18,8 @@ function viewpt = fs_cvn_viewpt(viewIdx, isHemi)
 switch viewIdx
     case {'ffa', 'ventral', 'f-vs-o', 'face-vs-object'}
         bothViewpt = {[270, -89, 0], [90, -89, 0]};
+    case {'loa'}
+        bothViewpt = {[310, -35, 0], [50, -35, 0]};
 end
 
 % only keep the hemispheres needed
