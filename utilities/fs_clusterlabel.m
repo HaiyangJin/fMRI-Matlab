@@ -70,7 +70,7 @@ end
 clusterVtx = labelMat(isCluster, 1);
 
 % obtain the neighborhood vertices
-nbrVtx = fs_neighborvtx(clusterVtx, hemi, subjCode);
+[~, nbrVtx] = fs_neighborvtx(clusterVtx, hemi, subjCode);
 
 % assign the vertices into clusters
 [theClusterNo, nCluster, theIterNo] = fs_clustervtx(clusterVtx, nbrVtx, vtxValue);

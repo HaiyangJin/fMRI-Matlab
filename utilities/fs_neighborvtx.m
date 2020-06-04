@@ -1,5 +1,5 @@
-function nbrVtx = fs_neighborvtx(vtxIdx, hemi, subjCode, outCell)
-% nbrVtx = fs_neighborvtx(vtxIdx, hemi, subjCode, outCell)
+function [nbrVtxExc, nbrVtx] = fs_neighborvtx(vtxIdx, hemi, subjCode, outCell)
+% [nbrVtxExc, nbrVtx] = fs_neighborvtx(vtxIdx, hemi, subjCode, outCell)
 % 
 % This function gathers all the neighbor vertices for each vertex.
 %
@@ -12,8 +12,12 @@ function nbrVtx = fs_neighborvtx(vtxIdx, hemi, subjCode, outCell)
 %                    the output as integer vector if possible.
 %
 % Output:
-%    nbrVtx         <integer cell> PxQ cell array. each cell is the 
+%    nbrVtxExc      <integer cell> PxQ cell array. each cell is the 
 %                    neighborhood vertices for that corresponding vertex 
+%                    in vtxIdx.
+%                or <integer vector> the neighbor vertices for nbrVtxExc. 
+%    nbrVtx         <integer cell> PxQ cell array. each cell is the 
+%                    neighborhood vertices and that corresponding vertex 
 %                    in vtxIdx.
 %                or <integer vector> the neighbor vertices for vtxIdx.
 %
@@ -43,10 +47,12 @@ end
 
 % obtain the neighbor vertices
 nbrVtx = arrayfun(@(x) neighborvtx(faces, x), vtxIdx, 'uni', false);
+nbrVtxExc = cellfun(@(x, y) setdiff(x, y), nbrVtx, num2cell(vtxIdx), 'uni', false);
 
 % save the output as a vector if needed
 if ~outCell && numel(nbrVtx) == 1
     nbrVtx = nbrVtx{1};
+    nbrVtxExc = nbrVtxExc{1};
 end
 
 end
