@@ -43,6 +43,8 @@ function fs_cvn_print1st(sessList, anaList, labelList, outPath, varargin)
 %                     Default is 0.
 %    'showinfo'      <logical> show label information in the figure.
 %                     Default is 0, i.e., do not show the label information.
+%    'peakonly'      <logical> 1 [default]: only show the peak when identify
+%                     global maxima; 0: show the outline of the label.
 %    'wantfig'       <logical/integer> Default is 2, i.e., do not show the
 %                     figure. More please check fs_cvn_lookup.
 %    'visualimg'     <string> 'off' [default]: do not visualize the image;
@@ -70,8 +72,9 @@ defaultOpts = struct(...
     'subfolder', 1, ...
     'suffixstr', '', ...
     'annot', '', ...
-    'markpeak', 0, ... % mark the peak response in the label
+    'showpeak', 0, ... % mark the peak response in the label
     'showinfo', 0, ...
+    'peakonly', 0, ...
     'wantfig', 2, ...
     'visualimg', 'off', ...
     'cvnopts', {{}}, ...
@@ -97,7 +100,8 @@ imgNameExtra = opts.suffixstr;
 wantfig = opts.wantfig;  % do not show figure with fs_cvn_lookuplmv.m
 roicolors = opts.roicolors;
 showInfo = opts.showinfo;
-markPeak = opts.markpeak;
+showPeak = opts.showpeak;
+peakOnly = opts.peakonly;
 cnvopts = opts.cvnopts;
 
 sigFn = opts.sigfn;
@@ -198,7 +202,7 @@ for iLabel = 1:nLabel
                 sigFile = fullfile(funcPath, thisSess, 'bold', thisAna, thisCon, sigFn);
             else
                 tempNVtx = size(fs_readsurf([thisHemi '.inflated'], trgSubj), 1);
-                sigFile = zeros(tempNVtx, 1); 
+                sigFile = zeros(tempNVtx, 1);
                 tempLabelMat = fs_readlabel(theLabel, subjCode);
                 sigFile(tempLabelMat(:, 1)) = tempLabelMat(:, 5);
             end
@@ -248,11 +252,14 @@ for iLabel = 1:nLabel
                 roicolor = roicolors(1:nTheLabel, :);
                 
                 % mark the peak in the label
-                if markPeak
-                    tempLabelT = fs_labelinfo(theseLabel, subjCode, ...
-                        'bycluster', 1, 'fmin', fmin);
-                    rois = [thisRoi; arrayfun(@(x) makeroi(nVtx, x), tempLabelT.VtxMax, 'uni', false)];
+                tempLabelT = fs_labelinfo(theseLabel, subjCode, ...
+                    'bycluster', 1, 'fmin', fmin);
+                peakRoi = arrayfun(@(x) makeroi(nVtx, x), tempLabelT.VtxMax, 'uni', false);
+                if showPeak
+                    rois = [thisRoi; peakRoi];
                     roicolor = repmat(roicolor, 2, 1);
+                elseif peakOnly
+                    rois = peakRoi;
                 else
                     rois = thisRoi;
                 end
@@ -328,7 +335,7 @@ for iLabel = 1:nLabel
             colormap(cmap);
             c = colorbar;
             caxis(thisclim0);
-            c.Ticks = ceil(thisclim0(1)):1:floor(thisclim0(2)); 
+            c.Ticks = ceil(thisclim0(1)):1:floor(thisclim0(2));
             c.TickLength = 0.02;
             
             % print the figure
