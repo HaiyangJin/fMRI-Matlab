@@ -101,6 +101,7 @@ tempLabelFile = fullfile(subjPath, trgSubj, 'label.label');
 if exist(tempLabelFile, 'file')
     movefile(tempLabelFile, labelFile);
 end
+fprintf('Label %s is saved.\n', labelname);
 
 % close the msgbox
 close(f);
