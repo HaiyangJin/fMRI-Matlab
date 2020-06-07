@@ -6,7 +6,7 @@ function fs_cvn_print1st(sessList, anaList, labelList, outPath, varargin)
 % Inputs:
 %    sessList        <cell string> list of session codes (in funcPath).
 %    anaList         <cell string> list of analysis names. Default is empty
-%                     and no overlay will be displayed.
+%                     and the overlay in the label file will be displayed.
 %    labelList       <cell string> list of label names or list of contrast
 %                     names.
 %    outPath         <string> where to save the output images. [current
@@ -116,7 +116,7 @@ end
 % some maybe nonsense default
 if ischar(sessList); sessList = {sessList}; end
 if ~exist('anaList', 'var') || isempty(anaList)
-    anaList = {'nooverlay.lh', 'nooverlay.rh'};
+    anaList = {'labeloverlay.lh', 'labeloverlay.rh'};
 elseif ischar(anaList)
     anaList = {anaList};
 end
@@ -197,14 +197,18 @@ for iLabel = 1:nLabel
             % the target subject [whose coordinates will be used
             trgSubj = fs_trgsubj(subjCode, fs_2template(thisAna, '', 'self'));
             
-            if ~startsWith(thisAna, 'nooverlay')
-                % full path to the to-be-printed file
-                sigFile = fullfile(funcPath, thisSess, 'bold', thisAna, thisCon, sigFn);
-            else
+            % generate the overlapy to display
+            if startsWith(thisAna, 'labeloverlay')
                 tempNVtx = size(fs_readsurf([thisHemi '.inflated'], trgSubj), 1);
                 sigFile = zeros(tempNVtx, 1);
                 tempLabelMat = fs_readlabel(theLabel, subjCode);
                 sigFile(tempLabelMat(:, 1)) = tempLabelMat(:, 5);
+            elseif startsWith(thisAna, 'nooverlay')
+                tempNVtx = size(fs_readsurf([thisHemi '.inflated'], trgSubj), 1);
+                sigFile = zeros(tempNVtx, 1);
+            else
+                % full path to the to-be-printed file
+                sigFile = fullfile(funcPath, thisSess, 'bold', thisAna, thisCon, sigFn);
             end
             
             % read data
@@ -214,7 +218,7 @@ for iLabel = 1:nLabel
             % set colormap limit based on the data if necessary
             if isempty(clim)
                 theunique = sort(unique(thisSurf.data(:)))';
-                thisclim0 = theunique([2, end]);
+                thisclim0 = theunique([1, end]);
             else
                 thisclim0 = clim;
             end
