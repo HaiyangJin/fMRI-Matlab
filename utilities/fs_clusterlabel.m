@@ -29,7 +29,7 @@ function [clusterIdx, nCluster, iterNo] = fs_clusterlabel(labelFn, subjCode, fmi
 %% Find vertices larger than fmin
 
 if ~exist('fmin', 'var') || isempty(fmin)
-    fmin = 0;
+    fmin = [];
 end
 
 if ischar(labelFn)
@@ -42,7 +42,7 @@ else
         'labelFn'' is a numeric matrix.']);
 end
 
-if size(labelMat, 2) >= 5
+if size(labelMat, 2) >= 5 && ~isempty(fmin)
     % all values have to the same direction
     values = labelMat(:, 5);
     assert(all(values>=0)||all(values<=0), ...
