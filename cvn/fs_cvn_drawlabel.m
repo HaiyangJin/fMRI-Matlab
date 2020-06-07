@@ -13,13 +13,13 @@ function labelFile = fs_cvn_drawlabel(sessCode, anaName, conName, varargin)
 %                    contrast folders).
 %
 % Optional (varargin):
-%    'viewIdx'      <numeric> the viewpoint index. Please check
+%    'viewpt'      <numeric> the viewpoint index. Please check
 %                    fs_cvn_lookup.m for more information.
 %    'fthresh'      <numeric> significance level (default is 1.3 (.05)).
 %    'extraStr'     <string> extra label information added to the end
-%                    of the label name.
+%                    of the label name. Default is 'manual'.
 %    'reflabel'     <string> reference labels. Default is ''.
-%    'ncluster'     <integer> expected number of clusters.
+%    'ncluster'     <integer> expected number of clusters. Default is 1.
 %    'extraopt'     <cell> extra options used in fs_cvn_lookup.m.
 %
 % Output:
@@ -29,7 +29,7 @@ function labelFile = fs_cvn_drawlabel(sessCode, anaName, conName, varargin)
 
 %% Deal with inputs
 defaultOpts = struct(...
-    'viewidx', 3, ...
+    'viewpt', 3, ...
     'fthresh', 1.3, ...
     'extrastr', 'manual', ...
     'reflabel', '', ...
@@ -39,7 +39,7 @@ defaultOpts = struct(...
 
 opts = fs_mergestruct(defaultOpts, varargin);
 
-viewIdx = opts.viewidx;
+viewIdx = opts.viewpt;
 fthresh = opts.fthresh;
 extraLabelStr = opts.extrastr;
 refLabel = opts.reflabel;
