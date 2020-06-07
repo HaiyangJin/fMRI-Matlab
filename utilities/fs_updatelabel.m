@@ -397,10 +397,10 @@ else
                         tempNbrVtx = theNbrVtx(ismember(theLabelMat(:, 1), refvtx));
                         thisNbrVtx = unique(vertcat(tempNbrVtx{:}));
                         % excluded vertices already in the roi (roivtx)
-                        nbrVtx = setdiff(thisNbrVtx, roivtx);
+                        thisnbrVtx = setdiff(thisNbrVtx, roivtx);
                         
                         % find the data for neighbor vertices
-                        nbrLabelMat = theLabelMat(ismember(theLabelMat(:, 1), nbrVtx), :);
+                        nbrLabelMat = theLabelMat(ismember(theLabelMat(:, 1), thisnbrVtx), :);
                         nbrResp = nbrLabelMat(:, 5);
                         
                         % sort by values of neighbor vertices
