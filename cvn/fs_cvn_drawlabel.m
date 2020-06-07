@@ -95,7 +95,7 @@ labelMat(:, 2:4) = coord;
 labelMat(~roimask, :) = [];
 
 % check the cluster numbers in lable matrix
-[~, nLabelClu] = fs_clusterlabel(labelMat, subjCode, fthresh, hemi);
+[~, nLabelClu] = fs_clusterlabel(labelMat, subjCode, '', hemi);
 if nLabelClu ~= nCluster
     warning('There are %d clusters in the label (not %d).', nLabelClu, nCluster);
 end
