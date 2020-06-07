@@ -172,10 +172,6 @@ if ~exist(outPath, 'dir'); mkdir(outPath); end
 if showInfo
     extraOpt = [{'annot', 'aparc', 'showinfo', 1, 'markpeak', 1}, extraOpt];
 end
-% only show global maxima for selecting roi
-if peakOnly
-    extraOpt = [{'peakonly', 1}, extraOpt];
-end
 
 % use startVtx if it is not empty
 if ~isempty(startVtx)
@@ -188,6 +184,14 @@ if ischar(refLabel); refLabel = {refLabel}; end
 theHemi = fs_2hemi(labelFn);
 oldHemi = setdiff({'lh', 'rh'}, theHemi);
 refLabel = cellfun(@(x) strrep(x, oldHemi{1}, theHemi), refLabel, 'uni', false);
+
+% only show global maxima for selecting roi
+if peakOnly
+    extraOpt = [{'peakonly', 1}, extraOpt];
+    overlay = sprintf('nooverlay.%s', theHemi);
+else
+    overlay = sprintf('labeloverlay.%s', theHemi);
+end
 
 %% Check if the label is available
 % convert sessCode to subjCode
@@ -469,7 +473,7 @@ for iTh = 1:nTh
     if nLabelClu > 1
         
         % show all clusters together if there are more than one cluster
-        fs_cvn_print1st(sessCode, '', {[labelFn refLabel tempLabelFn]}, outPath, ...
+        fs_cvn_print1st(sessCode, overlay, {[labelFn refLabel tempLabelFn]}, outPath, ...
             'visualimg', 'on', 'waitbar', 0);
         %     waitfor(msgbox('Please checking all the sub-labels...'));
         % input the label names
@@ -495,7 +499,7 @@ for iTh = 1:nTh
         if warnoverlap && any(isOverlap)
             for iOverlap = find(isOverlap)
                 % show overlapping between any pair of clusters
-                fs_cvn_print1st(sessCode, '', {[labelFn refLabel tempLabelFn(allComb(iOverlap, :))]}, outPath, ...
+                fs_cvn_print1st(sessCode, overlay, {[labelFn refLabel tempLabelFn(allComb(iOverlap, :))]}, outPath, ...
                     'visualimg', 'on', 'waitbar', 0, extraOpt{:});
                 waitfor(msgbox('There is overlapping between sub-labels...', 'Overlapping...', 'warn'));
                 close all;
@@ -511,7 +515,7 @@ for iTh = 1:nTh
         thisClusterLabel = tempLabelFn{iTempLabel};
         
         % display this temporary cluster
-        fs_cvn_print1st(sessCode, '', {[labelFn refLabel thisClusterLabel]}, outPath, ...
+        fs_cvn_print1st(sessCode, overlay, {[labelFn refLabel thisClusterLabel]}, outPath, ...
             'visualimg', 'on', 'waitbar', 0, extraOpt{:});
         
         % input the label names
