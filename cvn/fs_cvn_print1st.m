@@ -34,7 +34,7 @@ function fs_cvn_print1st(sessList, anaList, labelList, outPath, varargin)
 %                     masks.
 %    'lookup'        <> setting used for cvnlookupimage.
 %    'subfolder'     <numeric> which subfolder to save the outputs. 0: no
-%                     subfolder [Default]; 1: use subjCode; 2: use the Label.
+%                     subfolder; 1: use subjCode [Default]; 2: use the Label.
 %    'suffixstr'     <string> extra strings to be added at the end of the
 %                     image name. Default is ''.
 %    'annot'         <string> which annotation will be used. Default is
