@@ -43,7 +43,7 @@ else
 end
 
 if size(labelMat, 2) >= 5 && ~isempty(fmin)
-    % all values have to the same direction
+    % all values have to be the same direction
     values = labelMat(:, 5);
     assert(all(values>=0)||all(values<=0), ...
         'Values have to be all positive or all negative.');
@@ -57,8 +57,10 @@ else
 end
 
 % return if no vertices are larger than fmin
-if ~any(isCluster)
-    warning('Values for all vertices are smaller than ''fmin (%d)''.', fmin);
+if ~any(isCluster) 
+    if ~isempty(vtxValue) && any(vtxValue ~= 0)
+        warning('Values for all vertices are smaller than ''fmin (%.1f)''.', fmin);
+    end
     clusterIdx = -ones(size(labelMat, 1), 1);
     nCluster = 0;
     iterNo = -ones(size(labelMat, 1), 1);
