@@ -28,41 +28,43 @@ function fscmd = fs_label2label(srcSubj, srcLabel, trgSubj, trgLabel, runcmd, st
 % get a list of all combinations of source subject code and source label
 if ischar(srcSubj); srcSubj = {srcSubj}; end
 if ischar(srcLabel); srcLabel = {srcLabel}; end
-tempSSubj = ndgrid(srcSubj, srcLabel);
+if ~exist('trgSubj', 'var') || isempty(trgSubj)
+    trgSubj = {'fsaverage'};
+elseif ischar(trgSubj)
+    trgSubj = {trgSubj};
+end
+
+[tempSSubj, tempSLabel, tempTSubj] = ndgrid(srcSubj, srcLabel, trgSubj);
 sSubjList = tempSSubj(:);
-nSSubj = numel(sSubjList);
+sLabelList = tempSLabel(:);
+tSubjList = tempTSubj(:);
+
+nComb = numel(sSubjList);
 
 if ~exist('struPath', 'var') || isempty(struPath)
     struPath = getenv('SUBJECTS_DIR');
 end
-
 % get the full path to labels
-sLabelList = fs_fullfile(struPath, srcSubj, 'label', srcLabel);
-
-if ~exist('trgSubj', 'var') || isempty(trgSubj)
-    trgSubj = repmat({'fsaverage'}, size(sSubjList));
-elseif ischar(trgSubj)
-    trgSubj = {trgSubj};
-end
-assert(numel(trgSubj) == nSSubj, ['The number of ''trgSubj'' (%d) '...
-    'has to be same as that of ''srcSubj'' (%d).'], numel(trgSubj), nSSubj);  
+sFileList = fullfile(struPath, sSubjList, 'label', sLabelList); 
 
 if ~exist('trgLabel', 'var') || isempty(trgLabel)
-    trgLabel = cellfun(@(x) strrep(x, '.label', '.2fsaverage.label'), sLabelList, 'uni', false);
+    trgLabel = cellfun(@(x) strrep(x, '.label', '.2fsaverage.label'), sFileList, 'uni', false);
+elseif strcmp(trgLabel, 'samename')
+    trgLabel = fullfile(struPath, tSubjList, 'label', sLabelList);
 elseif ischar(trgLabel)
     trgLabel = {trgLabel};
 end
-assert(numel(trgLabel) == nSSubj, ['The number of ''trgLabel'' (%d) '...
-    'has to be same as that of ''srcSubj'' (%d).'], numel(trgLabel), nSSubj);  
+assert(numel(trgLabel) == nComb, ['The number of ''trgLabel'' (%d) '...
+    'has to be same as that of ''srcSubj'' (%d).'], numel(trgLabel), nComb);  
 
 if ~exist('runcmd', 'var') || isempty(runcmd)
-    runcmd = num2cell(ones(size(sSubjList)));
+    runcmd = num2cell(ones(nComb, 1));
 elseif numel(runcmd) == 1
-    runcmd = num2cell(repmat(runcmd, size(sSubjList)));
+    runcmd = num2cell(repmat(runcmd, nComb, 1));
 end
 
 % run the fscmd
-[fscmds, isnotok] = cellfun(@label2label, sSubjList, sLabelList, trgSubj, trgLabel, runcmd, 'uni', false);
+[fscmds, isnotok] = cellfun(@label2label, sSubjList, sFileList, tSubjList, trgLabel, runcmd, 'uni', false);
 
 % make the fscmd one column
 fscmd = [fscmds, isnotok];
