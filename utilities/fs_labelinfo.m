@@ -49,6 +49,8 @@ function labelTable = fs_labelinfo(labelList, subjList, varargin)
 %                       FreeSurfer converting from MNI305 to Talairach).
 %      .NVtxs          <integer> number of vertices in this label.
 %      .fmin           <numeric> the minimum threshold.
+%      .GlobalMax      <integer> the global maxima used to create the
+%                       label.
 %
 % Created by Haiyang Jin (22-Apr-2020)
 
@@ -119,13 +121,19 @@ if isempty(labelMat)
         Talairach = {NaN};
         NVtxs = 0;
         fmin = NaN;
-        labelInfo = table(SubjCode, LabelName, ClusterNo, Max, VtxMax, Size, MNI305, Talairach, NVtxs, fmin);
+        GlobalMax = NaN;
+        labelInfo = table(SubjCode, LabelName, ClusterNo, Max, VtxMax, ...
+            Size, MNI305, Talairach, NVtxs, fmin, GlobalMax);
     else
         labelInfo = [];
     end
     return;
 end
 
+% read the global maxima 
+gm = fs_labelgm(labelFn, subjCode);
+
+% regard it as reference label if nCluster is 0
 [~, fn, ext] = fileparts(labelFn);
 labelname = [fn ext];
 if nCluster == 0
@@ -136,6 +144,7 @@ else
     
 end
 
+% output by cluster if needed
 if byCluster
     clusters = transpose(1:nCluster);
     matCell = arrayfun(@(x) labelMat(clusterNo == x, :), clusters, 'uni', false);
@@ -159,7 +168,7 @@ Talairach = vertcat(theTal{:});
 labelSize = cellfun(@(x) fs_labelarea(labelFn, subjCode, x(:, 1), struPath),...
     matCell, 'uni', true);
 
-%% Create a struct to save all the information
+%% Create a table to save all the information
 % inputs
 SubjCode = repmat({subjCode}, numel(clusters), 1);
 LabelName = repmat({labelname}, numel(clusters), 1);
@@ -171,10 +180,12 @@ VtxMax = arrayfun(@(x, y) x{1}(y, 1), matCell, maxIdx);
 Size = labelSize;
 NVtxs = cellfun(@(x) size(x, 1), matCell);
 
-% save fmin
+% save fmin and gm
 fmin = repmat(fmin0, numel(clusters), 1);
+GlobalMax = repmat(gm, numel(clusters), 1);
 
 % save the out information as table
-labelInfo = table(SubjCode, LabelName, ClusterNo, Max, VtxMax, Size, MNI305, Talairach, NVtxs, fmin);
+labelInfo = table(SubjCode, LabelName, ClusterNo, Max, VtxMax, ...
+    Size, MNI305, Talairach, NVtxs, fmin, GlobalMax);
 
 end
