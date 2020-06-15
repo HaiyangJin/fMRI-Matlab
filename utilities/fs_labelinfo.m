@@ -131,7 +131,7 @@ if isempty(labelMat)
 end
 
 % read the global maxima 
-gm = fs_labelgm(labelFn, subjCode);
+gmTable = fs_labelgm(labelFn, subjCode);
 
 % regard it as reference label if nCluster is 0
 [~, fn, ext] = fileparts(labelFn);
@@ -180,12 +180,16 @@ VtxMax = arrayfun(@(x, y) x{1}(y, 1), matCell, maxIdx);
 Size = labelSize;
 NVtxs = cellfun(@(x) size(x, 1), matCell);
 
-% save fmin and gm
+% save fmin 
 fmin = repmat(fmin0, numel(clusters), 1);
-GlobalMax = repmat(gm, numel(clusters), 1);
+% save gm information
+GlobalMax = repmat(gmTable.gm, numel(clusters), 1);
+MNI305_gm = repmat(gmTable.MNI305, numel(clusters), 1);
+Tal_gm = repmat(gmTable.Talairach, numel(clusters), 1);
 
 % save the out information as table
 labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
-    Size, MNI305, Talairach, NVtxs, fmin, GlobalMax);
+    Size, MNI305, Talairach, NVtxs, fmin, ...
+    GlobalMax, MNI305_gm, Tal_gm);
 
 end
