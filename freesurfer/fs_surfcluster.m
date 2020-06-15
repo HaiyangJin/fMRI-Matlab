@@ -23,8 +23,8 @@ function [labelTable, fscmd] = fs_surfcluster(sessCode, anaName,...
 % Outputs:
 %    labelTable       <table> includes information about the label file.
 %      .SubjCode       <cell> the input subjCode save as a cell.
-%      .AnalysisName   <cell> the analysis name save as a cell.
-%      .LabelName      <cell> the input labelFn (without path) but save as 
+%      .Analysis       <cell> the analysis name save as a cell.
+%      .Label          <cell> the input labelFn (without path) but save as 
 %                       a cell.
 %      .ClusterNo      <integer> the number (index) of the cluster.
 %      .Max            <numeric> the peak response value.
@@ -109,11 +109,11 @@ NVtxs = tempdata(:, 8);
 % save inputs
 nCluster = numel(ClusterNo);
 SubjCode = repmat({subjCode}, nCluster, 1);
-AnalysisName = repmat({anaName}, nCluster, 1);
+Analysis = repmat({anaName}, nCluster, 1);
 [~, fn, ext] = fileparts(labelFn);
-LabelName = repmat({[fn ext]}, nCluster, 1);
+Label = repmat({[fn ext]}, nCluster, 1);
 
 % save the out information as table
-labelTable = table(SubjCode, AnalysisName, LabelName, ClusterNo, Max, VtxMax, Size, MNI305, NVtxs);
+labelTable = table(SubjCode, Analysis, Label, ClusterNo, Max, VtxMax, Size, MNI305, NVtxs);
 
 end

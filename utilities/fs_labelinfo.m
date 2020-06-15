@@ -33,7 +33,7 @@ function labelTable = fs_labelinfo(labelList, subjList, varargin)
 % Output:
 %    labelInfo       <struct> includes information about the label file.
 %      .SubjCode       <cell> the input subjCode save as a cell.
-%      .LabelName      <cell> the input labelFn (without path) but save as
+%      .Label          <cell> the input labelFn (without path) but save as
 %                       a cell.
 %      .ClusterNo      <integer> the cluster number. If sepCluster is 0,
 %                       .ClusterNo is the total number of contiguous
@@ -112,7 +112,7 @@ labelMat = fs_readlabel(labelFn, subjCode, struPath);
 if isempty(labelMat)
     if saveall
         SubjCode = {subjCode};
-        LabelName = {labelFn};
+        Label = {labelFn};
         ClusterNo = 0;
         Max = NaN;
         VtxMax = NaN;
@@ -122,7 +122,7 @@ if isempty(labelMat)
         NVtxs = 0;
         fmin = NaN;
         GlobalMax = NaN;
-        labelInfo = table(SubjCode, LabelName, ClusterNo, Max, VtxMax, ...
+        labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
             Size, MNI305, Talairach, NVtxs, fmin, GlobalMax);
     else
         labelInfo = [];
@@ -171,7 +171,7 @@ labelSize = cellfun(@(x) fs_labelarea(labelFn, subjCode, x(:, 1), struPath),...
 %% Create a table to save all the information
 % inputs
 SubjCode = repmat({subjCode}, numel(clusters), 1);
-LabelName = repmat({labelname}, numel(clusters), 1);
+Label = repmat({labelname}, numel(clusters), 1);
 
 % outinformation
 ClusterNo = clusters;
@@ -185,7 +185,7 @@ fmin = repmat(fmin0, numel(clusters), 1);
 GlobalMax = repmat(gm, numel(clusters), 1);
 
 % save the out information as table
-labelInfo = table(SubjCode, LabelName, ClusterNo, Max, VtxMax, ...
+labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
     Size, MNI305, Talairach, NVtxs, fmin, GlobalMax);
 
 end
