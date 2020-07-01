@@ -1,32 +1,28 @@
-function overlapTable = fs_labeloverlap(labels, outputPath, subjList)
+function overlapTable = fs_labeloverlap(labels, subjList, outPath)
+% overlapTable = fs_labeloverlap(labels, subjList, outputPath)
+%
 % This function calcualtes the overlapping between two labels
 %
 % Inputs:
-%   labelList           a list (matrix) of label names (could be more than 
-%                       2). The labels in the same row will be compared
-%                       with each other. (each row is another cell)
-%   subjCode            subject code in $SUBJECTS_DIR
-%   output_path         where the output file will be saved
+%   labels            <cell string> a list (matrix) of label names (can be 
+%                      more than 2). The labels in the same row will be 
+%                      compared with each other. (each row is another cell).
+%   subjList          <cell string> subject code in $SUBJECTS_DIR.
+%   outPath           <string> where the output file will be saved
 % Output
-%   overlap_table       a table contains the overlapping information
+%   overlapTable       a table contains the overlapping information
 %
 % Created by Haiyang Jin (11/12/2019)
 
-FS = fs_subjdir;
+if ischar(subjList); subjList = {subjList}; end
+nSubj = numel(subjList);
 
-if nargin < 2 || isempty(outputPath)
-    outputPath = '.';
+if ~exist('outPath', 'var') || isempty(outPath)
+    outPath = '.';
 end
-outputPath = fullfile(outputPath, 'Label_Overlapping');
-if ~exist(outputPath, 'dir'); mkdir(outputPath); end
+outPath = fullfile(outPath, 'Label_Overlapping');
+if ~exist(outPath, 'dir'); mkdir(outPath); end
 
-if nargin < 3 || isempty(subjList)
-    subjList = FS.subjList;
-elseif ischar(subjList)
-    subjList = {subjList};
-end
-
-nSubj = FS.nSubj;
 nLabelGroup = size(labels, 1);
 
 n = 0;
@@ -85,6 +81,6 @@ clear n
 
 overlapTable = struct2table(overlapStr); % convert structure to table
 overlapTable = rmmissing(overlapTable, 1); % remove empty rows
-writetable(overlapTable, fullfile(outputPath, 'Label_Overlapping.xlsx'));
+writetable(overlapTable, fullfile(outPath, 'Label_Overlapping.xlsx'));
 
 end
