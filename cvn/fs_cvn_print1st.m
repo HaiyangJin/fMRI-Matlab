@@ -39,6 +39,8 @@ function fs_cvn_print1st(sessList, anaList, labelList, outPath, varargin)
 %                     image name. Default is ''.
 %    'annot'         <string> which annotation will be used. Default is
 %                     '', i.e., not display annotation file.
+%    'gminfo'        <logical> 0 [default]: do not show global maxima 
+%                     information; 1: show the global maxima information.
 %    'markpeak'      <logical> mark the location of the peak response.
 %                     Default is 0.
 %    'showinfo'      <logical> show label information in the figure.
@@ -72,6 +74,7 @@ defaultOpts = struct(...
     'subfolder', 1, ...
     'suffixstr', '', ...
     'annot', '', ...
+    'gminfo', 1, ...
     'showpeak', 0, ... % mark the peak response in the label
     'showinfo', 0, ...
     'peakonly', 0, ...
@@ -100,6 +103,7 @@ imgNameExtra = opts.suffixstr;
 wantfig = opts.wantfig;  % do not show figure with fs_cvn_lookuplmv.m
 roicolors = opts.roicolors;
 showInfo = opts.showinfo;
+gmInfo = opts.gminfo;
 showPeak = opts.showpeak;
 peakOnly = opts.peakonly;
 cnvopts = opts.cvnopts;
@@ -142,12 +146,18 @@ for iLabel = 1:nLabel
     if ischar(theseLabel); theseLabel = {theseLabel}; end
     theseLabel(cellfun(@isempty, theseLabel)) = [];
     
+    % make sure theseLabel is a row vector
+    nTheLabel = numel(theseLabel);
+    if nTheLabel == size(theseLabel, 1)
+        theseLabel = theseLabel';
+    end
+    
     [~, nHemiTemp] = fs_hemi_multi(theseLabel);
     assert(nHemiTemp == 1, 'These labels are not for the same hemisphere.');
     % the contrast, hemi, and threshold for the first label will
     % be used for printing the activation.
     theLabel = theseLabel{1};
-    nTheLabel = numel(theseLabel);
+    
     
     % the contrast and the hemi information
     thisCon = fs_2contrast(theLabel);
@@ -306,7 +316,8 @@ for iLabel = 1:nLabel
             % Load and show the (first) label related information
             if showInfo && ~all(isEmptyMat)
                 labelCell = cellfun(@(x) fs_labelinfo(x, subjCode, ...
-                    'bycluster', 1, 'fmin', fmin), theLabelNames, 'uni', false);
+                    'bycluster', 1, 'fmin', fmin, 'gminfo', gmInfo), ...
+                    theLabelNames, 'uni', false);
                 labelTable = vertcat(labelCell{:});
                 labelTable.Properties.VariableNames{3} = 'No';
                 labelTable.SubjCode = [];
@@ -315,11 +326,11 @@ for iLabel = 1:nLabel
                 pos = get(fig, 'Position'); %// gives x left, y bottom, width, height
                 switch viewpt
                     case 3
-                        pos4Extra = 1500;
+                        pos4Extra = 2000;
                     case {'ffa'}
                         pos4Extra = pos(4);
                     otherwise
-                        pos4Extra = max(ceil(pos(4)/pos(3)*1000)-600, 400);
+                        pos4Extra = max(ceil(pos(4)/pos(3)*1000)-100, 400);
                 end
                 set(fig, 'Position', [pos(1:2) max(1150, pos(3)) pos(4)+pos4Extra]);
                 % Get the table in string form.

@@ -18,6 +18,8 @@ function labelTable = fs_labelinfo(labelList, subjList, varargin)
 %    'fmin'          <numeric> The (absolute) minimum value for vertices to
 %                     be used for summarizing information. Default is 0,
 %                     i.e., all vertices will be used.
+%    'gminfo'        <logical> 1 [default]: output the information for the
+%                     global maxima; 0: do not show this information.
 %    'isndgrid'      <logical> 1 [default]: all the combinations of
 %                     labelList and subjList will be created, i.e.,
 %                     summarize all labels in labelList for each subject
@@ -57,6 +59,7 @@ function labelTable = fs_labelinfo(labelList, subjList, varargin)
 defaultOpts = struct(...
     'bycluster', 0, ...
     'fmin', 0, ...
+    'gminfo', 1, ...
     'isndgrid', 1, ...
     'saveall', 0, ...
     'strupath', getenv('SUBJECTS_DIR') ...
@@ -65,6 +68,7 @@ defaultOpts = struct(...
 opts = fs_mergestruct(defaultOpts, varargin{:});
 byCluster = opts.bycluster;
 fmin = opts.fmin;
+gmInfo = opts.gminfo;
 isndgrid = opts.isndgrid;
 saveAll = opts.saveall;
 struPath = opts.strupath;
@@ -93,7 +97,7 @@ else
 end
 
 % read the label information
-labelInfoCell = cellfun(@(x, y) labelinfo(x, y, byCluster, fmin, saveAll, struPath),...
+labelInfoCell = cellfun(@(x, y) labelinfo(x, y, byCluster, fmin, gmInfo, saveAll, struPath),...
     tempList(:), tempSubj(:), 'uni', false);
 
 labelTable = vertcat(labelInfoCell{:});
@@ -101,7 +105,7 @@ labelTable = vertcat(labelInfoCell{:});
 end
 
 %% Obtain the label information separately
-function labelInfo = labelinfo(labelFn, subjCode, byCluster, fmin0, saveall, struPath)
+function labelInfo = labelinfo(labelFn, subjCode, byCluster, fmin0, gmInfo, saveall, struPath)
 
 % get the cluster (contiguous)
 [clusterNo, nCluster] = fs_clusterlabel(labelFn, subjCode, fmin0);
@@ -121,9 +125,19 @@ if isempty(labelMat)
         Talairach = {NaN};
         NVtxs = 0;
         fmin = NaN;
-        GlobalMax = NaN;
+        
         labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
-            Size, MNI305, Talairach, NVtxs, fmin, GlobalMax);
+            Size, MNI305, Talairach, NVtxs, fmin);
+        
+        % gmTable
+        GlobalMax = NaN;
+        MNI305_gm = {NaN};
+        Tal_gm = {NaN};
+        gmTable = table(GlobalMax, MNI305_gm, Tal_gm);
+        
+        if gmInfo
+            labelInfo = horzcat(labelInfo, gmTable);
+        end
     else
         labelInfo = [];
     end
@@ -182,14 +196,17 @@ NVtxs = cellfun(@(x) size(x, 1), matCell);
 
 % save fmin 
 fmin = repmat(fmin0, numel(clusters), 1);
+
+% save the out information as table
+labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
+    Size, MNI305, Talairach, NVtxs, fmin);
+
 % save gm information
 GlobalMax = repmat(gmTable.gm, numel(clusters), 1);
 MNI305_gm = repmat(gmTable.MNI305, numel(clusters), 1);
 Tal_gm = repmat(gmTable.Talairach, numel(clusters), 1);
+gmTable = table(GlobalMax, MNI305_gm, Tal_gm);
 
-% save the out information as table
-labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
-    Size, MNI305, Talairach, NVtxs, fmin, ...
-    GlobalMax, MNI305_gm, Tal_gm);
+if gmInfo; labelInfo = horzcat(labelInfo, gmTable); end
 
 end

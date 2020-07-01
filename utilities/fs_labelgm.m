@@ -4,7 +4,8 @@ function gmTable = fs_labelgm(labelList, subjList)
 % This function reads the global maxima file for the label file. They
 % should be stored in the same directory (i.e., in the label/ folder) and
 % share the same filename (but different extensions; '.label' for the label
-% and '.gm' for the globalmaxima file).
+% and '.gm' for the globalmaxima file). Note: The vertex index stored in 
+% *.gm file is the vertex number in Matlab. 
 %
 % Inputs:
 %    labelList       <cell string> list of the label files (with or without
@@ -55,7 +56,7 @@ if ~exist(gmFn, 'file')
     gmStruct.Talairach = [NaN NaN NaN];
 else
     % read the file
-    gmStruct.gm = str2double(fs_readtext(gmFn));
+    gmStruct.gm = str2double(fs_readtext(gmFn)); % from FS to matlab
     labelMat = fs_readlabel(labelFn, subjCode);
     isgm = labelMat(:, 1) == gmStruct.gm;
     % coordiantes in RAS, MNI305(fsaverage) and Talairach space

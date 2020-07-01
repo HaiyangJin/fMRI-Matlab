@@ -14,10 +14,11 @@ function [labelMatCell, cluVtxCell] = fs_updatelabel(labelFn, sessCode, outPath,
 %                   maxima to a cluster/roi. The options are 'concentric'
 %                   [default], 'maxresp', or 'con-maxresp'. More see below.
 %    'ncluster'    <integer> cluster numbers. Default is 1.
-%    'startvtx'    <integer> index of the starting vertex. Default is [].
-%                   If 'startvtx' is used, ncluster will be set as 1 and
-%                   'lowerthresh' will be set as true. [Not fully
-%                   developed. Ths startvtx might not be the global
+%    'startvtx'    <integer> index of the starting vertex. This should be 
+%                   the vertex index in the label file (i.e., without + 1). 
+%                   Default is []. If 'startvtx' is used, ncluster will be 
+%                   set as 1 and 'lowerthresh' will be set as true. [Not 
+%                   fully developed. Ths startvtx might not be the global
 %                   maxima.] Note: when 'startvtx' is not empty and
 %                   'savegm' is 1, startvtx will be saved as 'gmfn'.
 %    'gmfn'        <string> the filename of the global maxima to be used.
@@ -363,7 +364,7 @@ else
                 [~, ~, thisCluIter] = fs_clustervtx(theLabelMat(:, 1), theNbrVtx, '', theVtx);
             end
             % save the global maxima (or the starting vtx)
-            gmCell{iClu, ith} = theVtx;
+            gmCell{iClu, ith} = theVtx; % vertex index in Matlab
             
             % apply different methods for selecting vertices
             switch method
