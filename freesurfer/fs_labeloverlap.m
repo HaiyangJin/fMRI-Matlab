@@ -1,5 +1,5 @@
 function overlapTable = fs_labeloverlap(labels, subjList, outPath)
-% overlapTable = fs_labeloverlap(labels, subjList, outputPath)
+% overlapTable = fs_labeloverlap(labels, subjList, outPath)
 %
 % This function calcualtes the overlapping between two labels
 %

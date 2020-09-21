@@ -513,7 +513,7 @@ for iTh = 1:nTh
         
         % show all clusters together if there are more than one cluster
         fs_cvn_print1st(sessCode, overlay, {[labelFn refLabel tempLabelFn]}, outPath, ...
-            'visualimg', 'on', 'waitbar', 0);
+            'visualimg', 'on', 'waitbar', 0, 'gminfo', 0);
         %     waitfor(msgbox('Please checking all the sub-labels...'));
         % input the label names
         prompt = {'Please checking all the sub-labels...'};
@@ -539,7 +539,7 @@ for iTh = 1:nTh
             for iOverlap = find(isOverlap)
                 % show overlapping between any pair of clusters
                 fs_cvn_print1st(sessCode, overlay, {[labelFn refLabel tempLabelFn(allComb(iOverlap, :))]}, outPath, ...
-                    'visualimg', 'on', 'waitbar', 0, extraOpt{:});
+                    'visualimg', 'on', 'waitbar', 0, 'gminfo', 0, extraOpt{:});
                 waitfor(msgbox('There is overlapping between sub-labels...', 'Overlapping...', 'warn'));
                 close all;
             end
@@ -555,7 +555,7 @@ for iTh = 1:nTh
         
         % display this temporary cluster
         fs_cvn_print1st(sessCode, overlay, {[labelFn refLabel thisClusterLabel]}, outPath, ...
-            'visualimg', 'on', 'waitbar', 0, extraOpt{:});
+            'visualimg', 'on', 'waitbar', 0, 'gminfo', 0, extraOpt{:});
         
         % input the label names
         prompt = {'Enter the label name for this cluster:'};

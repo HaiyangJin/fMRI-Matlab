@@ -72,7 +72,7 @@ if ~exist('outPrefix', 'var') || isempty(outPrefix)
 end
 
 if ~exist('dataFn', 'var') || isempty(dataFn)
-    dataFn = '';  % beta.nii.gz will be used.
+    dataFn = 'beta.nii.gz';  % beta.nii.gz will be used.
 end
 
 if ~exist('surfType', 'var') || isempty(surfType)
@@ -117,7 +117,8 @@ for iSess = 1:nSess
     waitbar(progress, waitHandle, progressMsg);
     
     %%%%%% load the beta.nii.gz for both hemispheres separately %%%%%
-    dsSurfCell = cellfun(@(x) fs_cosmo_sessds(thisSess, x, runList, 1, '', dataFn), ...
+    dsSurfCell = cellfun(@(x) fs_cosmo_sessds(thisSess, x, ...
+        'runlist', runList, 'runwise', 1, 'datafn', dataFn), ...
         anaList, 'uni', false);
     
     %%%%%% load vertex and faces information %%%%%

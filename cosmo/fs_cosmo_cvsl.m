@@ -20,8 +20,7 @@ function dt_sl = fs_cosmo_cvsl(ds, classPairs, surfDef, featureCount, ...
 %    featureCount    <integer> number of features to be used for each
 %                     decoding.
 %    sessCode        <string> subject code in $FUNCTIONALS.
-
-
+%    anaName         <string> analysis name.
 %    outPrefix       <string> strings to be added at the beginning of the
 %                     ouput folder (the pseudo-analysis folder).
 %    funcPath        <string> where to save the output. Default is 
@@ -70,7 +69,7 @@ else
 end
 
 % method used for distance
-metric = 'euclidean';
+metric = 'geodesic'; % 'euclidean';
 
 %% Set analysis parameters
 % Use the cosmo_cross_validation_measure and set its parameters
@@ -121,10 +120,10 @@ end
 % calculate the surficial neighborhood if necessary
 if ~exist('nbrhood', 'var') || ~exist('vo', 'var') || ~exist('fo', 'var')
     % calculate the surficial neighborhood
-    fprintf('\n\nCalcualte the surficial neighborhood for %s (%s):\n',...
+    fprintf('\n\nGenerating the surficial neighborhood for %s (%s):\n',...
         trgSubj, hemi);
     [nbrhood,vo,fo,~]=cosmo_surficial_neighborhood(ds,surfDef,...
-        'count',featureCount, 'metric', metric); % 'radius', r ,
+        'radius', r , 'metric', metric); % 'count',featureCount,
     
     % save the the surficial neighborhood file
     fprintf('\nSaving the surficial neighborhood for %s (%s):\n',...
