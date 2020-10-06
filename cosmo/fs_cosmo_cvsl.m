@@ -14,8 +14,8 @@ function dt_sl = fs_cosmo_cvsl(ds, classPairs, surfDef, featureCount, ...
 %    surf_def        <cell of numeric array> surface denitions. The first
 %                     element is the array of vertex number and coordiantes;
 %                     the second element is the array of face number and
-%                     coordinates. Both can be obtained by fs_cosmo_surfcoor.
-%                     More information can be found in
+%                     vertex indices. Both can be obtained by 
+%                     fs_cosmo_surfcoor. More information can be found in
 %                     cosmo_surficial_neighborhood.m .
 %    featureCount    <integer> number of features to be used for each
 %                     decoding.

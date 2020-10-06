@@ -8,20 +8,23 @@ function fscmd = fs_projfunc(sessCode, projFile, runFolder, template, hemi, sm, 
 %     fmcpr.*.[template].sm5.*.?h.nii.gz (if smoothing is applied)
 %
 % Inputs:
-%     sessCode         <string> session code in funcPath.
-%     projFile         <string> the name of the to-be-projected file 
+%    sessCode         <string> session code in funcPath.
+%    projFile         <string> the name of the to-be-projected file 
 %                       (i.e., the preprocessed functional data).
 %                       [do not need to include '.nii.gz'.] 
-%     runFolder        <string> the run folder name.
-%     template         <string> 'fsaverage' or 'self'. fsaverage is the default.
-%     hemi             <string> which hemisphere. 'lh' (default) or 'rh'. 
-%     sm               <integer> smoothing with FWHM.
-%     funcPath         <string> the full path to the functional folder.
+%    runFolder        <string> the run folder name.
+%    template         <string> 'fsaverage' or 'self'. fsaverage is the default.
+%    hemi             <string> which hemisphere. 'lh' (default) or 'rh'. 
+%    sm               <integer> smoothing with FWHM.
+%    funcPath         <string> the full path to the functional folder.
 %
 % Output:
-%     fscmd            <cell of strings> FreeSurfer commands used here.
+%    fscmd            <cell of strings> FreeSurfer commands used here.
 %
 % Created by Haiyang Jin (7-Apr-2020)
+%
+% See also:
+% fs_projsess.m | fs_projmask.m
 
 projBasename = erase(projFile, '.nii.gz');
 projFile = [projBasename '.nii.gz'];

@@ -18,6 +18,9 @@ function fscmd = fs_projmask(sessCode, runFolder, template, hemi, funcPath)
 %     fscmd            <cell of strings> FreeSurfer commands used here.
 %
 % Created by Haiyang Jin (7-Apr-2020)
+%
+% See also:
+% fs_projsess.m | fs_projfunc.m
 
 if nargin < 3 || isempty(template)
     template = 'fsaverage';
