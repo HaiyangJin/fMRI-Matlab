@@ -29,8 +29,6 @@ Last updated: 06-Oct-2020
 
 <!-- /TOC -->
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/d90f46be5ec94928ab6a56244eed0968)](https://app.codacy.com/manual/HaiyangJin/fMRI-Matlab?utm_source=github.com&utm_medium=referral&utm_content=HaiyangJin/fMRI-Matlab&utm_campaign=Badge_Grade_Dashboard)
-
 
 # Introduction
 
@@ -99,10 +97,10 @@ For quality assurance, please check [here](#check-recon-all-results).
 
 ## Configure analysis, contrasts and perform the analysis
 Steps  |  functions
---|--
-1. Configure analyses   |  `fs_mkanalysis()`
-2. Configure contrasts  |  `fs_mkcontrast()`
-3. Perform the analysis |  `fs_selxavg3()`
+-- | --
+1.Configure analyses   |  `fs_mkanalysis()`
+2.Configure contrasts  |  `fs_mkcontrast()`
+3.Perform the analysis |  `fs_selxavg3()`
 More information on configuring analyses and contrasts can be found [here](https://surfer.nmr.mgh.harvard.edu/fswiki/FsFastTutorialV5.1/FsFastFirstLevel_freeview).
 
 ## Draw labels based on contrast
@@ -114,10 +112,10 @@ After performing the first level analysis, you may want to create ROI label file
 ## 1. Group level analysis on fsaverage
 More information can be found [here](https://surfer.nmr.mgh.harvard.edu/fswiki/FsFastTutorialV5.1/FsFastGroupLevel_freeview).
 Steps  |  functions
---|--
-1. Concatenate first level results  |  `fs_isxconcat()`
-2. Perform group level GLM          |  `fs_glmfit_osgm()`
-3. Multiple comparison correction with *permutation* |  `fs_glmfit_perm()`
+-- | --
+1.Concatenate first level results  |  `fs_isxconcat()`
+2.Perform group level GLM          |  `fs_glmfit_osgm()`
+3.Multiple comparison correction with *permutation* |  `fs_glmfit_perm()`
 
 ## 2. Univariate analysis of ROIs on self surface
 To perform statistical analyses on self surface for different labels (ROIs) later, use `fs_cosmo_readdata()` to load the surface data as a table in Matlab.  
@@ -131,11 +129,11 @@ To perform N-fold cross-validation searchlight on the surface, use `fs_cosmo_ses
 
 ## Some suggestion for these analyses (or notes for myself)
 Analysis | Template | Smooth | Runwise
--- | -- | -- | -- |
-1. Group level analysis | fsaverage | sm5 | no
-2. ROI (label) univariate | self | sm5 | no
-3. ROI (label) decoding | self | sm0 | yes
-4. Searchlight | fsaverage | sm0 | yes
+-- | -- | -- | --
+1.Group level analysis | fsaverage | sm5 | no
+2.ROI (label) univariate | self | sm5 | no
+3.ROI (label) decoding | self | sm0 | yes
+4.Searchlight | fsaverage | sm0 | yes
 
 # Data visualization
 Visualize nifty files: [ITK-SNAP](http://www.itksnap.org/pmwiki/pmwiki.php).
@@ -148,7 +146,7 @@ To check the surface data only, run `fv_surfmgz('', 'inflated')` and then select
 
 ## Check other results
 Results for visualization |  functions
---|--
+-- | --
 first level results (i.e., the screenshots of contrasts)  |  `fs_cvn_print1st()`
 second level results |  `fs_cvn_print2nd()`
 overlapping between labels    |  `fs_labeloverlap()`
