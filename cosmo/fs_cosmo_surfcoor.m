@@ -8,7 +8,7 @@ function [vtxCell, faceCell] = fs_cosmo_surfcoor(subjCode, surfType, combineHemi
 %
 % Inputs: 
 %    subjCode           <string> subject code in $SUBJECTS_DIR.
-%    surfCoorFile       <string> coordinate file for vertices ('sphere',  
+%    surfType           <string> coordinate file for vertices ('sphere',  
 %                        'inflated', 'white', 'pial') (default is 'sphere').
 %    combineHemi        <logical> whether the data of two hemispheres will 
 %                        be combined (default is no).
@@ -26,15 +26,16 @@ function [vtxCell, faceCell] = fs_cosmo_surfcoor(subjCode, surfType, combineHemi
 %
 % Created by Haiyang Jin (8-Dec-2019)
 
-if nargin < 2 || isempty(surfType)
+if ~exist('surfType', 'var') || isempty(surfType)
     surfType = {'sphere'};
 end
 
-if nargin < 3 || isempty(combineHemi)
+if ~exist('isCortex', 'var') || isempty(isCortex)
+if ~exist('combineHemi', 'var') || isempty(combineHemi)
     combineHemi = 0;
 end
 
-if nargin < 4 || isempty(struPath)
+if ~exist('struPath', 'var') || isempty(struPath)
     struPath = getenv('SUBJECTS_DIR');
 end
 
@@ -47,11 +48,11 @@ nHemi = 2;
 if ~iscell(surfType)
     surfType = {surfType}; % convert to cell if necessary
 end
-surfExt = {'sphere', 'white', 'pial', 'inflated'};
+surfExt = {'sphere', 'white', 'pial', 'inflated', 'intermediate'};
 whichSurfcoor = ismember(surfType, surfExt);
 if ~any(whichSurfcoor)
-    error('The surface coordinate system (%s) is not supported by this function.\n',...
-        surfExt{1, whichSurfcoor});
+    error('The surface coordinate system (''%s'') is not supported by this function.',...
+        surfType{1});
 end
 nSurfFile = numel(surfType);
 
