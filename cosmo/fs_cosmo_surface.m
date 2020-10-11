@@ -4,13 +4,19 @@ function ds = fs_cosmo_surface(surfFn, varargin)
 % Load the surface data in FreeSurfer as a data set for CoSMoMVPA.
 %
 % Inputs:
-%   surfFn          filename of surface data to be loaded. This function
-%                     only supports the beta.nii.gz (or maybe also other
-%                     *.nii.gz) from FreeSurfer for surface.
-%   'targets', t      Px1 targets for P samples; these will be stored in
-%                     the output as ds.sa.targets
-%   'chunks', c       Px1 chunks for P samples; these will be stored in the
-%                     the output as ds.sa.chunks
+%   surfFn          <string> filename of surface data to be loaded. This 
+%                    function only supports the beta.nii.gz (or maybe also 
+%                    other *.nii.gz) from FreeSurfer for surface.
+% Varargin:
+%   'targets'       <integer array> Px1 targets for P samples; these will  
+%                    be stored in the output as ds.sa.targets.
+%   'chunks'        <integer array> Px1 chunks for P samples; these will be
+%                    stored in the the output as ds.sa.chunks.
+%   'ispct'         <logical> whether use the signal percentage change when
+%                    'beta.nii.gz.' is the input. Default is 0, i.e., use 
+%                    the raw beta values. If 'pct' is 1, please make sure
+%                    the 'targets' has been defined for all conditions.
+%
 % Output:
 %   ds                dataset struct
 %
@@ -46,6 +52,7 @@ defaults=struct();
 defaults.targets=[];
 defaults.labels=[];
 defaults.chunks=[];
+defaults.ispct = 0;
 
 params = cosmo_structjoin(defaults, varargin);
 
@@ -62,8 +69,16 @@ data = shiftdim(data, 3); % betas * vertices
 
 % only keep first n rows of samples if Target information is available
 if ~isempty(params.targets)
+    
     nTarget = numel(params.targets);
+    % obtain the "baseline", i.e., intercept
+    intercept = data(nTarget + 1, :);
+    % beta values for conditions
     data = data(1:nTarget, :);
+    
+    if params.ispct % use signal percentage change
+        data = data ./ intercept * 100;
+    end
 end
 
 % .fa
