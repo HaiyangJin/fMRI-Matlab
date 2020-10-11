@@ -90,12 +90,12 @@ measure_args.classifier = classifier; % @cosmo_classify_libsvm;
 % load the surficial neighborhood
 nbhFn = sprintf('sl_cosmo_neighborhood_%s_%d.mat', hemi, featureCount);
 % the target folder
-if strcmp(trgSubj, 'fsaverage')
+if strcmp(subjCode, 'fsaverage')
     saveSubj = 'fsaverageSL';
     accPath = fullfile(getenv('SUBJECTS_DIR'), saveSubj, 'surf');
     if ~exist(accPath, 'dir'); mkdir(accPath); end
 else
-    saveSubj = trgSubj;
+    saveSubj = subjCode;
 end
 
 % the temporary neighborhood file to be saved/read
