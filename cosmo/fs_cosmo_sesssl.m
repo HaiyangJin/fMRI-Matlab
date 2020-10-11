@@ -1,5 +1,4 @@
-function fs_cosmo_sesssl(sessList, anaList, classPairs, runList, ...
-     outPrefix, dataFn, surfType, bothHemi, classifier, funcPath)
+function fs_cosmo_sesssl(sessList, anaList, classPairs, varargin)
 % fs_cosmo_sesssl(sessList, anaList, classPairs, runList, ...
 %     outPrefix, dataFn, surfType, bothHemi, classifier, funcPath)
 %
@@ -16,28 +15,28 @@ function fs_cosmo_sesssl(sessList, anaList, classPairs, runList, ...
 %    classPairs         <cell of strings> a PxQ (usually is 2) cell matrix
 %                        for the pairs to be classified. Each row is one
 %                        classfication pair.
-%    runList            <string> the filename of the run file (e.g.,
+%
+% Varargin:
+%    'runlist'          <string> the filename of the run file (e.g.,
 %                        run_loc.txt.) [Default is '' and then names of
 %                        all run folders will be used.]
 %                   OR  <string cell> a list of all the run names. (e.g.,
 %                        {'001', '002', '003'....}.
-%    outPrefix          <string> strings to be added at the beginning of 
-%                        the ouput folder (the pseudo-analysis folder).
-%                        Default is 'sl'.
-%    dataFn             <string> the filename of the to-be-read data file.
+%    'datafn'           <string> the filename of the to-be-read data file.
 %                        Default is '' and 'beta.nii.gz' will be load.
-%    surfType           <string> the coordinate file for vertices (
+%    'ispct'            <logical> use whether the raw 'beta.nii.gz' or 
+%                        signal percentage change. Default is 0.
+%    'surftype'         <string> the coordinate file for vertices (
 %                        ('sphere', 'inflated', 'white', 'pial'). Default
 %                        is 'sphere'.
-%    bothHemi           <logical> whether the data of two hemispheres will 
+%    'bothhemi'         <logical> whether the data of two hemispheres will 
 %                        be combined (default is no [0]) [0: run searchlight 
 %                        for the two hemnispheres separately; 1: run 
 %                        searchlight anlaysis onlyh for the whole brain 
 %                        together; 3: run analysis for both 0 and 1.
-%    classifier         <numeric> or <strings> or <cells> the classifiers
-%                        to be used (only 1).
-%    funcPath           <string> the full path to the functional folder.
+%    'funcpath'         <string> the full path to the functional folder.
 %                        Default is $FUNCTIONALS_DIR.
+%    'cvslopts'         <cell> varargins for fs_cosmo_cvsl.m.
 %
 % Output:
 %    For each hemispheres, the results will be saved as a *.mgz file (in
@@ -48,47 +47,44 @@ function fs_cosmo_sesssl(sessList, anaList, classPairs, runList, ...
 %    CoSMoMVPA
 %
 % Created by Haiyang Jin (24-Nov-2019)
+%
+% See also:
+% fs_cosmo_cvdecode
 
 cosmo_warning('once');
 
 %% Deal with inputs
 
+% default options
+defaultOpt=struct(...
+    'runlist', '', ... % names of all runs in the bold path will be used.
+    'datafn', 'beta.nii.gz', ...  % beta.nii.gz will be used.
+    'ispct', 0, ...
+    'surftype', 'white', ... % the default seed surface layer
+    'bothhemi', 0, ...  % do not run both hemispheres
+    'funcpath', getenv('FUNCTIONALS_DIR'), ...
+    'cvslopts', {{}} ...
+    );
+
+% parse options
+options=fs_mergestruct(defaultOpt, varargin{:});
+
+runList = options.runlist;
+dataFn = options.datafn;
+surfType = options.surftype;
+bothHemi = options.bothhemi;
+funcPath = options.funcpath;
+cvslOpts = fs_mergestruct('funcpath', options.funcpath, options.cvslopts{:});
+cvslOpts.nbrstr = surfType;
+
 if ischar(sessList); sessList = {sessList}; end
 if ischar(anaList)
     anaList = {anaList}; 
 elseif numel(anaList) > 2
-    error('Please do not put more than two analysis names in ''anaList''.');
+    error('Please do not put more than two analyses in ''anaList''.');
 elseif size(anaList, 1) == 2
     % make anaList to one row
     anaList = anaList';
-end
-
-if ~exist('runList', 'var') || isempty(runList)
-    runList = '';  % names of all runs in the bold path will be used.
-end
-
-if ~exist('outPrefix', 'var') || isempty(outPrefix)
-    outPrefix = 'sl';
-end
-
-if ~exist('dataFn', 'var') || isempty(dataFn)
-    dataFn = 'beta.nii.gz';  % beta.nii.gz will be used.
-end
-
-if ~exist('surfType', 'var') || isempty(surfType)
-    surfType = 'sphere';
-end
-
-if ~exist('bothHemi', 'var') || isempty(bothHemi)
-    bothHemi = 0;  % do not combine both hemisphere
-end
-
-if ~exist('classifier', 'var')
-    classifier = '';  % libsvm will be used.
-end
-
-if ~exist('funcPath', 'var') || isempty(funcPath)
-    funcPath = getenv('FUNCTIONALS_DIR');
 end
 
 %% Preparation
@@ -118,7 +114,7 @@ for iSess = 1:nSess
     
     %%%%%% load the beta.nii.gz for both hemispheres separately %%%%%
     dsSurfCell = cellfun(@(x) fs_cosmo_sessds(thisSess, x, ...
-        'runlist', runList, 'runwise', 1, 'datafn', dataFn), ...
+        'runlist', runList, 'runwise', 1, 'datafn', dataFn, 'ispct', options.ispct), ...
         anaList, 'uni', false);
     
     %%%%%% load vertex and faces information %%%%%
@@ -141,7 +137,7 @@ for iSess = 1:nSess
     for iHemi = runHemis  
                 
         % waitbar
-        progress = (iSess + iHemi-1/max(runHemis)) / (nSess * 2);
+        progress = (iSess-1 + iHemi-1/max(runHemis)) / (nSess * 2);
         progressMsg = sprintf('Subject: %s.  Analysis: %s  \n%0.2f%% finished...', ...
             strrep(thisSess, '_', '\_'), strrep(anaList{iHemi}, '_', '\_'), progress*100);
         waitbar(progress, waitHandle, progressMsg);
@@ -154,11 +150,9 @@ for iSess = 1:nSess
         
         % dataset for this searchlight analysis
         ds_this = dsSurfCell{iHemi};
-        featureCount = 200;
-        
+                
         % run search light analysis
-        fs_cosmo_cvsl(ds_this, classPairs, surfDef, featureCount, ...
-            thisSess, anaList{iHemi}, outPrefix, funcPath, classifier);
+        fs_cosmo_cvsl(ds_this, classPairs, surfDef, thisSess, anaList{iHemi}, cvslOpts);
         
     end  % iSL
     

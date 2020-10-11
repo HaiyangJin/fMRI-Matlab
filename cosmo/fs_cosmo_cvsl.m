@@ -1,7 +1,5 @@
-function dt_sl = fs_cosmo_cvsl(ds, classPairs, surfDef, featureCount, ...
-    sessCode, anaName, outPrefix, funcPath, classifier)
-% dt_sl = fs_cosmo_cvsl(ds, classPairs, surfDef, featureCount, ...
-%    sessCode, anaName, outFolderStr, funcPath, classifier)
+function dt_sl = fs_cosmo_cvsl(ds, classPairs, surfDef, sessCode, anaName, varargin)
+% dt_sl = fs_cosmo_cvsl(ds, classPairs, surfDef, sessCode, anaName, varargin)
 %
 % This function performs the searchlight analysis with cosmoMVPA.
 %
@@ -14,36 +12,101 @@ function dt_sl = fs_cosmo_cvsl(ds, classPairs, surfDef, featureCount, ...
 %    surf_def        <cell of numeric array> surface denitions. The first
 %                     element is the array of vertex number and coordiantes;
 %                     the second element is the array of face number and
-%                     vertex indices. Both can be obtained by 
+%                     vertex indices. Both can be obtained by
 %                     fs_cosmo_surfcoor. More information can be found in
 %                     cosmo_surficial_neighborhood.m .
-%    featureCount    <integer> number of features to be used for each
-%                     decoding.
 %    sessCode        <string> subject code in $FUNCTIONALS.
 %    anaName         <string> analysis name.
-%    outPrefix       <string> strings to be added at the beginning of the
-%                     ouput folder (the pseudo-analysis folder).
-%    funcPath        <string> where to save the output. Default is 
-%                     $FUNCTIONALS_DIR.
-%    classifier      <numeric> or <strings> or <cells> the classifiers
+%
+% Varargin:
+% %%%%% cosmo_surficial_neighborhood settings %%%%%%%%%%%%%%%%
+%    'metric'        <string> the method used for neighboor. Options are
+%                     'geodesic' [default], 'dijkstra', 'Euclidean'.
+%    'radius'        <numeric> the radius in mm. Default is 0.
+%    'count'         <integer> number of features to be used for each
+%                     decoding. Default is 0.
+% %%%%% cosmo_searchlight settings %%%%%%%%%%%%%%%%
+%    'measure'       <funtion handel> the function/analysis to be run. The
+%                     avaiable options are: @cosmo_crossvalidation_measure
+%                     [default], @cosmo_correlation_measure,
+%                     @cosmo_target_dsm_corr_measure.
+%    'centerids'     <intger vector> center indices. Default is [], i.e.,
+%                     excludes vertices outside the brain mask.
+%    'nproc'         <integer> number of processors if Matlab parallel
+%                     processing toolbox is available. Default is 1.
+% %%%%% cross-validation settings %%%%%%%%%%%%%%%%
+%    'partitioner'   <function handle> the method to set partition
+%                     datasets. Available options for corss-validation are:
+%                     @cosmo_nfold_partitioner [default],
+%                     @cosmo_nchoosek_partitioner,
+%                     @cosmo_balance_partitioner,
+%                     @cosmo_oddeven_partitioner (will be used if 'measure'
+%                     is @cosmo_correlation_measure).
+%    'classifier'    <numeric> or <strings> or <cells> the classifiers
 %                     to be used (only 1).
+% %%%%% other settings %%%%%%%%%%%%%%%%
+%    'outprefix'     <string> strings to be added at the beginning of the
+%                     ouput folder (the pseudo-analysis folder). Default is
+%                     'sl'.
+%    'maskedvalue'   <numeric> the default (accuracy) values for masked
+%                     vertices. Default is -999.
+%    'nbrstr'        <string> strings to be added to the nbr files. Default
+%                     is ''.
+%    'funcPath'      <string> where to save the output. Default is
+%                     $FUNCTIONALS_DIR.
 %
 % Output:
 %    dt_sl           <structure> data set of the searchlight results.
 %    For each hemispheres, the results will be saved as a *.mgz file in
 %    funcPath/sessCode/bold/analysisFolder/contrastFolder/.
-%    For the whole brain, the results will be saved as *.gii
+%    For the whole brain, the results will be saved as *.gii.
 %
 % Dependency:
 %    CoSMoMVPA
 %
 % Created by Haiyang Jin (15-Dec-2019)
 
-if ~exist('funcPath', 'var') || isempty(funcPath)
-    funcPath = getenv('FUNCTIONALS_DIR');
-end
+% default options
+defaultOpt=struct(...
+    ... %%% cosmo_surficial_neighboor settings %%%%
+    'metric', 'geodesic', ...
+    'radius', 0, ... % in mm
+    'count', 0, ...
+    ... %%% cosmo_searchlight settings %%%
+    'measure', @cosmo_crossvalidation_measure, ...
+    'centerids', [], ... % all indices.
+    'nproc', 1, ...
+    ... %%% cross-validation settings %%%
+    'partitioner', @cosmo_nfold_partitioner, ...
+    'classifier', '', ... % libsvm will be used.
+    ... %%% other settings %%%
+    'outprefix', 'sl', ...
+    'maskedvalue', -999, ...
+    'nbrstr', '', ...
+    'funcpath', getenv('FUNCTIONALS_DIR') ...
+    );
 
-if ~exist('classifier', 'var') || isempty(classifier)
+% parse options
+options=fs_mergestruct(defaultOpt, varargin{:});
+%%% cosmo_surficial_neighboor %%%
+metric = options.metric; % 'euclidean'; % method used for distance
+radius = options.radius;
+count = options.count;
+%%% cosmo_searchlight %%%
+measure = options.measure;
+center_ids = options.centerids;
+nproc = options.nproc;
+%%% crossvalidation settings %%%
+classifier = options.classifier;
+partitioner = options.partitioner;
+%%% other settings %%%
+outPrefix = options.outprefix;
+maskedValue = options.maskedvalue;
+nbrStr = options.nbrstr;
+funcPath = options.funcpath;
+
+% pre-process classifer
+if isempty(classifier)
     [classifier, ~, shortName, nClass] = cosmo_classifier;
 else
     [classifier, ~, shortName, nClass] = cosmo_classifier(classifier);
@@ -174,14 +237,14 @@ for iPair = 1:nPairs
     
     %% Run the searchlight
     dt_sl = cosmo_searchlight(ds_thisPair,nbrhood,measure,measure_args,...
-        'center_ids', vtxMask, 'nproc', 10);
+        'center_ids', center_ids, 'nproc', nproc);
     
     % print searchlight output
     fprintf('Dataset output:\n');
     cosmo_disp(dt_sl);
     
     % set the accuracy for non-cortex vertices as -1
-    accuracy = -ones(size(vo, 1), 1);
+    accuracy = ones(size(vo, 1), 1) * maskedValue;
     accuracy(vtxMask) = dt_sl.samples';
     
     %% Save results as *.mgz files
