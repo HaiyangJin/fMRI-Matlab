@@ -1,5 +1,5 @@
-function rmvIdx = fs_cosmo_nbrcortex(nbrhood, subjCode, hemi, nNonVtx)
-% nbrhood = fs_cosmo_nbrcortex(nbrhood, subjCode, hemi, nNonVtx)
+function rmvVtx = fs_cosmo_nbrcortex(nbrhood, subjCode, hemi, nNonVtx)
+% rmvVtx = fs_cosmo_nbrcortex(nbrhood, subjCode, hemi, nNonVtx)
 %
 % This function removes .neighbors whose vertices are outside the cortex
 % label if certain criteria is met, i.e., the outside cortex vertex number
@@ -30,6 +30,6 @@ corMask = sort(fs_cortexmask(subjCode, hemi));
 % whether there is a 
 % nonVtx = cellfun(@(x) sum(~ismember(x, corMask)), nbrhood.neighbors);
 isRemoved = cellfun(@(x) sum(~ismembc(sort(x), corMask))>nNonVtx, nbrhood.neighbors);
-rmvIdx = nbrhood.fa.node_indices(isRemoved);
+rmvVtx = nbrhood.fa.node_indices(isRemoved);
 
 end
