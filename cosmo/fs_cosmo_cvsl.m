@@ -45,6 +45,10 @@ function dt_sl = fs_cosmo_cvsl(ds, classPairs, surfDef, sessCode, anaName, varar
 %    'classifier'    <numeric> or <strings> or <cells> the classifiers
 %                     to be used (only 1).
 % %%%%% other settings %%%%%%%%%%%%%%%%
+%    'applyuseless'  <logical> apply cosmo_remove_useless_data to ds.
+%                     Default is 1.
+%    'applycortex'   <logical> only run searchlight on vertices in the
+%                     ?h.cortex.label. Default is 1.
 %    'outprefix'     <string> strings to be added at the beginning of the
 %                     ouput folder (the pseudo-analysis folder). Default is
 %                     'sl'.
@@ -80,6 +84,8 @@ defaultOpt=struct(...
     'partitioner', @cosmo_nfold_partitioner, ...
     'classifier', '', ... % libsvm will be used.
     ... %%% other settings %%%
+    'applyuseless', 1, ...
+    'applycortex', 1, ...
     'outprefix', 'sl', ...
     'maskedvalue', -999, ...
     'nbrstr', '', ...
@@ -100,6 +106,8 @@ nproc = options.nproc;
 classifier = options.classifier;
 partitioner = options.partitioner;
 %%% other settings %%%
+applyUseless = options.applyuseless;
+applyCorterx = options.applycortex;
 outPrefix = options.outprefix;
 maskedValue = options.maskedvalue;
 nbrStr = options.nbrstr;
@@ -197,19 +205,31 @@ fprintf('The output surface has %d vertices, %d nodes\n',...
 
 %% Set center_ids
 if ismember(hemi, {'lh', 'rh'}) && isempty(center_ids)
-    % % remove uselessdta (not be used at the momnent (1)
-    [~, useMask] = cosmo_remove_useless_data(ds);
-    useVtx = find(useMask);
+    
+    % remove uselessdta
+    if applyUseless
+        [~, useMask] = cosmo_remove_useless_data(ds);
+        useVtx = find(useMask);
+    else
+        useVtx = 1:size(ds.samples, 2);
+    end
     
     % mask applied to searchlight (2)
-    % load ?h.cortex.label as a mask for surface
-    cortexVtx = fs_cortexmask(trgSubj, hemi);
+    if applyCorterx
+        % load ?h.cortex.label as a mask for surface
+        cortexVtx = fs_cortexmask(trgSubj, hemi);
+    else
+        cortexVtx = 1:size(ds.samples, 2);
+    end
     
-    % only keep neighborhood within the cortex label (3)
-    rmvVtx = fs_cosmo_nbrcortex(nbrhood, trgSubj, hemi);
+    tempIn = sort(intersect(cortexVtx, useVtx));
+    
+    % only keep neighborhood within <tempIn>    
+    isRemoved = cellfun(@(x) sum(~ismembc(sort(x), tempIn))>0, nbrhood.neighbors);
+    rmvVtx = nbrhood.fa.node_indices(isRemoved);
     
     % combine center_ids
-    center_ids = setdiff(intersect(cortexVtx, useVtx), rmvVtx);
+    center_ids = setdiff(tempIn, rmvVtx);
     
 elseif isempty(center_ids)
     % use all vertices
