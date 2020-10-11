@@ -122,49 +122,44 @@ template = fs_2template(anaName, '', 'fsaverage');
 hemi = fs_2template(anaName, {'lh', 'rh'}, 'both');
 
 % decide whose surface information will be used
-trgSubj = fs_trgsubj(fs_subjcode(sessCode, funcPath), template);
+subjCode = fs_subjcode(sessCode, funcPath);
+trgSubj = fs_trgsubj(subjCode, template);
 
-if ismember(hemi, {'lh', 'rh'})
-    % load ?h.cortex.label as a mask for surface
-    vtxMask = fs_cortexmask(trgSubj, hemi);
-else
-    vtxMask = 1:size(ds.samples, 2);
+% use oddeven for split-half correlations
+if strcmp(func2str(measure), 'cosmo_correlation_measure')
+    partitioner = @cosmo_oddeven_partitioner;
 end
 
-% method used for distance
-metric = 'geodesic'; % 'euclidean';
-
-%% Set analysis parameters
-% Use the cosmo_cross_validation_measure and set its parameters
-% (classifier and partitions) in a measure_args struct.
-measure = @cosmo_crossvalidation_measure;
-measure_args = struct();
-
-% Define which classifier to use, using a function handle.
-% Alternatives are @cosmo_classify_{svm,nn,naive_bayes}
-measure_args.classifier = classifier; % @cosmo_classify_libsvm;
+%% Neighborhood
+% which method is used for neighbors
+if radius ~= 0
+    nbr_args.metric = metric;
+    nbr_args.radius = radius;
+    nbrStr = sprintf('%s_r%d', nbrStr, radius);
+elseif count ~= 0
+    nbr_args.count = count;
+    nbrStr = sprintf('%s_count%d', nbrStr, count);
+else
+    error(['Please define the method for identifying neighboorhood.' ...
+        'e.g., set ''r'' or ''count''']);
+end
 
 % Define the feature neighborhood for each node on the surface
-% - nbrhood has the neighborhood information
-% - vo and fo are vertices and faces of the output surface
-% - out2in is the mapping from output to input surface
-% featureCount = 200;
-
 % load the surficial neighborhood
-nbhFn = sprintf('sl_cosmo_neighborhood_%s_%d.mat', hemi, featureCount);
+nbhFn = sprintf('sl_cosmo_nbr_%s_%s_%s.mat', hemi, trgSubj, nbrStr);
 % the target folder
-if strcmp(subjCode, 'fsaverage')
+if strcmp(trgSubj, 'fsaverage')
     saveSubj = 'fsaverageSL';
     accPath = fullfile(getenv('SUBJECTS_DIR'), saveSubj, 'surf');
     if ~exist(accPath, 'dir'); mkdir(accPath); end
 else
-    saveSubj = subjCode;
+    saveSubj = trgSubj;
 end
 
 % the temporary neighborhood file to be saved/read
 nbhFilename = fullfile(getenv('SUBJECTS_DIR'), saveSubj, 'surf', nbhFn);
 if exist(nbhFilename, 'file') % load the file if it is available
-    fprintf('\n\nLoad the surficial neighborhood for %s (%s):\n',...
+    fprintf('\nLoading the surficial neighborhood for %s (%s):\n',...
         trgSubj, hemi);
     
     temp = load(nbhFilename);
@@ -185,8 +180,7 @@ if ~exist('nbrhood', 'var') || ~exist('vo', 'var') || ~exist('fo', 'var')
     % calculate the surficial neighborhood
     fprintf('\n\nGenerating the surficial neighborhood for %s (%s):\n',...
         trgSubj, hemi);
-    [nbrhood,vo,fo,~]=cosmo_surficial_neighborhood(ds,surfDef,...
-        'radius', r , 'metric', metric); % 'count',featureCount,
+    [nbrhood,vo,fo,~]=cosmo_surficial_neighborhood(ds,surfDef,nbr_args);
     
     % save the the surficial neighborhood file
     fprintf('\nSaving the surficial neighborhood for %s (%s):\n',...
@@ -201,6 +195,32 @@ cosmo_disp(nbrhood);
 fprintf('The output surface has %d vertices, %d nodes\n',...
     size(vo,1), size(fo,1));
 
+%% Set center_ids
+if ismember(hemi, {'lh', 'rh'}) && isempty(center_ids)
+    % % remove uselessdta (not be used at the momnent (1)
+    [~, useMask] = cosmo_remove_useless_data(ds);
+    useVtx = find(useMask);
+    
+    % mask applied to searchlight (2)
+    % load ?h.cortex.label as a mask for surface
+    cortexVtx = fs_cortexmask(trgSubj, hemi);
+    
+    % only keep neighborhood within the cortex label (3)
+    rmvVtx = fs_cosmo_nbrcortex(nbrhood, trgSubj, hemi);
+    
+    % combine center_ids
+    center_ids = setdiff(intersect(cortexVtx, useVtx), rmvVtx);
+    
+elseif isempty(center_ids)
+    % use all vertices
+    center_ids = 1:size(ds.samples, 2);
+end
+
+%% Set analysis parameters
+measure_args = struct();
+
+% Define which classifier to use, using a function handle.
+measure_args.classifier = classifier; % @cosmo_classify_libsvm;
 % folders for saving results (Pseudo-analysis folder)
 anaFolder = [outPrefix '_' anaName];
 
@@ -218,16 +238,12 @@ for iPair = 1:nPairs
         continue;
     end
     
-    % dataset for this classification 
+    % dataset for this classification
     thisPairMask = cosmo_match(ds.sa.labels, thisPair);
     ds_thisPair = cosmo_slice(ds, thisPairMask);
     
-    %% Set partition scheme. odd_even is fast; for publication-quality analysis
-    % nfold_partitioner is recommended.
-    % Alternatives are:
-    % - cosmo_nfold_partitioner    (take-one-chunk-out crossvalidation)
-    % - cosmo_nchoosek_partitioner (take-K-chunks-out  "             ").
-    measure_args.partitions = cosmo_nfold_partitioner(ds_thisPair);
+    %% Set partition scheme.
+    measure_args.partitions = partitioner(ds_thisPair);
     
     % print measure and arguments
     fprintf('Searchlight measure:\n');
@@ -245,7 +261,7 @@ for iPair = 1:nPairs
     
     % set the accuracy for non-cortex vertices as -1
     accuracy = ones(size(vo, 1), 1) * maskedValue;
-    accuracy(vtxMask) = dt_sl.samples';
+    accuracy(center_ids) = dt_sl.samples';
     
     %% Save results as *.mgz files
     % (Pseudo-contrast folder)
