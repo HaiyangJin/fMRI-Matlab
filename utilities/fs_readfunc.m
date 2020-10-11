@@ -50,4 +50,8 @@ end
 % read the file
 surfData = thefunc(filename);
 
+% if contains(filename, 'beta')
+%     surfData = shiftdim(surfData, 3); % betas * vertices
+% end
+
 end
