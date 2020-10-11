@@ -12,7 +12,9 @@ function [mgzFile, fscmd] = fv_surfmgz(mgzFile, varargin)
 % Varargin:
 %    'surftype'       <cell string> the surface type to be displayed
 %                      Default is 'infalted'; 
-%    'thresh'         <string> threshold to be displayed in Freeview.
+%    'trgubj'         <string> the target subject code of the surface.
+%                      Default is '', i.e., not use this value.
+%    'threshold'      <string> threshold to be displayed in Freeview.
 %                      Default is ''. 
 %    'annot'          <string> name of the annotation files. Default is '', 
 %                      which will display 'aparc'. Others:'a2009s',
@@ -29,13 +31,17 @@ function [mgzFile, fscmd] = fv_surfmgz(mgzFile, varargin)
 % fv_surfmgz;
 %
 % Created by Haiyang Jin (21-Jan-2020)
+%
+% See also:
+% fv_mgz, fv_volmgz
 
 dispMgz = 1;
 
 % default options
 defaultOpt=struct(...
     'surftype', 'inflated', ... % surface type
-    'thresh', '', ... % default threshold
+    'trgsubj', '', ... 
+    'threshold', '', ... % default threshold
     'annot', '',... % display aparc
     'runcmd', 1 ... 
     );
@@ -43,7 +49,8 @@ defaultOpt=struct(...
 options = fs_mergestruct(defaultOpt, varargin);
 
 surfType = options.surftype;
-threshold = options.thresh;
+trgSubj = options.trgsubj;
+threshold = options.threshold;
 annot = options.annot;
 runcmd = options.runcmd;
 
@@ -91,6 +98,11 @@ end
 % 'fsaverage' folder.
 if contains(thePath, 'fsaverageSL')
     thePath = strrep(thePath, 'fsaverageSL', 'fsaverage');
+end
+
+%
+if isempty(thePath) && ~isempty(trgSubj)
+    thePath = fullfile(getenv('SUBJECTS_DIR'), trgSubj, 'surf');
 end
 
 nHemi = numel(hemiNames);
