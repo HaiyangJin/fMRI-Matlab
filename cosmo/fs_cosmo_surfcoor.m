@@ -74,12 +74,24 @@ for iSurf = 1:nSurfFile
         
     end
     
-    if combineHemi
+    if combineHemi 
+        % code modified from http://cosmomvpa.org/faq.html#make-a-merged-hemisphere-from-a-left-and-right-hemisphere
         % Combine the vertex coordinates for both hemispheres
-        vCell{iSurf, 3} = vertcat(vCell{iSurf, [1,2]});
+        if ~ismember(surfType{iSurf}, {'white', 'pial','intermediate'})
+            thisLeft = vCell{iSurf, 1};
+            thisRight = vCell{iSurf, 2};
+            
+            % add offsets
+            thisLeft(:,1) = thisLeft(:, 1) - max(thisLeft(:, 1));
+            thisRight(:, 1) = thisRight(:, 1) - min(thisRight(:, 1));
+            
+            vCell{iSurf, 3} = vertcat(thisLeft, thisRight); 
+        else
+            vCell{iSurf, 3} = vertcat(vCell{iSurf, [1,2]});
+        end
         
         % Combine the faces of vertices for both hemispheres
-        nVtxLeft = size(vCell{1, 1}, 1);
+        nVtxLeft = size(vCell{iSurf, 1}, 1);
         fCell{iSurf, 3} = vertcat(fCell{iSurf, 1}, fCell{iSurf, 2} + nVtxLeft);
         
     end
