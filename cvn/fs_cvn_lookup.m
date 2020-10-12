@@ -84,6 +84,10 @@ function varargout= fs_cvn_lookup(trgSubj,viewIdx,valstruct,lookups,varargin)
 % fs_cvn_lookup('fsaverage', 3, 'nodatarh', [], 'annot', 'aparc', ...
 %    'annotname', 'fusiform');
 %
+% % Example 6: add colorbar and change colormap (after showing the plots)
+% colorbar;
+% colormap jet
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% View options %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % View indices (Part 1, multiple views):
 %  -1  vertical layout (one column): lateral, medial, ventrcal;
