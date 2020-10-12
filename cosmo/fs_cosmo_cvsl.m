@@ -127,7 +127,7 @@ else
 end
 
 template = fs_2template(anaName, '', 'fsaverage');
-hemi = fs_2template(anaName, {'lh', 'rh'}, 'both');
+hemi = fs_2template(anaName, {'lh', 'rh'});
 
 % decide whose surface information will be used
 subjCode = fs_subjcode(sessCode, funcPath);
@@ -295,7 +295,7 @@ for iPair = 1:nPairs
         if ~exist(accPath, 'dir'); mkdir(accPath); end
         % save the accuracy as *.mgz
         fs_savemgz(trgSubj, accuracy, accFn, accPath, hemi);
-    elseif strcmp(hemi, 'both')  % save as .gii for the whole brain
+    elseif strcmp(hemi, 'lhrh')  % save as .gii for the whole brain
         outputFile = fullfile(accPath, accFn);
         cosmo_map2surface(dt_sl, [outputFile '.gii'], 'encoding','ASCII');
     end

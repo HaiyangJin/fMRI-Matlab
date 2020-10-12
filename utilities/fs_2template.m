@@ -53,9 +53,9 @@ for iP = 1:nPattern
 end
 
 % set the outTemplate as 'multiple' if more than one pattern was found
-outTemplate(sum(vertcat(isAva{:})) > 1) = {'multiple'};
+outTemplate(sum(vertcat(isAva{:})) > 1) = {'lhrh'};
 
-if numel(outTemplate) == 1;
+if numel(outTemplate) == 1
     outTemplate = outTemplate{1};
 end
 

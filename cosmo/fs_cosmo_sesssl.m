@@ -32,7 +32,7 @@ function fs_cosmo_sesssl(sessList, anaList, classPairs, varargin)
 %    'bothhemi'         <logical> whether the data of two hemispheres will 
 %                        be combined (default is no [0]) [0: run searchlight 
 %                        for the two hemnispheres separately; 1: run 
-%                        searchlight anlaysis onlyh for the whole brain 
+%                        searchlight anlaysis only for the whole brain 
 %                        together; 3: run analysis for both 0 and 1.
 %    'funcpath'         <string> the full path to the functional folder.
 %                        Default is $FUNCTIONALS_DIR.
@@ -87,6 +87,12 @@ elseif size(anaList, 1) == 2
     anaList = anaList';
 end
 
+% sanity check
+if bothHemi
+    assert(numel(anaList)==2, ['Please include analyses for both '...
+        'hemispehres for searchlight performing on the whole brain.']);
+end
+
 %% Preparation
 % waitbar
 waitHandle = waitbar(0, 'Loading...   0.00% finished');
@@ -126,7 +132,7 @@ for iSess = 1:nSess
     % combine the surface data for the whole brain if needed
     if bothHemi && ~strcmp(surfType, 'sphere')
         dsSurfCell = [dsSurfCell, cosmo_combinesurf(dsSurfCell)]; %#ok<AGROW>
-        anaList = horzcat(anaList, 'both'); %#ok<AGROW>
+        anaList = horzcat(anaList, 'lhrh'); %#ok<AGROW>
         temp = 3:-1:1;
         runHemis = sort(temp(1:bothHemi));
     else
@@ -137,7 +143,7 @@ for iSess = 1:nSess
     for iHemi = runHemis  
                 
         % waitbar
-        progress = (iSess-1 + iHemi-1/max(runHemis)) / (nSess * 2);
+        progress = ((iSess-1)*numel(runHemis) + (iHemi-1))/(nSess * numel(runHemis));
         progressMsg = sprintf('Subject: %s.  Analysis: %s  \n%0.2f%% finished...', ...
             strrep(thisSess, '_', '\_'), strrep(anaList{iHemi}, '_', '\_'), progress*100);
         waitbar(progress, waitHandle, progressMsg);
