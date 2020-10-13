@@ -119,7 +119,7 @@ for iSess = 1:nSess
     thisSess = sessList{iSess};
     
     % waitbar
-    progress = iSess-1 / nSess;
+    progress = (iSess-1) / nSess;
     progressMsg = sprintf('Loading data for %s (%s).   \n%0.2f%% finished...', ...
         strrep(thisSess, '_', '\_'), template, progress*100);
     waitbar(progress, waitHandle, progressMsg);
