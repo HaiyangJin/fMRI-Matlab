@@ -1,4 +1,4 @@
-function labelarea = fs_labelarea(labelFn, subjCode, struPath)
+function labelarea = fs_labelarea(labelFn, subjCode, vtxIdx, struPath)
 % labelarea = fs_labelarea(labelFn, subjCode, struPath)
 %
 % This function calculates the area (mm^2) for the label file. [It should
@@ -9,6 +9,8 @@ function labelarea = fs_labelarea(labelFn, subjCode, struPath)
 %                     path). If path is included in labelFn, 'subjCode'
 %                     and struPath will be ignored. 
 %    subjCode        <string> subject code in struPath. Default is empty.
+%    vtxIdx          <integer array> vertex indices (in this label) whose
+%                     area will be calculated.
 %    struPath        <string> $SUBJECTS_DIR.
 %
 % Output:
@@ -35,8 +37,12 @@ if isempty(labelMat)
     return;
 end
 
+% the vertex indices
+if ~exist('vtxIdx', 'var') || isempty(vtxIdx)
+    vtxIdx = labelMat(:, 1);
+end
+
 % calculate the all vertices by default
-vtxIdx = labelMat(:, 1);
 hemi = fs_2hemi(labelFn);
 
 % calculate the area
