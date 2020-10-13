@@ -52,9 +52,9 @@ function dt_sl = fs_cosmo_cvsl(ds, classPairs, surfDef, sessCode, anaName, varar
 %                     to be used (only 1).
 % %%%%% other settings %%%%%%%%%%%%%%%%
 %    'applyuseless'  <logical> apply cosmo_remove_useless_data to ds.
-%                     Default is 1.
+%                     Default is 0.
 %    'applycortex'   <logical> only run searchlight on vertices in the
-%                     ?h.cortex.label. Default is 1.
+%                     ?h.cortex.label. Default is 0.
 %    'outprefix'     <string> strings to be added at the beginning of the
 %                     ouput folder (the pseudo-analysis folder). Default is
 %                     'sl'.
@@ -92,8 +92,8 @@ defaultOpt=struct(...
     'partitioner', @cosmo_nfold_partitioner, ...
     'classifier', '', ... % libsvm will be used.
     ... %%% other settings %%%
-    'applyuseless', 1, ...
-    'applycortex', 1, ...
+    'applyuseless', 0, ...
+    'applycortex', 0, ...
     'outprefix', 'sl', ...
     'maskedvalue', -999, ...
     'nbrstr', '', ...
@@ -263,7 +263,7 @@ measure_args = struct();
 % Define which classifier to use, using a function handle.
 measure_args.classifier = classifier; % @cosmo_classify_libsvm;
 % folders for saving results (Pseudo-analysis folder)
-anaFolder = [outPrefix '_' anaName];
+anaFolder = [outPrefix '_' nbrStr '_' anaName];
 
 % define the pairs for classification
 nPairs = size(classPairs, 1);
