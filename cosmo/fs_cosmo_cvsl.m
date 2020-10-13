@@ -22,9 +22,15 @@ function dt_sl = fs_cosmo_cvsl(ds, classPairs, surfDef, sessCode, anaName, varar
 % %%%%% cosmo_surficial_neighborhood settings %%%%%%%%%%%%%%%%
 %    'metric'        <string> the method used for neighboor. Options are
 %                     'geodesic' [default], 'dijkstra', 'Euclidean'.
-%    'radius'        <numeric> the radius in mm. Default is 0.
+%    'radius'        <numeric> the radius in mm. Default is 0. When 'areas'
+%                     is not empty, 'radius' will be the starting radius
+%                     for identifying neighbors within areaMax.
 %    'count'         <integer> number of features to be used for each
 %                     decoding. Default is 0.
+%    'areas'         <numeric vector> Nx1 numeric vector. Area size of each
+%                     vertex in mm^2. Default is [].
+%    'areaMax'       <numeric> the maximum area for the negighbors. Default
+%                     is 100.
 % %%%%% cosmo_searchlight settings %%%%%%%%%%%%%%%%
 %    'measure'       <funtion handel> the function/analysis to be run. The
 %                     avaiable options are: @cosmo_crossvalidation_measure
@@ -76,6 +82,8 @@ defaultOpt=struct(...
     'metric', 'geodesic', ...
     'radius', 0, ... % in mm
     'count', 0, ...
+    'areas', [], ...
+    'areamax', 100, ...
     ... %%% cosmo_searchlight settings %%%
     'measure', @cosmo_crossvalidation_measure, ...
     'centerids', [], ... % all indices.
@@ -93,25 +101,27 @@ defaultOpt=struct(...
     );
 
 % parse options
-options=fs_mergestruct(defaultOpt, varargin{:});
-%%% cosmo_surficial_neighboor %%%
-metric = options.metric; % 'euclidean'; % method used for distance
-radius = options.radius;
-count = options.count;
+opt=fs_mergestruct(defaultOpt, varargin{:});
+%%% cosmo_surficial_neighboor(_area) %%%
+metric = opt.metric; % 'euclidean'; % method used for distance
+radius = opt.radius;
+count = opt.count;
+areas = opt.areas;
+areaMax = opt.areamax;
 %%% cosmo_searchlight %%%
-measure = options.measure;
-center_ids = options.centerids;
-nproc = options.nproc;
+measure = opt.measure;
+center_ids = opt.centerids;
+nproc = opt.nproc;
 %%% crossvalidation settings %%%
-classifier = options.classifier;
-partitioner = options.partitioner;
+classifier = opt.classifier;
+partitioner = opt.partitioner;
 %%% other settings %%%
-applyUseless = options.applyuseless;
-applyCorterx = options.applycortex;
-outPrefix = options.outprefix;
-maskedValue = options.maskedvalue;
-nbrStr = options.nbrstr;
-funcPath = options.funcpath;
+applyUseless = opt.applyuseless;
+applyCorterx = opt.applycortex;
+outPrefix = opt.outprefix;
+maskedValue = opt.maskedvalue;
+nbrStr = opt.nbrstr;
+funcPath = opt.funcpath;
 
 % pre-process classifer
 if isempty(classifier)
@@ -140,7 +150,13 @@ end
 
 %% Neighborhood
 % which method is used for neighbors
-if radius ~= 0
+if ~isempty(areas)
+    nbr_args.areas = areas;
+    nbr_args.areamax = areaMax;
+    nbr_args.metric = metric;
+    nbr_args.radius = radius;
+    nbrStr = sprintf('%s_area%d', nbrStr, areaMax);
+elseif radius ~= 0
     nbr_args.metric = metric;
     nbr_args.radius = radius;
     nbrStr = sprintf('%s_r%d', nbrStr, radius);
@@ -167,8 +183,8 @@ end
 % the temporary neighborhood file to be saved/read
 nbhFilename = fullfile(getenv('SUBJECTS_DIR'), saveSubj, 'surf', nbhFn);
 if exist(nbhFilename, 'file') % load the file if it is available
-    fprintf('\nLoading the surficial neighborhood for %s (%s):\n',...
-        trgSubj, hemi);
+    fprintf('\nLoading the surficial neighborhood (%s) for %s (%s):\n',...
+        nbhFn, trgSubj, hemi);
     
     temp = load(nbhFilename);
     
@@ -186,13 +202,18 @@ end
 % calculate the surficial neighborhood if necessary
 if ~exist('nbrhood', 'var') || ~exist('vo', 'var') || ~exist('fo', 'var')
     % calculate the surficial neighborhood
-    fprintf('\n\nGenerating the surficial neighborhood for %s (%s):\n',...
-        trgSubj, hemi);
-    [nbrhood,vo,fo,~]=cosmo_surficial_neighborhood(ds,surfDef,nbr_args);
+    fprintf('\n\nGenerating the surficial neighborhood (%s) for %s (%s):\n',...
+        nbhFn, trgSubj, hemi);
+    
+    if isempty(areas)
+        [nbrhood,vo,fo,~]=cosmo_surficial_neighborhood(ds,surfDef,nbr_args);
+    else
+        [nbrhood,vo,fo,~]=cosmo_surficial_neighborhood_area(ds,surfDef,nbr_args);
+    end
     
     % save the the surficial neighborhood file
-    fprintf('\nSaving the surficial neighborhood for %s (%s):\n',...
-        trgSubj, hemi);
+    fprintf('\nSaving the surficial neighborhood (%s) for %s (%s):\n',...
+        nbhFn, trgSubj, hemi);
     save(nbhFilename, 'nbrhood', 'vo', 'fo', 'trgSubj', 'hemi',...
         'template', 'metric', '-v7.3');
 end
