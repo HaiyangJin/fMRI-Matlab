@@ -9,6 +9,7 @@ function periVtx = fs_perivtx(vtxIdx, hemi, subjCode)
 %                     be calculated. Default is all vertices in the label.
 %    hemi            <string> 'lh' or 'rh'. Which hemisphere is 'vtxIdx'
 %                     from.
+%                 OR <numeric array> vertex face array. 
 %    subjCode        <string> subject code in struPath. Default is empty.
 %
 % Output:
