@@ -16,6 +16,9 @@ function area = fs_vtxarea(vtxIdx, subjCode, hemi, struPath)
 %                     vertices.
 %
 % Created by Haiyang Jin (9-Apr-2020)
+%
+% See also:
+% fs_labelarea
 
 % convert the numeric vector to a cell
 if isnumeric(vtxIdx)
