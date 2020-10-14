@@ -11,7 +11,8 @@ function fs_afni_lookup(trgSubj, hemi, values, surfType, varargin)
 %    values       <numeric vector> 1xN numeric vector. Values to be
 %                  displayed. Default is random numbers.
 %    surfType     <string> the surface type. Default is 'inflated'.
-%    varargin     other options for DispIVSurf.
+%    varargin      other options for DispIVSurf. Following options may help:
+%                  .DataRange=[-2 2];
 %
 % Dependency:
 %    AFNI Matlab toolbox.
@@ -43,6 +44,7 @@ nVtx = size(vtxCell{whichHemi}, 1);
 if ~exist('values', 'var') || isempty(values)
     values = rand(1, nVtx)';
 end
+if size(values, 2) > 1; values = values'; end
 
 % clim = prctile(values,[1 99]);
 % values = max(clim(1), min(values, clim(2)));
