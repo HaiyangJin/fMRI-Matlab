@@ -31,7 +31,7 @@ function tfce_cell = fs_cosmo_sesstfce(sessList, anaList, contraList, dataFn, va
 %    .nproc=10
 %
 % Output:
-%    tfce_cell           <cell> save all the dt_tfce.
+%    tfce_cell           <cell> save all the dt_tfce (with z-score).
 %    A *.mgz file of the tfce results saved in .groupfolder.
 %    A *.mat file of the ds_tfce saved in .groupfolder.
 %
@@ -39,6 +39,9 @@ function tfce_cell = fs_cosmo_sesstfce(sessList, anaList, contraList, dataFn, va
 %   CoSMoMVPA.
 %
 % Created by Haiyang Jin (14-Oct-2020)
+
+% waitbar
+waitHandle = waitbar(0, 'Loading...   0.00% finished');
 
 defaultOpts = struct();
 defaultOpts.groupfolder = 'Group_SL';
@@ -77,8 +80,15 @@ for iAna = 1:nAna
     thisHemi = fs_2hemi(thisAna);
     [vertices, faces] = fs_readsurf([thisHemi '.white'], 'fsaverage');
     
-    
     for iCon = 1:nCon
+        
+        % progress bar
+        prog1 = ((iAna-1)*nCon + iCon-1);
+        prog2 = (nAna * nCon);
+        progress = prog1/prog2;
+        progressMsg = sprintf('Performing TFCE (%d/%d)...   \n%0.2f%% finished...', ...
+            prog1+1, prog2, progress*100);
+        waitbar(progress, waitHandle, progressMsg);
         
         thisCon = contraList{iCon};
         
@@ -117,13 +127,13 @@ for iAna = 1:nAna
         % Run TFCE-based cluster correction for multiple comparisons.
         % The output has z-scores for each node indicating the probablity to find
         % the same, or higher, TFCE value under the null hypothesis
-        fprintf('Running multiple-comparison correction with these options:\n');
+        fprintf('\nRunning multiple-comparison correction with these options:\n');
         cosmo_disp(opts);
         ds_tfce=cosmo_montecarlo_cluster_stat(ds_this,cluster_nbrhood,opts);
         
         % Save the ds_tfce as .mat and .mgz
         ds_tfce.sa.analysis = thisAna;
-        ds_tfce.sa.contrast = thisAna;
+        ds_tfce.sa.contrast = thisCon;
         tfcePath = fullfile(getenv('FUNCTIONALS_DIR'), opts.groupfolder, ...
             thisAna, thisCon);
         fs_savemgz('fsaverage', ds_tfce.samples, dataFn, tfcePath, thisHemi);
@@ -133,6 +143,9 @@ for iAna = 1:nAna
     end
     
 end
+
+% close the waitbar
+close(waitHandle);
 
 end
 
