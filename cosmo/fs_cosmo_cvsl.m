@@ -1,5 +1,5 @@
-function dt_sl = fs_cosmo_cvsl(ds, classPairs, surfDef, sessCode, anaName, varargin)
-% dt_sl = fs_cosmo_cvsl(ds, classPairs, surfDef, sessCode, anaName, varargin)
+function [ds_cell, conCell] = fs_cosmo_cvsl(ds, classPairs, surfDef, sessCode, anaName, varargin)
+% [ds_cell, conCell] = fs_cosmo_cvsl(ds, classPairs, surfDef, sessCode, anaName, varargin)
 %
 % This function performs the searchlight analysis with cosmoMVPA.
 %
@@ -66,7 +66,8 @@ function dt_sl = fs_cosmo_cvsl(ds, classPairs, surfDef, sessCode, anaName, varar
 %                     $FUNCTIONALS_DIR.
 %
 % Output:
-%    dt_sl           <structure> data set of the searchlight results.
+%    ds_cell         <structure> data sets of the searchlight results.
+%    conCell         <cell string> the contrast for each dataset in ds_cell.
 %    For each hemispheres, the results will be saved as a *.mgz file in
 %    funcPath/sessCode/bold/analysisFolder/contrastFolder/.
 %    For the whole brain, the results will be saved as *.gii.
@@ -265,8 +266,9 @@ measure_args.classifier = classifier; % @cosmo_classify_libsvm;
 % folders for saving results (Pseudo-analysis folder)
 anaFolder = [outPrefix '_' nbrStr '_' anaName];
 
-% define the pairs for classification
 nPairs = size(classPairs, 1);
+ds_cell = cell(nPairs, 1);
+conCell = cell(nPairs, 1);
 
 for iPair = 1:nPairs
     
@@ -293,16 +295,16 @@ for iPair = 1:nPairs
     cosmo_disp(measure_args);
     
     %% Run the searchlight
-    dt_sl = cosmo_searchlight(ds_thisPair,nbrhood,measure,measure_args,...
+    ds_sl = cosmo_searchlight(ds_thisPair,nbrhood,measure,measure_args,...
         'center_ids', center_ids, 'nproc', nproc);
     
     % print searchlight output
     fprintf('Dataset output:\n');
-    cosmo_disp(dt_sl);
+    cosmo_disp(ds_sl);
     
     % set the accuracy for non-cortex vertices as -1
     accuracy = ones(size(vo, 1), 1) * maskedValue;
-    accuracy(center_ids) = dt_sl.samples';
+    accuracy(center_ids) = ds_sl.samples';
     
     %% Save results as *.mgz files
     % (Pseudo-contrast folder)
@@ -318,14 +320,12 @@ for iPair = 1:nPairs
         fs_savemgz(trgSubj, accuracy, accFn, accPath, hemi);
     elseif strcmp(hemi, 'lhrh')  % save as .gii for the whole brain
         outputFile = fullfile(accPath, accFn);
-        cosmo_map2surface(dt_sl, [outputFile '.gii'], 'encoding','ASCII');
-    end
+        cosmo_map2surface(ds_sl, [outputFile '.gii'], 'encoding','ASCII');
+    end   
     
-    %% store counts
-    
-    
-    %% save other information
-    
+    % save other information
+    ds_cell{iPair, 1} = ds_sl;
+    conCell{iPair, 1} = conFolder;
     
 end  % iPair
 
