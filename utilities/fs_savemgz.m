@@ -54,6 +54,7 @@ end
 fsmgh = MRIread(template);
 
 % information of surface data to be saved
+if size(surfData, 2) > 1; surfData = surfData'; end
 [nVtx, nD] = size(surfData);
 % sanity check
 assert(nVtx~=1, '<surfData> should have surface data oriented along the columns');
