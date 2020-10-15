@@ -1,4 +1,4 @@
-function fs_cosmo_sesssl(sessList, anaList, classPairs, varargin)
+function contraPairs = fs_cosmo_sesssl(sessList, anaList, classPairs, varargin)
 % fs_cosmo_sesssl(sessList, anaList, classPairs, runList, ...
 %     outPrefix, dataFn, surfType, bothHemi, classifier, funcPath)
 %
@@ -24,6 +24,8 @@ function fs_cosmo_sesssl(sessList, anaList, classPairs, varargin)
 %                        all run folders will be used.]
 %                   OR  <string cell> a list of all the run names. (e.g.,
 %                        {'001', '002', '003'....}.
+%    'nbrstr'           <string> custom strings to be added to the 
+%                        searchlight analysis folders. Default is ''.
 %    'datafn'           <string> the filename of the to-be-read data file.
 %                        Default is '' and 'beta.nii.gz' will be load.
 %    'ispct'            <logical> use whether the raw 'beta.nii.gz' or
@@ -41,6 +43,8 @@ function fs_cosmo_sesssl(sessList, anaList, classPairs, varargin)
 %    'cvslopts'         <cell> varargins for fs_cosmo_cvsl.m.
 %
 % Output:
+%    contraPairs        <cell string> the contrast folders to save the
+%                        searchlight results (within the analysis folder) .
 %    For each hemispheres, the results will be saved as a *.mgz file (in
 %    the pseudo-analysis folder within the session folder).
 %    For the whole brain, the results will be saved as *.gii.
@@ -61,6 +65,7 @@ cosmo_warning('once');
 defaultOpt=struct(...
     'areamax', [], ...
     'runlist', '', ... % names of all runs in the bold path will be used.
+    'nbrstr', '', ...
     'datafn', 'beta.nii.gz', ...  % beta.nii.gz will be used.
     'ispct', 0, ...
     'surftype', 'white', ... % the default seed surface layer
@@ -79,7 +84,10 @@ bothHemi = opt.bothhemi;
 funcPath = opt.funcpath;
 cvslOpts = fs_mergestruct('funcpath', opt.funcpath, opt.cvslopts{:});
 cvslOpts.areamax = opt.areamax;
-cvslOpts.nbrstr = surfType;
+if ~isempty(opt.nbrstr) && ~endsWith(opt.nbrstr, '_')
+    opt.nbrstr = [opt.nbrstr, '_']; 
+end
+cvslOpts.nbrstr = [opt.nbrstr, surfType];
 
 if ischar(sessList); sessList = {sessList}; end
 if ischar(anaList)
@@ -174,6 +182,10 @@ for iSess = 1:nSess
     end  % iSL
     
 end  % iSess
+
+% create the contrast folder names
+contraPairs = cellfun(@(x,y) sprintf('%s-vs-%s', x, y), ...
+    classPairs(:, 1), classPairs(:, 2), 'uni', false);
 
 % close the waitbar
 close(waitHandle);
