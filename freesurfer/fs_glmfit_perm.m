@@ -34,6 +34,9 @@ function fscmd = fs_glmfit_perm(glmdir, varargin)
 %                   [0: successed; other numbers: failed.]
 %
 % Created by Haiyang Jin (12-Apr-2020)
+%
+% See also:
+% fs_cvn_print2nd
 
 if ~exist('glmdir', 'var') || isempty(glmdir)
     glmdir = {'.'};

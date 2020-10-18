@@ -21,6 +21,9 @@ function fscmd = fs_selxavg3(sessidfile, anaList, runwise, overwrite, allCPU)
 %                        current session.
 %
 % Created by Haiyang Jin (19-Dec-2019)
+%
+% See also:
+% fs_isxconcat, fs_cvn_print1st
 
 % argument for -run-wise
 if ~exist('runwise', 'var') || isempty(runwise)

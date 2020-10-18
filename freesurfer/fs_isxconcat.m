@@ -31,6 +31,9 @@ function [conStruct, fscmd] = fs_isxconcat(sessid, anaList, conList, groupFolder
 %  fs_glmfit_osgm.m
 %
 % Created by Haiyang Jin (12-Apr-2020)
+%
+% See also:
+% fs_glmfit_osgm
 
 if ~exist('groupFolder', 'var') || isempty(groupFolder)
     groupFolder = 'group';

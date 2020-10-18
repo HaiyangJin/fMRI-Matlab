@@ -82,9 +82,10 @@ function [conStruct, fscmd] = fs_mkcontrast(anaList, contrasts, conditions, meth
 %     'o-w-vs-f'                ' -a 3 -a 4 -c 1 -c 2'                        'startsWith'
 %     'f-o-w-vs-all'            ' -a 1 -a 2 -a 3 -a 4 -c 1 -c 2 -c 3 -c 4'    'startsWith'
 %
-% Next step: fs_selxavg3.m
-%
 % Created by Haiyang Jin (19-Dec-2019)
+%
+% See also:
+% fs_selxavg3
 
 %% Deal with inputs
 
