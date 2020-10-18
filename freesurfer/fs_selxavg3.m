@@ -1,4 +1,4 @@
-function fscmd = fs_selxavg3(sessidfile, anaList, runwise, overwrite, allCPU)
+function fscmd = fs_selxavg3(sessidfile, anaList, runwise, runcmd, allCPU)
 % fscmd = fs_selxavg3(sessidfile, anaList, [runwise = 0, overwrite = 0, allCPU = 0])
 %
 % This function runs the first-level analysis for all analysis and contrasts.
@@ -10,8 +10,8 @@ function fscmd = fs_selxavg3(sessidfile, anaList, runwise, overwrite, allCPU)
 %    runwise            <logical> 0: run the first-level analysis for all 
 %                        runs together [default]; 1: run the analysis for
 %                        each run separately.
-%    overwrite          <logical> 0: do not overwrite [default]; 1:
-%                        overwrite the old results; 2: do not run but only
+%    runcmd             <logical> 2: do not overwrite [default]; 1: run and
+%                        overwrite the old results; 0: do not run but only
 %                        output fscmd.
 %    ncores             <logical> 0: only use one CPU [default]; 1: use all 
 %                        CPUs. 
@@ -33,11 +33,11 @@ run = {'', ' -run-wise'};
 runArg = run{runwise + 1};
 
 % argument for -overwrite
-if ~exist('overwrite', 'var') || isempty(overwrite)
-    overwrite = 0;
+if ~exist('runcmd', 'var') || isempty(runcmd)
+    runcmd = 2;
 end
 ow = {'', ' -overwrite', ''};
-owArg = ow{overwrite + 1};
+owArg = ow{runcmd + 1};
 
 % argument for -max-threads
 if ~exist('allCPU', 'var') || isempty(allCPU)
@@ -53,7 +53,7 @@ otherArg = sprintf('%s%s%s', owArg, runArg, cpuArg);
 fscmd = cellfun(@(x) sprintf('selxavg3-sess -sf %s -analysis %s %s', ...
     sessidfile, x, otherArg), anaList, 'uni', false);
 
-if overwrite ~= 2
+if runcmd ~= 0
     % run the analysis
     isnotok = cellfun(@system, fscmd);
 else
@@ -66,7 +66,7 @@ fscmd = [fscmd; num2cell(isnotok)]';
 
 if any(isnotok)
     warning('Some FreeSurfer commands (selxavg3-sess) failed.');
-elseif overwrite ~= 2
+elseif runcmd ~= 0
     fprintf('\nselxavg3-sess finished without error.\n');
 end
 
