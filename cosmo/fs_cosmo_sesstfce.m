@@ -3,7 +3,8 @@ function tfce_cell = fs_cosmo_sesstfce(sessList, anaList, contraList, dataFn, va
 %
 % This function reads the datasets for all sessions (for each condition and
 % hemisphere separately) and perform Threshold-free Cluster Enhancement in
-% CoSMoMVPA.
+% CoSMoMVPA. This function can be applied to the searchlight results
+% obtained from CoSMoMVPA or first level results of FreeSurfer. 
 %
 % Inputs:
 %    sessList           <string> the filename of the session file stored in
@@ -21,10 +22,10 @@ function tfce_cell = fs_cosmo_sesstfce(sessList, anaList, contraList, dataFn, va
 %
 % Vararign:
 %    .groupfolder       <string> the name of the folder which will save the
-%                        outputs (in $SUBJECTS_DIR). Default is 'Group_SL'.
-%    .nnull             <integer> number of null dataset to be used.
-%                        Default is 50. If .nnull is 0, no null dataset
-%                        will be used. 
+%                        outputs (in $SUBJECTS_DIR). Default is 'Group_Results'.
+%    .surftype          <string> which surface to be used to perform TFCE.
+%                        Default is 'white'. [Probably it is better to use
+%                        'intermediate'.]
 %    other options defined in cosmo_montecarlo_cluster_stat:
 %    .niter=10000 % for publication-quality, use >=1000; 10000 is even better
 %    .h0_mean=0.5 % chance level for classification
@@ -39,17 +40,20 @@ function tfce_cell = fs_cosmo_sesstfce(sessList, anaList, contraList, dataFn, va
 %   CoSMoMVPA.
 %
 % Created by Haiyang Jin (14-Oct-2020)
+%
+% See also:
+% fs_cvn_print2nd
 
 % waitbar
 waitHandle = waitbar(0, 'Loading...   0.00% finished');
 
 defaultOpts = struct();
-defaultOpts.groupfolder = 'Group_SL';
-defaultOpts.nnull = 50;
+defaultOpts.groupfolder = 'Group_Results';
+defaultOpts.surftype = 'white';
 % default options for tfce
 defaultOpts.niter=10000; 
 defaultOpts.h0_mean=0.5; 
-defaultOpts.nproc = 10; 
+defaultOpts.nproc = 1; 
 
 opts = fs_mergestruct(defaultOpts, varargin{:});
 
@@ -78,7 +82,7 @@ for iAna = 1:nAna
     
     % read surface file
     thisHemi = fs_2hemi(thisAna);
-    [vertices, faces] = fs_readsurf([thisHemi '.white'], 'fsaverage');
+    [vertices, faces] = fs_readsurf([thisHemi '.' opts.surftype], 'fsaverage');
     
     for iCon = 1:nCon
         
@@ -113,11 +117,6 @@ for iAna = 1:nAna
         ds_this.a.fdim.labels = {'node_indices'};
         ds_this.a.fdim.values = {1:size(ds_this.samples, 2)};
         
-        % produce the null data
-        if opts.nnull > 1
-            opts.null = arrayfun(@(x) null_dataset(ds_this), 1:opts.nnull, 'uni', false);
-        end
-        
         % define neighborhood for each feature
         % neighbors here refer to vertices just next to the center one
         cluster_nbrhood=cosmo_cluster_neighborhood(ds_this,...
@@ -137,7 +136,7 @@ for iAna = 1:nAna
         tfcePath = fullfile(getenv('FUNCTIONALS_DIR'), opts.groupfolder, ...
             thisAna, thisCon);
         fs_savemgz('fsaverage', ds_tfce.samples, dataFn, tfcePath, thisHemi);
-        save(fullfile(tfcePath, strrep(dataFn, '.mgz', '.mat')), 'ds_tfce');
+        save(fullfile(tfcePath, [dataFn, '.mat']), 'ds_tfce');
         
         tfce_cell{iAna, iCon} = ds_tfce;
     end
