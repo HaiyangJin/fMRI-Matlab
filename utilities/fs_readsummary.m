@@ -1,5 +1,5 @@
-function sumTable = fs_readsummary(sumPathInfo, toMNI152, outPath, outFn)
-% sumTable = fs_readsummary(filename, [toMNI152=0, outPath=pwd, outFn='summary.csv'])
+function sumTable = fs_readsummary(sumPathInfo, sumFn, toMNI152, outPath, outFn)
+% sumTable = fs_readsummary(filename, sumFn, [toMNI152=0, outPath=pwd, outFn='summary.csv'])
 %
 % This function reads the summary file generated in FreeSurfer (mainly by
 % mri_surfcluster).
@@ -10,6 +10,8 @@ function sumTable = fs_readsummary(sumPathInfo, toMNI152, outPath, outFn)
 %                     one layer (level) ofthe path and all the paths will
 %                     be combined in order(with all possible combinations).
 %                     [fileInfo will be dealt with fs_fullfile.m]
+%    sumFn           <string> the filename of the summary file. Default is
+%                     'perm.th30.abs.sig.cluster.summary'.
 %    toMNI152        <logical> whether converts the coordinates (from
 %                     MNI305) to MNI152 space.
 %    outPath         <string> where to save the output images. If outPath 
@@ -22,7 +24,13 @@ function sumTable = fs_readsummary(sumPathInfo, toMNI152, outPath, outFn)
 %    sumTable        <table> a table of the information in the summary file.
 %
 % Created by Haiyang Jin (15-Apr-2020)
+%
+% See also:
+% fs_cvn_print2nd
 
+if ~exist('sumFn', 'var') || isempty(sumFn)
+    sumFn = 'perm.th30.abs.sig.cluster.summary';
+end
 if ~exist('toMNI152', 'var') || isempty(toMNI152)
     toMNI152 = 0;
 end
@@ -35,7 +43,7 @@ end
 
 %% Read the summary files
 % create the path to the summary files
-sumFiles = fs_fullfile(sumPathInfo{:});
+sumFiles = fullfile(fs_fullfile(sumPathInfo{:}), sumFn);
 
 % read the summary files
 sumTableCell = cellfun(@(x) readsummary(x, toMNI152), sumFiles, 'uni', false);
@@ -50,7 +58,7 @@ multiLevels = sumPathInfo(isMulti);
 levelCell = [levels{:}];
 levelNames = arrayfun(@(x) sprintf('Name%d', x), 1:size(levelCell, 2), 'uni', false);
 infoTableCell = arrayfun(@(x) cell2table(repmat(levelCell(x, :), size(sumTableCell{x}, 1), 1), ...
-    'VariableNames', levelNames), 1: numel(levelCell), 'uni', false)';
+    'VariableNames', levelNames), 1: size(levelCell,1), 'uni', false)';
 
 %% Combine the two tables and save as a file
 % combine variable tables and the file information table
