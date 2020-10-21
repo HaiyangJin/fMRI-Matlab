@@ -51,6 +51,9 @@ function fs_cvn_print2nd(sigPathInfo, sigFn, outPath, varargin)
 %     'osgm'};
 %
 % Created by Haiyang Jin (13-Apr-2020)
+%
+% See also:
+% fs_readsummary
 
 %% Deal with inputs
 
