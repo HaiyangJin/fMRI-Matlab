@@ -8,7 +8,11 @@ function [ds_cell, conCell] = fs_cosmo_cvsl(ds, classPairs, surfDef, sessCode, a
 %    classPairs      <cell of strings> the pairs to be classified for the
 %                     searchlight; a PxQ (usually is 2) cell matrix for
 %                     the pairs to be classified. Each row is one
-%                     classfication pair.
+%                     classfication pair. For custom contrasts, the first
+%                     element is the names of the two conditions; the
+%                     second element is the condition numbers in
+%                     sa.targets. Example is {{'face', 'word'}, {[1, 2, 3,
+%                     4], [5, 6, 7, 8]}}. 
 %    surf_def        <cell of numeric array> surface denitions. The first
 %                     element is the array of vertex number and coordiantes;
 %                     the second element is the array of face number and
@@ -277,15 +281,54 @@ for iPair = 1:nPairs
     % define this classification
     thisPair = classPairs(iPair, :);
     
-    % skip if the pair is not available in this dataset
-    if ~all(ismember(thisPair, unique(ds.sa.labels)))
-        warning('Cannot find %s vs. %s in the dataset.', thisPair{:});
-        continue;
+    if ischar(thisPair{1})
+        % skip if the pair is not available in this dataset
+        if ~all(ismember(thisPair, unique(ds.sa.labels)))
+            warning('Cannot find %s vs. %s in the dataset.', thisPair{:});
+            continue;
+        end
+        
+        % dataset for this classification
+        thisPairMask = cosmo_match(ds.sa.labels, thisPair);
+        ds_thisPair = cosmo_slice(ds, thisPairMask);
+        % (Pseudo-contrast folder)
+        conFolder = sprintf('%s-vs-%s', thisPair{:});
+    else
+        % custom contrasts
+        % the first element is the names and the second element is the
+        % condition number of that contrast.
+        conName = thisPair{1};
+        conFolder = sprintf('%s-vs-%s', conName{:});
+        
+        conCode = thisPair{2};
+        if max(horzcat(conCode{:})) > max(ds.sa.targets)
+            warning('The index is out of the target range(max: %d).', max(ds.sa.targets));
+            continue;
+        end
+        
+        % reset the targets and labels
+        targetTemp = NaN(size(ds.sa.targets));
+        labelTemp = cell(size(ds.sa.labels));
+        
+        actCon = ismember(ds.sa.targets, conCode{1});
+        deactCon = ismember(ds.sa.targets, conCode{2});
+        
+        targetTemp(actCon) = 1;
+        targetTemp(deactCon) = 2;
+        
+        labelTemp(actCon) = conName(1);
+        labelTemp(deactCon) = conName(2);
+        
+        tempds = ds;
+        tempds.sa.targets = targetTemp;
+        tempds.sa.labels = labelTemp;
+        
+        tempds = cosmo_slice(tempds, ismember(tempds.sa.targets, [1,2]));
+        
+        % get the mean for the two condition
+        ds_thisPair = cosmo_fx(tempds, @(x)mean(x,1), {'chunks', 'targets'}, 1);
+        
     end
-    
-    % dataset for this classification
-    thisPairMask = cosmo_match(ds.sa.labels, thisPair);
-    ds_thisPair = cosmo_slice(ds, thisPairMask);
     
     %% Set partition scheme.
     measure_args.partitions = partitioner(ds_thisPair);
@@ -309,8 +352,6 @@ for iPair = 1:nPairs
     accuracy(center_ids) = ds_sl.samples';
     
     %% Save results as *.mgz files
-    % (Pseudo-contrast folder)
-    conFolder = sprintf('%s-vs-%s', thisPair{:});
     
     % store searchlight results
     accFn = sprintf('sl.%s.acc', shortName{1});
