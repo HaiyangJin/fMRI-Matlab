@@ -14,7 +14,7 @@ function fscmd = fs_glmfit_perm(glmdir, varargin)
 %                   (i.e., the simulation [permutation] are divided into
 %                   njobs). [Default is 1].
 %    'nsim'        <integer> number of simulations. [Default is 5000].
-%    'vwthrehold'  <numeric> voxel[vertex]-wise (clutering form) threshold.
+%    'vwthreshold' <numeric> voxel[vertex]-wise (clutering form) threshold.
 %                   -log(p). [Default is 3 (i.e., p < .01)].
 %    'sign'        <string> the direction of the test. ['pos', 'neg',
 %                   'abs']. [Default is 'abs'].
@@ -47,7 +47,7 @@ end
 defaultOpts = struct(...
     'ncores', 1, ...
     'nsim', 5000, ...
-    'vwthrehold', 3, ... % voxel-wise (clutering form) threshold
+    'vwthreshold', 3, ... % voxel-wise (clutering form) threshold
     'sign', 'abs', ...
     'cwp', .05, ... % cluster-wise p-value threshold
     'spaces', 2, ...
@@ -61,7 +61,7 @@ owArg = ow{opts.runcmd + 1};
 
 % parameters for permutation
 bg = sprintf(' --bg %d', opts.ncores);
-perm = sprintf('%d %d %s', opts.nsim, opts.vwthrehold, opts.sign);
+perm = sprintf('%d %d %s', opts.nsim, opts.vwthreshold, opts.sign);
 
 % create FreeSurfer commands
 fscmd = cellfun(@(x) sprintf(['mri_glmfit-sim --glmdir %s --perm %s '...

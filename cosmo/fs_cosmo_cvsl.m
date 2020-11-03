@@ -92,6 +92,7 @@ defaultOpt=struct(...
     ... %%% cross-validation settings %%%
     'partitioner', @cosmo_nfold_partitioner, ...
     'classifier', '', ... % libsvm will be used.
+    'classopt', {{}}, ...
     ... %%% other settings %%%
     'applyuseless', 0, ...
     'applycortex', 0, ...
@@ -259,7 +260,8 @@ elseif isempty(center_ids)
 end
 
 %% Set analysis parameters
-measure_args = struct();
+% measure_args = struct();
+measure_args = fs_mergestruct(opt.classopt);
 
 % Define which classifier to use, using a function handle.
 measure_args.classifier = classifier; % @cosmo_classify_libsvm;
