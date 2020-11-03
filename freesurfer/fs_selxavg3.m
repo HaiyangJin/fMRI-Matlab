@@ -1,5 +1,5 @@
 function fscmd = fs_selxavg3(sessidfile, anaList, runwise, runcmd, allCPU)
-% fscmd = fs_selxavg3(sessidfile, anaList, [runwise = 0, overwrite = 0, allCPU = 0])
+% fscmd = fs_selxavg3(sessidfile, anaList, [runwise = 0, overwrite = 2, allCPU = 0])
 %
 % This function runs the first-level analysis for all analysis and contrasts.
 %

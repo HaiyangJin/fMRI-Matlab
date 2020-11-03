@@ -29,7 +29,7 @@ function [ds_cell, conCell] = fs_cosmo_cvsl(ds, classPairs, surfDef, sessCode, a
 %                     decoding. Default is 0.
 %    'areas'         <numeric vector> Nx1 numeric vector. Area size of each
 %                     vertex in mm^2. Default is [].
-%    'areaMax'       <numeric> the maximum area for the negighbors. Default
+%    'areamax'       <numeric> the maximum area for the negighbors. Default
 %                     is 100.
 % %%%%% cosmo_searchlight settings %%%%%%%%%%%%%%%%
 %    'measure'       <funtion handel> the function/analysis to be run. The

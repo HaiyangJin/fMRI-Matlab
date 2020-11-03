@@ -17,7 +17,7 @@ function contraPairs = fs_cosmo_sesssl(sessList, anaList, classPairs, varargin)
 %                        classfication pair.
 %
 % Varargin:
-%    'areaMax'          <numeric> maximum area for neighbors if it is not
+%    'areamax'          <numeric> maximum area for neighbors if it is not
 %                        empty. Default is [].
 %    'runlist'          <string> the filename of the run file (e.g.,
 %                        run_loc.txt.) [Default is '' and then names of

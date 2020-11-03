@@ -1,7 +1,7 @@
 function [anaList, fscmd] = fs_mkanalysis(runType, template, TR, ...
     runFilename, nConditions, refDura, varargin)
 % [anaList, fscmd] = fs_mkanalysis(runType, template, TR, ...
-%     runFilename, nConditions, varargin)
+%     runFilename, nConditions, refDura, varargin)
 %
 % This function runs mkanalysis-sess in FreeSurfer.
 %

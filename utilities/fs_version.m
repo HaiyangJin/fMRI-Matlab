@@ -11,7 +11,7 @@ fscmd = 'recon-all -version';
 
 if ~status % if FreeSurfer was setup
     % display the version
-    fprintf('\nThe version of the FreeSurfer in use is: \n%s \n', fsV);
+    fprintf('\nThe version of FreeSurfer in use is: \n%s \n', fsV);
 else
     warning('FreeSurfer is not set up properly.');
 end
