@@ -49,14 +49,17 @@ sumFiles = fullfile(fs_fullfile(sumPathInfo{:}), sumFn);
 sumTableCell = cellfun(@(x) readsummary(x, toMNI152), sumFiles, 'uni', false);
 
 %% Gather the information for the summary files
-% find which have multiple levels
-isMulti = cellfun(@(x) iscell(x) && numel(x) ~= 1, sumPathInfo);
-multiLevels = sumPathInfo(isMulti);
+% % find which have multiple levels
+% isMulti = cellfun(@(x) iscell(x) && numel(x) ~= 1, sumPathInfo);
+% multiLevels = sumPathInfo(isMulti);
+% 
+% % repeat the multiple levels for each table
+% [~, levels] = fs_fullfile(multiLevels{:});
+% levelCell = [levels{:}];
+% levelNames = arrayfun(@(x) sprintf('Name%d', x), 1:size(levelCell, 2), 'uni', false);
+% 
 
-% repeat the multiple levels for each table
-[~, levels] = fs_fullfile(multiLevels{:});
-levelCell = [levels{:}];
-levelNames = arrayfun(@(x) sprintf('Name%d', x), 1:size(levelCell, 2), 'uni', false);
+[levelCell, levelNames] = fs_pathinfo2table(sumPathInfo);
 infoTableCell = arrayfun(@(x) cell2table(repmat(levelCell(x, :), size(sumTableCell{x}, 1), 1), ...
     'VariableNames', levelNames), 1: size(levelCell,1), 'uni', false)';
 
