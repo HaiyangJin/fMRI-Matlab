@@ -16,7 +16,8 @@ function varargout= fs_cvn_lookup(trgSubj,viewIdx,valstruct,lookups,varargin)
 %                      be cell arrays. [if valstruct is 'nodata', no data
 %                      will be displayed on the image (i.e., the brain
 %                      only); 'nodatalh' only displays left hemisphere;
-%                      'nodatarh' only displays right hemisphere.]
+%                      'nodatarh' only displays right hemisphere.];
+%                      fs_cvn_valstruct is also helpful.
 %    lookups          <struct> the Lookup to re-use.
 %
 % Varargin:
