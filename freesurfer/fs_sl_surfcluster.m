@@ -43,7 +43,7 @@ defaultOpts = struct();
 defaultOpts.runfscmd = 1;
 defaultOpts.slfn = 'sl.libsvm.acc.mgz';
 defaultOpts.tomni152 = 1;
-defaultOpts.outpath = fullfile(pwd, 'sl_summary.csv');
+defaultOpts.outfile = fullfile(pwd, 'sl_summary.csv');
 defaultOpts.aparc = 'aparc';
 defaultOpts.thmin = 2; % z values
 defaultOpts.nspace = 2;
@@ -95,11 +95,11 @@ slCell = cellfun(@horzcat, infoTableCell, ctableCell, 'uni', false);
 slTable = vertcat(slCell{:});
 
 % Save the sumTable as a file
-if ~strcmp(opts.outpath, 'none')
-    if ~endsWith(opts.outpath, {'.csv', '.xlsx'})
-        opts.outpath = [opts.outpath, '_sl_summary.csv'];
+if ~strcmp(opts.outfile, 'none')
+    if ~endsWith(opts.outfile, {'.csv', '.xlsx'})
+        opts.outfile = [opts.outfile, '_sl_summary.csv'];
     end
-    writetable(slTable, opts.outpath);
+    writetable(slTable, opts.outfile);
 end
 
 end
