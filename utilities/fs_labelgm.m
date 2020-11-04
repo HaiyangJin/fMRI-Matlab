@@ -32,7 +32,11 @@ SubjCode = tempSubj(:);
 % obtain the indices
 gmSCell = cellfun(@(x, y) labelgm(x, y), Label, SubjCode, 'uni', false);
 
-gmSTable = struct2table(vertcat(gmSCell{:}));
+if numel(gmSCell) == 1
+    gmSTable = struct2table(gmSCell{1}, 'AsArray', 1);
+else
+    gmSTable = struct2table(vertcat(gmSCell{:}));
+end
 
 % make the output table
 gmTable = horzcat(table(Label, SubjCode), gmSTable);
@@ -61,6 +65,7 @@ else
     isgm = labelMat(:, 1) == gmStruct.gm;
     % coordiantes in RAS, MNI305(fsaverage) and Talairach space
     RAS = labelMat(isgm, 2:4);
+    assert(~isempty(RAS), 'The global maxima is not inclued in the label!');
     gmStruct.MNI305 = fs_self2fsavg(RAS, subjCode);
     gmStruct.Talairach = mni2tal(gmStruct.MNI305);
 end
