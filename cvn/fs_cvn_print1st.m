@@ -1,4 +1,4 @@
-function fs_cvn_print1st(sessList, anaList, labelList, outPath, varargin)
+function varargout = fs_cvn_print1st(sessList, anaList, labelList, outPath, varargin)
 % fs_cvn_print1st(sessList, anaList, labelList, outPath, varargin)
 %
 % This function prints the first-level results and the labels in label/.
@@ -51,12 +51,21 @@ function fs_cvn_print1st(sessList, anaList, labelList, outPath, varargin)
 %                     figure. More please check fs_cvn_lookup.
 %    'visualimg'     <string> 'off' [default]: do not visualize the image;
 %                     'on': visualize the image.
+%    'drawroi'       <logical> whether draw ROI with fs_cvn_lookup. Default
+%                     is 0.
 %    'cvnopts'       <cell> extra options for cvnlookupimages.m.
 %    'funcPath'      <string> the path to functional folder [Default is
 %                     $FUNCTIONALS_DIR].
 %
 % Output:
 %    images of first-level analysis results.
+%
+% Example for drawing ROI:
+% fs_cvn_print1st(sessList{9}, anaList{1}, '', outPath, 'viewpt', 3, 'drawroi', 1);
+% Rmask = drawroipoly(himg,lookup);
+% lfile = fs_mklabel(Rmask, subjCode, 'temp.label');
+% % quick way to check the mask
+% cvnlookup(subjCode,3,Rmask,[0 1],gray);
 %
 % Created by Haiyang Jin (20-Apr-2020)
 
@@ -71,15 +80,16 @@ defaultOpts = struct(...
     'cmap', jet(256), ...
     'roicolors', {fs_colors}, ...
     'lookup', [], ...
-    'subfolder', 1, ...
+    'subfolder', 1, ... % subfolder for saving the images
     'suffixstr', '', ...
-    'annot', '', ...
+    'annot', '', ... % the annotation file
     'gminfo', 1, ...
     'showpeak', 0, ... % mark the peak response in the label
     'showinfo', 0, ...
     'peakonly', 0, ...
-    'wantfig', 2, ...
+    'wantfig', 2, ... % do not show figure with fs_cvn_lookuplmv.m
     'visualimg', 'off', ...
+    'drawroi', 0, ...
     'cvnopts', {{}}, ...
     'funcpath', getenv('FUNCTIONALS_DIR'), ...
     'strupath', getenv('SUBJECTS_DIR'));  % not in use now
@@ -96,21 +106,8 @@ end
 viewpt = opts.viewpt;
 clim = opts.clim;
 cmap = opts.cmap;  % use jet(256) as the colormap
-subfolder = opts.subfolder+1; % subfolder for saving the images
-annot = opts.annot;  % the annotation file
-lookup = opts.lookup;
 imgNameExtra = opts.suffixstr;
-wantfig = opts.wantfig;  % do not show figure with fs_cvn_lookuplmv.m
-roicolors = opts.roicolors;
-showInfo = opts.showinfo;
-gmInfo = opts.gminfo;
-showPeak = opts.showpeak;
-peakOnly = opts.peakonly;
-cnvopts = opts.cvnopts;
 
-sigFn = opts.sigfn;
-thresh = opts.thresh;  % 0.05
-visualImg = opts.visualimg;
 funcPath = opts.funcpath;
 
 if ~isempty(imgNameExtra) && ~startsWith(imgNameExtra, ' || ')
@@ -165,9 +162,9 @@ for iLabel = 1:nLabel
     
     % threshold for plotting
     thresh0 = fs_2sig(theLabel)/10 * 1i;
-    if ~isempty(thresh)
+    if ~isempty(opts.thresh)
         % use thresh if it is not empty
-        thresh0 = thresh;
+        thresh0 = opts.thresh;
     elseif isempty(thresh0)
         % use default 1.3 if they are both empty
         thresh0 = 1.3i;
@@ -218,7 +215,7 @@ for iLabel = 1:nLabel
                 sigFile = zeros(tempNVtx, 1);
             else
                 % full path to the to-be-printed file
-                sigFile = fullfile(funcPath, thisSess, 'bold', thisAna, thisCon, sigFn);
+                sigFile = fullfile(funcPath, thisSess, 'bold', thisAna, thisCon, opts.sigfn);
             end
             
             % read data
@@ -263,16 +260,16 @@ for iLabel = 1:nLabel
             else
                 thisRoi = cellfun(@(x) makeroi(nVtx, x(:, 1)), thisMat, 'uni', false)';
                 nTheLabel = numel(thisRoi);
-                roicolor = roicolors(1:nTheLabel, :);
+                roicolor = opts.roicolors(1:nTheLabel, :);
                 
                 % mark the peak in the label
                 tempLabelT = fs_labelinfo(theseLabel, subjCode, ...
                     'bycluster', 1, 'fmin', fmin);
                 peakRoi = arrayfun(@(x) makeroi(nVtx, x), tempLabelT.VtxMax, 'uni', false);
-                if showPeak
+                if opts.showpeak
                     rois = [thisRoi; peakRoi];
                     roicolor = repmat(roicolor, 2, 1);
-                elseif peakOnly
+                elseif opts.peakonly
                     rois = peakRoi;
                 else
                     rois = thisRoi;
@@ -285,19 +282,34 @@ for iLabel = 1:nLabel
             labelNames = sprintf(['%s' repmat(' || %s', 1, nTheLabel-1)], theLabelNames{:});
             
             % process the extra setting for printing
-            thisExtraopts = [{'cmap',cmap, 'clim', thisclim0}, cnvopts];
+            thisExtraopts = [{'cmap',cmap, 'clim', thisclim0}, opts.cvnopts];
             
             %% Make the image
             %%%%%%% make image for this file %%%%%%%%
-            [~, lookup, rgbimg] = fs_cvn_lookup(trgSubj, viewpt, thisSurf, lookup, ...
+            [rawimg, lookup, rgbimg, himg] = fs_cvn_lookup(trgSubj, viewpt, thisSurf, opts.lookup, ...
                 'cvnopts', thisExtraopts, ...
-                'wantfig', wantfig, ...
+                'wantfig', opts.wantfig, ...
                 'thresh', thresh0, ...
                 'roimask', rois, ...
                 'roicolor', roicolor, ...
                 'roiwidth', repmat({1}, numel(rois), 1), ...
-                'annot', annot);
-            close all;
+                'annot', opts.annot);
+            
+            if opts.drawroi
+                if nargout == 0
+                    assignin('base','rawimg',rawimg);
+                    assignin('base','lookup',lookup);
+                    assignin('base','rgbimg',rgbimg);
+                    assignin('base','himg',himg);
+                else
+                    varargout{1} = rawimg;
+                    varargout{2} = lookup;
+                    varargout{3} = rgbimg;
+                    varargout{4} = himg;
+                end
+                if showWaitbar; close(waitHandle); end
+                return;
+            end
             
             % clear lookup if necessary
             if ~strcmp(trgSubj, 'fsaverage')
@@ -305,6 +317,7 @@ for iLabel = 1:nLabel
             end
             
             %% Save the image
+            close all;
             % set the figure name and save it
             fig = figure('Visible', 'off');
             imshow(rgbimg); % display lookup results (imagesc + colorbar)
@@ -314,9 +327,9 @@ for iLabel = 1:nLabel
             set(fig, 'Name', imgName);
             
             % Load and show the (first) label related information
-            if showInfo && ~all(isEmptyMat)
+            if opts.showinfo && ~all(isEmptyMat)
                 labelCell = cellfun(@(x) fs_labelinfo(x, subjCode, ...
-                    'bycluster', 1, 'fmin', fmin, 'gminfo', gmInfo), ...
+                    'bycluster', 1, 'fmin', fmin, 'gminfo', opts.gminfo), ...
                     theLabelNames, 'uni', false);
                 labelTable = vertcat(labelCell{:});
                 labelTable.Properties.VariableNames{3} = 'No';
@@ -356,7 +369,7 @@ for iLabel = 1:nLabel
             % print the figure
             subfolders = {'', subjCode, theLabel};
             
-            theOutPath = fullfile(outPath, subfolders{subfolder});
+            theOutPath = fullfile(outPath, subfolders{opts.subfolder+1});
             if ~exist(theOutPath, 'dir'); mkdir(theOutPath); end
             thisOut = fullfile(theOutPath, [imgName '.png']);
             
@@ -367,11 +380,16 @@ for iLabel = 1:nLabel
                 print(fig, thisOut,'-dpng');
             end
             
-            if strcmp(visualImg, 'off')
+            if strcmp(opts.visualimg, 'off')
                 close(fig);
-            elseif strcmp(visualImg, 'on')
+            elseif strcmp(opts.visualimg, 'on')
                 set(fig, 'Visible', 'on');
             end
+            
+            varargout{1} = rawimg;
+            varargout{2} = lookup;
+            varargout{3} = rgbimg;
+            varargout{4} = himg;
         end   % iSess
     end   % iAna
 end   % iLabel
