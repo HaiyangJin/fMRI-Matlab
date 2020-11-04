@@ -2,7 +2,7 @@ function labelFile = fs_mklabel(data, subjCode, labelFn, coordSurf)
 % labelFile = fs_mklabel(data, subjCode, labelFn, coordSurf)
 %
 % This function converts the surface dataset in CoSMoMVPA to label file in
-% FreeSurfer.
+% FreeSurfer. It also can save ones in a binary mask as a label. 
 % 
 % Inputs:
 %    data             <numeric vector> a Px5 numeric vector to be saved as
@@ -10,6 +10,8 @@ function labelFile = fs_mklabel(data, subjCode, labelFn, coordSurf)
 %                      The second to forth columns are their XYZ coordinates
 %                      on ?h.white surface. The fifth column is the values
 %                      for each vertex.
+%                   OR If 'data' is a bianry mask, the 1 will be saved in
+%                      the label.
 %    subjCode         <string> subject code in $SUBJECTS_DIR.
 %    labelFn          <string> the filename of the label to be saved later 
 %                      (without path).
@@ -35,6 +37,20 @@ end
 labelFile = fullfile(getenv('SUBJECTS_DIR'), subjCode, 'label', labelFn);
 
 % classification accuracies for each vertex
+nCol = size(data, 2);
+if nCol == 1 && all(ismember(unique(data), [0, 1]))
+    hemi = fs_2hemi(labelFn);
+    mask = data;
+    % add the coordinates on coordSurf
+    coords = fs_readsurf([hemi '.' coordSurf], subjCode);
+    
+    data = find(mask); % index in FreeSurfer
+    data(:, 2:4) = coords(mask, :);
+    data(:, 5) = zeros(size(data,1),1);
+    
+elseif nCol ~= 5
+    error('Cannot deal with ''data''. It has to be 5-column matrix or 1-column binary mask.');
+end
 nVtx = size(data, 1);
 
 % open a file for saving the label information
