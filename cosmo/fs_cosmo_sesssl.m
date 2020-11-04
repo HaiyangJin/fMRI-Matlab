@@ -177,15 +177,15 @@ for iSess = 1:nSess
         ds_this = dsSurfCell{iHemi};
         
         % run search light analysis
-        fs_cosmo_cvsl(ds_this, classPairs, surfDef, thisSess, anaList{iHemi}, cvslOpts);
+        [~, contraPairs] = fs_cosmo_cvsl(ds_this, classPairs, surfDef, thisSess, anaList{iHemi}, cvslOpts);
         
     end  % iSL
     
 end  % iSess
 
 % create the contrast folder names
-contraPairs = cellfun(@(x,y) sprintf('%s-vs-%s', x, y), ...
-    classPairs(:, 1), classPairs(:, 2), 'uni', false);
+% contraPairs = cellfun(@(x,y) sprintf('%s-vs-%s', x, y), ...
+%     classPairs(:, 1), classPairs(:, 2), 'uni', false);
 
 % close the waitbar
 close(waitHandle);
