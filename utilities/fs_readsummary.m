@@ -105,6 +105,9 @@ varNames = cellfun(@(x) strrep(x, 'MNI', 'MNI305'), varNames, 'uni', false);
 % create the data table
 dataTable = table(dataCell{:}, 'VariableNames', varNames);
 
+% add 1 to vertex indices (from FreeSurfer to Matlab)
+dataTable.VtxMax = dataTable.VtxMax + 1;
+
 %% Add MNI152 (converted from MNI305)
 if toMNI152
     % obtain MNI305 coordinates
