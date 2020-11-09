@@ -24,6 +24,12 @@ function fscmd = fs_drawlabel(sessList, anaList, conList, fthresh, ...
 % Tips:
 % To invert the display of overlay, set extracmd as '-invphaseflag 1'.
 %
+% To manually input commands in terminal (for FreeSurfer)
+% In FreeSurfer 5.3:
+%   tksurfer-sess -s subjfunc -a analysis.lh -c f-vs-o -fthresh 2
+% In FreeSurfer 6.0:
+%   tksurfer-sess -s subjfunc -a analysis.lh -c f-vs-o -fthresh 2 -tksurfer
+%
 % Output:
 %    fscmd          <string> FreeSurfer commands used.
 %    a label saved in the label/ folder within $SUBJECTS_DIR
