@@ -327,15 +327,17 @@ for iLabel = 1:nLabel
             set(fig, 'Name', imgName);
             
             % Load and show the (first) label related information
+            
+            labelCell = cellfun(@(x) fs_labelinfo(x, subjCode, ...
+                'bycluster', 1, 'fmin', fmin, 'gminfo', opts.gminfo), ...
+                theLabelNames, 'uni', false);
+            labelTable = vertcat(labelCell{:});
+            labelTable.Properties.VariableNames{3} = 'No';
+            labelTable.SubjCode = [];
+            labelTable.fmin = [];
+            disp(labelTable);
+            
             if opts.showinfo && ~all(isEmptyMat)
-                labelCell = cellfun(@(x) fs_labelinfo(x, subjCode, ...
-                    'bycluster', 1, 'fmin', fmin, 'gminfo', opts.gminfo), ...
-                    theLabelNames, 'uni', false);
-                labelTable = vertcat(labelCell{:});
-                labelTable.Properties.VariableNames{3} = 'No';
-                labelTable.SubjCode = [];
-                labelTable.fmin = [];
-                
                 pos = get(fig, 'Position'); %// gives x left, y bottom, width, height
                 switch viewpt
                     case 3
