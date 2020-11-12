@@ -18,8 +18,10 @@ function labelTable = fs_labelinfo(labelList, subjList, varargin)
 %    'fmin'          <numeric> The (absolute) minimum value for vertices to
 %                     be used for summarizing information. Default is 0,
 %                     i.e., all vertices will be used.
-%    'gminfo'        <logical> 1 [default]: output the information for the
-%                     global maxima; 0: do not show this information.
+%    'gminfo'        <logical> 1 [default]: only show gm coordinate 
+%                     information (but not he maxresp) 2: additionally show
+%                     global maxima information (also show maxresp); 0: do 
+%                     not show gm information.
 %    'isndgrid'      <logical> 1 [default]: all the combinations of
 %                     labelList and subjList will be created, i.e.,
 %                     summarize all labels in labelList for each subject
@@ -193,20 +195,24 @@ Max = maxResp;
 VtxMax = arrayfun(@(x, y) x{1}(y, 1), matCell, maxIdx);
 Size = labelSize;
 NVtxs = cellfun(@(x) size(x, 1), matCell);
-
-% save fmin 
 fmin = repmat(fmin0, numel(clusters), 1);
-
-% save the out information as table
-labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
-    Size, MNI305, Talairach, NVtxs, fmin);
 
 % save gm information
 GlobalMax = repmat(gmTable.gm, numel(clusters), 1);
 MNI305_gm = repmat(gmTable.MNI305, numel(clusters), 1);
 Tal_gm = repmat(gmTable.Talairach, numel(clusters), 1);
-gmTable = table(GlobalMax, MNI305_gm, Tal_gm);
 
-if gmInfo; labelInfo = horzcat(labelInfo, gmTable); end
+switch gmInfo
+    case 1
+        labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
+            GlobalMax, MNI305_gm, Tal_gm, Size, NVtxs, fmin);
+    case 2
+        labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
+            GlobalMax, MNI305, Talairach, Size, NVtxs, fmin, MNI305_gm, Tal_gm);
+    case 0
+        % save the out information as table
+        labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
+            MNI305, Talairach, Size, NVtxs, fmin);
+end
 
 end

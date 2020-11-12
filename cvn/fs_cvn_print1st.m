@@ -39,8 +39,10 @@ function varargout = fs_cvn_print1st(sessList, anaList, labelList, outPath, vara
 %                     image name. Default is ''.
 %    'annot'         <string> which annotation will be used. Default is
 %                     '', i.e., not display annotation file.
-%    'gminfo'        <logical> 0 [default]: do not show global maxima 
-%                     information; 1: show the global maxima information.
+%    'gminfo'        <logical> 0: do not show global maxima information;
+%                     1 [default]: only show the global maxima information,
+%                     but not the maxresp; 2: show both global maxima and 
+%                     maxresp information.
 %    'markpeak'      <logical> mark the location of the peak response.
 %                     Default is 0.
 %    'showinfo'      <logical> show label information in the figure.
