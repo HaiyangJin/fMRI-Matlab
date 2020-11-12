@@ -45,6 +45,10 @@ function varargout = fs_cvn_print1st(sessList, anaList, labelList, outPath, vara
 %                     Default is 0.
 %    'showinfo'      <logical> show label information in the figure.
 %                     Default is 0, i.e., do not show the label information.
+%    'shortinfo'     <logical> show the short version of the information
+%                     (i.e., MNI305 coordinates, size and number of
+%                     vertices). Default is 0. When 'shortinfo' is set as
+%                     1, 'showinfo' will be omitted.
 %    'peakonly'      <logical> 1 [default]: only show the peak when identify
 %                     global maxima; 0: show the outline of the label.
 %    'wantfig'       <logical/integer> Default is 2, i.e., do not show the
@@ -61,7 +65,7 @@ function varargout = fs_cvn_print1st(sessList, anaList, labelList, outPath, vara
 %    images of first-level analysis results.
 %
 % Example for drawing ROI:
-% fs_cvn_print1st(sessList{9}, anaList{1}, '', outPath, 'viewpt', 3, 'drawroi', 1);
+% fs_cvn_print1st(sessCode, anaName, '', outPath, 'viewpt', 3, 'drawroi', 1);
 % Rmask = drawroipoly(himg,lookup);
 % lfile = fs_mklabel(Rmask, subjCode, 'temp.label');
 % % quick way to check the mask
@@ -86,6 +90,7 @@ defaultOpts = struct(...
     'gminfo', 1, ...
     'showpeak', 0, ... % mark the peak response in the label
     'showinfo', 0, ...
+    'shortinfo', 0, ...
     'peakonly', 0, ...
     'wantfig', 2, ... % do not show figure with fs_cvn_lookuplmv.m
     'visualimg', 'off', ...
@@ -154,7 +159,6 @@ for iLabel = 1:nLabel
     % the contrast, hemi, and threshold for the first label will
     % be used for printing the activation.
     theLabel = theseLabel{1};
-    
     
     % the contrast and the hemi information
     thisCon = fs_2contrast(theLabel);
@@ -327,7 +331,6 @@ for iLabel = 1:nLabel
             set(fig, 'Name', imgName);
             
             % Load and show the (first) label related information
-            
             labelCell = cellfun(@(x) fs_labelinfo(x, subjCode, ...
                 'bycluster', 1, 'fmin', fmin, 'gminfo', opts.gminfo), ...
                 theLabelNames, 'uni', false);
@@ -337,7 +340,7 @@ for iLabel = 1:nLabel
             labelTable.fmin = [];
             disp(labelTable);
             
-            if opts.showinfo && ~all(isEmptyMat)
+            if opts.showinfo || opts.shortinfo && ~all(isEmptyMat)
                 pos = get(fig, 'Position'); %// gives x left, y bottom, width, height
                 switch viewpt
                     case 3
@@ -348,6 +351,14 @@ for iLabel = 1:nLabel
                         pos4Extra = max(ceil(pos(4)/pos(3)*1000)-100, 400);
                 end
                 set(fig, 'Position', [pos(1:2) max(1150, pos(3)) pos(4)+pos4Extra]);
+                
+                % get the short version if needed
+                if opts.shortinfo
+                    coorStr = {'MNI305', 'MNI305_gm'};
+                    isCoorStr = ismember(coorStr, labelTable.Properties.VariableNames);
+                    labelTable = labelTable(:, {'Label', coorStr{find(isCoorStr, 1, 'last')}, 'Size', 'NVtxs'}); %#ok<NASGU>
+                end
+                
                 % Get the table in string form.
                 TString = evalc('disp(labelTable)');
                 % Use TeX Markup for bold formatting and underscores.
@@ -382,9 +393,9 @@ for iLabel = 1:nLabel
                 print(fig, thisOut,'-dpng');
             end
             
-            if strcmp(opts.visualimg, 'off')
+            if strcmp(opts.visualimg, 'off') || ~opts.visualimg
                 close(fig);
-            elseif strcmp(opts.visualimg, 'on')
+            elseif strcmp(opts.visualimg, 'on') || opts.visualimg
                 set(fig, 'Visible', 'on');
             end
             
