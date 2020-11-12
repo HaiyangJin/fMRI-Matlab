@@ -1,5 +1,5 @@
-function [labelMatCell, cluVtxCell] = fs_updatelabel(labelFn, sessCode, outPath, varargin)
-% [labelMatCell, cluVtxCell] = fs_updatelabel(labelFn, sessCode, outPath, varargin)
+function [labelMatCell, cluVtxCell] = fs_trimlabel(labelFn, sessCode, outPath, varargin)
+% [labelMatCell, cluVtxCell] = fs_trimlabel(labelFn, sessCode, outPath, varargin)
 %
 % This function updates the label based on different purposes (see below).
 %
@@ -86,7 +86,7 @@ function [labelMatCell, cluVtxCell] = fs_updatelabel(labelFn, sessCode, outPath,
 %    Step 2: Dilate until the label area reaches a fixed size ('maxsize').
 %    Step 3: Save and rename the updated lable files.
 %    e.g.:
-%       fs_updatelabel(labelFn, sessCode, outPath);
+%       fs_trimlabel(labelFn, sessCode, outPath);
 %
 % 2: Separate one label file into several clusters ('ncluster'):
 %    Step 1: Idenitfy the largest p-value (P) that can separate the label
