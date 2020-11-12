@@ -1,7 +1,7 @@
 function fs_trimlabelcluster(labelFn, subjCode, nCluExp)
 % fs_trimlabelcluster(labelFn, subjCode, nCluExp)
 %
-% This function trims the label by clusters. It will only keep the first
+% This function trims the label by clusters. It will only keep the first 
 % 'nCluExp' clusters in the 'labelFn'.
 %
 % Inputs:
@@ -30,7 +30,7 @@ thresh = str2double(fthresh(2:end))/10;
 [cluIdx, nLabelClu] = fs_clusterlabel(labelMat, subjCode, thresh, hemi);
 
 % only keep the first 'nCluExp' if needed
-if nLabelClu ~= nCluExp
+if nLabelClu > nCluExp
     isLabel = ismember(cluIdx, 1:nCluExp);
     
     % remove the extra clusters
