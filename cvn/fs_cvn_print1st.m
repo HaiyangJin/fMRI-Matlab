@@ -57,6 +57,8 @@ function varargout = fs_cvn_print1st(sessList, anaList, labelList, outPath, vara
 %                     figure. More please check fs_cvn_lookup.
 %    'visualimg'     <string> 'off' [default]: do not visualize the image;
 %                     'on': visualize the image.
+%    'imgext'        <string> image file extension. Choices are 'png' (default),
+%                     'pdf'. 
 %    'drawroi'       <logical> whether draw ROI with fs_cvn_lookup. Default
 %                     is 0.
 %    'cvnopts'       <cell> extra options for cvnlookupimages.m.
@@ -96,6 +98,7 @@ defaultOpts = struct(...
     'peakonly', 0, ...
     'wantfig', 2, ... % do not show figure with fs_cvn_lookuplmv.m
     'visualimg', 'off', ...
+    'imgext', 'png', ...
     'drawroi', 0, ...
     'cvnopts', {{}}, ...
     'funcpath', getenv('FUNCTIONALS_DIR'), ...
@@ -386,13 +389,13 @@ for iLabel = 1:nLabel
             
             theOutPath = fullfile(outPath, subfolders{opts.subfolder+1});
             if ~exist(theOutPath, 'dir'); mkdir(theOutPath); end
-            thisOut = fullfile(theOutPath, [imgName '.png']);
+            thisOut = fullfile(theOutPath, [imgName '.' opts.imgext]);
             
             try
                 % https://github.com/altmany/export_fig
-                export_fig(thisOut, '-png','-transparent','-m2');
+                export_fig(thisOut, ['-' opts.imgext],'-transparent','-m2');
             catch
-                print(fig, thisOut,'-dpng');
+                print(fig, thisOut, ['-d' opts.imgext]);
             end
             
             if strcmp(opts.visualimg, 'off') || ~opts.visualimg
