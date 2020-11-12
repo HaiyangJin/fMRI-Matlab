@@ -16,10 +16,12 @@ function viewpt = fs_cvn_viewpt(viewIdx, isHemi)
 
 % find the vectors for both hemispheres
 switch viewIdx
-    case {'ffa', 'ventral', 'f-vs-o', 'face-vs-object'}
+    case {'ffa', 'ventral', 'f-vs-o', 'face-vs-object', 'fusiform'}
         bothViewpt = {[270, -89, 0], [90, -89, 0]};
     case {'loa'}
         bothViewpt = {[310, -35, 0], [50, -35, 0]};
+    case {'lateral'}
+        bothViewpt = {[270, 0, 0], [90, 0, 0]};
 end
 
 % only keep the hemispheres needed
