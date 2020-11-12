@@ -1,8 +1,8 @@
-function updateMat = fs_intersectlabel(label1Fn, label2Fn, subjCode, which2update, saveBackup)
-% updateMat = fs_intersectlabel(label1Fn, label2Fn, subjCode, which2update, saveBackup)
+function updateMat = fs_updatelabel(label1Fn, label2Fn, subjCode, which2update, saveBackup)
+% updateMat = fs_updatelabel(label1Fn, label2Fn, subjCode, which2update, saveBackup)
 %
 % This function identifies the overlapping between the two labels (similar
-% to the Matlab function 'intersect') and keep them from the 'which2update'.
+% to the Matlab function 'setdiff') and remove them from the 'which2update'.
 %
 % Inputs:
 %    label1Fn      <string> the file name of one label.
@@ -35,8 +35,8 @@ theLabels = theLabelFn([which2update, setdiff([1 2], which2update)]);
 labelMatCell = cellfun(@(x) fs_readlabel(x, subjCode), theLabels, 'uni', false);
 vtxCell = cellfun(@(x) x(:, 1), labelMatCell, 'uni', false);
 
-% find the updated vertices 
-updateVtx = intersect(vtxCell{:});
+% find the updated vertices (after removing the overlapping)
+updateVtx = setdiff(vtxCell{:});
 
 % save the updated label matrix
 origMat = labelMatCell{which2update};
@@ -49,5 +49,12 @@ end
 
 % save the updated label
 fs_mklabel(updateMat, subjCode, theLabelFn{which2update});
+
+% check number of clusters
+inforTable = fs_labelinfo(theLabelFn{which2update}, subjCode);
+if max(inforTable.ClusterNo) > 1
+    warning('There are %d clusters in the updated label file.', ...
+        max(inforTable.ClusterNo));
+end
 
 end
