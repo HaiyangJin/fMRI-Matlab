@@ -23,6 +23,26 @@ function sumTable = fs_readsummary(sumPathInfo, sumFn, toMNI152, outPath, outFn)
 % Output:
 %    sumTable        <table> a table of the information in the summary file.
 %
+% Explanations for each colunn in sumTable
+% Analysis: the analysis name;
+% Contrast: the contrast name;
+% ClusterNo: the cluster no within each analysis and contrast; ?L? denotes ?left? and ?R? denotes ?right?;
+% Max: indicates the maximum -log10(pvalue) in the cluster;
+% VtxMax: is the vertex number at the maximum;
+% Sizemm2: surface area (mm^2) of cluster;
+% MNI305X(YZ): the talairach (MNI305) coordinate of the maximum;
+% CWP: clusterwise p-value. This is the p-value of the cluster;
+% CWPLow and CWPHi: 90% confidence interval for CWP;
+% NVtxs: number of vertices in cluster;
+% WghtVtx: [not sure what it is so far; I haven?t used this information];
+% Annot: the annotation of the max response based on -aparc
+% MNI152X(YZ): the MNI152 coordinates converted from MNI305X(YZ);
+% Hemi: hemisphere
+% Bonferroni: 2 means both left and right hemispheres.
+% Sign: abs (two-sided tests)
+% Threshold: 3 (-log10(pvalue));
+% CWPvalue: the minimum final cluster p value to generate the results. 
+%
 % Created by Haiyang Jin (15-Apr-2020)
 %
 % See also:
