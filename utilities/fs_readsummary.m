@@ -24,8 +24,8 @@ function sumTable = fs_readsummary(sumPathInfo, sumFn, toMNI152, outPath, outFn)
 %    sumTable        <table> a table of the information in the summary file.
 %
 % Explanations for each colunn in sumTable
-% Analysis: the analysis name;
-% Contrast: the contrast name;
+% Analysis(Name1): the analysis name;
+% Contrast(Name2): the contrast name;
 % ClusterNo: the cluster no within each analysis and contrast; ?L? denotes ?left? and ?R? denotes ?right?;
 % Max: indicates the maximum -log10(pvalue) in the cluster;
 % VtxMax: is the vertex number at the maximum;

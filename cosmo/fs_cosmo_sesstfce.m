@@ -42,7 +42,7 @@ function tfce_cell = fs_cosmo_sesstfce(sessList, anaList, contraList, dataFn, va
 % Created by Haiyang Jin (14-Oct-2020)
 %
 % See also:
-% fs_cvn_print2nd
+% fs_cvn_print2nd, fs_sl_surfcluster
 
 % waitbar
 waitHandle = waitbar(0, 'Loading...   0.00% finished');
@@ -145,12 +145,5 @@ end
 
 % close the waitbar
 close(waitHandle);
-
-end
-
-function ds_null = null_dataset(ds)
-% create null dataset for cosmo_montec
-ds_null = ds;
-ds_null.sa.targets = cosmo_randomize_targets(ds);
 
 end

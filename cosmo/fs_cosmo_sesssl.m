@@ -55,7 +55,7 @@ function contraPairs = fs_cosmo_sesssl(sessList, anaList, classPairs, varargin)
 % Created by Haiyang Jin (24-Nov-2019)
 %
 % See also:
-% fs_cosmo_cvdecode
+% fs_cosmo_cvdecode, fs_cosmo_sesstfce 
 
 cosmo_warning('once');
 

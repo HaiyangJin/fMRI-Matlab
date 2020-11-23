@@ -33,6 +33,19 @@ function [slTable, fscmd] = fs_sl_surfcluster(pathInfo, varargin)
 %                     results.
 %    fscmd           <cell strings> fscmd used for surfcluster.
 %
+% % Explanations for each colunn in slTable
+% Analysis(Name1): the analysis name;
+% Contrast(Name2): the contrast name;
+% ClusterNo: the cluster no within each analysis and contrast; ?L? denotes ?left? and ?R? denotes ?right?;
+% Max: indicates the maximum -log10(pvalue) in the cluster;
+% VtxMax: is the vertex number at the maximum;
+% Sizemm2: surface area (mm^2) of cluster;
+% MNI305X(YZ): the talairach (MNI305) coordinate of the maximum;
+% NVtxs: number of vertices in cluster;
+% WghtVtx: [not sure what it is so far; I haven't used this information];
+% Annot: the annotation of the max response based on -aparc
+% MNI152X(YZ): the MNI152 coordinates converted from MNI305X(YZ);
+%
 % Created by Haiyang Jin (3-Nov-2020)
 %
 % See also:
