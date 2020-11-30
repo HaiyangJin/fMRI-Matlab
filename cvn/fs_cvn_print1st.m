@@ -55,8 +55,8 @@ function varargout = fs_cvn_print1st(sessList, anaList, labelList, outPath, vara
 %                     global maxima; 0: show the outline of the label.
 %    'wantfig'       <logical/integer> Default is 2, i.e., do not show the
 %                     figure. More please check fs_cvn_lookup.
-%    'visualimg'     <string> 'off' [default]: do not visualize the image;
-%                     'on': visualize the image.
+%    'visualimg'     <string> 0 [default]: do not visualize the image;
+%                     '1': visualize the image.
 %    'imgext'        <string> image file extension. Choices are 'png' (default),
 %                     'pdf'. 
 %    'drawroi'       <logical> whether draw ROI with fs_cvn_lookup. Default
@@ -398,10 +398,10 @@ for iLabel = 1:nLabel
                 print(fig, thisOut, ['-d' opts.imgext]);
             end
             
-            if strcmp(opts.visualimg, 'off') || ~opts.visualimg
-                close(fig);
-            elseif strcmp(opts.visualimg, 'on') || opts.visualimg
+            if opts.visualimg
                 set(fig, 'Visible', 'on');
+            else
+                close(fig);
             end
             
             varargout{1} = rawimg;
