@@ -1,5 +1,5 @@
 function mvpaTable = fs_cosmo_cvdecode(sessList, anaList, labelList, runList, ...
-    classPairs, outPath, classifiers)
+    classPairs, varargin)
 % mvpaTable = fs_cosmo_cvdecode(sessList, anaList, labelList, runList, ...
 %   classPairs, outPath, classifiers)
 %
@@ -18,12 +18,20 @@ function mvpaTable = fs_cosmo_cvdecode(sessList, anaList, labelList, runList, ..
 %    classPairs      <cell string> a PxQ (usually is 2) cell matrix
 %                    for the pairs to be classified. Each row is one
 %                     classfication pair.
-%    outPath         <string> where output to be saved.
-%    classifiers     <numeric> or <strings> or <cells> the classifiers
-%                         to be used (only 1).
+%
+% Varargin:
+%    writeoutput     <logical> whethe write the output into .csv and .xlxs
+%                     files. Default is 1. When it is 0, outpath and outfn
+%                     will be ignored.
+%    outpath         <string> where output to be saved.
+%    outfn           <string> the filename of the output file. 
+%    classifier      <numeric> or <strings> or <cells> the classifiers
+%                     to be used (only 1).
+%    classopt        <struct> the possibly other fields that are given to 
+%                     the classifer. Default is empty struct.
 %
 % Outputs:
-%    mvpaTable          <table> MVPA result table (main runs).
+%    mvpaTable       <table> MVPA result table (main runs).
 %
 % Created by Haiyang Jin (12-Dec-2019)
 
@@ -37,12 +45,16 @@ if ischar(anaList); anaList = {anaList}; end
 if ischar(labelList); labelList = {labelList}; end
 nLabel = numel(labelList);
 
-if ~exist('outPath', 'var') || isempty(outPath)
-    outPath = '';
-end
-if ~exist('classifiers', 'var') || isempty(classifiers)
-    classifiers = [];
-end
+% default settings
+defaultOpts = struct();
+defaultOpts.writeoutput = 1;
+defaultOpts.outpath = fullfile(pwd, 'Classification');
+defaultOpts.outfn = 'Main_CosmoMVPA';
+defaultOpts.classifier = [];
+defaultOpts.classopt = struct();
+
+opts = fs_mergestruct(defaultOpts, varargin(:));
+outPath = opts.outpath;
 
 %% Cross validation decode
 % create empty table
@@ -73,7 +85,8 @@ for iSess = 1:nSess
             'labelfn', thisLabel, 'runlist', runList, 'runwise', 1), ...
             theAna, 'uni', false);
         
-        tempCell = cellfun(@(x, y) cosmo_cvdecode(x, classPairs, y, classifiers),...
+        tempCell = cellfun(@(x, y) cosmo_cvdecode(x, classPairs, y, ...
+            opts.classifier, opts.classopt),...
             ds_subj, dsInfo, 'uni', false);
         
         % run classification
@@ -88,18 +101,21 @@ waitbar(progress, waitHandle, 'Saving data...');
 mvpaTable = vertcat(mvpaCell{:});
 
 %% save data to local
-if isempty(outPath)
-    outPath = fullfile(pwd, 'Classification');
+if ~isempty(mvpaTable)
+    mvpaTable(:, 'Confusion') = [];
 end
-if ~exist(outPath, 'dir'); mkdir(outPath); end
 
-% MVPA for main runs
-cosmoFn = fullfile(outPath, 'Main_CosmoMVPA');
-save(cosmoFn, 'mvpaTable');
-mvpaTable(:, 'Confusion') = [];
-writetable(mvpaTable, [cosmoFn, '.xlsx']);
-writetable(mvpaTable, [cosmoFn, '.csv']);
-
+if opts.writeoutput
+    if ~exist(outPath, 'dir'); mkdir(outPath); end
+    
+    % MVPA for main runs
+    cosmoFn = fullfile(outPath, opts.outfn);
+    save(cosmoFn, 'mvpaTable');
+    
+    writetable(mvpaTable, [cosmoFn, '.xlsx']);
+    writetable(mvpaTable, [cosmoFn, '.csv']);
+    
+end
 close(waitHandle); % close the waitbar
 
 end
