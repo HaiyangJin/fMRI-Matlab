@@ -1,4 +1,4 @@
-function mvpaTable = cosmo_cvdecode(ds, classPairs, dsInfo, classifiers)
+function mvpaTable = cosmo_cvdecode(ds, classPairs, dsInfo, classifiers, classopt)
 % mvpaTable = cosmo_cvdecode(ds, classPairs, dsInfo, classifiers)
 %
 % This function performs leave-one-out cross validation classification with
@@ -14,6 +14,8 @@ function mvpaTable = cosmo_cvdecode(ds, classPairs, dsInfo, classifiers)
 %                      obtained from fs_cosmo_subjds.
 %    classifiers      <numeric> or <strings> or <cells> the classifiers
 %                      to be used (can be more than 1).
+%    classopt         <struct> the possibly other fields that are given to 
+%                      the classifer. Default is empty struct.
 %
 % Output:
 %    mvpaTable        <table> the MVPA result table.
@@ -38,8 +40,13 @@ else
     [classifiers, classNames, ~, nClass] = cosmo_classifier(classifiers);
 end
 
+if ~exist('classopt', 'var') || isempty(classopt)
+    classopt = struct();
+end
+
 % MVPA settings
 measure = @cosmo_crossvalidation_measure;  % function handle
+measure_args = classopt;
 measure_args.output = 'fold_predictions';
 
 % remove constant features
