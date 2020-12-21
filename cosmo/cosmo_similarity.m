@@ -67,7 +67,7 @@ if ~exist('dsInfo', 'var') || isempty(dsInfo)
 end
 
 % scale the data before combination by default
-if ~exist('autosacle', 'var') || isempty(autosacle)
+if ~exist('autoscale', 'var') || isempty(autoscale)
     autoscale = 1;
 end
 
