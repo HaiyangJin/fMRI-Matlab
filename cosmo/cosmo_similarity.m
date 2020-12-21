@@ -93,6 +93,9 @@ dts_test = cellfun(@(x) cosmo_slice(ds, x), testMasks, 'uni', true);
 if autoscale
     dts_test = arrayfun(@(x) cosmo_normalize(dts_test(x), 'zscore', 1),...
         1:numel(dts_test), 'uni', true);
+    classopt.autoscale = 1;
+else
+    classopt.autoscale = 0;
 end
 
 nRow = size(dts_test(1).samples, 1);
@@ -138,7 +141,7 @@ for iWeight = 1:nWeight
     
     %%%%%%%%%%%%%%%%%%%%%% train and predict data %%%%%%%%%%%%%%%%%%%%%%%%%
     [PredictCode, Probability] = cosmo_classify_libsvm_p(dt_train.samples,...
-        dt_train.sa.targets, dt_test.samples);
+        dt_train.sa.targets, dt_test.samples, classopt);
     
     % save the results
     ClassPair = repmat(classPairs, nRow, 1);

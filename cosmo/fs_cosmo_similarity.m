@@ -1,5 +1,5 @@
 function predTable = fs_cosmo_similarity(sessList, anaList, labelList, runList, ...
-    classPairs, condName, condWeight, outPath)
+    classPairs, condName, condWeight, autoscale, outPath)
 % fs_cosmo_similarity(sessList, labelList, ...
 %    classPairs, condName, condWeight, template, outputPath, funcPath)
 %
@@ -26,6 +26,8 @@ function predTable = fs_cosmo_similarity(sessList, anaList, labelList, runList, 
 %    condWeight      <numeric array> a PxQ numeric array for the
 %                     weights to be applied to the combination of condName.
 %                     Each row of weights is tested separately.
+%    autoscale       <logical> whether apply autoscale to train and test
+%                     datasets. Default is 1.
 %    outPath         <string> where output to be saved.
 %
 % Output:
@@ -57,6 +59,10 @@ if ~exist('condWeight', 'var') || isempty(condWeight)
     condWeight = '';
 elseif size(condWeight, 2) ~= size(condName, 2)
     error('The column numbers of condWeight and condName should be the same.');
+end
+
+if ~exist('autoscale', 'var') || isempty(autoscale)
+    autoscale = 1;
 end
 
 if ~exist('outPath', 'var') || isempty(outPath)
@@ -95,7 +101,7 @@ for iSess = 1:nSess
         
         %%%%%%%%%%%%%%% estimate the similarity %%%%%%%%%%%%%%%%%%
         simiCell = arrayfun(@(x, y) cosmo_similarity(ds_subj, ...
-            classPairs(x, :), condName(x, :), condWeight, dsInfo), ...
+            classPairs(x, :), condName(x, :), condWeight, dsInfo, autoscale), ...
             1:nClass, 'uni', false);
         
         predCell{iSess, iLabel} = vertcat(simiCell{:});
