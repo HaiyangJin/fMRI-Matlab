@@ -26,10 +26,11 @@ function [labelMatCell, cluVtxCell] = fs_trimlabel(labelFn, sessCode, outPath, v
 %                   will be used. if 'gmfn' is not empty and the file
 %                   exists, the vertex index in the file will be used as
 %                   the global maxima and 'startvtx' will be ignored.
-%    'savegm'      <logical> 1 [default]: save the global maxima used for
-%                   creating the updated label as a file. Its filename will
-%                   be the same as the label filename (replace '.label' as
-%                   '.gm'. 0: do not save the global maxima.
+%    'savegm'      <logical> 1 [default]: save the global maxima (matlab 
+%                   vertex index) used for creating the updated label as a 
+%                   file. Its filename will be the same as the label 
+%                   filename (replace '.label' as '.gm'. 0: do not save the
+%                   global maxima.
 %    'maxsize'     <numeric> the maximum cluster size (mm2) [based on
 %                   ?h.white]. Default is 100.
 %    'minsize'     <numeric> the minimum cluster size (mm2) [based on
