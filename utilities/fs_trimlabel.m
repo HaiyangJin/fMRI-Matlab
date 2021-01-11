@@ -33,6 +33,9 @@ function [labelMatCell, cluVtxCell] = fs_trimlabel(labelFn, sessCode, outPath, v
 %                   global maxima.
 %    'maxsize'     <numeric> the maximum cluster size (mm2) [based on
 %                   ?h.white]. Default is 100.
+%    'savesize'    <logical> 0 [default]: do not save the area size
+%                   information in the label file name; 1: save the area
+%                   size information.
 %    'minsize'     <numeric> the minimum cluster size (mm2) [based on
 %                   ?h.white]. Default is 20 (arbitrary number).
 %    'lagnvtx'     <integer> number (lagvtx-1) of vertex values to be
@@ -146,6 +149,7 @@ defaultOpts = struct(...
     'gmfn', '', ...
     'savegm', 1, ...
     'maxsize', 100, ...
+    'savesize', 0, ...
     'minsize', 20, ...
     'lagnvtx', 100, ...
     'lagvalue', [], ...
@@ -182,8 +186,14 @@ if opts.showinfo
 end
 
 % use the global maxima saved before as 'startVtx' if needed
-if ~isempty(gmFn)
-    gmFile = fullfile(getenv('SUBJECTS_DIR'), subjCode, 'label', gmFn);
+if ~isempty(opts.gmfn)
+    gmFile = fullfile(getenv('SUBJECTS_DIR'), subjCode, 'label', opts.gmfn);
+    if ~exist(gmFile, 'file')
+        warning('Cannot find the gm file...');
+        labelMatCell = cell(1,1);
+        cluVtxCell = cell(1,1);
+        return;
+    end
     startVtx = str2double(fs_readtext(gmFile));
 end
 
@@ -556,8 +566,12 @@ for iTh = 1:nTh
         prompt = {'Enter the label name for this cluster:'};
         dlgtitle = 'Input';
         dims = [1 35];
-        tmpStr = erase(labelFn, {'f13.', 'manual.', '.label'});
-        definput = {sprintf('%s.%dmm2.label', tmpStr, maxSize)};
+        if opts.savesize
+            tmpStr = erase(labelFn, {'f13.', 'manual.', 'alt.', '.label'});
+            definput = {sprintf('%s.a%d.label', tmpStr, maxSize)};
+        else
+            definput = {erase(labelFn, {'f13.', 'manual.', 'alt.'})};
+        end
         newlabelname = inputdlg(prompt,dlgtitle,dims,definput);
         
         close all;
