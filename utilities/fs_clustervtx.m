@@ -1,5 +1,5 @@
 function [clusterNo, nCluster, iterNo] = fs_clustervtx(vtxIdx, nbrVtx, vtxValue, vtxStart)
-% [clusterNo, nCluster, iterNo] = fs_clustervtx(vtxIdx, nbrVtx)
+% [clusterNo, nCluster, iterNo] = fs_clustervtx(vtxIdx, nbrVtx, vtxValue, vtxStart)
 %
 % This function assigns vtxIdx into different clusters based on their
 % neighborhood vertices.
@@ -11,6 +11,7 @@ function [clusterNo, nCluster, iterNo] = fs_clustervtx(vtxIdx, nbrVtx, vtxValue,
 %                    fs_neighborvtx.m.
 %    vtxValue       <numeric array> PxQ numeric array. Values for each
 %                    vertex.
+%    vtxStart       <integer> 
 %
 % Outputs
 %    cluserNo       <integer array> PxQ integer array. The cluster index
@@ -28,7 +29,6 @@ if ~exist('vtxStart', 'var') || isempty(vtxStart)
     vtxStart = [];
 end
 
-
 % assign zeros
 clusterNo = zeros(size(vtxIdx));
 iterNo = zeros(size(vtxIdx));
@@ -44,15 +44,16 @@ while ~all(clusterNo)
     % find all un-assigned vertices
     unassign = vtxIdx(~clusterNo);
     
-    
-    
-    if isempty(vtxStart)
+    if ~isempty(vtxStart) && any(ismember(vtxStart, vtxIdx))
+        theVtx = vtxStart;
+        vtxStart = [];
+    else
+        if ~isempty(vtxStart) && ~any(ismember(vtxStart, vtxIdx))
+            warning('The vertex with strongest response is used as the starting point...');
+        end
         % use the vertex whose absolute value is largest as the starting point
         [~, maxIdx] = max(abs(vtxValue(~clusterNo)));
         theVtx = unassign(maxIdx);
-    else
-        theVtx = vtxStart;
-        vtxStart = [];
     end
     
     % iteration number restart for each cluster
