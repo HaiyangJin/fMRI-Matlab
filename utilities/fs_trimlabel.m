@@ -162,23 +162,11 @@ defaultOpts = struct(...
 
 opts = fs_mergestruct(defaultOpts, varargin);
 
-method = opts.method;
 nCluster = opts.ncluster;
 startVtx = opts.startvtx;
-gmFn = opts.gmfn;
-savegm = opts.savegm;
 maxSize = opts.maxsize;
-minSize = opts.minsize;
-lagNVtx = opts.lagnvtx;
-lagValue = opts.lagvalue;
-maxIter = opts.maxiter;
-keepRatio = opts.keepratio;
 lowerThresh = opts.lowerthresh;
 refLabel = opts.reflabel;
-warnoverlap = opts.warnoverlap;
-smallerOnly = opts.smalleronly;
-peakOnly = opts.peakonly;
-showInfo = opts.showinfo;
 extraOpt = opts.extraopt1st;
 
 % convert sessCode to subjCode
@@ -189,7 +177,7 @@ if ~exist('outPath', 'var') || isempty(outPath)
 end
 if ~exist(outPath, 'dir'); mkdir(outPath); end
 
-if showInfo
+if opts.showinfo
     extraOpt = [{'annot', 'aparc', 'showinfo', 1, 'markpeak', 1}, extraOpt];
 end
 
@@ -206,7 +194,7 @@ oldHemi = setdiff({'lh', 'rh'}, theHemi);
 refLabel = cellfun(@(x) strrep(x, oldHemi{1}, theHemi), refLabel, 'uni', false);
 
 % only show global maxima for selecting roi
-if peakOnly
+if opts.peakonly
     extraOpt = [{'peakonly', 1}, extraOpt];
     overlay = sprintf('nooverlay.%s', theHemi);
 else
@@ -260,19 +248,19 @@ else
         vtxValues = sort(abs(unique(labelMatOrig(:, 5))));
         
         % obtain the minimum values to be used as cluster-forming thresholds
-        if ~isempty(lagValue)
+        if ~isempty(opts.lagvalue)
             % use lag values
             [labelMin, labelMax] = bounds(vtxValues);
-            fmins = (labelMin:lagValue:labelMax)';
+            fmins = (labelMin:opts.lagvalue:labelMax)';
         else
             % use lag vertex number
-            fmins = vtxValues(1:lagNVtx:numel(vtxValues));
+            fmins = vtxValues(1:opts.lagnvtx:numel(vtxValues));
         end
         
         % apply the maximum iteration for checking clusters
         nIter = numel(fmins);
-        if nIter > maxIter
-            fmins = fmins(sort(randperm(nIter, maxIter)));
+        if nIter > opts.maxiter
+            fmins = fmins(sort(randperm(nIter, opts.maxiter)));
             fprintf('Following thresholds are randomly selected from ''fmin'':\n');
             disp(fmins);
         end
@@ -355,7 +343,7 @@ else
             
             % relese the restriction of KEY threshold
             if lowerThresh
-                if smallerOnly
+                if opts.smalleronly
                     % only values smaller than the starting vertex can be
                     % included in this cluster
                     isSmaller = labelMatOrig(:, 5) <= theLabelMat(theMax, 5);
@@ -374,7 +362,7 @@ else
             gmCell{iClu, ith} = theVtx; % vertex index in Matlab
             
             % apply different methods for selecting vertices
-            switch method
+            switch opts.method
                 case {'concentric', 'con-maxresp'}
                     % calculate the accumulative area for the iterations
                     accarea1 = arrayfun(@(x) fs_labelarea(labelFn, subjCode, ...
@@ -449,7 +437,7 @@ else
                         [~, sortidx] = sort(abs(nbrResp), 'descend');
                         sortLabelMat = nbrLabelMat(sortidx, :);
                         % only keep the first 'keepratio' vertices
-                        isKept = 1:numel(nbrResp) <= ceil(numel(nbrResp) * keepRatio);
+                        isKept = 1:numel(nbrResp) <= ceil(numel(nbrResp) * opts.keepratio);
                         % save the data for kept vertices
                         keptLabelMat = sortLabelMat(isKept, :);
                         
@@ -492,7 +480,7 @@ else
     end  % ith
     
     % remove 'ith' if the area of any temporay label is smaller than minSize
-    isRemove = cellfun(@(x) any(fs_labelarea(labelFn, subjCode, x) < minSize, 1), cluVtxCell);
+    isRemove = cellfun(@(x) any(fs_labelarea(labelFn, subjCode, x) < opts.minsize, 1), cluVtxCell);
     cluVtxCell(isRemove) = [];
     gmCell(isRemove) = [];
     
@@ -542,7 +530,7 @@ for iTh = 1:nTh
         overlapVtx = cellfun(@(x) intersect(x{:}), allPairs, 'uni', false);
         isOverlap = ~cellfun(@isempty, overlapVtx);
         
-        if warnoverlap && any(isOverlap)
+        if opts.warnoverlap && any(isOverlap)
             for iOverlap = find(isOverlap)
                 % show overlapping between any pair of clusters
                 fs_cvn_print1st(sessCode, overlay, {[labelFn refLabel tmpLabelFn(allComb(iOverlap, :))]}, outPath, ...
@@ -582,7 +570,7 @@ for iTh = 1:nTh
                 updateLabelFile = strrep(thisLabelFile, thisClusterLabel, newlabelname{1});
                 movefile(thisLabelFile, updateLabelFile);
                 % save the global maxima file
-                if savegm
+                if opts.savegm
                     thegm = gmCell(iTempLabel, iTh);
                     thegmFile = strrep(updateLabelFile, '.label', '.gm');
                     % save the global maxima file
