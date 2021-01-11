@@ -20,13 +20,13 @@ function mvpaTable = fs_cosmo_cvdecode(sessList, anaList, labelList, runList, ..
 %                     classfication pair.
 %
 % Varargin:
-%    writeoutput     <logical> whethe write the output into .csv and .xlxs
+%    writeoutput     <logical> whether write the output into .csv and .xlsx
 %                     files. Default is 1. When it is 0, outpath and outfn
 %                     will be ignored.
-%    outpath         <string> where output to be saved.
+%    outpath         <string> where to save the output file.
 %    outfn           <string> the filename of the output file. 
 %    classifier      <numeric> or <strings> or <cells> the classifiers
-%                     to be used (only 1).
+%                     to be used (only 1). Default is libsvm.
 %    classopt        <struct> the possibly other fields that are given to 
 %                     the classifer. Default is empty struct.
 %

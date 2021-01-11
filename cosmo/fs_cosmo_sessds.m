@@ -49,17 +49,14 @@ defaultOpts = struct(...
     'labelfn', '',... 
     'datafn', 'beta.nii.gz',... 
     'parfn', '', ... 
-    'ispct', '', ...
+    'ispct', '', ... % 0 default for fs_cosmo_surface
     'funcpath', getenv('FUNCTIONALS_DIR')...
     );
 
 opts = fs_mergestruct(defaultOpts, varargin);
 
 runList = opts.runlist;
-runwise = opts.runwise;
 labelFn = opts.labelfn;
-dataFn = opts.datafn;
-parFn = opts.parfn;
 funcPath = opts.funcpath;
 
 if ischar(runList)
@@ -73,7 +70,7 @@ end
 
 %% Read data and condition names
 % create the prFolder names if data for each run are read separately
-if runwise
+if opts.runwise
     % make the run names ('pr*') (in the analysis folder)
     prFolder = cellfun(@(x) ['pr' x], runFolder, 'uni', false);
 else
@@ -85,12 +82,12 @@ end
 boldPath = fullfile(funcPath, sessCode, 'bold');
 
 % create the full filename to the paradigm file (with path)
-parFiles = fullfile(boldPath, runFolder, parFn);
+parFiles = fullfile(boldPath, runFolder, opts.parfn);
 % read all the par files
 parCell = cellfun(@fs_readpar, parFiles, 'uni', false);
 
 % create the to-be-read filenames (beta) with path
-betaFiles = fullfile(boldPath, anaName, prFolder, dataFn);
+betaFiles = fullfile(boldPath, anaName, prFolder, opts.datafn);
 
 % read the data and the corresponding condition names
 dsCell = arrayfun(@(x) fs_cosmo_surface(betaFiles{x}, ...
