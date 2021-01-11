@@ -69,16 +69,18 @@ data = shiftdim(data, 3); % betas * vertices
 
 % only keep first n rows of samples if Target information is available
 if ~isempty(params.targets)
-    
     nTarget = numel(params.targets);
-    % obtain the "baseline", i.e., intercept
-    intercept = data(nTarget + 1, :);
+%     % obtain the "baseline", i.e., intercept
+%     intercept = data(nTarget + 1, :);
     % beta values for conditions
     data = data(1:nTarget, :);
-    
-    if params.ispct % use signal percentage change
-        data = data ./ intercept * 100;
-    end
+end
+
+% use signal percentage change
+if params.ispct 
+    thefn = dir(surfFn);
+    intercept = fs_readfunc(fullfile(thefn.folder, 'meanfunc.nii.gz'))';
+    data = data ./ intercept * 100;
 end
 
 % .fa
