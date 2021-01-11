@@ -11,13 +11,13 @@ function [labelMatCell, cluVtxCell] = fs_trimlabel(labelFn, sessCode, outPath, v
 %
 % Options (varargin):
 %    'method'      <string> different methods for dilating the global
-%                   maxima to a cluster/roi. The options are 'concentric'
-%                   [default], 'maxresp', or 'con-maxresp'. More see below.
+%                   maxima to a cluster/roi. The options are 'concentric',
+%                   'maxresp'[default], or 'con-maxresp'. More see below.
 %    'ncluster'    <integer> cluster numbers. Default is 1.
-%    'startvtx'    <integer> index of the starting vertex. This should be 
-%                   the vertex index in the label file (i.e., without + 1). 
-%                   Default is []. If 'startvtx' is used, ncluster will be 
-%                   set as 1 and 'lowerthresh' will be set as true. [Not 
+%    'startvtx'    <integer> index of the starting vertex. This should be
+%                   the vertex index in the Matlab (i.e., already + 1).
+%                   Default is []. If 'startvtx' is used, ncluster will be
+%                   set as 1 and 'lowerthresh' will be set as true. [Not
 %                   fully developed. Ths startvtx might not be the global
 %                   maxima.] Note: when 'startvtx' is not empty and
 %                   'savegm' is 1, startvtx will be saved as 'gmfn'.
@@ -26,9 +26,9 @@ function [labelMatCell, cluVtxCell] = fs_trimlabel(labelFn, sessCode, outPath, v
 %                   will be used. if 'gmfn' is not empty and the file
 %                   exists, the vertex index in the file will be used as
 %                   the global maxima and 'startvtx' will be ignored.
-%    'savegm'      <logical> 1 [default]: save the global maxima (matlab 
-%                   vertex index) used for creating the updated label as a 
-%                   file. Its filename will be the same as the label 
+%    'savegm'      <logical> 1 [default]: save the global maxima (matlab
+%                   vertex index) used for creating the updated label as a
+%                   file. Its filename will be the same as the label
 %                   filename (replace '.label' as '.gm'. 0: do not save the
 %                   global maxima.
 %    'maxsize'     <numeric> the maximum cluster size (mm2) [based on
@@ -140,7 +140,7 @@ fprintf('\nUpdating %s for %s...\n', labelFn, sessCode);
 
 %% Deal with inputs
 defaultOpts = struct(...
-    'method', 'concentric', ...
+    'method', 'maxresp', ...
     'ncluster', 1, ...
     'startvtx', [], ...
     'gmfn', '', ...
@@ -196,12 +196,7 @@ end
 % use the global maxima saved before as 'startVtx' if needed
 if ~isempty(gmFn)
     gmFile = fullfile(getenv('SUBJECTS_DIR'), subjCode, 'label', gmFn);
-    startVtx = fs_readtext(gmFile);
-end
-% use startVtx if it is not empty
-if ~isempty(startVtx)
-    nCluster = 1;
-    lowerThresh = 1;
+    startVtx = str2double(fs_readtext(gmFile));
 end
 
 % convert refLabel to cell and match hemisphere information
@@ -251,68 +246,79 @@ else
     %% Identify the clusters
     % obtain the neighbor vertices
     nbrVtx = fs_neighborvtx(labelMatOrig(:, 1), theHemi, subjCode);
-    
-    % identify all unqiue vertex values
-    vtxValues = sort(abs(unique(labelMatOrig(:, 5))));
-    
-    % obtain the minimum values to be used as cluster-forming thresholds
-    if ~isempty(lagValue)
-        % use lag values
-        [labelMin, labelMax] = bounds(vtxValues);
-        fmins = (labelMin:lagValue:labelMax)';
+        
+    if ~isempty(startVtx)
+        % use startVtx if it is not empty
+        nCluster = 1;
+        lowerThresh = 1;
+        
+        keyCluNoC{1,1} = ones(size(labelMatOrig, 1), 1);
+        keyIterC = keyCluNoC;   
+        
     else
-        % use lag vertex number
-        fmins = vtxValues(1:lagNVtx:numel(vtxValues));
-    end
-    
-    % apply the maximum iteration for checking clusters
-    nIter = numel(fmins);
-    if nIter > maxIter
-        fmins = fmins(sort(randperm(nIter, maxIter)));
-        fprintf('Following thresholds are randomly selected from ''fmin'':\n');
-        disp(fmins);
-    end
-    
-    % identify the clusters with all thresholds
-    fprintf('Identifying the clusters... [%d/%d]\n', numel(fmins), nIter);
-    [cluNoC, nCluC, iterC] = arrayfun(@(x) fs_clusterlabel(labelFn, subjCode, x), fmins, 'uni', false); %
-    nClu = cell2mat(nCluC);
-    
-    % update nCluster to the maximum of clusters
-    if max(nClu) < nCluster
-        nCluster = max(nClu);
-        warning('Only %d clusters are found in this label.', nCluster);
-    end
-    
-    % find the KEY indices, for which the cluster number matches nCluster
-    % and the previous cluster number doe not match nCluster. There can be
-    % multiple KEY indices if nCluster > 1. When nCluster is 1, only the
-    % largest p-value (smallest FreeSurfer p-values) that that identifying
-    % one cluster will be used.
-    isKeyTh = 0;
-    while ~any(isKeyTh) && nCluster < 11
-        % keep matching the nCluster
-        isKeyTh = nClu == nCluster & [true; nClu(1:end-1) ~= nCluster];
-        if ~any(isKeyTh)
-            warning(['Cannot find %d cluster(s) for %s and use %d ' ...
-                'clusters now...'], nCluster, sessCode, nCluster + 1);
-            % add one if needed
-            nCluster = nCluster + 1;
+        % identify all unqiue vertex values
+        vtxValues = sort(abs(unique(labelMatOrig(:, 5))));
+        
+        % obtain the minimum values to be used as cluster-forming thresholds
+        if ~isempty(lagValue)
+            % use lag values
+            [labelMin, labelMax] = bounds(vtxValues);
+            fmins = (labelMin:lagValue:labelMax)';
+        else
+            % use lag vertex number
+            fmins = vtxValues(1:lagNVtx:numel(vtxValues));
         end
+        
+        % apply the maximum iteration for checking clusters
+        nIter = numel(fmins);
+        if nIter > maxIter
+            fmins = fmins(sort(randperm(nIter, maxIter)));
+            fprintf('Following thresholds are randomly selected from ''fmin'':\n');
+            disp(fmins);
+        end
+        
+        % identify the clusters with all thresholds
+        fprintf('Identifying the clusters... [%d/%d]\n', numel(fmins), nIter);
+        [cluNoC, nCluC, iterC] = arrayfun(@(x) fs_clusterlabel(labelFn, subjCode, x), fmins, 'uni', false); %
+        nClu = cell2mat(nCluC);
+        
+        % update nCluster to the maximum of clusters
+        if max(nClu) < nCluster
+            nCluster = max(nClu);
+            warning('Only %d clusters are found in this label.', nCluster);
+        end
+        
+        % find the KEY indices, for which the cluster number matches nCluster
+        % and the previous cluster number doe not match nCluster. There can be
+        % multiple KEY indices if nCluster > 1. When nCluster is 1, only the
+        % largest p-value (smallest FreeSurfer p-values) that that identifying
+        % one cluster will be used.
+        isKeyTh = 0;
+        while ~any(isKeyTh) && nCluster < 11
+            % keep matching the nCluster
+            isKeyTh = nClu == nCluster & [true; nClu(1:end-1) ~= nCluster];
+            if ~any(isKeyTh)
+                warning(['Cannot find %d cluster(s) for %s and use %d ' ...
+                    'clusters now...'], nCluster, sessCode, nCluster + 1);
+                % add one if needed
+                nCluster = nCluster + 1;
+            end
+        end
+        
+        % only keep the first key if nCluster is 1
+        if nCluster == 1
+            firstKey = find(isKeyTh, 1);
+            isKeyTh = false(size(isKeyTh));
+            isKeyTh(firstKey) = true;
+        end
+        fprintf('There are %d KEY threshold(s) generating %d clusters...\n', ...
+            sum(isKeyTh), nCluster);
+        
+        % save the corresponding ClusterNo and iterations
+        keyCluNoC = cluNoC(isKeyTh, :);
+        keyIterC = iterC(isKeyTh, :);
+   
     end
-    
-    % only keep the first key if nCluster is 1
-    if nCluster == 1
-        firstKey = find(isKeyTh, 1);
-        isKeyTh = false(size(isKeyTh));
-        isKeyTh(firstKey) = true;
-    end
-    fprintf('There are %d KEY threshold(s) generating %d clusters...\n', ...
-        sum(isKeyTh), nCluster);
-    
-    % save the corresponding ClusterNo and iterations
-    keyCluNoC = cluNoC(isKeyTh, :);
-    keyIterC = iterC(isKeyTh, :);
     
     %% Try to identify vertices for the label
     % create empty cell for saving the vertex numbers
@@ -405,8 +411,8 @@ else
                     
                     % identify vertex indices whith which the cluster area is
                     % larger than maxSize
-                    tempArea = baseArea + accarea2;
-                    islarger2 = find(tempArea > maxSize);
+                    tmpArea = baseArea + accarea2;
+                    islarger2 = find(tmpArea > maxSize);
                     extraVtx = sortBaseMat(1:islarger2-1, 1);
                     
                     % save all the vertice indices for this cluster
@@ -425,8 +431,8 @@ else
                         roivtx = roivtxUpdate;
                         
                         % find all neighbor vertices of 'refvtx'
-                        tempNbrVtx = theNbrVtx(ismember(theLabelMat(:, 1), refvtx));
-                        thisNbrVtx = unique(vertcat(tempNbrVtx{:}));
+                        tmpNbrVtx = theNbrVtx(ismember(theLabelMat(:, 1), refvtx));
+                        thisNbrVtx = unique(vertcat(tmpNbrVtx{:}));
                         % excluded vertices already in the roi (roivtx)
                         thisnbrVtx = setdiff(thisNbrVtx, roivtx);
                         
@@ -500,7 +506,7 @@ labelMatCell = cellfun(@(x) labelMatOrig(ismember(labelMatOrig(:, 1), x), :), cl
 [nLabelClu, nTh] = size(labelMatCell);
 % create temporary label names
 % tempLabelFn = arrayfun(@(x) sprintf('%s.temp%d.label', erase(labelFn, '.label'), x), 1:nLabelClu, 'uni', false);
-tempLabelFn = arrayfun(@(x) sprintf('%s.temp%d.label', theHemi, x), 1:nLabelClu, 'uni', false);
+tmpLabelFn = arrayfun(@(x) sprintf('%s.tmp%d.label', theHemi, x), 1:nLabelClu, 'uni', false);
 
 for iTh = 1:nTh
     
@@ -508,12 +514,12 @@ for iTh = 1:nTh
     fprintf('\nDisplaying the temporary labels... [%d/%d]\n', iTh, nTh);
     
     % Create temporary files with temporary label names
-    labelfile = cellfun(@(x,y) fs_mklabel(x, subjCode, y), labelMatCell(:, iTh), tempLabelFn', 'uni', false);
+    labelfile = cellfun(@(x,y) fs_mklabel(x, subjCode, y), labelMatCell(:, iTh), tmpLabelFn', 'uni', false);
     
     if nLabelClu > 1
         
         % show all clusters together if there are more than one cluster
-        fs_cvn_print1st(sessCode, overlay, {[labelFn refLabel tempLabelFn]}, outPath, ...
+        fs_cvn_print1st(sessCode, overlay, {[labelFn refLabel tmpLabelFn]}, outPath, ...
             'visualimg', 'on', 'waitbar', 0, 'gminfo', 0);
         %     waitfor(msgbox('Please checking all the sub-labels...'));
         % input the label names
@@ -539,7 +545,7 @@ for iTh = 1:nTh
         if warnoverlap && any(isOverlap)
             for iOverlap = find(isOverlap)
                 % show overlapping between any pair of clusters
-                fs_cvn_print1st(sessCode, overlay, {[labelFn refLabel tempLabelFn(allComb(iOverlap, :))]}, outPath, ...
+                fs_cvn_print1st(sessCode, overlay, {[labelFn refLabel tmpLabelFn(allComb(iOverlap, :))]}, outPath, ...
                     'visualimg', 'on', 'waitbar', 0, 'gminfo', 0, extraOpt{:});
                 waitfor(msgbox('There is overlapping between sub-labels...', 'Overlapping...', 'warn'));
                 close all;
@@ -552,7 +558,7 @@ for iTh = 1:nTh
         
         % this label file name (without and with path)
         thisLabelFile = labelfile{iTempLabel};
-        thisClusterLabel = tempLabelFn{iTempLabel};
+        thisClusterLabel = tmpLabelFn{iTempLabel};
         
         % display this temporary cluster
         fs_cvn_print1st(sessCode, overlay, {[labelFn refLabel thisClusterLabel]}, outPath, ...
@@ -562,7 +568,8 @@ for iTh = 1:nTh
         prompt = {'Enter the label name for this cluster:'};
         dlgtitle = 'Input';
         dims = [1 35];
-        definput = {erase(labelFn, {'f13.', 'manual.'})};
+        tmpStr = erase(labelFn, {'f13.', 'manual.', '.label'});
+        definput = {sprintf('%s.%dmm2.label', tmpStr, maxSize)};
         newlabelname = inputdlg(prompt,dlgtitle,dims,definput);
         
         close all;
