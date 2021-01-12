@@ -567,8 +567,8 @@ for iTh = 1:nTh
         dlgtitle = 'Input';
         dims = [1 35];
         if opts.savesize
-            tmpStr = erase(labelFn, {'f13.', 'manual.', 'alt.', '.label'});
-            definput = {sprintf('%s.a%d.label', tmpStr, maxSize)};
+            tmpStr = erase(labelFn, {'f13.', 'manual.', 'alt.', 'label'});
+            definput = {sprintf('%sa%d.label', tmpStr, maxSize)};
         else
             definput = {erase(labelFn, {'f13.', 'manual.', 'alt.'})};
         end
