@@ -1,5 +1,5 @@
 function fs_savemgz(subjCode, surfData, outputFn, outputPath, hemi, structPath)
-% fs_savemgz(subjCode, surfData, outputFn, outputPath, structPath)
+% fs_savemgz(subjCode, surfData, outputFn, outputPath, hemi, structPath)
 %
 % This function is built based on nsd_savemgz.m created by Kendrick Kay
 % (https://github.com/kendrickkay/nsdcode/).

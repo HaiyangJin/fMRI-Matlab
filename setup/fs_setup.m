@@ -1,10 +1,10 @@
 function fs_setup(fsPath, force)
-% fs_setup(fsPath);
+% fs_setup(fsPath, force)
 % Set up FreeSurfer if it is not set up properly.
 %
 % Input:
 %    fsPath         full path to the folder where FreeSurfer is installed
-%    force          force to set fsPath as $FREESURFER_HOME
+%    force          force to set fsPath as $FREESURFER_HOME. Default is 0.
 %
 % Created and updated by Haiyang Jin (16-Jan-2020)
 

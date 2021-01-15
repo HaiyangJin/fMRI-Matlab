@@ -1,7 +1,7 @@
 function predTable = fs_cosmo_similarity(sessList, anaList, labelList, runList, ...
     classPairs, condName, condWeight, autoscale, outPath)
-% fs_cosmo_similarity(sessList, labelList, ...
-%    classPairs, condName, condWeight, template, outputPath, funcPath)
+% predTable = fs_cosmo_similarity(sessList, anaList, labelList, runList, ...
+%    classPairs, condName, condWeight, autoscale, outPath)
 %
 % This function decodes the similarity of condName to classPairs for all
 % the sessions in the project. libsvm is used in this analysis.

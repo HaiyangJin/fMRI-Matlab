@@ -2,7 +2,8 @@ function [mgzFile, fscmd] = fv_surfmgz(mgzFile, varargin)
 % [mgzFile, fscmd] = fv_surfmgz(mgzFile, varargin)
 %
 % This function displays *.mgz file (for surface) in FreeView. [For
-% displaying *.mgz for volume, please use fv_volmgz.m instead.]
+% displaying *.mgz for volume, please use fv_volmgz.m instead.] Note: the
+% *.mgz file has to be in $SUBJECTS_DIR folder. 
 %
 % Inputs: 
 %    mgzFile          <string> or <a cell of strings> *.mgz file (with 
@@ -27,8 +28,10 @@ function [mgzFile, fscmd] = fv_surfmgz(mgzFile, varargin)
 %                      freeview.
 %    fscmd            <string> the FreeSurfer command used here.
 %
-% Example: display the inflated surface:
-% fv_surfmgz;
+% Example: display the inflated surface overlaied with *.mgz file in any
+% folder. 
+% fv_surfmgz; % and then select the fsaverage/ folder. % next: add the
+% *.mgz file to 'overlay'.
 %
 % Created by Haiyang Jin (21-Jan-2020)
 %

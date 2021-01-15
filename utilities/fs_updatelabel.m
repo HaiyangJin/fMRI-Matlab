@@ -1,12 +1,14 @@
 function updateMat = fs_updatelabel(label1Fn, label2Fn, subjCode, ...
     updatefunc, saveBackup, which2update)
-% updateMat = fs_updatelabel(label1Fn, label2Fn, subjCode, which2update, saveBackup)
+% updateMat = fs_updatelabel(label1Fn, label2Fn, subjCode, ...
+%    updatefunc, saveBackup, which2update)
 %
 % This function update the 'which2update' label with the update funciton.
 %
-% When @setdiff (default) is used, the non-overlapping between the two
-% labels will be identified and removed them from the 'which2update' label.
-% When @intersect is used, the overlapping between the two labels will be
+% When @setdiff (default) is used, the overlapping between the two labels
+% will be identified and removed from the 'which2update' label.
+%
+% When @intersect is used, the non-overlapping between the two labels will be
 % identified and removed them from the 'which2update' label.
 % @union and @setxor have not been set properly.
 %
