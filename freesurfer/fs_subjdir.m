@@ -31,6 +31,11 @@ if ~exist('setdir', 'var') || isempty(setdir)
     setdir = 1;
 end
 
+% my secrect default path to 'fsaverage'
+if strcmp(struPath, 'myfs')
+    struPath = fullfile('~', 'GoogleDrive', '102_fMRI', 'fmriTemplate');
+end
+
 if setdir
     setenv('SUBJECTS_DIR', struPath);
     fprintf('SUBJECTS_DIR is set as %s now...\n', struPath);
