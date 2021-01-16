@@ -28,7 +28,8 @@ function mvpaTable = fs_cosmo_cvdecode(sessList, anaList, labelList, runList, ..
 %    classifier      <numeric> or <strings> or <cells> the classifiers
 %                     to be used (only 1). Default is libsvm.
 %    classopt        <struct> the possibly other fields that are given to 
-%                     the classifer. Default is empty struct.
+%                     the classifer. Default is empty struct. E.g., 'c' for
+%                     libsvm.
 %
 % Outputs:
 %    mvpaTable       <table> MVPA result table (main runs).

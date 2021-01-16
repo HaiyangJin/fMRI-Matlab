@@ -38,7 +38,7 @@ if nargin < 1 || isempty(mgzFile)
 end
 
 if nargin < 2
-    surfType = '';
+    surfType = 'inflated';
 end
 
 if nargin < 3
