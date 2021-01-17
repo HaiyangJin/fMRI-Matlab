@@ -1,17 +1,25 @@
-function fs_setup(fsPath, force)
-% fs_setup(fsPath, force)
+function fs_setup(fsPath, fslPath, force)
+% fs_setup(fsPath, fslPath, force)
+%
 % Set up FreeSurfer if it is not set up properly.
 %
 % Input:
-%    fsPath         full path to the folder where FreeSurfer is installed
-%    force          force to set fsPath as $FREESURFER_HOME. Default is 0.
+%    fsPath       <string> full path to the folder where FreeSurfer is 
+%                  installed and it will be set as $FREESURFER_HOME.
+%    fslPath      <string> full path to the folder where FSL is 
+%                  installed and it will be set as $FSLDIR.
+%    force        <logical> force setting fsPath as $FREESURFER_HOME. 
+%                  Default is 0.
 %
-% Created and updated by Haiyang Jin (16-Jan-2020)
+% Created by Haiyang Jin (16-Jan-2020)
 
 % setup matlab
 fs_setupmatlab;
 
-if nargin < 2 || isempty(force)
+if ~exist('fslPath', 'var') || isempty(fslPath)
+    fslPath = '/usr/local/fsl';
+end
+if ~exist('force', 'var') || isempty(force)
     force = 0;
 end
 
@@ -50,7 +58,7 @@ if iserror
     error('SetUpFreeSurfer.sh cannot be found at %s.', fsPath);
 end
 
-fsl_setup;  % setup fsl
+fsl_setup(fslPath);  % setup fsl
 
 %% Set PATH and environemnt variable
 % setenv('PATH', sprintf('/usr/bin:%s', getenv('PATH'))); % add /usr/bin to PATH
@@ -62,7 +70,6 @@ setenv('PATH', sprintf('%s/bin:%s', fsPath, getenv('PATH'))); % add /Application
 setenv('FSFAST_HOME', fullfile(fsPath, 'fsfast'));
 setenv('FSF_OUTPUT_FORMAT', 'nii.gz');
 setenv('MNI_DIR', fullfile(fsPath, 'mni'));
-setenv('FSL_DIR', '/usr/local/fsl');
 
 % copy from startup.m for Matlab
 %------------ FreeSurfer -----------------------------%
