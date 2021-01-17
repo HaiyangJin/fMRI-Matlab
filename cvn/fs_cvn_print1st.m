@@ -7,8 +7,8 @@ function varargout = fs_cvn_print1st(sessList, anaList, labelList, outPath, vara
 %    sessList        <cell string> list of session codes (in funcPath).
 %    anaList         <cell string> list of analysis names. Default is empty
 %                     and the overlay in the label file will be displayed.
-%    labelList       <cell string> list of label names or list of contrast
-%                     names.
+%    labelList       <cell string> list of label names.
+%                  OR list of contrast names.
 %    outPath         <string> where to save the output images. [current
 %                     folder by default].
 %
@@ -387,9 +387,8 @@ for iLabel = 1:nLabel
             % print the figure
             subfolders = {'', subjCode, theLabel};
             
-            theOutPath = fullfile(outPath, subfolders{opts.subfolder+1});
-            if ~exist(theOutPath, 'dir'); mkdir(theOutPath); end
-            thisOut = fullfile(theOutPath, [imgName '.' opts.imgext]);
+            thisOut = fullfile(outPath, subfolders{opts.subfolder+1}, [imgName '.' opts.imgext]);
+            fs_mkdir(fileparts(thisOut));
             
             try
                 % https://github.com/altmany/export_fig
