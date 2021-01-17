@@ -6,6 +6,7 @@ function fscmd = fs_selxavg3(sessidfile, anaList, runwise, runcmd, allCPU)
 % Inputs:
 %    sessidfile         <string> filename of the session id file. the file 
 %                        contains all session codes.
+%                   OR  <cell> 1x1 cell. Will be used as sessid (for -s).
 %    anaList            <cell of strings> the list of analysis names.
 %    runwise            <logical> 0: run the first-level analysis for all 
 %                        runs together [default]; 1: run the analysis for
@@ -24,6 +25,16 @@ function fscmd = fs_selxavg3(sessidfile, anaList, runwise, runcmd, allCPU)
 %
 % See also:
 % fs_isxconcat, fs_cvn_print1st
+
+if iscell(sessidfile)
+    assert(numel(sessidfile)==1, ...
+        'The size of sessidfile has to be 1x1 when it is a cell');
+    % will be used as sessid
+    sess_cmd = sprintf('-s %s', sessidfile{1});
+else
+    % will be used as sessidfile
+    sess_cmd = sprintf('-sf %s', sessidfile);
+end
 
 % argument for -run-wise
 if ~exist('runwise', 'var') || isempty(runwise)
@@ -50,8 +61,8 @@ cpuArg = cpu{allCPU + 1};
 otherArg = sprintf('%s%s%s', owArg, runArg, cpuArg);
 
 %% Create the FreeSurfer commands
-fscmd = cellfun(@(x) sprintf('selxavg3-sess -sf %s -analysis %s %s', ...
-    sessidfile, x, otherArg), anaList, 'uni', false);
+fscmd = cellfun(@(x) sprintf('selxavg3-sess %s -analysis %s %s', ...
+    sess_cmd, x, otherArg), anaList, 'uni', false);
 
 if runcmd ~= 0
     % run the analysis
