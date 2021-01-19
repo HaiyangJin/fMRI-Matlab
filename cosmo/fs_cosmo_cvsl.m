@@ -117,15 +117,10 @@ areaMax = opt.areamax;
 %%% cosmo_searchlight %%%
 measure = opt.measure;
 center_ids = opt.centerids;
-nproc = opt.nproc;
 %%% crossvalidation settings %%%
 classifier = opt.classifier;
 partitioner = opt.partitioner;
 %%% other settings %%%
-applyUseless = opt.applyuseless;
-applyCorterx = opt.applycortex;
-outPrefix = opt.outprefix;
-maskedValue = opt.maskedvalue;
 nbrStr = opt.nbrstr;
 funcPath = opt.funcpath;
 
@@ -234,7 +229,7 @@ fprintf('The output surface has %d vertices, %d nodes\n',...
 if ismember(hemi, {'lh', 'rh'}) && isempty(center_ids)
     
     % remove uselessdta
-    if applyUseless
+    if opt.applyuseless
         [~, useMask] = cosmo_remove_useless_data(ds);
         useVtx = find(useMask);
     else
@@ -242,7 +237,7 @@ if ismember(hemi, {'lh', 'rh'}) && isempty(center_ids)
     end
     
     % mask applied to searchlight (2)
-    if applyCorterx
+    if opt.applycortex
         % load ?h.cortex.label as a mask for surface
         cortexVtx = fs_cortexmask(trgSubj, hemi);
     else
@@ -270,7 +265,7 @@ measure_args = fs_mergestruct(opt.classopt);
 % Define which classifier to use, using a function handle.
 measure_args.classifier = classifier; % @cosmo_classify_libsvm;
 % folders for saving results (Pseudo-analysis folder)
-anaFolder = [outPrefix '_' nbrStr '_' anaName];
+anaFolder = [opt.outprefix '_' nbrStr '_' anaName];
 
 nPairs = size(classPairs, 1);
 ds_cell = cell(nPairs, 1);
@@ -341,20 +336,25 @@ for iPair = 1:nPairs
     
     %% Run the searchlight
     ds_sl = cosmo_searchlight(ds_thisPair,nbrhood,measure,measure_args,...
-        'center_ids', center_ids, 'nproc', nproc);
+        'center_ids', center_ids, 'nproc', opt.nproc);
     
     % print searchlight output
     fprintf('Dataset output:\n');
     cosmo_disp(ds_sl);
     
     % set the accuracy for non-cortex vertices as -1
-    accuracy = ones(size(vo, 1), 1) * maskedValue;
+    accuracy = ones(size(vo, 1), 1) * opt.maskedvalue;
     accuracy(center_ids) = ds_sl.samples';
     
     %% Save results as *.mgz files
     
     % store searchlight results
-    accFn = sprintf('sl.%s.acc', shortName{1});
+    if isfield(measure_args, 'normalization')
+        normStr = ['.' measure_args.normalization];
+    else
+        normStr = '';
+    end
+    accFn = sprintf('sl.%s%s.acc', shortName{1}, normStr);
     accPath = fullfile(funcPath, sessCode, 'bold', anaFolder, conFolder);
     
     if ismember(hemi, {'lh', 'rh'})
