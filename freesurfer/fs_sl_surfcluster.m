@@ -22,7 +22,8 @@ function [slTable, fscmd] = fs_sl_surfcluster(pathInfo, varargin)
 %                     is saved current folder with name of 'sl_summary.csv'.
 %    .aparc          <string> the atlas to use. Default is 'aparc'.
 %    .thmin          <numeric> the minimum value (threshold) to be inclued
-%                     in the clusters. Default is 2. [It is the 
+%                     in the clusters. Default is 1.96. [It is the
+%                     two-tailed p-value of 0.05].
 %    .nspace         <integer> N for bonferroni corrections. Default is 2,
 %                     i.e., for 'lh' and 'rh'.
 %    .surftype       <string> the surface used to calcualte the area etc.
@@ -58,7 +59,7 @@ defaultOpts.slfn = 'sl.libsvm.acc.mgz';
 defaultOpts.tomni152 = 1;
 defaultOpts.outfile = fullfile(pwd, 'sl_summary.csv');
 defaultOpts.aparc = 'aparc';
-defaultOpts.thmin = 2; % z values
+defaultOpts.thmin = 1.96; % z values
 defaultOpts.nspace = 2;
 defaultOpts.surftype = 'white';
 
@@ -106,6 +107,10 @@ infoTableCell = arrayfun(@(x) cell2table(repmat(levelCell(x, :), size(ctableCell
 if isempty(infoTableCell); infoTableCell = {[]}; end
 slCell = cellfun(@horzcat, infoTableCell, ctableCell, 'uni', false);
 slTable = vertcat(slCell{:});
+
+% add the minimum threshold
+slTable.thmin = repmat(opts.thmin, size(slTable, 1), 1);
+slTable.datafile = repmat({opts.slfn}, size(slTable, 1), 1);
 
 % Save the sumTable as a file
 if ~strcmp(opts.outfile, 'none')
