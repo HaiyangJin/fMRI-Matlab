@@ -349,7 +349,7 @@ for iPair = 1:nPairs
     %% Save results as *.mgz files
     
     % store searchlight results
-    if isfield(measure_args, 'normalization')
+    if isfield(measure_args, 'normalization') && ~isempty(measure_args.normalization)
         normStr = ['.' measure_args.normalization];
     else
         normStr = '';
