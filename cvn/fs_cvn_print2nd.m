@@ -59,7 +59,7 @@ function fs_cvn_print2nd(sigPathInfo, sigFn, outPath, varargin)
 
 defaultOpts = struct(...
     'viewpt', -1, ...
-    'thresh', 1.3010i, ...
+    'thresh', 1.3010i, ... % absolute value of 1.3 (p = 0.05)
     'clim', [], ...
     'cmap', jet(256), ...
     'lookup', [], ...
@@ -67,26 +67,18 @@ defaultOpts = struct(...
     'outcolor', 1, ...
     'annot', '', ...
     'showinfo', 0, ...
-    'wantfig', 2, ...
+    'wantfig', 2, ... % do not show figure with fs_cvn_lookuplmv.m
     'cvnopts', {{}}, ...
     'funcpath', getenv('FUNCTIONALS_DIR'), ...
     'strupath', getenv('SUBJECTS_DIR')); % not in use now
 
-options = fs_mergestruct(defaultOpts, varargin);
+opts = fs_mergestruct(defaultOpts, varargin);
 
-viewpt = options.viewpt;
-thresh = options.thresh;  % absolute value of 1.3 (p = 0.05)
-clim = options.clim;
-cmap = options.cmap;  % use jet(256) as the colormap
-lookup = options.lookup;
-cluOutline = options.outline;
-cluOutColor = options.outcolor;
+clim = opts.clim;
+cmap = opts.cmap;  % use jet(256) as the colormap
+lookup = opts.lookup;
 
-annot = options.annot;
-showInfo = options.showinfo;
-wantfig = options.wantfig;  % do not show figure with fs_cvn_lookuplmv.m
-cvnopts = options.cvnopts;
-funcPath = options.funcpath;
+showInfo = opts.showinfo;
 
 % make the path for the sig files
 sigPath = fs_fullfile(sigPathInfo{:});
@@ -97,7 +89,7 @@ isFullPath = cellfun(@(x) startsWith(x, filesep), sigPath);
 needsFull = ~isExist1 & ~isFullPath;
 
 if any(needsFull)
-    sigPath(needsFull) = fullfile(funcPath, sigPath(needsFull));
+    sigPath(needsFull) = fullfile(opts.funcpath, sigPath(needsFull));
 end
 
 isExist2 = cellfun(@(x) exist(x, 'dir'), sigPath);
@@ -116,7 +108,7 @@ assert(ischar(sigFn), '''sigFn'' has to be a string.');
 if ~exist('outPath', 'var') || isempty(outPath)
     outPath = fullfile(pwd, 'Group_level_results');
 end
-outPath = fullfile(outPath, sigFn);
+outPath = fullfile(outPath, sprintf('%s_%0.2f', sigFn, opts.thresh));
 if ~exist(outPath, 'dir'); mkdir(outPath); end
 
 %% Read sig files
@@ -153,7 +145,7 @@ end
 
 %% Read other files if needed
 % show the cluster outlines if needed
-if cluOutline
+if opts.outline
     % show annotations (in the osgm/)
     annotFiles = cellfun(@(x) strrep(x, 'cluster.nii.gz', 'ocn.annot'), surfs, 'uni', false);
     [roiHemis, roicolortemp] = cellfun(@(x) fs_readannot(x, '', '', 1), annotFiles, 'uni', false);
@@ -170,7 +162,7 @@ if cluOutline
     roiall = cellfun(@vertcat, roitempL, roitempR, 'uni', false)';
     
     % use self defined colors in fs_colors
-    if cluOutColor
+    if opts.outcolor
         roicolorL = cellfun(@(x) fs_colors(numel(x)*1i), roitempL, 'uni', false);
         roicolorR = cellfun(@(x) fs_colors(numel(x)*1i), roitempR, 'uni', false);
         roicolors = cellfun(@vertcat, roicolorL, roicolorR, 'uni', false);
@@ -202,14 +194,14 @@ for iSurf = 1: nSurf
     thisroicolor = roicolors{iSurf};
     
     % generate figures for this pair
-    [~, lookup, rgbimg] = fs_cvn_lookup('fsaverage', viewpt, valstruct, ...
-        lookup, 'cvnopts', [cvnopts, {'cmap', cmap, 'clim', clim0}], ...
-        'wantfig', wantfig, ...
-        'thresh', thresh, ...
+    [~, lookup, rgbimg] = fs_cvn_lookup('fsaverage', opts.viewpt, valstruct, ...
+        lookup, 'cvnopts', [opts.cvnopts, {'cmap', cmap, 'clim', clim0}], ...
+        'wantfig', opts.wantfig, ...
+        'thresh', opts.thresh, ...
         'roimask', thisroi, ...
         'roicolor', thisroicolor, ...
         'roiwidth', {0.5}, ...
-        'annot', annot);
+        'annot', opts.annot);
     close all;
     
     % set the figure name and save it
