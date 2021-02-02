@@ -1,7 +1,7 @@
 function fscmd = fv_drawlabel(subjCode, anaName, sigFile, labelname, ...
-    fthresh, extracmd, runcmd)
+    fthresh, viewer, extracmd, runcmd)
 % fscmd = fv_drawlabel(subjCode, anaName, sigFile, labelname, ...
-%    fthresh, extracmd, runcmd)
+%    fthresh, viewer, extracmd, runcmd)
 %
 % This function uses "tksurfer" in FreeSurfer to draw label 
 % 
@@ -13,7 +13,9 @@ function fscmd = fv_drawlabel(subjCode, anaName, sigFile, labelname, ...
 %                      label.
 %    fthresh          <string> or <numeric> the overlay threshold minimal 
 %                      value.
-%    extracmd         <string> extra commands for 'tksurfer'. Default is ''.
+%    viewer           <integer> 1 for 'tksurfer' and 2 for 'freeview'. For
+%                      FS5 and FS6, default is 1 and for FS7, default is 2.
+%    extracmd         <string> extra commands for the viewer. Default is ''.
 %    runcmd           <logical> 0: do not run but only make fscmd; 1: run
 %                      FreeSurfer commands. Default is 1.
 %
@@ -35,6 +37,12 @@ if ~exist('fthresh', 'var') || isempty(fthresh)
 elseif isnumeric(fthresh)
     fthresh = num2str(fthresh);
 end
+% the default viewer
+% fsV = ;
+if ~exist('viewer', 'var') || isempty(viewer)
+   viewer = fs_version(1) < 7;
+end
+    
 if ~exist('extracmd', 'var') || isempty(extracmd)
     extracmd = '';
 end
@@ -67,10 +75,28 @@ end
 
 % create FreeSurfer command and run it
 titleStr = sprintf('%s==%s==%s', subjCode, labelname, anaName);
-fscmd = sprintf('tksurfer %s %s inflated -aparc -overlay %s -title %s %s',...
-    trgSubj, hemi, sigFile, titleStr, extracmd);
-if ~isempty(fthresh)
-    fscmd = sprintf('%s -fthresh %s', fscmd, fthresh);
+
+if viewer
+    % use tksurfer
+    fscmd = sprintf('tksurfer %s %s inflated -aparc -overlay %s -title %s %s',...
+        trgSubj, hemi, sigFile, titleStr, extracmd);
+    if ~isempty(fthresh)
+        fscmd = sprintf('%s -fthresh %s', fscmd, fthresh);
+    end
+    tmpLabelname = 'label.label';
+else
+    % use freeview
+    opts.surftype = 'inflated';
+    opts.trgsubj = trgSubj;
+    opts.threshold = [fthresh ',5'];
+    opts.annot = 'aparc';
+    opts.overlay = sigFile;
+    opts.runcmd = 0;
+    % get the surface codes
+    tmpMgz = fullfile(getenv('SUBJECTS_DIR'), subjCode, 'surf', ...
+        sprintf('%s.w-g.pct.mgh', hemi));
+    [~, fscmd] = fv_surfmgz(tmpMgz, opts);
+    tmpLabelname = fullfile('label', 'label_1.label');
 end
 
 % finish this command if do not need to run fscmd
@@ -96,7 +122,7 @@ system(fscmd);
 labelFile = fullfile(subjPath, subjCode, 'label', labelname);
 
 % rename and move this label file
-tempLabelFile = fullfile(subjPath, trgSubj, 'label.label');
+tempLabelFile = fullfile(subjPath, trgSubj, tmpLabelname);
 
 if exist(tempLabelFile, 'file')
     movefile(tempLabelFile, labelFile);

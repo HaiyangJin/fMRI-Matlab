@@ -1,7 +1,7 @@
 function fscmd = fs_drawlabel(sessList, anaList, conList, fthresh, ...
-    extraLabelStr, extracmd, runcmd, funcPath)
+    extraLabelStr, viewer, extracmd, runcmd, funcPath)
 % fscmd = fs_drawlabel(sessList, anaList, conList, fthresh, ...
-%    extraLabelStr, extracmd, runcmd, funcPath)
+%    extraLabelStr, viewer, extracmd, runcmd, funcPath)
 %
 % This function use FreeSurfer ("tksurfer") to draw labels.
 %
@@ -15,7 +15,9 @@ function fscmd = fs_drawlabel(sessList, anaList, conList, fthresh, ...
 %                    contrast folders).
 %    fthresh        <numeric> significance level (default is 2 (.01)).
 %    extraLabelStr  <string> extra label information added to the end
-%                     of the label name.
+%                    of the label name.
+%    viewer         <integer> 1 for 'tksurfer' and 2 for 'freeview'. For
+%                    FS5 and FS6, default is 1 and for FS7, default is 2.
 %    extracmd       <string> extra commands for 'tksurfer'. Default is ''.
 %    runcmd         <logical> 1: run FreeSurfer commands; 0: do not run
 %                    but only output FreeSurfer commands. 
@@ -51,6 +53,9 @@ if ~exist('extraLabelStr', 'var') || isempty(extraLabelStr)
 elseif ischar(extraLabelStr)
     extraLabelStr = {extraLabelStr};
 end
+if ~exist('viewer', 'var') || isempty(viewer)
+    viewer = '';
+end
 if ~exist('extracmd', 'var') || isempty(extracmd)
     extracmd = '';
 end
@@ -63,13 +68,13 @@ end
 
 %% Draw labels for all participants for both hemispheres
 % create all the combinations
-[theExtra, theSess, theAna, theThesh, theCon] = ...
+[theExtra, theSess, theAna, theThresh, theCon] = ...
     ndgrid(extraLabelStr, sessList, anaList, fthresh, conList);
 
 ana = theAna(:);
 sess = theSess(:);
 con = theCon(:);
-thresh = theThesh(:);
+thresh = theThresh(:);
 extraStr = theExtra(:);
 
 % add '.' at the end if necessary
@@ -84,7 +89,8 @@ labelName = cellfun(@(x1, x2, x3, x4) sprintf('roi.%s.f%d.%s.%slabel', ...
     x1, x2*10, x3, x4), hemi, thresh, con, extraStr, 'uni', false);
 
 % create labels
-fscmdCell = cellfun(@(x1, x2, x3, x4, x5) fv_drawlabel(x1, x2, x3, x4, x5, extracmd, runcmd), ...
+fscmdCell = cellfun(@(x1, x2, x3, x4, x5) fv_drawlabel(x1, x2, x3, x4, x5, ...
+    viewer, extracmd, runcmd), ...
     subjCode, ana, sigFile, labelName, thresh, 'uni', false);
 
 % make the FreeSurfer commands to one role

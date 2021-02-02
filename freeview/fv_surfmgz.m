@@ -20,6 +20,9 @@ function [mgzFile, fscmd] = fv_surfmgz(mgzFile, varargin)
 %    'annot'          <string> name of the annotation files. Default is '', 
 %                      which will display 'aparc'. Others:'a2009s',
 %                      'a2005s';
+%    'overlay'       <string> the REAL functional surface data. When
+%                      'overlay' is not empty, 'overlay' will be used as 
+%                      the overlay.
 %    'runcmd'         <logical> 1: run the fscmd to open freeview. 0: do
 %                      not run freeview and only output fscmd.
 %
@@ -45,17 +48,16 @@ defaultOpt=struct(...
     'surftype', 'inflated', ... % surface type
     'trgsubj', '', ... 
     'threshold', '', ... % default threshold
-    'annot', '',... % display aparc
+    'annot', 'aparc',... % display aparc
+    'overlay', '', ... 
     'runcmd', 1 ... 
     );
 
-options = fs_mergestruct(defaultOpt, varargin);
+opts = fs_mergestruct(defaultOpt, varargin{:});
 
-surfType = options.surftype;
-trgSubj = options.trgsubj;
-threshold = options.threshold;
-annot = options.annot;
-runcmd = options.runcmd;
+surfType = opts.surftype;
+trgSubj = opts.trgsubj;
+annot = opts.annot;
 
 if ischar(surfType); surfType = {surfType}; end
 if ~isempty(annot) && ~startsWith(annot, '.')
@@ -77,7 +79,7 @@ if dispMgz
     thePath = thePath{1}; % convert cell to string
     
     % decide the hemi for each file
-    hemis = fs_hemi_multi(mgzFile, 0);  % which hemi it is (they are)?
+    hemis = fs_hemi_multi(mgzFile, 0, 0);  % which hemi it is (they are)?
     hemiNames = unique(hemis);
     
     % make sure the selected *.mgz is surface files
@@ -119,11 +121,15 @@ for iHemi = 1:nHemi
     if dispMgz
         % make sure only one type of surface is slected when disply mgz
         % files
+        if ~isempty(opts.overlay)
+            mgzFile = {opts.overlay};
+        end
+        
         assert(numel(surfType) == 1, 'Please define only one type of surface.');
         isThisHemi = strcmp(thisHemi, hemis);
         theseMgzFile = mgzFile(isThisHemi);
         fscmd_mgz = sprintf(repmat('overlay=%s:', 1, numel(theseMgzFile)), theseMgzFile{:});
-        fscmd_threshold = sprintf('overlay_threshold=%s', threshold);
+        fscmd_threshold = sprintf('overlay_threshold=%s', opts.threshold);
     else
         fscmd_mgz = '';
         fscmd_threshold = '';
@@ -139,7 +145,7 @@ for iHemi = 1:nHemi
     end
     
     % file for the anaotation file
-    annotFn = sprintf('%s.aparc%s.annot', thisHemi, annot);
+    annotFn = sprintf('%s%s.annot', thisHemi, annot);
     annotFile = fullfile(thePath, '..', 'label', annotFn); % annotation file
     assert(logical(exist(annotFile, 'file')));  % make sure the file is avaiable
     
@@ -164,6 +170,6 @@ fscmd_other = ' -colorscale -layout 1 -viewport 3d';
 
 % put all commands together
 fscmd = ['freeview' fscmd_hemi fscmd_other];
-if runcmd; system(fscmd); end
+if opts.runcmd; system(fscmd); end
 
 end
