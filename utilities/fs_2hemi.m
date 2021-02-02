@@ -1,17 +1,23 @@
-function hemi = fs_2hemi(filename)
+function hemi = fs_2hemi(filename, fnOnly)
 % hemi = fs_2hemi(filename)
 %
 % This function determine the hemisphere based on the filename
 %
 % Input:
 %    filename       <string> filename to be checked.
+%    fnOnly         <logical> 1 [default]: only check the filename; 0:
+%                    also check the path.
 %
 % Output:
 %    hemi           <string> the hemi information.
 %
 % Created by Haiyang Jin (18-Nov-2019)
 
-if contains(filename, filesep)
+if ~exist('fnOnly', 'var') || isempty(fnOnly)
+    fnOnly = 1;
+end
+
+if contains(filename, filesep) && fnOnly
     [~, fn, ext] = fileparts(filename);
     filename = [fn, ext];
 end
