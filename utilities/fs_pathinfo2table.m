@@ -2,7 +2,7 @@ function [levelCell, levelNames] = fs_pathinfo2table(pathInfo)
 % [levelCell, levelNames] = fs_pathinfo2table(pathInfo)
 %
 % This function gathers the condition information from the path. ?This
-% function is mainly used in fs_readsummary and fs_sl_surfcluster).
+% function is mainly used in fs_readsummary and fs_group_surfcluster).
 %
 % Inputs:
 %    pathInfo        <cell> a 1xQ or Px1 cell. All the path and filename
@@ -22,7 +22,7 @@ function [levelCell, levelNames] = fs_pathinfo2table(pathInfo)
 % Created by Haiyang Jin (3-Nov-2020)
 %
 % See also:
-% fs_readsummary, fs_sl_surfcluster
+% fs_readsummary, fs_group_surfcluster
 
 isMulti = cellfun(@(x) iscell(x) && numel(x) ~= 1, pathInfo);
 multiLevels = pathInfo(isMulti);

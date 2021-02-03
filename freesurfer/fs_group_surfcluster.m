@@ -1,8 +1,9 @@
-function [slTable, fscmd] = fs_sl_surfcluster(pathInfo, varargin)
-% [slTable, isok, fscmd] = fs_sl_surfcluster(pathInfo, varargin)
+function [slTable, fscmd] = fs_group_surfcluster(pathInfo, varargin)
+% [slTable, isok, fscmd] = fs_group_surfcluster(pathInfo, varargin)
 %
-% This function clusterize the searchlight results (.slfn), gather the
-% corresponding information, and summarize, save the results.
+% This function clusterizes the group level results (e.g., univariate group
+% or searchlight results), gathers the corresponding information, and 
+% summarizes, saves the results.
 %
 % Inputs:
 %    pathInfo        <cell> a 1xQ or Px1 cell. All the path and filename
@@ -14,7 +15,7 @@ function [slTable, fscmd] = fs_sl_surfcluster(pathInfo, varargin)
 % Varargin:
 %    .runfscmd       <logical> whether run surfcluster in FreeSurfer.
 %                     Default is 1.
-%    .slfn           <string> the filename of the summary file. Default is
+%    .sigfn          <string> the filename of the summary file. Default is
 %                     'sl.libsvm.acc.mgz'.
 %    .tomni152       <logical> whether converts the coordinates (from
 %                     MNI305) to MNI152 space. Default is 1.
@@ -50,12 +51,12 @@ function [slTable, fscmd] = fs_sl_surfcluster(pathInfo, varargin)
 % Created by Haiyang Jin (3-Nov-2020)
 %
 % See also:
-% fs_cvn_print2nd
+% fs_cvn_print2nd, fs_surfcluster
 
 % default options
 defaultOpts = struct();
 defaultOpts.runfscmd = 1;
-defaultOpts.slfn = 'sl.libsvm.acc.mgz';
+defaultOpts.sigfn = 'sl.libsvm.acc.mgz';
 defaultOpts.tomni152 = 1;
 defaultOpts.outfile = fullfile(pwd, 'sl_summary.csv');
 defaultOpts.aparc = 'aparc';
@@ -66,7 +67,7 @@ defaultOpts.surftype = 'white';
 opts = fs_mergestruct(defaultOpts, varargin{:});
 
 % create the full path to the files
-slFiles = fs_fullfile(pathInfo{:}, opts.slfn);
+slFiles = fs_fullfile(pathInfo{:}, opts.sigfn);
 % gather the conditions
 [levelCell, levelNames] = fs_pathinfo2table(pathInfo);
 
@@ -110,7 +111,7 @@ slTable = vertcat(slCell{:});
 
 % add the minimum threshold
 slTable.thmin = repmat(opts.thmin, size(slTable, 1), 1);
-slTable.datafile = repmat({opts.slfn}, size(slTable, 1), 1);
+slTable.datafile = repmat({opts.sigfn}, size(slTable, 1), 1);
 
 % Save the sumTable as a file
 if ~strcmp(opts.outfile, 'none')

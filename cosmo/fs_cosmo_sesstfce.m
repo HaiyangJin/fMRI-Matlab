@@ -22,14 +22,14 @@ function tfce_cell = fs_cosmo_sesstfce(sessList, anaList, contraList, dataFn, va
 %
 % Vararign:
 %    .groupfolder       <string> the name of the folder which will save the
-%                        outputs (in $SUBJECTS_DIR). Default is 'Group_Results'.
+%                        outputs (in $FUNCTIONALS_DIR). Default is 'Group_Results'.
 %    .surftype          <string> which surface to be used to perform TFCE.
 %                        Default is 'white'. [Probably it is better to use
 %                        'intermediate'.]
 %    other options defined in cosmo_montecarlo_cluster_stat:
 %    .niter=10000 % for publication-quality, use >=1000; 10000 is even better
 %    .h0_mean=0.5 % chance level for classification
-%    .nproc=10
+%    .nproc=1     % number of cores used 
 %
 % Output:
 %    tfce_cell           <cell> save all the dt_tfce (with z-score).
@@ -42,7 +42,7 @@ function tfce_cell = fs_cosmo_sesstfce(sessList, anaList, contraList, dataFn, va
 % Created by Haiyang Jin (14-Oct-2020)
 %
 % See also:
-% fs_cvn_print2nd, fs_sl_surfcluster
+% fs_cvn_print2nd, fs_group_surfcluster
 
 % waitbar
 waitHandle = waitbar(0, 'Loading...   0.00% finished');
