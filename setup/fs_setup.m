@@ -4,8 +4,9 @@ function fs_setup(fsPath, fslPath, force)
 % Set up FreeSurfer if it is not set up properly.
 %
 % Input:
-%    fsPath       <string> full path to the folder where FreeSurfer is 
-%                  installed and it will be set as $FREESURFER_HOME.
+%    fsPath       <string> path to the folder where FreeSurfer is installed
+%                  and it will be set as $FREESURFER_HOME. Use fs_setup(pwd) 
+%                  for setting the current folder as fsPath.
 %    fslPath      <string> full path to the folder where FSL is 
 %                  installed and it will be set as $FSLDIR.
 %    force        <logical> force setting fsPath as $FREESURFER_HOME. 
@@ -30,7 +31,7 @@ if ~isempty(getenv('FREESURFER_HOME'))&& ~force
 end
 
 % Default path to FreeSurfer in Mac or Linux
-if nargin < 1 && isunix 
+if nargin < 1 || isempty(fsPath) && isunix 
     if ismac % for Mac
         fsPath = '/Applications/freesurfer';
     elseif isunix % for linux
@@ -41,8 +42,9 @@ if nargin < 1 && isunix
 end
 
 % please ignore this part and just set fsPath as the full path to FreeSurfer
-if fsPath(1) ~= filesep
-    % use fsPath as the verion number if fsPath is not a full path (e.g., '5.3', '6.0') 
+if ~ismember(filesep, fsPath)
+    % use fsPath as the verion number if fsPath is not a path 
+    % (e.g., '5.3', '6.0', '7.1') 
     fsPath = sprintf('/Applications/freesurfer_%s', fsPath);
 end
 
