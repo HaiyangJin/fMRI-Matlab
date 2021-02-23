@@ -33,7 +33,6 @@ for iSubj = 1:nSubj
     subjCode = subjList{iSubj};
 %     labelPath = fullfile(FS.subjects, subjCode, 'label');
     
-    
     for iLabel = 1:nLabelGroup
         
         theseLabels = labels{iLabel, :};
@@ -71,6 +70,8 @@ for iSubj = 1:nSubj
             overlapStr(n).SubjCode = {subjCode};
             overlapStr(n).Label = theseLabel;
             overlapStr(n).nOverlapVer = nOverVer;
+            overlapStr(n).Area = fs_vtxarea(overlapVer, subjCode, ...
+                fs_hemi_multi(theseLabel, 1));
             overlapStr(n).OverlapVer = {overlapVer'};
             
         end
