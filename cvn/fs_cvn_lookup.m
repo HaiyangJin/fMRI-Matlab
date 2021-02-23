@@ -89,6 +89,9 @@ function varargout= fs_cvn_lookup(trgSubj,viewIdx,valstruct,lookups,varargin)
 % colorbar;
 % colormap jet
 %
+% % Example 7: test new viewpt;
+% fs_cvn_lookup('fsaverage', {[270, -89, 0], [90, -89, 0]})
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% View options %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % View indices (Part 1, multiple views):
 %  -1  vertical layout (one column): lateral, medial, ventrcal;
@@ -233,10 +236,12 @@ if isnumeric(viewIdx) && viewIdx < 0
         {[270, 0, 0], [90, 0, 0]}; ...   % lateral
         {[270, -89, 0], [90, -89, 0]};   % ventral
         {[180, 0, 0], [180, 0, 0]};      % frontal
-        {[0, 0, 0], [0, 0, 0]}}          % occipital
+        {[0, 0, 0], [0, 0, 0]}};         % occipital
         % 3
         {{[180, 0, 0], [180, 0, 0]};     % frontal
-        {[0, 0, 0], [0, 0, 0]}}          % occipital
+        {[0, 0, 0], [0, 0, 0]}};         % occipital
+        % 4
+        {{[], []}}; % for showing FFA, VWFA, and LO
         };
     
     % views for the hemi
@@ -302,6 +307,9 @@ elseif isnumeric(viewIdx) && viewIdx > 0
 elseif ischar(viewIdx)
     % decide the viewpt depends on the viewIdx (string)
     thisviewpt = fs_cvn_viewpt(viewIdx, isHemi);
+else
+    thisviewpt = {viewIdx};
+    viewIdx = 0;
 end
 
 if ~exist('lookups','var') || isempty(lookups)
