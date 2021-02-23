@@ -15,14 +15,18 @@ function varargout = fs_cvn_print1st(sessList, anaList, labelList, outPath, vara
 % Optional inputs (varargin):
 %    'waitbar'       <logical> 1 [default]: show the wait bar; 0: do not
 %                     show the wait bar.
-%    'sigFn'         <string> name of the to-be-printed file [Default is
+%    'sigfn'         <string> name of the to-be-printed file [Default is
 %                     sig.nii.gz].
+%    'dispsig'       <logical> 1 [default]: draw the data in sig file 
+%                     (overlay) on the surface; 0: do not display data.
 %    'viewpt'        <integer> the viewpoitns to be used. More see
 %                     fs_cvn_lookup.m. Default is -2.
 %    'thresh'        <numeric> display threshold. Default is 1.3010 (abs).
 %                     For example, '1.3i' will display values <-1.3 and
 %                     >1.3; '1.3' will display values > 1.3 (but not
 %                     <-1.3).
+%    'dispcolorbar'  <logical> whether display colorbar. 1 [default]: show
+%                     the colorbar; 0: do not show the colorbar.
 %    'clim'          <numeric array> limits for the color map. The Default
 %                     empty, which will display responses from %1 to 99%.
 %    'cmap'          <string or colormap array> use which color map,
@@ -82,8 +86,10 @@ function varargout = fs_cvn_print1st(sessList, anaList, labelList, outPath, vara
 defaultOpts = struct(...
     'waitbar', 1, ...
     'sigfn', 'sig.nii.gz', ...
+    'dispsig', 1, ...
     'viewpt', -2, ...
     'thresh', [], ...
+    'dispcolorbar', 1, ...
     'clim', [], ...
     'cmap', jet(256), ...
     'roicolors', {fs_colors}, ...
@@ -293,6 +299,11 @@ for iLabel = 1:nLabel
             % process the extra setting for printing
             thisExtraopts = [{'cmap',cmap, 'clim', thisclim0}, opts.cvnopts];
             
+            % whether display the overlay
+            if ~opts.dispsig
+                thisSurf.data = zeros(size(thisSurf.data));
+            end
+            
             %% Make the image
             %%%%%%% make image for this file %%%%%%%%
             [rawimg, lookup, rgbimg, himg] = fs_cvn_lookup(trgSubj, viewpt, thisSurf, opts.lookup, ...
@@ -378,11 +389,13 @@ for iLabel = 1:nLabel
                     'Position',[0 0 1 pos4Extra/4/(pos4Extra/2 + pos(4))],'FontSize',12,'LineStyle','none');
             end
             
-            colormap(cmap);
-            c = colorbar;
-            caxis(thisclim0);
-            c.Ticks = ceil(thisclim0(1)):1:floor(thisclim0(2));
-            c.TickLength = 0.02;
+            if opts.dispcolorbar
+                colormap(cmap);
+                c = colorbar;
+                caxis(thisclim0);
+                c.Ticks = ceil(thisclim0(1)):1:floor(thisclim0(2));
+                c.TickLength = 0.02;
+            end
             
             % print the figure
             subfolders = {'', subjCode, theLabel};
