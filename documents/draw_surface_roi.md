@@ -18,7 +18,7 @@ At first, FreeSurfer needs to be set properly in terminal:
 <br>
 Then following steps should be repeated for each subject, analysis, contrast, and threshold. For example, we will draw a label of face-vs-object contrast (`f-vs-o`) for `subj1` on the left hemisphere (`lh`) with the threshold of `2` (i.e., 0.01).
 
-1. Run the FreeSurfer command: `tksurfer-sess -s subjfunc -a analysis.lh -c f-vs-o -fthresh 2 -tksurfer`.
+1. Run the FreeSurfer command: `tksurfer-sess -s subjfunc -a analysis.lh -c f-vs-o -fthresh 2`.
    - `tksurfer-sess`: the command to open the data file of a particular session;
    - `-s` (or `-subject`): subject name in the functional data;
    - `-a` (or `-analysis`): analysis name in the subject name folder;
@@ -31,7 +31,7 @@ Then following steps should be repeated for each subject, analysis, contrast, an
    - You may rotate the brain by clicking and move your mouse (before clicking the cluster).
    <br>
 3. [**IMPORTANT!!!**] Please make sure `Annotation` is turned off.
-   - You may turned it off by select `Off` in the dropdown list.
+   - You may turned it off by select `Off` in the dropdown list.  
         <img src="img/draw_surface_roi_fv_image2.png" width="400" style="vertical-align:middle">
     <br>  
 4. Click the `Custom Fill` icon, which is at the left upper corner, just below the brain surface or volume files.
@@ -82,9 +82,9 @@ Then following steps should be repeated for each subject, analysis, contrast, an
        <img src="img/draw_surface_roi_image3.png" width="500" >
    <br>
 4. Save this label.
-   - `File` -> `Label` -> `Save Selected Label...`;
+   - `File` -> `Label` -> `Save Selected Label...`;  
        <img src="img/draw_surface_roi_image4.png" width="350" >
-   - Select where you would like to save the label and rename the label. Click `OK`.
+   - Select where you would like to save the label and rename the label. Click `OK`.  
        <img src="img/draw_surface_roi_image5.png" width="350" >
    <br>
 5. Done. Click `File` -> `Quit` to quit.
