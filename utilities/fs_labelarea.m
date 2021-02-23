@@ -1,5 +1,5 @@
 function labelarea = fs_labelarea(labelFn, subjCode, vtxIdx, struPath)
-% labelarea = fs_labelarea(labelFn, subjCode, struPath)
+% labelarea = fs_labelarea(labelFn, subjCode, vtxIdx, struPath)
 %
 % This function calculates the area (mm^2) for the label file. [It should
 % be the area on the ?h.white surface (I guess)].

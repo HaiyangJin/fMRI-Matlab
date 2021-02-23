@@ -40,7 +40,7 @@ labelFile = fullfile(getenv('SUBJECTS_DIR'), subjCode, 'label', labelFn);
 nCol = size(data, 2);
 if nCol == 1 && all(ismember(unique(data), [0, 1]))
     hemi = fs_2hemi(labelFn);
-    mask = data;
+    mask = logical(data);
     % add the coordinates on coordSurf
     coords = fs_readsurf([hemi '.' coordSurf], subjCode);
     
