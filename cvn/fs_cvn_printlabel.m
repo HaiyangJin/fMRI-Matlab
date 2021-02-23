@@ -1,5 +1,5 @@
-function infoTable = fs_cvn_printlabel(labelList, sessList, thmins, outPath, extraopt1st)
-% infoTable = fs_cvn_printlabel(labelList, sessList, thmins, outPath, extraopt1st)
+function infoTable = fs_cvn_printlabel(labelList, sessList, thmins, outPath, multilabel, extraopt1st)
+% infoTable = fs_cvn_printlabel(labelList, sessList, thmins, outPath, multilabel, extraopt1st)
 %
 % This function prints the label files only (without the overlay
 % activations for the whole brain).
@@ -15,6 +15,9 @@ function infoTable = fs_cvn_printlabel(labelList, sessList, thmins, outPath, ext
 %                     the label by the step of 0.1.
 %    outPath         <string> where to save the output images. [current
 %                     folder by default].
+%    multilabel      <logical> whether multiple labels need to be
+%                     printed. 0 [default]: only one label is to be printed
+%                     by default; 1: multiple labels will be printed.
 %    extraopt1st     <cell> extra varargin used in fs_cvn_print1st.m.
 %
 % Output:
@@ -28,6 +31,9 @@ if ~exist('thmins', 'var') || isempty(thmins)
 end
 if ~exist('outPath', 'var') || isempty(outPath)
     outPath = fullfile(pwd, 'print_label');
+end
+if ~exist('multilabel', 'var') || isempty(multilabel)
+    multilabel = 0;
 end
 if ~exist('extraopt1st', 'var') || isempty(extraopt1st)
     extraopt1st = {};
@@ -68,9 +74,13 @@ for iLabel = 1:nLabel
         thmins0, 'uni', false);
     
     % gather the information
-    tempCell = arrayfun(@(x) fs_labelinfo(thisLabel, thisSubj, ...
-        'isndgrid', 0, 'bycluster', 1, 'fmin', x), thmins0', 'uni', false);
-    infoCell{iLabel, 1} = vertcat(tempCell{:});
+    if ~multilabel
+        tempCell = arrayfun(@(x) fs_labelinfo(thisLabel, thisSubj, ...
+            'isndgrid', 0, 'bycluster', 1, 'fmin', x), thmins0', 'uni', false);
+        infoCell{iLabel, 1} = vertcat(tempCell{:});
+    else
+        infoCell{iLabel, 1} = {};
+    end
     
 end
 
