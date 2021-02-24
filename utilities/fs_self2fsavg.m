@@ -2,9 +2,11 @@ function outpoints = fs_self2fsavg(inpoints, subjCode, struPath)
 % outpoints = fs_self2fsavg(inpoints, subjCode, [struPath])
 %
 % This functions converts self surface (or volume) RAS [in real world] to 
-% MNI305 (fsaverage) RAS [shown as MNI Talairach in tksurfer (surface 
-% or volume)] by following 
+% MNI305 (fsaverage) RAS by following 
 % https://surfer.nmr.mgh.harvard.edu/fswiki/CoordinateSystems (2).
+%
+% [It is not the Talairach coordinates shown in tksurfer (surface % or 
+% volume). Talairach shown in tksurfer is use fs_self2tal.m] 
 %
 % In TkSurfer:
 %    Vertex MNI Talairach = fs_self2fsavg(Vertex RAS, subjCode);
@@ -22,6 +24,9 @@ function outpoints = fs_self2fsavg(inpoints, subjCode, struPath)
 %                     MNI Talairach).
 %
 % Created by Haiyang Jin (13-Nov-2019)
+%
+% See also:
+% fs_self2tal; mni2tal
 
 if ~exist('subjCode', 'var') || isempty(subjCode)
     error('Please input the subject code.');

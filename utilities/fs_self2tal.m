@@ -20,6 +20,9 @@ function outpoints = fs_self2tal(inpoints, subjCode, struPath)
 %    outpoints       <numeric array> cooridnates in Talairach space. 
 %
 % Created by Haiyang Jin (13-Nov-2019)
+%
+% See also:
+% fs_self2mni; tal2mni
 
 if ~exist('subjCode', 'var') || isempty(subjCode)
     error('Please input the subject code.');
