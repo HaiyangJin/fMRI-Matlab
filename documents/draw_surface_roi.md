@@ -9,13 +9,8 @@
 
 # Draw ROIs on surface in FreeSurfer 7.1.0 or later (via freeview)
 
-At first, FreeSurfer needs to be set properly in terminal:
-   - `export FREESURFER_HOME=/Applications/freesurfer`
-   - `source $FREESURFER_HOME/SetUpFreeSurfer.sh`
-   - `export SUBJECTS_DIR=/full/path/to/subject/dir`
-   - `cd to/the/functional/data/folder`
+FreeSurfer needs to be set up properly at first ([steps](fs_setup.md)).
 
-<br>
 Then following steps should be repeated for each subject, analysis, contrast, and threshold. For example, we will draw a label of face-vs-object contrast (`f-vs-o`) for `subj1` on the left hemisphere (`lh`) with the threshold of `2` (i.e., 0.01).
 
 1. Run the FreeSurfer command: `tksurfer-sess -s subjfunc -a analysis.lh -c f-vs-o -fthresh 2`.
@@ -54,13 +49,8 @@ Then following steps should be repeated for each subject, analysis, contrast, an
 
 # Draw ROIs on surface in FreeSurfer 6.0 or earlier (via tksurfer)
 
-At first, FreeSurfer needs to be set properly in terminal:
-   - `export FREESURFER_HOME=/Applications/freesurfer`
-   - `source $FREESURFER_HOME/SetUpFreeSurfer.sh`
-   - `export SUBJECTS_DIR=/full/path/to/subject/dir`
-   - `cd to/the/functional/data/folder`
+FreeSurfer needs to be set up properly at first ([steps](fs_setup.md)).
 
-<br>
 Then following steps should be repeated for each subject, analysis, contrast, and threshold. For example, we will draw a label of face-vs-object contrast (`f-vs-o`) for `subj1` on the left hemisphere (`lh`) with the threshold of `2` (i.e., 0.01).
 
 1. Run the FreeSurfer command: `tksurfer-sess -s subjfunc -a analysis.lh -c f-vs-o -fthresh 2 -tksurfer`.
@@ -92,4 +82,4 @@ Then following steps should be repeated for each subject, analysis, contrast, an
 <br>
 
 # Draw ROIs on surface with custom functions
-Please refer to help file for `fs_drawlabel()`.
+Please refer to help file for [`fs_drawlabel()`](../freesurfer/fs_drawlabel.m).

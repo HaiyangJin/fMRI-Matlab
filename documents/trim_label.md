@@ -1,4 +1,4 @@
-If you would like to only keep the vertices around a global maxima and their area size is say about/under 100 mm<sup>2</sup>, you may use `fs_trimlabel()` to trim the label of interests.
+If you would like to only keep the vertices around a global maxima and their area size is say about/under 100 mm<sup>2</sup>, you may use [`fs_trimlabel()`](../utilities/fs_trimlabel.m) to trim the label of interests.
 
 ### The general procedures for updating the label file with maximum of 100 mm<sup>2</sup> are as followings:
 1. Identify a global maxima.
@@ -13,7 +13,7 @@ The global maxima (maybe I should call it local maxima) is defined as the vertex
 For example, when **<span style="color:#2F6FBA"> the blue threshold </span>** is applied, only B is identified as the global maxima. When **<span style="color:#4EAE5B"> the green threshold </span>** is applied, both A and B are global maxima. By default, only B is taken as a global maxima.
 <img src="img/trim_label_globalmaxima.png" width="500" style="vertical-align:middle">
 
-The steps for using `fs_trimlabel()` as followings:
+The steps for using [`fs_trimlabel()`](../utilities/fs_trimlabel.m) as followings:
 1. run `fs_trimlabel(labelFn, sessCode, outPath, ‘method’, ‘maxresp’)`;
    - a screenshot (dispalys the gobal the global maxima (only one vertex) as a yellow circle on the inflated brain (highlighted in the red circle here);
    <img src="img/trim_label_screenshots1.png" width="500" style="vertical-align:middle">

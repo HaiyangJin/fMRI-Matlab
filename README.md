@@ -24,6 +24,7 @@ Last updated: 06-Oct-2020
 - [Data visualization](#data-visualization)
 	- [Quality assurance of recon-all results](#quality-assurance-of-recon-all-results)
 	- [Check other results](#check-other-results)
+- [How-to](#how-to)
 - [Future work](#future-work)
 - [Q&A](#qa)
 
@@ -152,6 +153,12 @@ second level results |  `fs_cvn_print2nd()`
 overlapping between labels    |  `fs_labeloverlap()`
 labels files | `fs_cvn_print1st()`
 
+# How-to
+- [How to set up FreeSurfer in the terminal?](documents/fs_setup.md)
+- [How to draw ROI on surface?](documents/draw_surface_roi.md)
+- [How to trim a label file with some restrictions (e.g., 100 vertices)?](documents/trim_label.md)
+- [How to visualize label files (i.e., ROIs)?](documents/visual_label.md)
+- [How to visualize activation maps?](documents/visual_activation.md)
 
 # Future work
 - [ ] Making videos.
