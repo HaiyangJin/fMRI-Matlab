@@ -1,8 +1,9 @@
-function outVtx = fs_mkintermediate(subjCode, vtx1, vtx2, ratio, outStr, faces)
-% outVtx = fs_mkintermediate(subjCode, vtx1, vtx2, ratio, outStr, faces)
+function outVtx = fs_midthickness(subjCode, vtx1, vtx2, ratio, outStr, faces)
+% outVtx = fs_midthickness(subjCode, vtx1, vtx2, ratio, outStr, faces)
 %
-% This function creates the intermediate (or with other ratio) surface file
-% of two surfaces (defaults are '?h.white' and '?h.pial'). 
+% This function creates the midethickness (or with other ratio) surface file
+% of two surfaces (defaults are '?h.white' and '?h.pial'). The name
+% 'midthickness' is from HCP workbench. 
 %
 % Inputs:
 %    subjCode      <string> subject code in $SUBJECTS_DIR.
@@ -14,7 +15,7 @@ function outVtx = fs_mkintermediate(subjCode, vtx1, vtx2, ratio, outStr, faces)
 %    ratio         <numeric> the ratio of distance [between output surface
 %                   and vtx1 surface] to the distance [between vtx1 and
 %                   vtx2 surfaces]. 'ratio' is in range (0, 1). Default is
-%                   0.5, i.e., the intermdediate surface.
+%                   0.5, i.e., the midthickness surface.
 %    outStr        <string> the strings for the output surface filename.
 %                   Hemisphere information will be added to 'outStr' if
 %                   'vtx1' or 'vtx2' are strings. If outStr is empty,
@@ -30,7 +31,7 @@ function outVtx = fs_mkintermediate(subjCode, vtx1, vtx2, ratio, outStr, faces)
 %    a output surface file saved in surf/ (if outStr is not empty).
 %
 % Example:
-% outSurf = fs_mkintermediate('fsaverage', '', '', 0.3, 'white0.3');
+% outSurf = fs_midethickness('fsaverage', '', '', 0.3, 'white0.3');
 %
 % Created by Haiyang Jin (10-Oct-2020)
 
@@ -49,7 +50,7 @@ else
 end
 
 if ~exist('outStr', 'var')
-    outStr = 'intermediate';
+    outStr = 'midthickness';
 end
 
 if ~exist('faces', 'var')
@@ -65,7 +66,7 @@ assert(size(surf1,1)==size(surf2,1), ...
 % obtain hemisphere information and add to outStr
 hemi = unique({hemi1, hemi2});
 assert(numel(hemi)==1, ...
-    'Please make sure the two surface are the same hemisphere');
+    'Please make sure the two surface are for the same hemisphere');
 
 if ~isempty(hemi) && ~isempty(outStr)
     outStr = sprintf('%s.%s', hemi{1}, outStr);
