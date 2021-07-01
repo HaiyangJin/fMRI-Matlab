@@ -240,8 +240,10 @@ if isnumeric(viewIdx) && viewIdx < 0
         % 3
         {{[180, 0, 0], [180, 0, 0]};     % frontal
         {[0, 0, 0], [0, 0, 0]}};         % occipital
-        % 4
-        {{[], []}}; % for showing FFA, VWFA, and LO
+        % 4 (for showing FFA, VWFA, and LO)
+        {{[270, 0, 0], [90, 0, 0]};      % lateral
+        {[270, -89, 0], [90, -89, 0]};   % ventral
+        {[0, 0, 0], [0, 0, 0]}};         % occipital
         };
     
     % views for the hemi
@@ -387,6 +389,9 @@ switch viewIdx
         rgbimg1 = img_vertcat(bgcolor, rgbimgs{1:3});
         rgbimg2 = img_vertcat(bgcolor, rgbimgs{4:5});
         rgbimg = img_horzcat(bgcolor, rgbimg1, rgbimg2);
+    case -4
+        rgbimg1 = img_vertcat(bgcolor, rgbimgs{1:2});
+        rgbimg = img_horzcat(bgcolor, rgbimg1, img_vertcat(bgcolor,rgbimgs{3})); 
     otherwise
         rgbimg = rgbimgs{1};
 end

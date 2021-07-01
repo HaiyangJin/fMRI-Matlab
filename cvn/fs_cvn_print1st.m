@@ -344,6 +344,7 @@ for iLabel = 1:nLabel
             
             % obtain the contrast name as the figure name
             imgName = sprintf('%s%s || %s%s', maskStr, labelNames, thisSess, imgNameExtra);
+            if length(imgName) > 200; imgName = imgName(end-200:end); end
             set(fig, 'Name', imgName);
             
             % Load and show the (first) label related information
