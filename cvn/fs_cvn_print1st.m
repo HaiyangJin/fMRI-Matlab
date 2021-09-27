@@ -92,7 +92,7 @@ defaultOpts = struct(...
     'dispcolorbar', 1, ...
     'clim', [], ...
     'cmap', jet(256), ...
-    'roicolors', {fs_colors}, ...
+    'roicolors', {fm_colors}, ...
     'lookup', [], ...
     'subfolder', 1, ... % subfolder for saving the images
     'suffixstr', '', ...
@@ -110,7 +110,7 @@ defaultOpts = struct(...
     'funcpath', getenv('FUNCTIONALS_DIR'), ...
     'strupath', getenv('SUBJECTS_DIR'));  % not in use now
 
-opts = fs_mergestruct(defaultOpts, varargin);
+opts = fm_mergestruct(defaultOpts, varargin);
 
 % show progress bar (if needed)
 showWaitbar = opts.waitbar;
@@ -254,7 +254,7 @@ for iLabel = 1:nLabel
             
             if ischar(cmap) && strcmp(cmap, 'fsheatscale')
                 fmax = max(abs(thisclim0));
-                cmap = fs_heatscale(fmin, fmax);
+                cmap = fm_heatscale(fmin, fmax);
                 thisclim0 = [-fmax, fmax];
             end
             
@@ -402,7 +402,7 @@ for iLabel = 1:nLabel
             subfolders = {'', subjCode, theLabel};
             
             thisOut = fullfile(outPath, subfolders{opts.subfolder+1}, [imgName '.' opts.imgext]);
-            fs_mkdir(fileparts(thisOut));
+            fm_mkdir(fileparts(thisOut));
             
             try
                 % https://github.com/altmany/export_fig

@@ -12,7 +12,7 @@ function fs_cvn_print2nd(sigPathInfo, sigFn, outPath, varargin)
 %                     information to theto-be-printed files. Each row is
 %                     one layer (level) ofthe path and all the paths will
 %                     be combined in order(with all possible combinations).
-%                     [fileInfo will be dealt with fs_fullfile.m]
+%                     [fileInfo will be dealt with fm_fullfile.m]
 %    sigFn           <string> the filename of the cluster p value file
 %                     (e.g., perm.th30.abs.sig.cluster.nii.gz by default).
 %    outPath         <string> where to save the output images. [current
@@ -28,7 +28,7 @@ function fs_cvn_print2nd(sigPathInfo, sigFn, outPath, varargin)
 %    'lookup'        <> setting used for cvnlookupimage.
 %    'outline'       <logical> whether show the outlines of clusters as
 %                     different colors.
-%    'outcolor'      <integer> 1: show the default color in fs_colors;
+%    'outcolor'      <integer> 1: show the default color in fm_colors;
 %                      0: show the default color in the corresponding
 %                      annotation file.
 %    'annot'         <string> which annotation will be used. Default is
@@ -72,7 +72,7 @@ defaultOpts = struct(...
     'funcpath', getenv('FUNCTIONALS_DIR'), ...
     'strupath', getenv('SUBJECTS_DIR')); % not in use now
 
-opts = fs_mergestruct(defaultOpts, varargin);
+opts = fm_mergestruct(defaultOpts, varargin);
 
 clim = opts.clim;
 cmap = opts.cmap;  % use jet(256) as the colormap
@@ -81,7 +81,7 @@ lookup = opts.lookup;
 showInfo = opts.showinfo;
 
 % make the path for the sig files
-sigPath = fs_fullfile(sigPathInfo{:});
+sigPath = fm_fullfile(sigPathInfo{:});
 
 % whether the sigPath exist
 isExist1 = cellfun(@(x) ~isempty(dir(x)), sigPath);
@@ -161,10 +161,10 @@ if opts.outline
     % all the cluster outlines
     roiall = cellfun(@vertcat, roitempL, roitempR, 'uni', false)';
     
-    % use self defined colors in fs_colors
+    % use self defined colors in fm_colors
     if opts.outcolor
-        roicolorL = cellfun(@(x) fs_colors(numel(x)*1i), roitempL, 'uni', false);
-        roicolorR = cellfun(@(x) fs_colors(numel(x)*1i), roitempR, 'uni', false);
+        roicolorL = cellfun(@(x) fm_colors(numel(x)*1i), roitempL, 'uni', false);
+        roicolorR = cellfun(@(x) fm_colors(numel(x)*1i), roitempR, 'uni', false);
         roicolors = cellfun(@vertcat, roicolorL, roicolorR, 'uni', false);
     else
         roicolors = arrayfun(@(x) vertcat(roicolortemp{x, :}), 1:size(roicolortemp, 1), 'uni', false)';
@@ -253,6 +253,6 @@ end
 
 % save the filenames of the data file
 thesurfs = surfs';
-fs_createfile(fullfile(outPath, 'group.log'), thesurfs(:));
+fm_createfile(fullfile(outPath, 'group.log'), thesurfs(:));
 
 end

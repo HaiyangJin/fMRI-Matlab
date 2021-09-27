@@ -19,7 +19,7 @@ if ~isfile(gmFile) % ~exist(gmFile, 'file')
     vtxIdx = NaN;
 else
     
-    vtxIdx = str2double(fs_readtext(gmFile));
+    vtxIdx = str2double(fm_readtext(gmFile));
 end
 
 end

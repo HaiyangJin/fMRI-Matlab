@@ -63,7 +63,7 @@ defaultOpts = struct(...
     'runcmd', 1 ...
 );
 
-opts = fs_mergestruct(defaultOpts, varargin);
+opts = fm_mergestruct(defaultOpts, varargin);
 
 if ischar(opts.hemis)
     opts.hemis = {opts.hemis};

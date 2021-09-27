@@ -37,7 +37,7 @@ defaultOpts = struct(...
     'extraopt', {{}} ...
     );
 
-opts = fs_mergestruct(defaultOpts, varargin);
+opts = fm_mergestruct(defaultOpts, varargin);
 
 viewIdx = opts.viewpt;
 fthresh = opts.fthresh;

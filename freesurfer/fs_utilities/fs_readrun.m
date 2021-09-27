@@ -44,7 +44,7 @@ else
     end
     
     % read the run file
-    runNames = fs_readtext(runFile);
+    runNames = fm_readtext(runFile);
 end
 
 % remove empty cells

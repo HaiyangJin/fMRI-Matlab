@@ -159,7 +159,7 @@ defaultOpt=struct(...
     );
 
 % parse options
-options=fs_mergestruct(defaultOpt, varargin{:});
+options=fm_mergestruct(defaultOpt, varargin{:});
 % Some other general setting
 thresh = options.thresh;
 clim = options.clim;
@@ -214,7 +214,7 @@ end
 
 % set colormap
 if ischar(cmap) && strcmp(cmap, 'fsheatscale')
-    cmap = fs_heatscale(fminmax(1), fminmax(2));
+    cmap = fm_heatscale(fminmax(1), fminmax(2));
     thresh = fminmax(1) * 1i;
     clim = [-fminmax(2), fminmax(2)];
 end

@@ -48,7 +48,7 @@ RegMat = reformat(RegMatCell);
 coregFile = fullfile(mriPath, '..', 'surf', 'Coregistration.txt');
 
 % create the coregistration file
-fs_createfile(coregFile, vertcat(Tmov, RegMat));
+fm_createfile(coregFile, vertcat(Tmov, RegMat));
 
 end
 

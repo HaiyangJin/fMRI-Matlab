@@ -48,6 +48,6 @@ assert(logical(exist(sessFilename, 'file')), ...
     'Cannot find the session id file (%s).', sessFilename);
 
 % read the session id file
-sessList = fs_readtext(sessFilename);
+sessList = fm_readtext(sessFilename);
 
 end

@@ -54,7 +54,7 @@ opt=struct();
 opt.ShowEdge=false;
 opt.Dim='3D';
 
-opt = fs_mergestruct(opt, varargin);
+opt = fm_mergestruct(opt, varargin);
 
 % display the surface
 DispIVSurf(vtxCell{whichHemi}, faceCell{whichHemi}, 1:nVtx, values,0,opt);

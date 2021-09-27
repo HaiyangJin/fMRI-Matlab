@@ -55,7 +55,7 @@ defaultOpts.niter=10000;
 defaultOpts.h0_mean=0.5; 
 defaultOpts.nproc = 1; 
 
-opts = fs_mergestruct(defaultOpts, varargin{:});
+opts = fm_mergestruct(defaultOpts, varargin{:});
 
 % process inputs
 if ischar(sessList)
@@ -65,9 +65,9 @@ if ischar(anaList); anaList = {anaList}; end
 if ischar(contraList); contraList = {contraList}; end
 
 % make folders for saving results
-theFolders = fs_fullfile(getenv('FUNCTIONALS_DIR'), opts.groupfolder, ...
+theFolders = fm_fullfile(getenv('FUNCTIONALS_DIR'), opts.groupfolder, ...
     anaList, contraList);
-fs_mkdir(theFolders);
+fm_mkdir(theFolders);
 
 nSess = numel(sessList);
 nAna = numel(anaList);

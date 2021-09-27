@@ -1,5 +1,5 @@
-function cmap = fs_heatscale(fmin, fmax, varargin)
-% cmap = fs_heatscale(fmin, fmax, varargin)
+function cmap = fm_heatscale(fmin, fmax, varargin)
+% cmap = fm_heatscale(fmin, fmax, varargin)
 %
 % This function tries to create a colormap which is similar to the
 % heatscale in FreeSurfer. (Hopefully they are the same... not sure).
@@ -49,7 +49,7 @@ defaultOpts = {...
     'coldmax', [117 251 254]/255, ...
     };
 
-options = fs_mergestruct(defaultOpts, varargin);
+options = fm_mergestruct(defaultOpts, varargin);
 
 flipwc = options.flipwc;
 bgColor = options.bgcolor;

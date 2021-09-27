@@ -53,7 +53,7 @@ defaultOpts = struct(...
     'funcpath', getenv('FUNCTIONALS_DIR')...
     );
 
-opts = fs_mergestruct(defaultOpts, varargin);
+opts = fm_mergestruct(defaultOpts, varargin);
 
 runList = opts.runlist;
 labelFn = opts.labelfn;

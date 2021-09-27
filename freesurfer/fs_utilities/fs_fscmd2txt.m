@@ -44,6 +44,6 @@ if ~exist(outPath, 'dir'); mkdir(outPath); end
 fscmd = vertcat(varargin{:});
 
 % save the first column of fscmd
-fs_createfile(outFilename, fscmd(:, 1));
+fm_createfile(outFilename, fscmd(:, 1));
 
 end

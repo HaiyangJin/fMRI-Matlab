@@ -66,7 +66,7 @@ for iSess = 1:nSess
         runList = fs_runlist(boldPath);
     elseif ischar(runList)
         % get the list of run folder names from the run list file
-        runList = fs_readtext(fullfile(boldPath, runList));
+        runList = fm_readtext(fullfile(boldPath, runList));
     end
     nRun = numel(runList);
     

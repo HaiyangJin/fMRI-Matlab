@@ -112,6 +112,6 @@ fsgd(theRowVar, 1:nGdCol-2+1) = horzcat('Variables', variable);
 fsgd(theRowVar+ (1:nGdRow), 1:nGdCol+1) = horzcat(repmat({'Input'}, nGdRow, 1), table2cell(gdTable)); 
 
 %% make the file for FSGD
-fs_createfile(gdFilename, fsgd);
+fm_createfile(gdFilename, fsgd);
 
 end

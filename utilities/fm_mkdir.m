@@ -1,5 +1,5 @@
-function status = fs_mkdir(thedir)
-% status = fs_mkdir(thedir)
+function status = fm_mkdir(thedir)
+% status = fm_mkdir(thedir)
 %
 % Make dir(s) if it does not exist.
 %
@@ -14,7 +14,7 @@ function status = fs_mkdir(thedir)
 % Created by Haiyang Jin (14-Oct-2020)
 %
 % See also:
-% fs_fullfile
+% fm_fullfile
 
 if ischar(thedir); thedir = {thedir}; end
 

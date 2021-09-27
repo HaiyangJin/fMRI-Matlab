@@ -1,5 +1,5 @@
-function area = fs_triarea(mat)
-% area = fs_triarea(mat)
+function area = surf_triarea(mat)
+% area = surf_triarea(mat)
 %
 % This function calculates the area of a triangle given the vertex 
 % coordiantes or two vectors. 

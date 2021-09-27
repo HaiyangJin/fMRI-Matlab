@@ -1,5 +1,5 @@
-function outColor = fs_colors(nOutColor)
-% outColor = fs_colors(nOutColor)
+function outColor = fm_colors(nOutColor)
+% outColor = fm_colors(nOutColor)
 %
 % This function generates default rgb colors.
 %

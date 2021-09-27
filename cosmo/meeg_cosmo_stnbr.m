@@ -28,7 +28,7 @@ defaultOpts.source = struct([]);
 defaultOpts.chan = struct([]);
 defaultOpts.time = struct([]);
 
-opts = fs_mergestruct(defaultOpts, varargin(:));
+opts = fm_mergestruct(defaultOpts, varargin(:));
 
 % At least one of .source, .chan, and .time has to be defined. Note only 
 % one of .source or .chan can be used in the one analysis. 

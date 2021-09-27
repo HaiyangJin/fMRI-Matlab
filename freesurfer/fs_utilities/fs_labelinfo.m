@@ -67,7 +67,7 @@ defaultOpts = struct(...
     'strupath', getenv('SUBJECTS_DIR') ...
 );
 
-opts = fs_mergestruct(defaultOpts, varargin{:});
+opts = fm_mergestruct(defaultOpts, varargin{:});
 byCluster = opts.bycluster;
 fmin = opts.fmin;
 gmInfo = opts.gminfo;

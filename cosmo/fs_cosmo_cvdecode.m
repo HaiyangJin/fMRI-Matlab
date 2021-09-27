@@ -54,7 +54,7 @@ defaultOpts.outfn = 'Main_CosmoMVPA';
 defaultOpts.classifier = [];
 defaultOpts.classopt = struct();
 
-opts = fs_mergestruct(defaultOpts, varargin(:));
+opts = fm_mergestruct(defaultOpts, varargin(:));
 outPath = opts.outpath;
 
 %% Cross validation decode

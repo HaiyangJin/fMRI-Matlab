@@ -164,7 +164,7 @@ defaultOpts = struct(...
     'extraopt1st', {{}} ...
     );
 
-opts = fs_mergestruct(defaultOpts, varargin);
+opts = fm_mergestruct(defaultOpts, varargin);
 
 nCluster = opts.ncluster;
 startVtx = opts.startvtx;
@@ -194,7 +194,7 @@ if ~isempty(opts.gmfn)
         cluVtxCell = cell(1,1);
         return;
     end
-    startVtx = str2double(fs_readtext(gmFile));
+    startVtx = str2double(fm_readtext(gmFile));
 end
 
 % convert refLabel to cell and match hemisphere information
@@ -588,7 +588,7 @@ for iTh = 1:nTh
                     thegm = gmCell(iTempLabel, iTh);
                     thegmFile = strrep(updateLabelFile, '.label', '.gm');
                     % save the global maxima file
-                    fs_createfile(thegmFile, thegm);
+                    fm_createfile(thegmFile, thegm);
                     
                     % print the message
                     [~, thefn, theext] = fileparts(thegmFile);

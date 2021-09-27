@@ -45,6 +45,6 @@ end
 subjectnameFile = fullfile(funcPath, sessCode, 'subjectname');
 
 % read the subjectname file
-subjCode = fs_readtext(subjectnameFile);
+subjCode = fm_readtext(subjectnameFile);
 
 end

@@ -107,7 +107,7 @@ defaultOpt=struct(...
     );
 
 % parse options
-opt=fs_mergestruct(defaultOpt, varargin{:});
+opt=fm_mergestruct(defaultOpt, varargin{:});
 %%% cosmo_surficial_neighboor(_area) %%%
 metric = opt.metric; % 'euclidean'; % method used for distance
 radius = opt.radius;
@@ -260,7 +260,7 @@ end
 
 %% Set analysis parameters
 % measure_args = struct();
-measure_args = fs_mergestruct(opt.classopt);
+measure_args = fm_mergestruct(opt.classopt);
 
 % Define which classifier to use, using a function handle.
 measure_args.classifier = classifier; % @cosmo_classify_libsvm;

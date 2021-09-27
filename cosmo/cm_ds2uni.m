@@ -1,5 +1,5 @@
-function uniTable = fs_ds2uni(ds, condInfo)
-% uniTable = fs_ds2uni(ds, condInfo)
+function uniTable = cm_ds2uni(ds, condInfo)
+% uniTable = cm_ds2uni(ds, condInfo)
 %
 % This function convert the ds from CoSMoMVPA to a table for univariate
 % analysis. 

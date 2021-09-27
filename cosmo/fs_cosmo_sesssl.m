@@ -75,14 +75,14 @@ defaultOpt=struct(...
     );
 
 % parse options
-opt=fs_mergestruct(defaultOpt, varargin{:});
+opt=fm_mergestruct(defaultOpt, varargin{:});
 
 runList = opt.runlist;
 dataFn = opt.datafn;
 surfType = opt.surftype;
 bothHemi = opt.bothhemi;
 funcPath = opt.funcpath;
-cvslOpts = fs_mergestruct('funcpath', opt.funcpath, opt.cvslopts{:});
+cvslOpts = fm_mergestruct('funcpath', opt.funcpath, opt.cvslopts{:});
 cvslOpts.areamax = opt.areamax;
 if ~isempty(opt.nbrstr) && ~endsWith(opt.nbrstr, '_')
     opt.nbrstr = [opt.nbrstr, '_']; 

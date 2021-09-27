@@ -54,7 +54,7 @@ defaultOpts = struct(...
     'runcmd', 1 ...
     );
 
-opts = fs_mergestruct(defaultOpts, varargin{:});
+opts = fm_mergestruct(defaultOpts, varargin{:});
 
 ow = {'', ' --overwrite', ''};
 owArg = ow{opts.runcmd + 1};

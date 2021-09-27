@@ -36,7 +36,7 @@ defaultOpts.hemi = 'lh';
 defaultOpts.surf = 'white';
 defaultOpts.dismetric = 'geodesic';  % 'euclidean' or 'dijkstra'
 
-opts = fs_mergestruct(defaultOpts, varargin{:});
+opts = fm_mergestruct(defaultOpts, varargin{:});
 
 % vtx
 if ischar(vtx)

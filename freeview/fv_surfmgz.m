@@ -53,7 +53,7 @@ defaultOpt=struct(...
     'runcmd', 1 ... 
     );
 
-opts = fs_mergestruct(defaultOpt, varargin{:});
+opts = fm_mergestruct(defaultOpt, varargin{:});
 
 surfType = opts.surftype;
 trgSubj = opts.trgsubj;

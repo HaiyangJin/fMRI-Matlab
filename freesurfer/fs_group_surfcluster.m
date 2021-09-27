@@ -10,7 +10,7 @@ function [slTable, fscmd] = fs_group_surfcluster(pathInfo, varargin)
 %                     information to theto-be-printed files. Each row is
 %                     one layer (level) ofthe path and all the paths will
 %                     be combined in order(with all possible combinations).
-%                     [fileInfo will be dealt with fs_fullfile.m]
+%                     [fileInfo will be dealt with fm_fullfile.m]
 %
 % Varargin:
 %    .runfscmd       <logical> whether run surfcluster in FreeSurfer.
@@ -64,12 +64,12 @@ defaultOpts.thmin = 1.96; % z values
 defaultOpts.nspace = 2;
 defaultOpts.surftype = 'white';
 
-opts = fs_mergestruct(defaultOpts, varargin{:});
+opts = fm_mergestruct(defaultOpts, varargin{:});
 
 % create the full path to the files
-slFiles = fs_fullfile(pathInfo{:}, opts.sigfn);
+slFiles = fm_fullfile(pathInfo{:}, opts.sigfn);
 % gather the conditions
-[levelCell, levelNames] = fs_pathinfo2table(pathInfo);
+[levelCell, levelNames] = fm_pathinfo2table(pathInfo);
 
 % the first part of the command (filenames)
 fscmd1 = cellfun(@(x) sprintf(['mri_surfcluster '...

@@ -1,5 +1,5 @@
-function content = fs_readtext(filename)
-% content = fs_readtext(filename)
+function content = fm_readtext(filename)
+% content = fm_readtext(filename)
 % 
 % This function reads the text files and output a cell of strings. [The 
 % output will be converted to strings if possible.] This function can read

@@ -9,7 +9,7 @@ function sumTable = fs_readsummary(sumPathInfo, sumFn, toMNI152, outPath, outFn)
 %                     information to theto-be-printed files. Each row is
 %                     one layer (level) ofthe path and all the paths will
 %                     be combined in order(with all possible combinations).
-%                     [fileInfo will be dealt with fs_fullfile.m]
+%                     [fileInfo will be dealt with fm_fullfile.m]
 %    sumFn           <string> the filename of the summary file. Default is
 %                     'perm.th30.abs.sig.cluster.summary'.
 %    toMNI152        <logical> whether converts the coordinates (from
@@ -63,7 +63,7 @@ end
 
 %% Read the summary files
 % create the path to the summary files
-sumFiles = fullfile(fs_fullfile(sumPathInfo{:}), sumFn);
+sumFiles = fullfile(fm_fullfile(sumPathInfo{:}), sumFn);
 
 % read the summary files
 sumTableCell = cellfun(@(x) readsummary(x, toMNI152), sumFiles, 'uni', false);
@@ -74,12 +74,12 @@ sumTableCell = cellfun(@(x) readsummary(x, toMNI152), sumFiles, 'uni', false);
 % multiLevels = sumPathInfo(isMulti);
 % 
 % % repeat the multiple levels for each table
-% [~, levels] = fs_fullfile(multiLevels{:});
+% [~, levels] = fm_fullfile(multiLevels{:});
 % levelCell = [levels{:}];
 % levelNames = arrayfun(@(x) sprintf('Name%d', x), 1:size(levelCell, 2), 'uni', false);
 % 
 
-[levelCell, levelNames] = fs_pathinfo2table(sumPathInfo);
+[levelCell, levelNames] = fm_pathinfo2table(sumPathInfo);
 infoTableCell = arrayfun(@(x) cell2table(repmat(levelCell(x, :), size(sumTableCell{x}, 1), 1), ...
     'VariableNames', levelNames), 1: size(levelCell,1), 'uni', false)';
 

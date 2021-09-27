@@ -1,5 +1,5 @@
-function [allPath, pathCell] = fs_fullfile(varargin)
-% allPath = fs_fullfile(varargin)
+function [allPath, pathCell] = fm_fullfile(varargin)
+% allPath = fm_fullfile(varargin)
 %
 % This function creates the path with all the possible combinations within
 % varargin. 
@@ -11,7 +11,7 @@ function [allPath, pathCell] = fs_fullfile(varargin)
 %    allPath        <cell string> a list of all the paths.
 %
 % Example:
-% thePath = fs_fullfile('main_path', {'subdir1', 'subdir2'}, 'anotherPath');
+% thePath = fm_fullfile('main_path', {'subdir1', 'subdir2'}, 'anotherPath');
 % thePath is 2x1 cell array.
 %     {'main_path/subdir1/anotherPath'}
 %     {'main_path/subdir2/anotherPath'}

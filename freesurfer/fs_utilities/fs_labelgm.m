@@ -60,7 +60,7 @@ if ~exist(gmFn, 'file')
     gmStruct.Talairach = [NaN NaN NaN];
 else
     % read the file
-    gmStruct.gm = str2double(fs_readtext(gmFn)); % from FS to matlab
+    gmStruct.gm = str2double(fm_readtext(gmFn)); % from FS to matlab
     labelMat = fs_readlabel(labelFn, subjCode);
     isgm = labelMat(:, 1) == gmStruct.gm;
     % coordiantes in RAS, MNI305(fsaverage) and Talairach space

@@ -1,5 +1,5 @@
-function fscmd = fs_mergecmd(varargin)
-% fscmd = fs_mergecmd(varargin)
+function fscmd = fm_mergecmd(varargin)
+% fscmd = fm_mergecmd(varargin)
 % 
 % This function converts varargin into FreeSurfer commands. The 'dash(-)'
 % has to be added at the beginning of the variable/field/argument name. If
@@ -7,7 +7,7 @@ function fscmd = fs_mergecmd(varargin)
 % argument. (Maybe this is useless.)
 %
 % Example:
-% fs_mergecmd('-arg1', '-arg2', 123, '-arg4', '-arg5', 'value5');
+% fm_mergecmd('-arg1', '-arg2', 123, '-arg4', '-arg5', 'value5');
 % The output is ' -arg1 -arg4 -arg2 123 -arg5 value5 ';
 %
 % Created by Haiyang Jin (19-Apr-2020)

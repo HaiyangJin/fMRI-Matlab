@@ -1,5 +1,6 @@
-function fs_copyfile(source, target, force)
-% fs_copyfile(source, target, force)
+function fm_copyfile(source, target, force)
+% fm_copyfile(source, target, force)
+%
 % This function copies files. It will create the target direcotry if it does
 % not exist.
 %

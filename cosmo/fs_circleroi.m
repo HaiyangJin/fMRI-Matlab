@@ -34,7 +34,7 @@ defaultOpts.count = NaN;
 defaultOpts.area = NaN;
 defaultOpts.extraOpts = {};
 
-opts = fs_mergestruct(defaultOpts, varargin{:});
+opts = fm_mergestruct(defaultOpts, varargin{:});
 
 % which method for roi
 if ~isnan(opts.radius)

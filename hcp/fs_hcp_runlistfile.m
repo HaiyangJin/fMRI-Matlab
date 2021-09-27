@@ -94,10 +94,10 @@ end
 function createrunlistfile(runType, runInfo, logicalList) 
 
 % create run list files for each run separately
-arrayfun(@(x,y) fs_createfile([runType num2str(x) '.txt'],...
+arrayfun(@(x,y) fm_createfile([runType num2str(x) '.txt'],...
     y), 1:sum(logicalList), runInfo{logicalList, 'RunCode'}', 'uni', false);
 
 % create run list file for all runs together
-fs_createfile([runType '.txt'], runInfo{logicalList, 'RunCode'});
+fm_createfile([runType '.txt'], runInfo{logicalList, 'RunCode'});
 
 end

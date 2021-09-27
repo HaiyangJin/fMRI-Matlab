@@ -11,8 +11,8 @@ function fs_cplabel(srcStructPath, trgStructPath, labelString, strPattern, force
 %     labelString       <string> the label strings
 %     strPattern        <string> string pattern used to identify subject
 %                        folders.
-%     force             <logical> used in fs_copyfile.m. [Default is 0 in
-%                        fs_copyfile.m]
+%     force             <logical> used in fm_copyfile.m. [Default is 0 in
+%                        fm_copyfile.m]
 %
 % Output:
 %     copy labels to the target path (in the label/ folder)
@@ -44,7 +44,7 @@ if ~isempty(srcList) && ~all(isAva)
 end
 
 % copy the labels
-cellfun(@(x) fs_copyfile(fullfile(srcStructPath, x, 'label', labelString), ...
+cellfun(@(x) fm_copyfile(fullfile(srcStructPath, x, 'label', labelString), ...
     fullfile(trgStructPath, x, 'label'), force), ...
     srcList, 'uni', false);
 
