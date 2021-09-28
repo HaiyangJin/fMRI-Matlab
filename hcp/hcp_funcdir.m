@@ -23,6 +23,11 @@ if isempty(subjCode)
     return;
 end
 
+% make sure HCP_DIR is set 
+if isempty(getenv("HCP_DIR"))
+    error('Please use "hcp_setdir()" to set the HCP directory.');
+end
+
 % make sure <subjCode> directory exists
 assert(logical(exist(fullfile(getenv("HCP_DIR"), subjCode), 'dir')), ...
     'Cannot find subject (%s) in the project directory (%s).', ...

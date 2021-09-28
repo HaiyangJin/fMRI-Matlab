@@ -1,7 +1,8 @@
 function projDir = hcp_setdir(projDir)
 % projDir = hcp_setdir(projDir)
 %
-% Set projDir as a global environment "HCP_DIR".
+% Set projDir as a global environment "HCP_DIR". projDir's sub-directory
+% should be subject folders.
 %
 % Input:
 %    projDir     <string> full path to the project direcotry that stores
