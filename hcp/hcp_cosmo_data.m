@@ -1,43 +1,57 @@
-function ds = hcp_cosmo_data(subjCode, runstr, funcstr, islevel1)
-% ds = hcp_cosmo_data(subjCode, runstr, funcstr, islevel1)
+function ds = hcp_cosmo_data(subjCode, runinfo, funcstr, runwise)
+% ds = hcp_cosmo_data(subjCode, runinfo, funcstr, runwise)
 %
 % Read the functional results from FEAT in HCP. 
 %
 % Inputs:
 %    subjCode      <string> subject code.
-%    runstr        <string> string pattern to match run folders.
-%    funcstr       <string> string pattern to match the functional filename. 
-%    islevel1      <logical> whether collect data for level1 analysis
-%                   results in HCP (FSL). 
+%    runinfo       <cell string> list of run folders.
+%               or <string> string pattern (wildcard) to match run folders.
+%    funcstr       <string> string pattern (wildcard) to match the 
+%                   functional filename. Default is 'pe%d.dtseries.nii', 
+%                   i.e., the parameter estimation.
+%    runwise       <logical> whether collect data for level1 analysis
+%                   results in HCP (FSL). Default is 1.
 %
 % % Example 1: load condition data for each run separately (runwise; level1)
-% ds = hcp_cosmo_data(subjCode, '*FUNC_0*', '');
+% ds = hcp_cosmo_data(subjCode, '*FUNC_0*');
 %
 % % Example 2: load contrast data for each run separately (runwise; level1)
 % ds = hcp_cosmo_data(subjCode, '*FUNC_0*', 'cope*.dtseries.nii');
 % ds = hcp_cosmo_data(subjCode, '*FUNC_0*', 'cope%d.dtseries.nii');
 % ds = hcp_cosmo_data(subjCode, '*FUNC_0*', 'tstat*.dtseries.nii');
 %
-% Example 3: load contrast data across runs (level2)
-% ds3 = hcp_cosmo_data(subjCode, '*Main*', '*_cope_hp200_s2.dscalar.nii', 0);
+% % Example 3: load contrast data across runs (level2)
+% ds = hcp_cosmo_data(subjCode, '*Main*', '*_cope_hp200_s2.dscalar.nii', 0);
+%
+% % Example 4: use list of run folder names instead of string patterns
+% ds = hcp_cosmo_data(subjCode, {'tfMRI_FUNC_01_PA', 'tfMRI_FUNC_02_PA'});
+%
+% Created by Haiyang Jin (2021-09-28)
 
 % setup
-if ~exist('runstr', 'var') || isempty(runstr)
-    runstr = '*';
+if ~exist('runinfo', 'var') || isempty(runinfo)
+    error('Please set "runinfo" as a list of run folder names.'); 
 end
 
 if ~exist('funcstr', 'var') || isempty(funcstr)
-    funcstr = 'pe%d.dtseries.nii';
+    funcstr = 'pe%d.dtseries.nii'; % parameter estimation
 end
 
-if ~exist('islevel1', 'var') || isempty(islevel1)
-    islevel1 = 1;
+if ~exist('runwise', 'var') || isempty(runwise)
+    runwise = 1;
 end
+
+% get the functional data directory
+funcdir = hcp_funcdir(subjCode);
 
 % get the run list
-funcdir = hcp_funcdir(subjCode);
-rundir = dir(fullfile(funcdir, runstr));
-runlist = {rundir.name};
+if ischar(runinfo)
+    rundir = dir(fullfile(funcdir, runinfo));
+    runlist = {rundir.name};
+elseif iscell(runinfo)
+    runlist = runinfo;
+end
 nRun = length(runlist);
 dsCell = cell(nRun, 1);
 
@@ -48,7 +62,7 @@ for iRun = 1:nRun
 
     % find the folder name ending with *.feat
     featdir = dir(fullfile(funcdir, runfolder, '*.feat'));
-    if islevel1
+    if runwise
         featfn = fullfile(featdir.name, 'GrayordinatesStats');
     else
         featfn = featdir.name;
