@@ -15,7 +15,7 @@ function fsl_par2ev(parfilename, evPath)
 % Created by Haiyang Jin (2021-09-27)
 
 if ~exist('evPath', 'var') || isempty(evPath)
-    evPath = fullfile('.', 'tmp_ev');
+    evPath = fullfile('.', 'par2ev');
 end
 fm_mkdir(evPath);
 
