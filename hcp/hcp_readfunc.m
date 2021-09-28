@@ -39,7 +39,7 @@ if ~exist('filename', 'var') || isempty(filename)
 end
 
 % make sure the file exists
-assert(exist(filename, 'file'), 'Cannot find the file %s.', filename);
+assert(logical(exist(filename, 'file')), 'Cannot find the file %s.', filename);
 
 %% Read filename
 % identify the extension
