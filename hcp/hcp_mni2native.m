@@ -1,68 +1,53 @@
-function MNI2Native_tfMRI(hcpPath, strPattern)
+function hcp_mni2native(hcpDir, strPattern)
+% hcp_mni2native(hcpDir, strPattern)
+%
+% The old name was: MNI2Native_tfMRI(hcpDir, strPattern)
+%
 % This function was built based on MNI2Native.sh (created by Osama Abdullah
 % on 9/9/18), which converts the functional (bold) data from MNI space to
 % native space (with FSL functions).
 %
 % Inputs:
-%    hcpPath       <string> path to the HCP results ('Path/to/HCP/') 
-%                   [Default is the current working directory].
+%    hcpDir        <string> path to the HCP results ('Path/to/HCP/')
+%                   [Default is "$HCP_DIR"].
 %    strPattern    <string> strings (or prefix) for session information (e.g.,
 %                   'faceword' is the prefix for 'faceword01', 'faceword02',
-%                   'faceword03'. sessStr will help to identify all the 
+%                   'faceword03'. sessStr will help to identify all the
 %                   session folders. In order to perform this
-%                   transformation for only one session, just set the sessStr 
+%                   transformation for only one session, just set the sessStr
 %                   as the full name of the session name (e.g., 'faceword01').
+%                   By default, it is obtained from hcp_projname.
 %
 % Output:
-%    files of functional (bold) data on native space.  
+%    files of functional (bold) data on native space.
 %
 % Dependency:
 %    FSL  (Please make sure FSL is installed and sourced properly.)
 %
-% Created by Haiyang Jin (5-Jan-2020) (Based on MNI2Native.sh which was 
-% created by Osama Abdullah on 9-Sept-18).
+% Created by Haiyang Jin (2020-01-05) (Based on MNI2Native.sh which was
+% created by Osama Abdullah on 9-Sept-2018).
 
 % check if FSL is sourced properly
 if isempty(getenv('FSLDIR'))
     error('Please make sure FSL is installed and sourced properly.');
 end
 
-if nargin < 1 || isempty(hcpPath)
-    hcpPath = '.';
+if ~exist('hcpDir', 'var') || isempty(hcpDir)
+    hcpDir = hcp_dir;
 end
-if nargin < 2 || isempty(strPattern) || strcmp(strPattern, '.')
-    
-    % all the folders in HCP path
-    tempDir = dir(hcpPath);
-    tempList = {tempDir.name};
-    
-    % the string parts of all folder names
-    numericParts =  regexp(tempList, '\d+', 'match');
-    stringParts = cellfun(@(x, y) erase(x, y), tempList, numericParts, 'uni', false);
-    
-    % information of string parts
-    [uc, ~, idc] = unique(stringParts) ;
-    counts = histcounts(idc);
-
-    % the most frequent string will be used as the prefix
-    [~, whichStr] = max(counts);
-    strPattern = uc{whichStr};
-  
+if ~exist('strPattern', 'var') || isempty(strPattern) || strcmp(strPattern, '.')
+    strPattern = hcp_projname(hcpDir);
 end
 % add '*' if last letter is not '*'
 if strPattern(end) ~= '*' && ~strcmp(strPattern, '.')
     strPattern = [strPattern, '*'];
 end
 
-
 %% identify all sessions (folders) match sessStr
-projDir = dir(fullfile(hcpPath, strPattern));
-
-% % remove folders whose superfolder (parent folder) is not hcpPath
-% sessDir(~strcmp({sessDir.folder}, hcpPath)) = []; 
+projDir = dir(fullfile(hcpDir, strPattern));
 
 if isempty(projDir)
-    error('No sessions were found for %s in %s.', strPattern, hcpPath);
+    error('No sessions were found for %s in %s.', strPattern, hcpDir);
 end
 
 subjList = {projDir.name};
@@ -73,7 +58,7 @@ fileType = {'', '_SBRef'};
 for iSubj = 1:nSubj
     
     thisSubj = subjList{iSubj};
-    thisPath = fullfile(hcpPath, thisSubj);
+    thisPath = fullfile(hcpDir, thisSubj);
     
     %% downsample T2w in native space to fMRI resolution
     cmd_flirt = sprintf(['flirt -in %1$s/T1w/T2w_acpc_dc_restore_brain '...
@@ -85,7 +70,7 @@ for iSubj = 1:nSubj
     resultsPath = fullfile(thisPath, 'MNINonLinear', 'Results');
     mniDir = dir(fullfile(resultsPath, '*fMRI_*'));
     mniList = {mniDir.name};
-
+    
     % filenames of all bold data to be transformed
     minArray = repmat(mniList, numel(fileType), 1);
     fileArray = repmat(fileType', 1, numel(mniList));
@@ -99,7 +84,7 @@ for iSubj = 1:nSubj
         x, thisPath), filenameMNI, 'uni', false);
     % run all functions
     cellfun(@system, cmds);
-
+    
 end
 
 end

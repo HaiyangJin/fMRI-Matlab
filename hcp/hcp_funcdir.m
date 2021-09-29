@@ -13,7 +13,7 @@ function funcdir = hcp_funcdir(subjCode)
 %
 % Created by Haiyang Jin (2021-09-28)
 
-if ~exist('subjCode', 'var') 
+if ~exist('subjCode', 'var')
     subjCode = "";
 end
 
@@ -23,9 +23,9 @@ if isempty(subjCode)
     return;
 end
 
-% make sure HCP_DIR is set 
+% make sure HCP_DIR is set
 if isempty(getenv("HCP_DIR"))
-    error('Please use "hcp_setdir()" to set the HCP directory.');
+    error('Please use "hcp_dir()" to set the HCP directory.');
 end
 
 % make sure <subjCode> directory exists

@@ -17,7 +17,7 @@ function [conList, conMat] = hcp_readcon(filename)
 % open the file
 fid = fopen(filename, 'r');
 if fid == -1
-  error('Cannot open file fpr reading: %s', filename);
+    error('Cannot open file fpr reading: %s', filename);
 end
 
 contentC = textscan(fid, '%s', 'delimiter', '\n', 'whitespace', '');

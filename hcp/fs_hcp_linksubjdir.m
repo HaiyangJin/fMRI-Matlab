@@ -1,48 +1,50 @@
-function fs_hcp_linksubjdir(structPath, hcpPath, isLinkT1)
+function fs_hcp_linksubjdir(structPath, hcpDir, linkT1)
+% fs_hcp_linksubjdir(structPath, hcpDir, linkT1)
+%
 % This function re-link the SUBJECTS_DIR after the output from HCP is
 % downloaded to local storage.
 %
 % Input:
-%     structPath       <string> 'SUBJECTS_DIR'
-%     hcpPath          <string> the full path to HCP/ folder
-%     isLinkT1         <logical> 1: link files. 0: copy files.
+%     structPath      <string> '$SUBJECTS_DIR'
+%     hcpDir          <string> the full path to HCP/ folder, which stores
+%                       subject folders.
+%     linkT1          <logical> 1 (default): link files. 0: copy files.
+% 
 % Output:
-%     re-link the folders in SUBJECTS_DIR
+%     re-link (or copy) the folders in SUBJECTS_DIR
 %
 % Created by Haiyang Jin (20-Jan-2020)
 
 % gather information about 'SUBJECTS_DIR'
-if nargin < 1 || isempty(structPath)
-    FS = fs_subjdir;
-else
-    FS = fs_subjdir(structPath);
+if ~exist('structPath', 'var')  || isempty(structPath)
+    structPath = fs_subjdir;
 end
 % path to SUBJECTS_DIR
-structPath = FS.structPath;
 
-% set the hcpPath (if empty) based on structPath
-if nargin < 2 || isempty(hcpPath)
-    hcpPath = fullfile(structPath, '..', '..');
+% obtain the  the hcpDir (if empty) based on structPath
+if ~exist('hcpDir', 'var')  || isempty(hcpDir)
+    hcpDir = hcp_dir;
 end
+subjList = hcp_subjlist(hcpDir);
 
 % link file by default
-if nargin < 3 || isempty(isLinkT1)
-    isLinkT1 = 1;
+if ~exist('linkT1', 'var')  || isempty(linkT1)
+    linkT1 = 1;
 end
 
-for iSubj = 1:FS.nSubj
+for iSubj = 1:length(subjList)
     
-    thisSubj = FS.subjList{iSubj};
+    thisSubj = subjList{iSubj};
     
-    sourceSubjCode = fullfile(hcpPath, thisSubj, 'T1w', thisSubj);
+    sourceSubjCode = fullfile(hcpDir, thisSubj, 'T1w', thisSubj);
     targetSubjCode = fullfile(structPath, thisSubj);
     
     % link (or copy) recon-all data
-    if isLinkT1 % link files
+    if linkT1 % link files
         delete(targetSubjCode);  % delete the old folder
-        fscmd_link = sprintf('ln -s %s %s', sourceSubjCode, structPath);
-        system(fscmd_link);
-    elseif ~isLinkT1
+        cmd_link = sprintf('ln -s %s %s', sourceSubjCode, structPath);
+        system(cmd_link);
+    elseif ~linkT1
         copyfile(sourceSubjCode, targetSubjCode);
     end
     

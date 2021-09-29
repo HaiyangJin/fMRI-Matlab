@@ -1,21 +1,25 @@
-function sessStr = fs_hcp_projname(hcpPath)
-% This function use the most frequent strings in hcpPath as the project
+function sessStr = hcp_projname(hcpDir)
+% sessStr = hcp_projname(hcpDir)
+%
+% This function uses the most frequent strings in hcpDir as the project
 % name (or the prefix of session names)
 %
 % Inputs:
-%    hcpPath       path to the HCP results ('Path/to/HCP/') [Default is the
-%                   current working directory]
+%    hcpDir        <string> path to the HCP results ('Path/to/HCP/').
+%                   [Default is "$HCP_DIR"].
 % Output:
-%    sessStr        the project name or the prefix of session names
+%    sessStr       <string> the project name or the prefix of session
+%                    names.
 %
-% Created by Haiyang Jin (5/01/2020)
+% Created by Haiyang Jin (2020-01-05)
 
-if nargin < 1 || isempty(hcpPath)
-    hcpPath = '.';
+if nargin < 1 || isempty(hcpDir)
+    hcpDir = '';
 end
+hcpDir = hcp_dir(hcpDir);
 
 % all the folders in HCP path
-tmpSessDir = dir(hcpPath);
+tmpSessDir = dir(hcpDir);
 tmpSessDir(startsWith({tmpSessDir.name}, '.')) = [];  % remove folders starts with '.'
 tmpSessList = {tmpSessDir.name};
 

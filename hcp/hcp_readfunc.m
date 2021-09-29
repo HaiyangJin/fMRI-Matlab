@@ -5,14 +5,14 @@ function [data, info] = hcp_readfunc(filename)
 %
 % Input:
 %    filename         <string> the to-be-read filename (with path). [If
-%                      filename is empty, the output will be []; if 
-%                      filename is 'ext', the output will be a cell string 
-%                      includes all the file type can be read with 
+%                      filename is empty, the output will be []; if
+%                      filename is 'ext', the output will be a cell string
+%                      includes all the file type can be read with
 %                      hcp_readfunc.m.
 %
 % Output:
 %    data             <numeric array> the data matrix.
-%    info             The other available information. 
+%    info             The other available information.
 %
 % Created by Haiyang Jin (2021-09-28)
 

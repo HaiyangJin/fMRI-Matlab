@@ -1,139 +1,115 @@
-function fs_hcp_prepro(hcpPath, projString, template, funcExt, linkT1)
-% fs_hcp_prepro(hcpPath, projString, template, funcExt, linkT1)
+function fs_hcp_prepro(hcpDir, template, varargin)
+% fs_hcp_prepro(hcpDir, template, varargin)
 %
 % This function creates directory structure for analyses in FreeSurfer for
-% results obtained from Human Connectome Project pipeline.
+% results obtained from Human Connectome Project pipeline. The steps
+% include:
+%    (0) convert functional data in MNI space to native space (this step is
+%        not included in this function; please refer to hcp_mni2native);
+%    (1) link (or copy) T1 directory ("$SUBJECTS_DIR");
+%    (2) create FreeSurfer-format directories for functional data;
+%    (3) copy and rename the functional data (in volume);
+%    (4) project functional data to 'fsaverage' (or 'self') surface with
+%        preprocessing of motion correction and brain-mask creation
+%        (default in FreeSurfer).
 %
 % Inputs:
-%    HCP_path         <string> path to the HCP results ('Path/to/HCP/') 
-%                      [Default is the current working directory].
-%    projString       <string> strings (or prefix) for session information 
-%                      (e.g., 'faceword' is the prefix for 'faceword01', 
-%                      'faceword02', 'faceword03'. sessStr will help to 
-%                      identify all the session folders. In order to 
-%                      perform this transformation for only one session, 
-%                      just set the sessStr as the full name of the 
-%                      session name (e.g., 'faceword01').
-%    template         <string> template used for projecting functional data 
+%    hcpDir           <string> path to the HCP results ('Path/to/HCP/')
+%                      [Default is "$HCP_DIR"].
+%    template         <string> template used for projecting functional data
 %                      ('self' or 'fsaverage').
-%    funcExt          <string> strings to be added at the end of
+%
+% Varargin:
+%    .funcext         <string> strings to be added at the end of
 %                      functionals folder name.
-%    linkT1           <logical> 1: link the T1 for all subjects. 0: copy the
+%    .linkt1          <logical> 1: link the T1 for all subjects. 0: copy the
 %                      T1 data for all subjects.
+%    .smooth          <integer> smoothness.
 %
 % Output:
-%    a subfolder called FreeSurfer is built in HCP/. It contains the
-%    directory structure (but not the anatomy data) for analyses in
-%    FreeSurfer.
+%    a folder called FreeSurfer is created in the same folder with the same
+%    level of hcpDir/. It contains the directory structure (but not the
+%    anatomy data) for analyses in FreeSurfer.
 %
 % Dependency:
 %    FreeSurfer   (Please make sure FreeSurfer is installed and sourced properly.)
 %
-% Created by Haiyang Jin (5-Jan-2020).
+% Created by Haiyang Jin (2020-01-05).
 
-% get the environment variable 
+% get the environment variable
 fshomePath = getenv('FREESURFER_HOME');
 if isempty(fshomePath)
     error('Please make sure FreeSurfer is installed and sourced properly.');
 end
 
-if nargin < 1 || isempty(hcpPath)
-    hcpPath = pwd;
+if ~exist('hcpDir', 'var') || isempty(hcpDir)
+    hcpDir = hcp_dir;
 end
 
-if nargin < 2 || isempty(projString) || strcmp(projString, '.')
-    projString = fs_hcp_projname(hcpPath);
-end
-% add '*' if last letter is not '*'
-if projString(end) ~= '*' && ~strcmp(projString, '.')
-    projString = [projString, '*'];
-end
-
-if nargin < 3 || isempty(template)
+if ~exist('template', 'var') || isempty(template)
     template = 'fsaverage';
     warning('The template was not specified and fsaverage will be used by default.');
 elseif ~ismember(template, {'fsaverage', 'self'})
     error('The template has to be ''fsaverage'' or ''self'' (not ''%s'').', template);
 end
 
-if nargin < 4 || isempty(funcExt)
-    funcExt = '';
-end
-
-% link or copy the recon-all outputs
-if nargin < 5 || isempty(linkT1)
-    linkT1 = 1;
-end
+defaultOpts = struct(...
+    'funcext', '', ...
+    'linkt1', 1, ...
+    'smooth', 0);
+opts = fm_mergestruct(defaultOpts, varargin{:});
 
 
 %% Identify all sessions (folders) match sessStr
-hcpDir = dir(fullfile(hcpPath, projString));
-
-if isempty(hcpDir)
-    error('No sessions were found for %s in %s.', projString, hcpPath);
-end
-
-hcpList = {hcpDir.name};
-nSubj = numel(hcpList);
-
-% the directory structure is saved in 'HCP/FreeSurfer'
-fsPath = fullfile(hcpPath, 'FreeSurfer');
+% the directory structure is saved in 'HCP/../FreeSurfer'
+fsPath = fullfile(hcpDir, '..', 'FreeSurfer');
 
 % create subjects/
 structPath = fullfile(fsPath, 'subjects');
-if ~exist(structPath, 'dir'); mkdir(structPath); end
+fm_mkdir(structPath);
 fs_subjdir(structPath);  % set 'SUBJECTS_DIR'
 
-% link fsaverage in subjects/ to fsaverage in FREESURFER 6.0 (or 5.3)
+% link fsaverage in subjects/ to fsaverage in FREESURFER 7.1 (or 6.0)
 if ~exist(fullfile(structPath, 'fsaverage'), 'dir') && strcmp(template, 'fsaverage')
     fsaverage = fullfile(fshomePath, 'subjects', 'fsaverage');
-    if linkT1 % link file
+    if opts.linkt1 % link file
         fscmd_fsaverage = sprintf('ln -s %s %s', fsaverage, structPath);
         system(fscmd_fsaverage);
     else % copy file
         copyfile(fsaverage, fullfile(structPath, 'fsaverage'));
-    end     
+    end
 end
+% link other subjects
+fs_hcp_linksubjdir(structPath, hcpDir, opts.linkt1);
 
+[hcpList, nSubj] = hcp_subjlist(hcpDir);
 for iSubj = 1:nSubj
     
     % this session
     thisSubj = hcpList{iSubj};
-    thisPath = fullfile(hcpPath, thisSubj);
-    
-    %% link (or copy) recon-all data
-    targetSubjCode = fullfile(structPath, thisSubj);
-    sourceSubjCode = fullfile(thisPath, 'T1w', thisSubj); % use relative directory
-    if ~exist(targetSubjCode, 'dir')
-        if linkT1 % link folder
-            fscmd_linksubjdir = sprintf('ln -s %s %s', sourceSubjCode, structPath);
-            system(fscmd_linksubjdir);
-        else % copy folder
-            copyfile(sourceSubjCode, targetSubjCode);
-        end
-    end
+    thisPath = fullfile(hcpDir, thisSubj);
     
     %% copy functional data to preprocessed folder
     % make directory for preprocessed data folder
     thisPreproPath = fullfile(fsPath, 'PreProcessed', thisSubj);
-    if ~exist(thisPreproPath, 'dir'); mkdir(thisPreproPath); end
+    fm_mkdir(thisPreproPath);
     
     % source and target path
     sourceFunc = fullfile(thisPath, 'MNINonLinear', 'Results');
     runDir = dir(fullfile(sourceFunc, '*fMRI*'));
     runNameCell = {runDir.name};
-        
+    
     % copy functional data to preprocessed/
     cellfun(@(x) copyfile(fullfile(sourceFunc, x, [x '_native.nii.gz']), ...
         fullfile(thisPreproPath, [x '_native.nii.gz'])), runNameCell);
     
     %% copy and rename from preprocessed folder to functional_data_'template'
     % make directory for the functional data
-    funcPath = fullfile(fsPath, ['functional_data' funcExt]);
-    sessCode = thisSubj;
+    funcPath = fullfile(fsPath, ['functional_data' opts.funcext]);
+    sessCode = [thisSubj '_' template];
     sessPath = fullfile(funcPath, sessCode);
     thisBoldPath = fullfile(sessPath, 'bold');
-    if ~exist(thisBoldPath, 'dir'); mkdir(thisBoldPath); end
+    fm_mkdir(thisBoldPath);
     
     % create folders for each run
     runCodeCell = arrayfun(@(x) num2str(x, '%03d'), 1:numel(runNameCell), 'uni', false);
@@ -149,22 +125,22 @@ for iSubj = 1:nSubj
         fullfile(thisBoldPath, y, 'f.nii.gz')), runNameCell, runCodeCell);
     
     %% create other files
-    % create sessid 
+    % create sessid
     fm_createfile(fullfile(sessPath, 'sessid'), sessCode);
     % create subjectname
     fm_createfile(fullfile(sessPath, 'subjectname'), thisSubj);
     
     %% Project functional data to the template
     wdBackup = pwd;
-        
+    
     cd(funcPath);
     fscmd_prepro_run = sprintf(['preproc-sess -s %s -fsd bold'...
-        ' -surface %s lhrh -mni305 -fwhm 0 -per-run -force'],...
-        sessCode, template);
+        ' -surface %s lhrh -mni305 -fwhm %d -per-session -force'],...
+        sessCode, template, opts.smooth);
     system(fscmd_prepro_run);
     
     cd(wdBackup);
-
+    
     
 end
 
