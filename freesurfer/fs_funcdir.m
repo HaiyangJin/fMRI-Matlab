@@ -31,6 +31,9 @@ if nargin < 2 || isempty(strPattern)
     strPattern = '';
 end
 
+% make sure the struPath exists
+assert(logical(exist(funcPath, 'dir')), 'Cannot find the directory: \n%s...', funcPath);
+
 % set the environmental variable of FUNCTIONALS_DIR
 setenv('FUNCTIONALS_DIR', funcPath);
 

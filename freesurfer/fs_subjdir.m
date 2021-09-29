@@ -37,6 +37,9 @@ if strcmp(struPath, 'myfs')
 end
 
 if setdir
+    % make sure the struPath exists
+    assert(logical(exist(struPath, 'dir')), ...
+        'Cannot find the directory: \n%s...', struPath);
     setenv('SUBJECTS_DIR', struPath);
     fprintf('SUBJECTS_DIR is set as %s now...\n', struPath);
 end
