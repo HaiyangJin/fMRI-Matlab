@@ -36,7 +36,7 @@ switch dataOnly
     case 1 
         % only output the data
         outtemp = load_nifti(niiFilename);
-        out = outtemp.vol; 
+        out = squeue(outtemp.vol); 
     case 2
         % only output headers
         out = load_nifti(niiFilename, 1);
