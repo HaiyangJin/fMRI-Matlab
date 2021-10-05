@@ -18,7 +18,7 @@ function fs_setup(fsPath, fslPath, force)
 fs_setupmatlab;
 
 if ~exist('fslPath', 'var') || isempty(fslPath)
-    fslPath = '/usr/local/fsl';
+    fslPath = '';
 end
 if ~exist('force', 'var') || isempty(force)
     force = 0;
@@ -44,7 +44,7 @@ end
 % please ignore this part and just set fsPath as the full path to FreeSurfer
 if ~ismember(filesep, fsPath)
     % use fsPath as the verion number if fsPath is not a path 
-    % (e.g., '5.3', '6.0', '7.1') 
+    % (e.g., '5.3', '6.0', '7.2') 
     fsPath = sprintf('/Applications/freesurfer_%s', fsPath);
 end
 

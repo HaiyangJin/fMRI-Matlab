@@ -43,13 +43,14 @@ cellfun(@(x) runlistfile(x, locString), fullfile(funcPath, sessList, 'bold'), 'u
 
 end
 
+%% functions
 function runlistfile(boldPath, locString)
 
 % load run_info.txt
 runInfo = readtable(fullfile(boldPath, 'run_info.txt'), 'Delimiter', ',',...
     'Format','%s%s');
 
-%% find unique task names and numbers
+%%%%%% find unique task names and numbers
 % the unique strings of run names (as the task name)
 runNums = cellfun(@(x) regexp(x, '\d+', 'match'), runInfo.RunName);
 [taskNames, ~, groupNum] = unique(cellfun(@(x, y) erase(x, y),...
@@ -86,7 +87,7 @@ elseif nTask == 1 % when there is only one task name
     
 end
 
-%% Create run list files
+%%%%%% Create run list files
 % backup directory
 wdBackup = pwd;
 cd(boldPath);

@@ -1,7 +1,7 @@
-function ds = hcp_cosmo_data(subjCode, runinfo, funcstr, runwise)
-% ds = hcp_cosmo_data(subjCode, runinfo, funcstr, runwise)
+function ds = hcp_cosmo_data(subjCode, runinfo, funcstr, islevel1)
+% ds = hcp_cosmo_data(subjCode, runinfo, funcstr, islevel1)
 %
-% Read the functional results from FEAT in HCP. 
+% Read the functional results on surface from FEAT in HCP. 
 %
 % Inputs:
 %    subjCode      <string> subject code.
@@ -10,13 +10,13 @@ function ds = hcp_cosmo_data(subjCode, runinfo, funcstr, runwise)
 %    funcstr       <string> string pattern (wildcard) to match the 
 %                   functional filename. Default is 'pe%d.dtseries.nii', 
 %                   i.e., the parameter estimation.
-%    runwise       <logical> whether collect data for level1 analysis
+%    islevel1      <logical> whether collect data for level1 analysis
 %                   results in HCP (FSL). Default is 1.
 %
-% % Example 1: load condition data for each run separately (runwise; level1)
+% % Example 1: load condition data for each run separately (level1)
 % ds = hcp_cosmo_data(subjCode, '*FUNC_0*');
 %
-% % Example 2: load contrast data for each run separately (runwise; level1)
+% % Example 2: load contrast data for each run separately (level1)
 % ds = hcp_cosmo_data(subjCode, '*FUNC_0*', 'cope*.dtseries.nii');
 % ds = hcp_cosmo_data(subjCode, '*FUNC_0*', 'cope%d.dtseries.nii');
 % ds = hcp_cosmo_data(subjCode, '*FUNC_0*', 'tstat*.dtseries.nii');
@@ -38,8 +38,8 @@ if ~exist('funcstr', 'var') || isempty(funcstr)
     funcstr = 'pe%d.dtseries.nii'; % parameter estimation
 end
 
-if ~exist('runwise', 'var') || isempty(runwise)
-    runwise = 1;
+if ~exist('islevel1', 'var') || isempty(islevel1)
+    islevel1 = 1;
 end
 
 % get the functional data directory
@@ -62,7 +62,7 @@ for iRun = 1:nRun
 
     % find the folder name ending with *.feat
     featdir = dir(fullfile(funcdir, runfolder, '*.feat'));
-    if runwise
+    if islevel1
         featfn = fullfile(featdir.name, 'GrayordinatesStats');
     else
         featfn = featdir.name;
@@ -75,12 +75,12 @@ for iRun = 1:nRun
         conList = sort(cellfun(@(x) erase(x, ".txt"), {condir.name}, 'uni', false));
 
     elseif startsWith(funcstr, {'cope', 'tstat', 'zstat', 'varcope'})
-        % read contrast information (runwise)
+        % read contrast information (level1)
         condir = dir(fullfile(funcdir, runfolder, featdir.name, 'design.con'));
         conList = hcp_readcon(fullfile(condir.folder, condir.name)); % contrast list
 
     else
-        % read contrast information (across runs)
+        % read contrast information (across runs; level2)
         conList = fm_readtext(fullfile(funcdir, runfolder, featdir.name, 'Contrasts.txt'));
 
     end
