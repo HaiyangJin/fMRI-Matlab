@@ -5,7 +5,7 @@ function ds = hcp_cosmo_data(subjCode, runinfo, funcstr, islevel1)
 %
 % Inputs:
 %    subjCode      <string> subject code.
-%    runinfo       <cell string> list of run folders.
+%    runinfo       <cell string> list of run folders. more see hcp_runlist.
 %               or <string> string pattern (wildcard) to match run folders.
 %    funcstr       <string> string pattern (wildcard) to match the 
 %                   functional filename. Default is 'pe%d.dtseries.nii', 
@@ -46,13 +46,8 @@ end
 funcdir = hcp_funcdir(subjCode);
 
 % get the run list
-if ischar(runinfo)
-    rundir = dir(fullfile(funcdir, runinfo));
-    runlist = {rundir.name};
-elseif iscell(runinfo)
-    runlist = runinfo;
-end
-nRun = length(runlist);
+[runlist, nRun] = hcp_runlist(subjCode, runinfo);
+
 dsCell = cell(nRun, 1);
 
 % read dt for each folder (or run) separately

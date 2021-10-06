@@ -9,7 +9,7 @@ function [status, cmdlist] = hcp_mergecon(subjCode, runinfo, coninfo, runcmd)
 %
 % Inputs:
 %    subjCode      <string> subject code.
-%    runinfo       <cell string> list of run folders.
+%    runinfo       <cell string> list of run folders. more see hcp_runlist.
 %               or <string> string pattern (wildcard) to match run folders.
 %    coninfo       <str> string pattern (wildcard) to match the functional
 %                   output filenames (mainly contrast files). Default is
@@ -46,13 +46,8 @@ end
 funcdir = hcp_funcdir(subjCode);
 
 % get the run list
-if ischar(runinfo)
-    rundir = dir(fullfile(funcdir, runinfo));
-    runlist = {rundir.name};
-elseif iscell(runinfo)
-    runlist = runinfo;
-end
-nRun = length(runlist);
+[runlist, nRun] = hcp_runlist(subjCode, runinfo);
+
 cmdcell = cell(nRun, nFunc, 2);  % 2 is for two hcp commands
 
 %% read dt for each folder (or run) separately
