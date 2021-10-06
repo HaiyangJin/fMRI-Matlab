@@ -64,7 +64,9 @@ for iRun = 1:nRun
     else % for level 1 results
         % find the folder name ending with *.feat
         featdir = dir(fullfile(hcp_funcdir(subjCode), runfolder, '*fMRI*level1.feat'));
-        alldir = dir(fullfile(featdir.folder, featdir.name, 'GrayordinatesStats', 'all*dscalar.nii'));
+        ciftidir = dir(fullfile(featdir.folder, featdir.name, 'GrayordinatesStats', 'all*dscalar.nii'));
+        niftidir = dir(fullfile(featdir.folder, featdir.name, 'StandardVolumeStats', 'all*.nii.gz'));
+        alldir = [ciftidir; niftidir];
     end
     
     % save the result files
