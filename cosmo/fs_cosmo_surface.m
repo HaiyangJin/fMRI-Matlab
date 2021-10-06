@@ -64,7 +64,7 @@ if ~exist(surfFn, 'file')
 end
 
 % load data
-data = fs_readfunc(surfFn); % only load data % betas * vertices
+data = fs_readfunc(surfFn)'; % only load data % betas * vertices
 
 % only keep first n rows of samples if Target information is available
 if ~isempty(params.targets)

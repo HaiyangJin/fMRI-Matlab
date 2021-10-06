@@ -14,7 +14,7 @@ if ~isempty(getenv('FSLDIR'))
 end
 
 % the default FSL path
-if nargin < 1
+if nargin < 1 || isempty(fslPath)
     fslPath = '/usr/local/fsl';
 end
 
