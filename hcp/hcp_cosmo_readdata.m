@@ -1,5 +1,5 @@
-function ds = hcp_cosmo_data(subjCode, runinfo, funcstr, islevel1)
-% ds = hcp_cosmo_data(subjCode, runinfo, funcstr, islevel1)
+function ds = hcp_cosmo_readdata(subjCode, runinfo, funcstr, islevel1)
+% ds = hcp_cosmo_readdata(subjCode, runinfo, funcstr, islevel1)
 %
 % Read the functional results on surface from FEAT in HCP. 
 %
@@ -14,18 +14,18 @@ function ds = hcp_cosmo_data(subjCode, runinfo, funcstr, islevel1)
 %                   results in HCP (FSL). Default is 1.
 %
 % % Example 1: load condition data for each run separately (level1)
-% ds = hcp_cosmo_data(subjCode, '*FUNC_0*');
+% ds = hcp_cosmo_readdata(subjCode, '*FUNC_0*');
 %
 % % Example 2: load contrast data for each run separately (level1)
-% ds = hcp_cosmo_data(subjCode, '*FUNC_0*', 'cope*.dtseries.nii');
-% ds = hcp_cosmo_data(subjCode, '*FUNC_0*', 'cope%d.dtseries.nii');
-% ds = hcp_cosmo_data(subjCode, '*FUNC_0*', 'tstat*.dtseries.nii');
+% ds = hcp_cosmo_readdata(subjCode, '*FUNC_0*', 'cope*.dtseries.nii');
+% ds = hcp_cosmo_readdata(subjCode, '*FUNC_0*', 'cope%d.dtseries.nii');
+% ds = hcp_cosmo_readdata(subjCode, '*FUNC_0*', 'tstat*.dtseries.nii');
 %
 % % Example 3: load contrast data across runs (level2)
-% ds = hcp_cosmo_data(subjCode, '*Main*', '*_cope_hp200_s2.dscalar.nii', 0);
+% ds = hcp_cosmo_readdata(subjCode, '*Main*', '*_cope_hp200_s2.dscalar.nii', 0);
 %
 % % Example 4: use list of run folder names instead of string patterns
-% ds = hcp_cosmo_data(subjCode, {'tfMRI_FUNC_01_PA', 'tfMRI_FUNC_02_PA'});
+% ds = hcp_cosmo_readdata(subjCode, {'tfMRI_FUNC_01_PA', 'tfMRI_FUNC_02_PA'});
 %
 % Created by Haiyang Jin (2021-09-28)
 
