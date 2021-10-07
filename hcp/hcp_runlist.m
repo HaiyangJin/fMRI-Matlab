@@ -27,7 +27,8 @@ function [runlist, nRun] = hcp_runlist(subjCode, runinfo)
 
 % setup
 if ~exist('runinfo', 'var') || isempty(runinfo)
-    error('Please set "runinfo" as a list of run folder names.'); 
+    warning('All available folders are identified.'); 
+    runinfo = '*';
 end
 
 % get the run list

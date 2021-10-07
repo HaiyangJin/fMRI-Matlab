@@ -13,9 +13,20 @@ function fsl_par2ev(parfilename, evPath)
 %    EV files for each condition.
 %
 % Created by Haiyang Jin (2021-09-27)
+%
+% see also:
+% hcp_par2ev
+
+% makes sure there is one par file
+pardir = dir(fullfile(parfilename, '*.par'));
+if isempty(pardir)
+    warning('\nCannot find the par file in: \n%s', parfilename);
+    return;
+end
 
 if ~exist('evPath', 'var') || isempty(evPath)
-    evPath = fullfile('.', 'par2ev');
+    pardir = dir([parfilename '*']);
+    evPath = fullfile(pardir.folder, pardir.name, 'par2ev');
 end
 fm_mkdir(evPath);
 
