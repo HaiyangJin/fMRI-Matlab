@@ -25,7 +25,7 @@ if ~exist('force', 'var') || isempty(force)
 end
 
 if ~isempty(getenv('FREESURFER_HOME'))&& ~force
-    fprintf('\nFreeSurfer was already set up.\n\n');
+    fprintf('\nFreeSurfer was already set up (but it may not be set up properly if you see warning below).\n\n');
     fs_version; % display the version of FreeSurfer
     return;
 end
