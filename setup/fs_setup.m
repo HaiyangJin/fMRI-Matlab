@@ -45,7 +45,7 @@ end
 if ~ismember(filesep, fsPath)
     % use fsPath as the verion number if fsPath is not a path 
     % (e.g., '5.3', '6.0', '7.2') 
-    fsPath = sprintf('/Applications/freesurfer_%s', fsPath);
+    fsPath = sprintf('/Applications/freesurfer/%s', fsPath);
 end
 
 %% Set up FreeSurfer
