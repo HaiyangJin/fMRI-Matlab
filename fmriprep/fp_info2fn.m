@@ -15,7 +15,14 @@ function filename = fp_info2fn(info_struct, secstr, valuestr)
 % Output:
 %    filename        <str> the filename to.
 %
+% % Example 1:
+% info_struct = fp_fn2info('sub-002_Task_ses-001_Run-01_bold.nii.gz');
+% fp_info2fn(info_struct);
+%
 % Created by Haiyang Jin (2021-10-08)
+%
+% See also:
+% fp_fn2info
 
 if ~exist('secstr', 'var') || isempty(secstr)
     secstr = '_';

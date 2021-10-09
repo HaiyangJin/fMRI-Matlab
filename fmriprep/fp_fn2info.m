@@ -1,6 +1,6 @@
 function info_struct = fp_fn2info(filename, secstr, valuestr)
 % info_struct = fp_fn2info(filename)
-% 
+%
 % This function collects the relevant information from the filename by
 % secction (<secstr>) and value (<valuestr>) strings.
 %
@@ -9,16 +9,19 @@ function info_struct = fp_fn2info(filename, secstr, valuestr)
 %    secstr          <str> the string to be used to separate the filename
 %                     into different sections. Default is '_'.
 %    valuestr        <str> the string to be used to separate each section
-%                     into fieldname and value. Only the first valuestr 
-%                     will be used. Default is '-'. 
+%                     into fieldname and value. Only the first valuestr
+%                     will be used. Default is '-'.
 %
 % Output:
 %    info_struct     <struct> the information in a struct.
 %
 % % Example 1:
-% fp_fn2info('sourcedata/sub-002_ses-001_Run-test');
+% fp_fn2info('sub-002_Task_ses-001_Run-01_bold.nii.gz');
 %
 % Created by Haiyang Jin (2021-10-08)
+%
+% See also:
+% fp_info2fn
 
 if ~exist('secstr', 'var') || isempty(secstr)
     secstr = '_';
