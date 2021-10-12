@@ -15,6 +15,9 @@ function [data, info] = hcp_readfunc(filename)
 %    info             The other available information.
 %
 % Created by Haiyang Jin (2021-09-28)
+%
+% See also:
+% fm_readimg; fs_readfunc
 
 %% Settings for extensions and the corresponding functions
 % file extensions

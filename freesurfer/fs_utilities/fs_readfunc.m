@@ -14,6 +14,9 @@ function surfData = fs_readfunc(filename)
 %    surfData         <numeric array> the data matrix.
 %
 % Created by Haiyang Jin (14-Apr-2020)
+%
+% See also:
+% fm_readimg; hcp_readfunc
 
 %% Settings for extensions and the corresponding functions
 % file extensions
@@ -49,9 +52,5 @@ end
 
 % read the file
 surfData = thefunc(filename);
-
-% if contains(filename, 'beta')
-%     surfData = shiftdim(surfData, 3); % betas * vertices
-% end
 
 end
