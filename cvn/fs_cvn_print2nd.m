@@ -253,6 +253,6 @@ end
 
 % save the filenames of the data file
 thesurfs = surfs';
-fm_createfile(fullfile(outPath, 'group.log'), thesurfs(:));
+fm_mkfile(fullfile(outPath, 'group.log'), thesurfs(:));
 
 end

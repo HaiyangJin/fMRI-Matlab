@@ -126,9 +126,9 @@ for iSubj = 1:nSubj
     
     %% create other files
     % create sessid
-    fm_createfile(fullfile(sessPath, 'sessid'), sessCode);
+    fm_mkfile(fullfile(sessPath, 'sessid'), sessCode);
     % create subjectname
-    fm_createfile(fullfile(sessPath, 'subjectname'), thisSubj);
+    fm_mkfile(fullfile(sessPath, 'subjectname'), thisSubj);
     
     %% Project functional data to the template
     wdBackup = pwd;

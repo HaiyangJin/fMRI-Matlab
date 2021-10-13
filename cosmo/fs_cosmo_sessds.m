@@ -84,7 +84,7 @@ boldPath = fullfile(funcPath, sessCode, 'bold');
 % create the full filename to the paradigm file (with path)
 parFiles = fullfile(boldPath, runFolder, opts.parfn);
 % read all the par files
-parCell = cellfun(@fs_readpar, parFiles, 'uni', false);
+parCell = cellfun(@fm_readpar, parFiles, 'uni', false);
 
 % create the to-be-read filenames (beta) with path
 betaFiles = fullfile(boldPath, anaName, prFolder, opts.datafn);

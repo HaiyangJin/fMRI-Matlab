@@ -112,7 +112,7 @@ for iRun = 1:nRun
     
     % read the paradigm file
     parFile = fullfile(boldPath, runNames{iRun}, parFn);
-    parInfo = fs_readpar(parFile);
+    parInfo = fm_readpar(parFile);
     
     % load the nifti from FreeSurfer and get the cosmo dataset for this run
     ds_run = fs_cosmo_surface(betaFile, ...

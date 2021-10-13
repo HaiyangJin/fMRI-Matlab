@@ -75,7 +75,7 @@ for iRun = 1:nRun
         
         % save contrast names as contrasts_merge.txt
         con_merge_fn = fullfile(featPath, 'contrasts_merge.txt');
-        fm_createfile(con_merge_fn, conList);
+        fm_mkfile(con_merge_fn, conList);
         
         % merge for each file type
         for iFunc = 1:nFunc

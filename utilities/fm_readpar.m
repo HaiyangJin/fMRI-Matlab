@@ -1,5 +1,5 @@
-function [tableout, nCondition] = fs_readpar(parFile, simpPar)
-% [tableout, nCondition] = fs_readpar(parFile, simpPar)
+function [tableout, nCondition] = fm_readpar(parFile, simpPar)
+% [tableout, nCondition] = fm_readpar(parFile, simpPar)
 %
 % This functions read the paradigm file into matlab as a table
 % (Probably too complicated. Needed to be update later).
@@ -21,6 +21,9 @@ function [tableout, nCondition] = fs_readpar(parFile, simpPar)
 %    nCondition       <integer> number of conditions.
 %
 % Created by Haiyang Jin (16-Nov-2019)
+%
+% See also:
+% fm_mkfile
 
 % try to find the unique *.par file if parFile is a path
 if ~isempty(parFile)

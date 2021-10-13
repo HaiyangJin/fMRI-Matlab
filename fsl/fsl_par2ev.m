@@ -31,7 +31,7 @@ end
 fm_mkdir(evPath);
 
 % obtain all conditions and remove the baseline
-parT = fs_readpar(parfilename, 0);
+parT = fm_readpar(parfilename, 0);
 evs = unique(parT.Condition);
 evs = evs(evs ~= 0); % remove the baseline 0
 

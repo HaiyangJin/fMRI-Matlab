@@ -55,7 +55,7 @@ elseif iscellstr(runList)
 end
 
 % read the parfiles
-[parTCell, numCell] = cellfun(@fs_readpar, parFiles, 'uni', false);
+[parTCell, numCell] = cellfun(@fm_readpar, parFiles, 'uni', false);
 
 if ~isequal(numCell{:})
     warning('The number of conditions are not consistent for these par files.');

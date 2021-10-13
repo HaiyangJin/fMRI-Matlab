@@ -588,7 +588,7 @@ for iTh = 1:nTh
                     thegm = gmCell(iTempLabel, iTh);
                     thegmFile = strrep(updateLabelFile, '.label', '.gm');
                     % save the global maxima file
-                    fm_createfile(thegmFile, thegm);
+                    fm_mkfile(thegmFile, thegm);
                     
                     % print the message
                     [~, thefn, theext] = fileparts(thegmFile);

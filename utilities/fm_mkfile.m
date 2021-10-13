@@ -1,5 +1,5 @@
-function filename = fm_createfile(filename, contents4save)
-% filename = fm_createfile(filename, contents4save)
+function filename = fm_mkfile(filename, contents4save)
+% filename = fm_mkfile(filename, contents4save)
 %
 % This function creates new files for FreeSurfer (e.g, sessid, subjectname,
 % runfile).
