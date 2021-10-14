@@ -1,5 +1,5 @@
-function [clusterNo, nCluster, iterNo] = fs_clustervtx(vtxIdx, nbrVtx, vtxValue, vtxStart)
-% [clusterNo, nCluster, iterNo] = fs_clustervtx(vtxIdx, nbrVtx, vtxValue, vtxStart)
+function [clusterNo, nCluster, iterNo] = sf_clustervtx(vtxIdx, nbrVtx, vtxValue, vtxStart)
+% [clusterNo, nCluster, iterNo] = sf_clustervtx(vtxIdx, nbrVtx, vtxValue, vtxStart)
 %
 % This function assigns vtxIdx into different clusters based on their
 % neighborhood vertices.

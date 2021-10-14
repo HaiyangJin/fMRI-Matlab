@@ -366,7 +366,7 @@ else
                 
                 % udpate the candidate vertices for this label (with
                 % vertices whose values are under the KEY threshold)
-                [~, ~, thisCluIter] = fs_clustervtx(theLabelMat(:, 1), theNbrVtx, '', theVtx);
+                [~, ~, thisCluIter] = sf_clustervtx(theLabelMat(:, 1), theNbrVtx, '', theVtx);
             end
             % save the global maxima (or the starting vtx)
             gmCell{iClu, ith} = theVtx; % vertex index in Matlab

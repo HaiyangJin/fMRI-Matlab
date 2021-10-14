@@ -75,7 +75,7 @@ clusterVtx = labelMat(isCluster, 1);
 [~, nbrVtx] = fs_neighborvtx(clusterVtx, hemi, subjCode);
 
 % assign the vertices into clusters
-[theClusterNo, nCluster, theIterNo] = fs_clustervtx(clusterVtx, nbrVtx, vtxValue);
+[theClusterNo, nCluster, theIterNo] = sf_clustervtx(clusterVtx, nbrVtx, vtxValue);
 
 %% Save the cluster index information
 % create vector for all vertices (with -1)

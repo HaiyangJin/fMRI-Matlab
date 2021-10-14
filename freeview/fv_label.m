@@ -20,9 +20,16 @@ function isok = fv_label(subjCode, labelList, outPath, overlayFile, ...
 %                        for this subjCode
 %    screenshots of labels saved in outputPath
 % 
+% % Example 1:
+% fv_label('fsaverage', 'lh');
+%
+% % Example 2:
+% fv_label('fsaverage', 'lh.cortex.label');
+%
 % Created by Haiyang Jin (28-Noc-2019)
-% Updated by Haiyang Jin (1-Dec-2019) Plot multiple labels (same hemisphere)
-% Updated by Haiyang Jin (10-Dec-2019) could plot overlay only witout labels
+% 
+% See also:
+% fv_check1st; fs_screenshot_label
 
 isok = 1;
 
@@ -32,9 +39,11 @@ isok = 1;
 if ischar(labelList) && length(labelList) < 3 % if only contains info of hemi
     hemi = labelList;
     labelList = '';
+    iscon = 1;
 elseif ischar(labelList) % if only one label but it is char
     labelList = {labelList};
     hemi = fs_2hemi(labelList);
+    iscon = contains(labelList, '-vs-');
 else % 
     % make sure all labels are for the same hemisphere
     [hemi, nHemi] = fs_hemi_multi(labelList);
@@ -64,7 +73,10 @@ else
 end
 
 % detect which overlay is shown 
-if ~isempty(labelList)
+if isempty(labelList) || ~iscon
+    contrast = '';
+    whichOverlay = 0;
+else
     contrasts = fs_2contrast(labelList);
     whichOverlay = find(cellfun(@(x) contains(overlayFile, x), {contrasts}), 1);
     if isempty(whichOverlay)
@@ -73,9 +85,6 @@ if ~isempty(labelList)
     else
         contrast = contrasts{whichOverlay};
     end
-else
-    contrast = '';
-    whichOverlay = 0;
 end
 
 % colors used for labels
