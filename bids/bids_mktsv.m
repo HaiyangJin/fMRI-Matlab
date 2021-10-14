@@ -1,8 +1,8 @@
-function fp_mktsv(content, fn, bidsDir)
-%fp_mktsv(content, fn, bidsDir)
+function bids_mktsv(content, fn, bidsDir)
+% bids_mktsv(content, fn, bidsDir)
 %
-% Make *.tsv file. Mainly used to make participant_id.tsv here. These files
-% needs further manual modification.
+% Make *.tsv file for BIDS. It may create participant_id.tsv or *.tsv for 
+% events. The participant_id.tsv may need further manual modification.
 %
 % Inputs:
 %    content        <table> table will be saved as *.tsv directly.
@@ -10,7 +10,7 @@ function fp_mktsv(content, fn, bidsDir)
 %                OR <str> wildcard strings to match subject codes. Default 
 %                    is 'sub-*'. 
 %    fn             <str> output filename (without extension). 
-%    bidsDir        <str> the BIDS directory. Default is fp_bidsdir.
+%    bidsDir        <str> the BIDS directory. Default is bids_dir().
 %
 % Output:
 %    Save an *.tsv file (e.g., participant_id.tsv).
@@ -18,7 +18,7 @@ function fp_mktsv(content, fn, bidsDir)
 % Created by Haiyang Jin (2021-10-13)
 
 if ~exist('bidsDir', 'var') || isempty(bidsDir)
-    bidsDir = fp_bidsdir;
+    bidsDir = bids_dir();
 end
 
 if ~exist('content', 'var') || isempty(content)
@@ -36,16 +36,14 @@ if iscell(content)
 
 elseif ischar(content)
     % find all subject folders
-    participant_id = fp_subjlist(content); 
+    participant_id = bids_subjlist(content); 
 end
 
 % convert to table
 if istable(content)
     T = content;
 else
-    sex = repmat({'n/a'}, size(participant_id));
-    age = repmat({'n/a'}, size(participant_id));
-    T = table(participant_id, sex, age);
+    T = table(participant_id);
 end
 
 % save as txt first

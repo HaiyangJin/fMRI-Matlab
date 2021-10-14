@@ -1,5 +1,5 @@
-function dirList = fp_mkbidsignore(dirList, bidsDir)
-% dirList = fp_mkbidsignore(dirList, bidsDir)
+function dirList = bids_mkignore(dirList, bidsDir)
+% dirList = bids_mkignore(dirList, bidsDir)
 %
 % Make a bids ignore file (.bidsignore) in the fmriPrep project direcotry 
 % to ignore some folders/files. 
@@ -7,10 +7,10 @@ function dirList = fp_mkbidsignore(dirList, bidsDir)
 % Inputs:
 %    dirList       <cell str> list of folders/files to be ignored in the
 %                   fmriPrep project directory.
-%    bidsDir       <str> the BIDS directory. Default is fp_bidsdir.
+%    bidsDir       <str> the BIDS directory. Default is bids_dir().
 %
 % % Example:
-% dirList = fp_mkbidsignore;
+% dirList = bids_mkignore;
 %
 % Created by Haiyang Jin (2021-10-13)
 
@@ -22,7 +22,7 @@ elseif size(dirList, 2) > 1
 end
 
 if ~exist('bidsDir', 'var') || isempty(bidsDir)
-    bidsDir = fp_bidsdir;
+    bidsDir = bids_dir();
 end
 
 % add an empty cell at the end

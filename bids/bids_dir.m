@@ -1,5 +1,5 @@
-function bidsDir = fp_bidsdir(bidsDir)
-% bidsDir = fp_bidsdir(bidsDir)
+function bidsDir = bids_dir(bidsDir)
+% bidsDir = bids_dir(bidsDir)
 %
 % Set bidsDir as a global environment "BIDS_DIR". bidsDir's sub-directory
 % should be the BIDS folder, which saves 'sourcedata', 'derivatives',
