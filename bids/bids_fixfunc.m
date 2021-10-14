@@ -43,8 +43,10 @@ for iSubj = 1:nSubj
     theSubjdir = dir(fullfile(bidsDir, subjList{iSubj}));
 
     if contains('func', {theSubjdir.name})
+        % when there is no session folders
         funcdir_c = dir(fullfile(bidsDir, subjList{iSubj}, 'func', taskStr));
     else
+        % when there are session folders
         funcdir_c = cellfun(@(x) ...
             dir(fullfile(bidsDir, subjList{iSubj}, x, 'func', taskStr)), ...
             {theSubjdir.name}, 'uni', false);
