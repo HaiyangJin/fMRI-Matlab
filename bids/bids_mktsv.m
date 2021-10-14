@@ -36,7 +36,7 @@ if iscell(content)
 
 elseif ischar(content)
     % find all subject folders
-    participant_id = bids_subjlist(content); 
+    participant_id = bids_subjlist(content)'; 
 end
 
 % convert to table

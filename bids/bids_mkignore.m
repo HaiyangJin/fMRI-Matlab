@@ -15,7 +15,7 @@ function dirList = bids_mkignore(dirList, bidsDir)
 % Created by Haiyang Jin (2021-10-13)
 
 if ~exist('dirList', 'var') || isempty(dirList)
-    dirList = {'tmp_dcm2bids/'; 'temp/'; 'codes/'};
+    dirList = {'tmp_dcm2bids/'; 'tmp/'; 'codes/'};
 elseif size(dirList, 2) > 1
     % make it into a column
     dirList = dirList(:);

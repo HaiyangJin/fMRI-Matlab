@@ -49,7 +49,7 @@ hasField = cellfun(@(x) contains(x, '-'), sec);
 backupFields = arrayfun(@(x) sprintf('custom%d', x), 1:length(sec), 'uni', false)';
 
 if hasField(end)==false && ismember(sec{end}, ...
-        {'bold', 'epi', 'T1w', 'T2w', 'scans', 'events'}) % to be confirmed
+        {'bold', 'sbref', 'epi', 'T1w', 'T2w', 'scans', 'events'}) % to be confirmed
     backupFields{end} = 'modality';
 end
 % add backup fieldnames
