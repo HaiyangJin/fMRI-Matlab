@@ -11,8 +11,10 @@ function cmdcell = fm_cleancmd(cmdcell)
 %
 % Created by Haiyang Jin (2021-10-05)
 
+asstr = 0;
 if ~iscell(cmdcell)
     cmdcell = {cmdcell};
+    asstr = 1;
 end
 
 spacecell = {...
@@ -26,7 +28,7 @@ for i = 1:nRow
         cmdcell, 'uni', false); 
 end
 
-if length(cmdcell) == 1
+if asstr
     cmdcell = cmdcell{1};
 end
 
