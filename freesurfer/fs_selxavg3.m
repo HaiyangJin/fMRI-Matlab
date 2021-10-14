@@ -4,27 +4,27 @@ function fscmd = fs_selxavg3(sessidfile, anaList, runwise, runcmd, allCPU)
 % This function runs the first-level analysis for all analysis and contrasts.
 %
 % Inputs:
-%    sessidfile         <string> filename of the session id file. the file 
+%    sessidfile         <str> filename of the session id file. the file 
 %                        contains all session codes.
 %                   OR  <cell> 1x1 cell. Will be used as sessid (for -s).
-%    anaList            <cell of strings> the list of analysis names.
-%    runwise            <logical> 0: run the first-level analysis for all 
+%    anaList            <cell str> the list of analysis names.
+%    runwise            <boo> 0: run the first-level analysis for all 
 %                        runs together [default]; 1: run the analysis for
 %                        each run separately.
-%    runcmd             <logical> 2: do not overwrite [default]; 1: run and
+%    runcmd             <boo> 2: do not overwrite [default]; 1: run and
 %                        overwrite the old results; 0: do not run but only
 %                        output fscmd.
-%    ncores             <logical> 0: only use one CPU [default]; 1: use all 
+%    ncores             <boo> 0: only use one CPU [default]; 1: use all 
 %                        CPUs. 
 %
 % Output:
-%    fscmd              <cell of string> FreeSurfer commands run in the
+%    fscmd              <cell str> FreeSurfer commands run in the
 %                        current session.
 %
 % Created by Haiyang Jin (19-Dec-2019)
 %
 % See also:
-% fs_isxconcat, fs_cvn_print1st
+% [fs_mkcontrast;] fs_isxconcat; fs_cvn_print1st
 
 if iscell(sessidfile)
     assert(numel(sessidfile)==1, ...

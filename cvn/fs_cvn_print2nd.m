@@ -13,30 +13,30 @@ function fs_cvn_print2nd(sigPathInfo, sigFn, outPath, varargin)
 %                     one layer (level) ofthe path and all the paths will
 %                     be combined in order(with all possible combinations).
 %                     [fileInfo will be dealt with fm_fullfile.m]
-%    sigFn           <string> the filename of the cluster p value file
+%    sigFn           <str> the filename of the cluster p value file
 %                     (e.g., perm.th30.abs.sig.cluster.nii.gz by default).
-%    outPath         <string> where to save the output images. [current
+%    outPath         <str> where to save the output images. [current
 %                     folder by default].
 %
 % Optional inputs (varargin):
-%    'viewpt'        <integer> the viewpoitns to be used. More see
+%    'viewpt'        <int> the viewpoitns to be used. More see
 %                     fs_cvn_lookup.m. Default is -1.
-%    'thresh'        <numeric> display threshold. Default is 1.3010 (abs).
-%    'clim'          <numeric array> limits for the color map. The Default
+%    'thresh'        <num> display threshold. Default is 1.3010 (abs).
+%    'clim'          <num array> limits for the color map. The Default
 %                     empty, which will display responses from %1 to 99%.
 %    'cmap'          <> use which color map, default is jet.
 %    'lookup'        <> setting used for cvnlookupimage.
-%    'outline'       <logical> whether show the outlines of clusters as
+%    'outline'       <boo> whether show the outlines of clusters as
 %                     different colors.
-%    'outcolor'      <integer> 1: show the default color in fm_colors;
+%    'outcolor'      <int> 1: show the default color in fm_colors;
 %                      0: show the default color in the corresponding
 %                      annotation file.
-%    'annot'         <string> which annotation will be used. Default is
+%    'annot'         <str> which annotation will be used. Default is
 %                     '', i.e., not display annotation file.
-%    'wantfig'       <logical/integer> Default is 2, i.e., do not show the
+%    'wantfig'       <boo/int> Default is 2, i.e., do not show the
 %                     figure. More please check fs_cvn_lookup.
 %    'cvnopts'       <cell> extra options for cvnlookupimages.m.
-%    'funcPath'      <string> the path to functional folder [Default is
+%    'funcPath'      <str> the path to functional folder [Default is
 %                     $FUNCTIONALS_DIR].
 %
 % Output:

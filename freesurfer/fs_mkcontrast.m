@@ -8,7 +8,7 @@ function [conStruct, fscmd] = fs_mkcontrast(anaList, contrasts, conditions, meth
 % obtain the conditions.]
 %
 % Inputs:
-%    anaList           <cell string> a list of all analysis names;
+%    anaList           <cell str> a list of all analysis names;
 %    contrasts         <cell> a cell of contrasts to be created. One row
 %                       is one contrast; the conditions in the first cell
 %                       is the activation condition; the conditions in the
@@ -24,11 +24,11 @@ function [conStruct, fscmd] = fs_mkcontrast(anaList, contrasts, conditions, meth
 %                       you want to use initials of conditions in the
 %                       contrast names (e.g., 'f' for 'faces'; 'w' for
 %                       'wrods').]
-%    conditions        <cell string> the full names of all conditions;
+%    conditions        <cell str> the full names of all conditions;
 %                       [conditions can be obtained from fs_par2cond.m]
-%    method            <integer> which method (function) to be used identify 
+%    method            <int> which method (function) to be used identify 
 %                       the condition number for each contrasts. 
-%    runcmd            <logical> whether run the fscmd in FreeSufer (i.e.,
+%    runcmd            <boo> whether run the fscmd in FreeSufer (i.e.,
 %                       make contrasts in FreeSurfer). 1: run fscmd
 %                       [default]; 0: do not run fscmds and only output
 %                       conStruct and fscmd.
@@ -41,7 +41,7 @@ function [conStruct, fscmd] = fs_mkcontrast(anaList, contrasts, conditions, meth
 %                       conStruct will also be saved as the Matlab
 %                       file and its name will be the initials of all the
 %                       conditions.
-%    fscmd             <cell string> FreeSurfer commands run in the
+%    fscmd             <cell str> FreeSurfer commands run in the
 %                       current session.
 %
 %%%%%%%%%%%%%%%%%%%% Methods %%%%%%%%%%%%%%%%%%%%
@@ -85,7 +85,7 @@ function [conStruct, fscmd] = fs_mkcontrast(anaList, contrasts, conditions, meth
 % Created by Haiyang Jin (19-Dec-2019)
 %
 % See also:
-% fs_selxavg3
+% [fs_mkanalysis;] fs_selxavg3
 
 %% Deal with inputs
 

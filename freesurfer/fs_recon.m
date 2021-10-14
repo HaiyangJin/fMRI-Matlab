@@ -1,23 +1,31 @@
-function [fscmd, isok] = fs_recon(t1File, subjCode)
-% [fscmd, isok] = fs_recon(t1File, subjCode)
+function [fscmd, isok] = fs_recon(t1File, subjCode, t2File)
+% [fscmd, isok] = fs_recon(t1File, subjCode, t2File)
 % 
-% This function run 'recon-all' in FreeSurfer
+% This function run 'recon-all' in FreeSurfer.
 %
 % Inputs:
-%    t1File       <string> the path to the T1 file
-%    subjCode     <string> subject code
+%    t1File       <str> the path to the T1 file.
+%    subjCode     <str> subject code.
+%    t2File       <str> (optional) the path to the T2 file.
 %
 % Output:
-%    fscmd        <string> FreeSurfer commands.
-%    isok         <logical> whether the command works properly.
+%    fscmd        <str> FreeSurfer commands.
+%    isok         <boo> whether the command works properly.
 %    Projected structural data saved in $SUBJECTS_DIR.
 %
 % Created by Haiyang Jin (6-Feb-2020)
 %
 % See also: 
-% fs_preprocsess.m
+% fs_preprocsess
 
-fscmd = sprintf('recon-all -i %s -s %s -all', t1File, subjCode);
+if ~exist('t2File', 'var') || isempty(t2File)
+    warning('T2 will not be used during recon-all for %s.', subjCode);
+    t2cmd = '';
+else
+    t2cmd = sprintf('-T2 %s', t2File);
+end
+
+fscmd = sprintf('recon-all -i %s -s %s %s -all', t1File, subjCode, t2cmd);
 isnotok = system(fscmd);
 isok = ~isnotok;
 

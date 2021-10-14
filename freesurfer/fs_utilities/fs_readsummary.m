@@ -10,14 +10,14 @@ function sumTable = fs_readsummary(sumPathInfo, sumFn, toMNI152, outPath, outFn)
 %                     one layer (level) ofthe path and all the paths will
 %                     be combined in order(with all possible combinations).
 %                     [fileInfo will be dealt with fm_fullfile.m]
-%    sumFn           <string> the filename of the summary file. Default is
+%    sumFn           <str> the filename of the summary file. Default is
 %                     'perm.th30.abs.sig.cluster.summary'.
-%    toMNI152        <logical> whether converts the coordinates (from
+%    toMNI152        <boo> whether converts the coordinates (from
 %                     MNI305) to MNI152 space.
-%    outPath         <string> where to save the output images. If outPath 
+%    outPath         <str> where to save the output images. If outPath 
 %                     is 'none', no file will be created. Default is the 
 %                     current folder.
-%    outFn           <string> the name of the output file. Default is
+%    outFn           <str> the name of the output file. Default is
 %                     'summary.csv'.
 %
 % Output:
@@ -46,7 +46,7 @@ function sumTable = fs_readsummary(sumPathInfo, sumFn, toMNI152, outPath, outFn)
 % Created by Haiyang Jin (15-Apr-2020)
 %
 % See also:
-% fs_cvn_print2nd
+% [fs_glmfit_perm;] fs_cvn_print2nd
 
 if ~exist('sumFn', 'var') || isempty(sumFn)
     sumFn = 'perm.th30.abs.sig.cluster.summary';

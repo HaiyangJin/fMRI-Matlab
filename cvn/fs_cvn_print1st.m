@@ -4,69 +4,69 @@ function varargout = fs_cvn_print1st(sessList, anaList, labelList, outPath, vara
 % This function prints the first-level results and the labels in label/.
 %
 % Inputs:
-%    sessList        <cell string> list of session codes (in funcPath).
-%    anaList         <cell string> list of analysis names. Default is empty
+%    sessList        <cell str> list of session codes (in funcPath).
+%    anaList         <cell str> list of analysis names. Default is empty
 %                     and the overlay in the label file will be displayed.
-%    labelList       <cell string> list of label names.
+%    labelList       <cell str> list of label names.
 %                  OR list of contrast names.
-%    outPath         <string> where to save the output images. [current
+%    outPath         <str> where to save the output images. [current
 %                     folder by default].
 %
 % Optional inputs (varargin):
-%    'waitbar'       <logical> 1 [default]: show the wait bar; 0: do not
+%    'waitbar'       <boo> 1 [default]: show the wait bar; 0: do not
 %                     show the wait bar.
-%    'sigfn'         <string> name of the to-be-printed file [Default is
+%    'sigfn'         <str> name of the to-be-printed file [Default is
 %                     sig.nii.gz].
-%    'dispsig'       <logical> 1 [default]: draw the data in sig file 
+%    'dispsig'       <boo> 1 [default]: draw the data in sig file 
 %                     (overlay) on the surface; 0: do not display data.
-%    'viewpt'        <integer> the viewpoitns to be used. More see
+%    'viewpt'        <int> the viewpoitns to be used. More see
 %                     fs_cvn_lookup.m. Default is -2.
-%    'thresh'        <numeric> display threshold. Default is 1.3010 (abs).
+%    'thresh'        <num> display threshold. Default is 1.3010 (abs).
 %                     For example, '1.3i' will display values <-1.3 and
 %                     >1.3; '1.3' will display values > 1.3 (but not
 %                     <-1.3).
-%    'dispcolorbar'  <logical> whether display colorbar. 1 [default]: show
+%    'dispcolorbar'  <boo> whether display colorbar. 1 [default]: show
 %                     the colorbar; 0: do not show the colorbar.
-%    'clim'          <numeric array> limits for the color map. The Default
+%    'clim'          <num array> limits for the color map. The Default
 %                     empty, which will display responses from %1 to 99%.
-%    'cmap'          <string or colormap array> use which color map,
+%    'cmap'          <str or colormap array> use which color map,
 %                     default is jet(256).
 %                    'fsheatscale': use the heatscale in FreeSurfer; 'thresh'
 %                     will be used as 'fmin' and the maximum absolute value
 %                     of 'clim' will be used as 'fmax'.
-%    'roicolors'     <numeric array> colors to be used for the label roi
+%    'roicolors'     <num array> colors to be used for the label roi
 %                     masks.
 %    'lookup'        <> setting used for cvnlookupimage.
-%    'subfolder'     <numeric> which subfolder to save the outputs. 0: no
+%    'subfolder'     <num> which subfolder to save the outputs. 0: no
 %                     subfolder; 1: use subjCode [Default]; 2: use the Label.
-%    'suffixstr'     <string> extra strings to be added at the end of the
+%    'suffixstr'     <str> extra strings to be added at the end of the
 %                     image name. Default is ''.
-%    'annot'         <string> which annotation will be used. Default is
+%    'annot'         <str> which annotation will be used. Default is
 %                     '', i.e., not display annotation file.
-%    'gminfo'        <logical> 0: do not show global maxima information;
+%    'gminfo'        <boo> 0: do not show global maxima information;
 %                     1 [default]: only show the global maxima information,
 %                     but not the maxresp; 2: show both global maxima and 
 %                     maxresp information.
-%    'markpeak'      <logical> mark the location of the peak response.
+%    'markpeak'      <boo> mark the location of the peak response.
 %                     Default is 0.
-%    'showinfo'      <logical> show label information in the figure.
+%    'showinfo'      <boo> show label information in the figure.
 %                     Default is 0, i.e., do not show the label information.
-%    'shortinfo'     <logical> show the short version of the information
+%    'shortinfo'     <boo> show the short version of the information
 %                     (i.e., MNI305 coordinates, size and number of
 %                     vertices). Default is 0. When 'shortinfo' is set as
 %                     1, 'showinfo' will be omitted.
-%    'peakonly'      <logical> 1 [default]: only show the peak when identify
+%    'peakonly'      <boo> 1 [default]: only show the peak when identify
 %                     global maxima; 0: show the outline of the label.
-%    'wantfig'       <logical/integer> Default is 2, i.e., do not show the
+%    'wantfig'       <boo/int> Default is 2, i.e., do not show the
 %                     figure. More please check fs_cvn_lookup.
-%    'visualimg'     <string> 0 [default]: do not visualize the image;
+%    'visualimg'     <str> 0 [default]: do not visualize the image;
 %                     '1': visualize the image.
-%    'imgext'        <string> image file extension. Choices are 'png' (default),
+%    'imgext'        <str> image file extension. Choices are 'png' (default),
 %                     'pdf'. 
-%    'drawroi'       <logical> whether draw ROI with fs_cvn_lookup. Default
+%    'drawroi'       <boo> whether draw ROI with fs_cvn_lookup. Default
 %                     is 0.
 %    'cvnopts'       <cell> extra options for cvnlookupimages.m.
-%    'funcPath'      <string> the path to functional folder [Default is
+%    'funcPath'      <str> the path to functional folder [Default is
 %                     $FUNCTIONALS_DIR].
 %
 % Output:

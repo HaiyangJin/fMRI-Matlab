@@ -5,30 +5,30 @@ function fscmd = fs_glmfit_perm(glmdir, varargin)
 % mri_glmfit-sim).
 %
 % Inputs:
-%    glmdir        <string> or <cell of strings> path to the glmdir
+%    glmdir        <str> or <cell str> path to the glmdir
 %                   folders. This can be obtained from fs_glmfit_osgm.m.
 %                   [glmdir is the current folder by default.]
 %
 % Varargin:
-%    'ncores'      <integer> number of jobs to be used for the simulation
+%    'ncores'      <int> number of jobs to be used for the simulation
 %                   (i.e., the simulation [permutation] are divided into
 %                   njobs). [Default is 1].
-%    'nsim'        <integer> number of simulations. [Default is 5000].
-%    'vwthreshold' <numeric> voxel[vertex]-wise (clutering form) threshold.
+%    'nsim'        <int> number of simulations. [Default is 5000].
+%    'vwthreshold' <num> voxel[vertex]-wise (clutering form) threshold.
 %                   -log(p). [Default is 3 (i.e., p < .01)].
-%    'sign'        <string> the direction of the test. ['pos', 'neg',
+%    'sign'        <str> the direction of the test. ['pos', 'neg',
 %                   'abs']. [Default is 'abs'].
-%    'cwp'         <numeric> cluster-wise p-value threshold. [Default is
+%    'cwp'         <num> cluster-wise p-value threshold. [Default is
 %                   0.05].
-%    'spaces'      <integer> 2 or 3. Additional Bonferroni correction
+%    'spaces'      <int> 2 or 3. Additional Bonferroni correction
 %                   across 2 spaces (eg, lh, rh) or 3 (eg, lh, rh, mni305).
 %                   [Default is 2].
-%    'runcmd'      <logical> 1: overwrite the permuation[Default]. 2: do 
+%    'runcmd'      <boo> 1: overwrite the permuation[Default]. 2: do 
 %                   not overwrite the permutation run before. 0: do not run
 %                   FreeSurfer commands but only output fscmd. 
 %
 % Output:
-%    fscmd         <cell of strings> The first column is FreeSurfer
+%    fscmd         <cell str> The first column is FreeSurfer
 %                   commands used in the current session. And the second
 %                   column is whether the command successed.
 %                   [0: successed; other numbers: failed.]
@@ -36,7 +36,7 @@ function fscmd = fs_glmfit_perm(glmdir, varargin)
 % Created by Haiyang Jin (12-Apr-2020)
 %
 % See also:
-% fs_cvn_print2nd, fs_readsummary
+% [fs_glmfit_osgm;] fs_cvn_print2nd; fs_readsummary
 
 if ~exist('glmdir', 'var') || isempty(glmdir)
     glmdir = {'.'};

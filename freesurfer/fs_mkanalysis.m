@@ -6,33 +6,34 @@ function [anaList, fscmd] = fs_mkanalysis(runType, template, TR, ...
 % This function runs mkanalysis-sess in FreeSurfer.
 %
 % Inputs:
-%    runType            <string> 'main' or 'loc'.
-%    template           <string> 'fsaverage' or 'self'.
-%    TR                 <numeric> duration of one TR (seconds).
-%    runFilename        <string> or <cell of string> run filenames.
-%    nConditions        <integer> number of conditions (excluded fixation).
-%    refDura            <numeric> durations of the reference condition.
+%    runType            <str> 'main' or 'loc'.
+%    template           <str> 'fsaverage' or 'self'.
+%    TR                 <num> duration of one TR (seconds).
+%    runFilename        <str> the run file which saves a list of run names.
+%                    OR <cell str> a cell list of run names.
+%    nConditions        <int> number of conditions (excluded fixation).
+%    refDura            <num> durations of the reference condition.
 %                        (the total duration of one "block" or one "trial")
 %
 % Varargin:
-%    'smooth'           <numeric> smoothing (FWHM). Default is 0.
-%    'hemis'            <cell string> or <string> 'lh', 'rh' (and
+%    'smooth'           <num> smoothing (FWHM). Default is 0.
+%    'hemis'            <cell str> or <str> 'lh', 'rh' (and
 %                        'mni' or 'mni1'). Default is {'lh', 'rh', 'mni'}.
-%    'stc'              <string> slice-timing corretion. The argument
+%    'stc'              <str> slice-timing corretion. The argument
 %                        strings for -stc. [siemens, up, down, odd, even].
 %                        Default is ''.
-%    'nskip'            <integer> number of TRs to be skipped at the run
-%                        start. Default is 0.
-%    'anaextra'         <string> extra strings to be added to the
-%                        analysis name.
-%    'runcmd'           <logical> whether run the fscmd in FreeSufer (i.e.,
+%    'nskip'            <int> number of TRs to be skipped at the run start.
+%                        Default is 0.
+%    'anaextra'         <str> extra strings to be added to the analysis
+%                        name.
+%    'runcmd'           <boo> whether run the fscmd in FreeSufer (i.e.,
 %                        make contrasts in FreeSurfer). 1: run fscmd
 %                        [default]; 0: do not run fscmds and only output
 %                        conStruct and fscmd.
 %
 % Output:
-%    anaList            <cell strings> a cell of all analysis names.
-%    fscmd              <cell strings> FreeSurfer commands used in the
+%    anaList            <cell str> a cell of all analysis names.
+%    fscmd              <cell str> FreeSurfer commands used in the
 %                        current session.
 %    run mkanalysis-sess in FreeSurfer.
 %
@@ -48,7 +49,7 @@ function [anaList, fscmd] = fs_mkanalysis(runType, template, TR, ...
 % Created by Haiyang Jin (19-Dec-2019)
 %
 % See also:
-% fs_mkcontrast
+% [fs_preprocsess;] fs_mkcontrast
 
 if ~ismember(template, {'fsaverage', 'self'})
     error('The template has to be ''fsaverage'' or ''self'' (not ''%s'').', template);
