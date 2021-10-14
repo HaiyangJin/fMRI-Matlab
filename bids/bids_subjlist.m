@@ -18,10 +18,14 @@ if ~exist('bidsDir', 'var') || isempty(bidsDir)
     bidsDir = bids_dir();
 end
 
+% the str should start with 'sub-' and ends with '*'
 if ~exist('substr', 'var') || isempty(substr)
     substr = 'sub-*';
 elseif ~endsWith(substr, '*')
     substr = [substr '*'];
+end
+if ~startsWith(substr, 'sub-')
+    substr = ['sub-', substr];
 end
 
 % get the list of subjects
