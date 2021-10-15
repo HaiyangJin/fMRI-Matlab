@@ -35,7 +35,11 @@ function [fpcmd, status] = fp_fmriprep(subjCode, varargin)
 % [fpcmd, status] = fp_fmriprep('sub-01', 'ignore', 'slicetiming');
 %
 % Created by Haiyang Jin (2021-10-14)
+% 
+% See also:
+% [bids_dcm2bids; bids_mktsv; bids_fixfmap; bids_fixfunc]
 
+%% Deal with inputs
 % default settings
 defaultOpts = struct(...
     'fslicense', '$HOME/Documents/license.txt', ...
@@ -53,12 +57,12 @@ opts = fm_mergestruct(defaultOpts, varargin{:});
 if ~exist('subjCode', 'var') || isempty(subjCode)
     error('Please input the subject code.');
 elseif ~startsWith(subjCode, 'sub-')
+    % make sure subject code starts with 'sub-'
     subjCode = ['sub-' subjCode];
 end
 % make sure the subject code folder exists
 assert(logical(exist(fullfile(opts.bidsdir, subjCode), 'dir')), ...
     'Cannot find subject (%s) in %s', subjCode, opts.bidsdir);
-
 
 %% Other options
 extracell = cell(6, 1);
@@ -88,7 +92,6 @@ if opts.maxnthreads > 0 && ~contains(opts.extracmd, '--omp-nthreads')
 end
 
 extracmd = sprintf(' %s', extracell{:});
-
 
 %% The whole fmriprep-docker command
 fpcmd = sprintf(['fmriprep-docker %s %s/derivatives participant ' ...

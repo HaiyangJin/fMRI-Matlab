@@ -13,6 +13,9 @@ function dirList = bids_mkignore(dirList, bidsDir)
 % dirList = bids_mkignore;
 %
 % Created by Haiyang Jin (2021-10-13)
+%
+% See also:
+% [bids_dcm2bids;] bids_mktsv; bids_fixfmap; bids_fixfunc
 
 if ~exist('dirList', 'var') || isempty(dirList)
     dirList = {'tmp_dcm2bids/'; 'tmp/'; 'codes/'};

@@ -16,6 +16,9 @@ function bids_mktsv(content, fn, bidsDir)
 %    Save an *.tsv file (e.g., participant_id.tsv).
 %   
 % Created by Haiyang Jin (2021-10-13)
+%
+% See also:
+% [bids_dcm2bids;] bids_fixfmap; bids_fixfunc
 
 if ~exist('bidsDir', 'var') || isempty(bidsDir)
     bidsDir = bids_dir();

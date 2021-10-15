@@ -21,6 +21,9 @@ function bids_fixfmap(intendList, subjList, bidsDir)
 %    Updated fmap json files.
 %
 % Created by Haiyang Jin (2021-10-13)
+%
+% See also:
+% [bids_dcm2bids;] bids_mktsv; bids_fixfunc; bids_mkignore
 
 %% Deal with inputs
 if ~exist('intendList', 'var') || isempty(intendList)

@@ -18,6 +18,9 @@ function bids_fixfunc(taskStr, taskName, subjList, bidsDir)
 %    Updated func json files.
 %
 % Created by Haiyang Jin (2021-10-14)
+%
+% See also:
+% [bids_dcm2bids;] bids_mktsv; bids_fixfmap; bids_mkignore
 
 %% Deal with inputs
 if ~endsWith(taskStr, '*.json')

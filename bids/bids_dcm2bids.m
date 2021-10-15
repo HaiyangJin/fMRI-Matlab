@@ -42,7 +42,7 @@ function [d2bcmd, status] = bids_dcm2bids(dcmSubj, outSubj, config, isSess, runc
 % Created by Haiyang Jin (2021-10-13)
 %
 % See also:
-% bids_fixfmap; bids_fixfunc
+% [bids_dir;] bids_mktsv; bids_fixfmap; bids_fixfunc; bids_mkignore
 
 if ~exist('bidsDir', 'var') || isempty(bidsDir)
     bidsDir = bids_dir();

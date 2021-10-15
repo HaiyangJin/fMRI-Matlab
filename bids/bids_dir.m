@@ -13,6 +13,9 @@ function bidsDir = bids_dir(bidsDir)
 %    subjList     <cell str> list of subject codes.
 %
 % Created by Haiyang Jin (2021-10-12)
+%
+% See also:
+% bids_dcm2bids
 
 if nargin < 1 || isempty(bidsDir)
     if ~isempty(getenv("BIDS_DIR"))
