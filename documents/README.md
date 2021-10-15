@@ -1,5 +1,7 @@
 This folder documents some "how-to" with these codes. These are more likely to be notes for myself. It will be great if they are also helpful to others.
 
+The dependencies of `fMRI-Matlab` are [dependency](dependency.md).
+
 ## FreeSurfer
 - [How to set up FreeSurfer in the terminal?](fs_setup.md)
 - [How to draw ROI on surface?](draw_surface_roi.md)
