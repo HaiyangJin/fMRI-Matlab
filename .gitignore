@@ -37,3 +37,6 @@ codegen/
 
 # Octave session info
 octave-workspace
+
+# ignore folders
+examples/
