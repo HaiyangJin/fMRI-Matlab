@@ -23,6 +23,7 @@ function [coords, faces] = fs_readsurf(surfFn, subjCode, struPath)
 % Surface files [faces for all these files should be the same]:
 %   ?h.orig
 %   ?h.white
+%   ?h.midthickness
 %   ?h.pial
 %   ?h.inflated
 %   ?h.sphere

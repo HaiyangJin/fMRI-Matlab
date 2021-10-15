@@ -52,6 +52,8 @@ opts = fm_mergestruct(defaultOpts, varargin{:});
 
 if ~exist('subjCode', 'var') || isempty(subjCode)
     error('Please input the subject code.');
+elseif ~startsWith(subjCode, 'sub-')
+    subjCode = ['sub-' subjCode];
 end
 % make sure the subject code folder exists
 assert(logical(exist(fullfile(opts.bidsdir, subjCode), 'dir')), ...

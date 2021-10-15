@@ -24,7 +24,7 @@ function bids_fixfmap(intendList, subjList, bidsDir)
 
 %% Deal with inputs
 if ~exist('intendList', 'var') || isempty(intendList)
-    intendList = '*_run-*bold.nii.gz';
+    intendList = '*_run-*.nii.gz';
 end
 
 if ~exist('bidsDir', 'var') || isempty(bidsDir)
