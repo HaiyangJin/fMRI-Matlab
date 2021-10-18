@@ -1,4 +1,4 @@
-function fv_checkreg(sessCode, loadReg, runFolder, funcPath, structPath)
+function fv_checkreg(sessCode, loadReg, runFolder, funcPath, struPath)
 % fv_checkreg(sessCode, loadReg, runFolder, funcPath, structPath)
 %
 % This function displays the co-registration between structure and
@@ -33,8 +33,8 @@ if nargin < 4 || isempty(funcPath)
     funcPath = getenv('FUNCTIONALS_DIR');
 end
 
-if nargin < 5 || isempty(structPath)
-    structPath = '';
+if nargin < 5 || isempty(struPath)
+    struPath = '';
 end
 
 if isnumeric(runFolder)
@@ -52,6 +52,6 @@ tempFile = fullfile(funcPath, sessCode, 'bold', runFolder, 'template.nii.gz');
 subjCode = fs_subjcode(sessCode, funcPath);
 
 % display the template.nii.gz with ?h.white and ?h.pial
-fv_volmgz(tempFile, subjCode, structPath, '', loadReg);
+fv_vol(tempFile, subjCode, struPath, '', loadReg);
 
 end
