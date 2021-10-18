@@ -159,7 +159,7 @@ fscmd_hemi = [fscmd_hemis{:}];
 fscmd_other = ' -colorscale -layout 1 -viewport 3d';
 
 % put all commands together
-fscmd = ['freeview' fscmd_hemi fscmd_other];
+fscmd = ['freeview' fscmd_hemi fscmd_other ' &'];
 if opts.runcmd; system(fscmd); end
 
 end

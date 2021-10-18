@@ -108,7 +108,7 @@ end
 fscmd_other = ' -viewport cor';
 
 % combine commands and run 
-fscmd = ['freeview -v' fscmd_orig fscmd_vol fscmd_surf fscmd_other '&'];
+fscmd = ['freeview -v' fscmd_orig fscmd_vol fscmd_surf fscmd_other ' &'];
 system(fscmd);
 
 end
