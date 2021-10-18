@@ -50,7 +50,7 @@ for iSess = 1:nSess
         thisLabel = labelList{iLabel};
         
         % obtain the hemisphere information
-        theHemi = fs_2hemi(thisLabel);
+        theHemi = fm_2hemi(thisLabel);
         
         % only keep the analysis names for this hemisphere
         isAna = contains(anaList, theHemi);

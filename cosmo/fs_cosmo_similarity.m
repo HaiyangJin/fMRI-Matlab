@@ -90,7 +90,7 @@ for iSess = 1:nSess
         waitbar(progress, waitHandle, progressMsg);
         
         % get the corresponding analysis name
-        isAna = contains(anaList, fs_2hemi(thisLabel));
+        isAna = contains(anaList, fm_2hemi(thisLabel));
         theAna = anaList(isAna);
         assert(numel(theAna) == 1, ['Please make sure there is only one' ...
             ' analysis name for each hemisphere']);

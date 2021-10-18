@@ -21,7 +21,7 @@ end
 % read label
 labelMat = fs_readlabel(labelFn, subjCode);
 % obtain the label-related information
-hemi = fs_2hemi(labelFn);
+hemi = fm_2hemi(labelFn);
 fthresh = fs_2thresh(labelFn);
 % convert threshold to numeric
 thresh = str2double(fthresh(2:end))/10;

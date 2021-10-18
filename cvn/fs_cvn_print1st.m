@@ -165,7 +165,7 @@ for iLabel = 1:nLabel
         theseLabel = theseLabel';
     end
     
-    [~, nHemiTemp] = fs_hemi_multi(theseLabel);
+    [~, nHemiTemp] = fm_hemi_multi(theseLabel);
     assert(nHemiTemp == 1, 'These labels are not for the same hemisphere.');
     % the contrast, hemi, and threshold for the first label will
     % be used for printing the activation.
@@ -173,7 +173,7 @@ for iLabel = 1:nLabel
     
     % the contrast and the hemi information
     thisCon = fs_2contrast(theLabel);
-    labelHemi = fs_2hemi(theLabel);
+    labelHemi = fm_2hemi(theLabel);
     
     % threshold for plotting
     thresh0 = fs_2sig(theLabel)/10 * 1i;
@@ -194,7 +194,7 @@ for iLabel = 1:nLabel
         
         thisAna = theAnaList{iAna};
         % update thisHemi based on the analysis name
-        thisHemi = fs_2hemi(thisAna);
+        thisHemi = fm_2hemi(thisAna);
         
         if isempty(labelHemi)
             theLabelName = [theLabel '_' thisHemi];

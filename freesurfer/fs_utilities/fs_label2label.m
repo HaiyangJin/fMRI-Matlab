@@ -74,7 +74,7 @@ end
 % run fscmd individually
 function [fscmd, isnotok] = label2label(sSubj, sLabel, tSubj, tLable, runcmd)
 
-hemi = fs_2hemi(sLabel);
+hemi = fm_2hemi(sLabel);
 
 % create the FreeSurfer commands
 fscmd = sprintf(['mri_label2label --srclabel %s --srcsubject %s '...

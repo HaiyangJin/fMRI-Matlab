@@ -43,7 +43,7 @@ if ~exist('vtxIdx', 'var') || isempty(vtxIdx)
 end
 
 % calculate the all vertices by default
-hemi = fs_2hemi(labelFn);
+hemi = fm_2hemi(labelFn);
 
 % calculate the area
 labelarea = fs_vtxarea(vtxIdx, subjCode, hemi, struPath);

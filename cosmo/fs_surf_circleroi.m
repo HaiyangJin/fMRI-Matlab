@@ -40,7 +40,7 @@ opts = fm_mergestruct(defaultOpts, varargin{:});
 
 % vtx
 if ischar(vtx)
-    opts.hemi = fs_2hemi(vtx); 
+    opts.hemi = fm_2hemi(vtx); 
     vtx = fs_readgm(subjCode, vtx);
 end
 

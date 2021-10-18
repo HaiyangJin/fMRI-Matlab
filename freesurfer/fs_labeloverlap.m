@@ -71,7 +71,7 @@ for iSubj = 1:nSubj
             overlapStr(n).Label = theseLabel;
             overlapStr(n).nOverlapVer = nOverVer;
             overlapStr(n).Area = fs_vtxarea(overlapVer, subjCode, ...
-                fs_hemi_multi(theseLabel, 1));
+                fm_hemi_multi(theseLabel, 1));
             overlapStr(n).OverlapVer = {overlapVer'};
             
         end

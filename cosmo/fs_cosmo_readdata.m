@@ -76,7 +76,7 @@ for iLabel = 1:nLabel
     
     % this label and hemi
     thisLabel = labelList{iLabel};
-    thisHemi = fs_2hemi(thisLabel);
+    thisHemi = fm_2hemi(thisLabel);
     
     % only keep data and condition information matching thisHemi
     matchHemi = endsWith(condTable.Analysis, thisHemi)';

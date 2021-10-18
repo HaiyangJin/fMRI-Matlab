@@ -51,7 +51,7 @@ if ~endsWith(extraLabelStr, '.')
 end
 
 % subject information
-hemi = fs_2hemi(anaName);
+hemi = fm_2hemi(anaName);
 template = fs_2template(anaName, '', 'self');
 subjCode = fs_subjcode(sessCode);
 trgSubj = fs_trgsubj(subjCode, template);
@@ -63,7 +63,7 @@ surfData = fs_readfunc(sigFile);
 valstruct = fs_cvn_valstruct(surfData, hemi);
 
 % reference label
-hemiLabel = fs_2hemi(refLabel);
+hemiLabel = fm_2hemi(refLabel);
 if ~strcmp(hemiLabel, hemi)
     refLabel = strrep(refLabel, hemiLabel, hemi);
 end

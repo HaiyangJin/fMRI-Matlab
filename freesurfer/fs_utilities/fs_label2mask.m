@@ -17,7 +17,7 @@ function roiMask = fs_label2mask(labelFn, subjCode, nVtxTotal)
 
 % obtain the default vertex number
 if ~exist('nVtxTotal', 'var') || isempty(nVtxTotal)
-    surfFn = [fs_2hemi(labelFn) '.white'];
+    surfFn = [fm_2hemi(labelFn) '.white'];
     nVtxTotal = size(fs_readsurf(surfFn, subjCode), 1);
 end
 

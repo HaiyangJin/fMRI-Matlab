@@ -82,7 +82,7 @@ notdot = cellfun(@(x) ~endsWith(x, '.') & ~isempty(x), extraStr);
 extraStr(notdot) = cellfun(@(x) [x '.'], extraStr(notdot), 'uni', false);
 
 % obtain necessary information
-hemi = cellfun(@fs_2hemi, ana, 'uni', false);
+hemi = cellfun(@fm_2hemi, ana, 'uni', false);
 subjCode = cellfun(@(x) fs_subjcode(x, funcPath), sess, 'uni', false);
 sigFile = fullfile(funcPath, sess, 'bold', ana, con, 'sig.nii.gz');
 labelName = cellfun(@(x1, x2, x3, x4) sprintf('roi.%s.f%d.%s.%slabel', ...

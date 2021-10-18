@@ -31,7 +31,7 @@ end
 
 if nargin < 5 || isempty(hemi)
     % obtain hemi information from outputFn
-    hemi = fs_2hemi(outputFn);
+    hemi = fm_2hemi(outputFn);
 end
 assert(ismember(hemi, {'lh', 'rh'}), ...
     '''hemi'' can only be ''lh'' or ''rh'' (not %s)', hemi);

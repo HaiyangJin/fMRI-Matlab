@@ -30,7 +30,7 @@ function fscmd = fv_drawlabel(subjCode, anaName, sigFile, labelname, ...
 % For furture development, I should included to define the limits of
 % p-values.
 
-hemi = fs_2hemi(anaName);
+hemi = fm_2hemi(anaName);
 
 if ~exist('fthresh', 'var') || isempty(fthresh)
     fthresh = '';

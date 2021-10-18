@@ -81,7 +81,7 @@ for iAna = 1:nAna
     thisAna = anaList{iAna};
     
     % read surface file
-    thisHemi = fs_2hemi(thisAna);
+    thisHemi = fm_2hemi(thisAna);
     [vertices, faces] = fs_readsurf([thisHemi '.' opts.surftype], 'fsaverage');
     
     for iCon = 1:nCon

@@ -78,7 +78,7 @@ for iSess = 1:nSess
         waitbar(progress, waitHandle, progressMsg);
         
         % get the corresponding analysis name
-        isAna = contains(anaList, fs_2hemi(thisLabel));
+        isAna = contains(anaList, fm_2hemi(thisLabel));
         theAna = anaList(isAna);
         
         % get data for CoSMoMVPA

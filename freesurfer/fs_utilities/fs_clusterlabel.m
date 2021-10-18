@@ -35,7 +35,7 @@ end
 if ischar(labelFn)
     % read the label
     labelMat = fs_readlabel(labelFn, subjCode);
-    hemi = fs_2hemi(labelFn);
+    hemi = fm_2hemi(labelFn);
 else
     labelMat = labelFn;
     assert(logical(exist('hemi', 'var')), ['Please define ''hemi'' when '''...

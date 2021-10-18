@@ -42,11 +42,11 @@ if ischar(labelList) && length(labelList) < 3 % if only contains info of hemi
     iscon = 1;
 elseif ischar(labelList) % if only one label but it is char
     labelList = {labelList};
-    hemi = fs_2hemi(labelList);
+    hemi = fm_2hemi(labelList);
     iscon = contains(labelList, '-vs-');
 else % 
     % make sure all labels are for the same hemisphere
-    [hemi, nHemi] = fs_hemi_multi(labelList);
+    [hemi, nHemi] = fm_hemi_multi(labelList);
     if nHemi ~= 1
         error('Please make sure all labels used are for the same hemisphere.');
     end

@@ -1,4 +1,6 @@
-function [hemi, nHemi] = fs_hemi_multi(files, forceString, fnOnly)
+function [hemi, nHemi] = fm_hemi_multi(files, forceString, fnOnly)
+% [hemi, nHemi] = fm_hemi_multi(files, forceString, fnOnly)
+%
 % This function determine the hemispheres based on the filenames (if 'lh'
 % or 'rh' is included in the filename).
 %
@@ -39,7 +41,7 @@ else
 end
 
 % hemi for each file
-hemis = cellfun(@(x) fs_2hemi(x, fnOnly), filenames, 'UniformOutput', false);
+hemis = cellfun(@(x) fm_2hemi(x, fnOnly), filenames, 'UniformOutput', false);
 
 % number of different hemipheres
 nHemi = numel(unique(hemis));

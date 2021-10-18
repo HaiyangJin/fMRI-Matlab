@@ -78,7 +78,7 @@ waitHandle = waitbar(0, 'Generating screenshots for labels...');
 for iLabel = 1:nLabels
     
     theLabel = labelList(iLabel, :);
-    [hemi, nHemi] = fs_hemi_multi(theLabel);
+    [hemi, nHemi] = fm_hemi_multi(theLabel);
     
     % move to next loop if the labels are not for the same hemisphere
     if nHemi ~= 1

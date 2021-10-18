@@ -43,7 +43,7 @@ end
 surfData = Srf.Data(contraNum, :);
 
 % save the mgz file
-hemi = fs_2hemi(prfFn);
+hemi = fm_2hemi(prfFn);
 fs_savemgz(subjCode, surfData, outFn, outPath, hemi);
 
 end

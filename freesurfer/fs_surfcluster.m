@@ -55,14 +55,14 @@ if ~exist('struPath', 'var') || isempty(struPath)
 end
 
 isLabel = endsWith(labelFn, '.label');
-hemi = fs_2hemi(anaName);
+hemi = fm_2hemi(anaName);
 template = fs_2template(anaName, '', 'self');
 subjCode = fs_subjcode(sessCode, funcPath);
 trgSubj = fs_trgsubj(subjCode, template);
 
 % create cmd for label if needed
 if isLabel
-    assert(strcmp(fs_2hemi(labelFn), hemi), ['Hemisphere information in '...
+    assert(strcmp(fm_2hemi(labelFn), hemi), ['Hemisphere information in '...
         'the analysis name (%s) does not match that in the label name (%s).'],...
         anaName, labelFn);
     conName = fs_2contrast(labelFn);

@@ -1,5 +1,5 @@
-function hemi = fs_2hemi(filename, fnOnly)
-% hemi = fs_2hemi(filename)
+function hemi = fm_2hemi(filename, fnOnly)
+% hemi = fm_2hemi(filename, fnOnly)
 %
 % This function determine the hemisphere based on the filename
 %
@@ -22,9 +22,9 @@ if contains(filename, filesep) && fnOnly
     filename = [fn, ext];
 end
 
-if contains(filename, 'lh')
+if contains(filename, {'lh', '.L.'})
     hemi = 'lh';
-elseif contains(filename, 'rh')
+elseif contains(filename, {'rh', '.R.'})
     hemi = 'rh';
 else
     hemi = '';

@@ -91,7 +91,7 @@ end
 function [surf, hemi, faces] = vtx2surf(vtx, subjCode)
 % gather inforamtion from vtx1/2
 if ischar(vtx)
-    hemi = fs_2hemi(vtx);
+    hemi = fm_2hemi(vtx);
     [surf, faces] = fs_readsurf(vtx, subjCode);
 else
     hemi = '';

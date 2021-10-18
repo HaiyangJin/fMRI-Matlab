@@ -199,7 +199,7 @@ end
 
 % convert refLabel to cell and match hemisphere information
 if ischar(refLabel); refLabel = {refLabel}; end
-theHemi = fs_2hemi(labelFn);
+theHemi = fm_2hemi(labelFn);
 oldHemi = setdiff({'lh', 'rh'}, theHemi);
 refLabel = cellfun(@(x) strrep(x, oldHemi{1}, theHemi), refLabel, 'uni', false);
 
