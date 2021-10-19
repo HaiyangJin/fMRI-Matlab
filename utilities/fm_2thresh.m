@@ -1,5 +1,5 @@
-function fthresh = fs_2thresh(filename, toNumeric)
-% fthresh = fs_2thresh(filename)
+function fthresh = fm_2thresh(filename, toNumeric)
+% fthresh = fm_2thresh(filename)
 %
 % This function identify the fthreshold.
 %

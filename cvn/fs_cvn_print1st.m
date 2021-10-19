@@ -172,11 +172,11 @@ for iLabel = 1:nLabel
     theLabel = theseLabel{1};
     
     % the contrast and the hemi information
-    thisCon = fs_2contrast(theLabel);
+    thisCon = fm_2contrast(theLabel);
     labelHemi = fm_2hemi(theLabel);
     
     % threshold for plotting
-    thresh0 = fs_2sig(theLabel)/10 * 1i;
+    thresh0 = fm_2sig(theLabel)/10 * 1i;
     if ~isempty(opts.thresh)
         % use thresh if it is not empty
         thresh0 = opts.thresh;

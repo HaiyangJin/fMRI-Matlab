@@ -65,7 +65,7 @@ if isLabel
     assert(strcmp(fm_2hemi(labelFn), hemi), ['Hemisphere information in '...
         'the analysis name (%s) does not match that in the label name (%s).'],...
         anaName, labelFn);
-    conName = fs_2contrast(labelFn);
+    conName = fm_2contrast(labelFn);
     
     % make sure the label exists
     if isempty(fs_readlabel(labelFn, subjCode, struPath))
