@@ -8,7 +8,7 @@ function [clusterNo, nCluster, iterNo] = sf_clustervtx(vtxIdx, nbrVtx, vtxValue,
 %    vtxIdx         <integer array> Px1 integer array. Indices of vertices.
 %    nbrVtx         <cell> neighborhood vertices for the corresponding
 %                    vertex in vtxIdx. Can be obtained via
-%                    fs_neighborvtx.m.
+%                    sf_neighborvtx.m.
 %    vtxValue       <numeric array> PxQ numeric array. Values for each
 %                    vertex.
 %    vtxStart       <integer> 

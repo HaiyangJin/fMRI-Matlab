@@ -77,7 +77,7 @@ if isempty(labelList) || ~iscon
     contrast = '';
     whichOverlay = 0;
 else
-    contrasts = fs_2contrast(labelList);
+    contrasts = fm_2contrast(labelList);
     whichOverlay = find(cellfun(@(x) contains(overlayFile, x), {contrasts}), 1);
     if isempty(whichOverlay)
         whichOverlay = 0;

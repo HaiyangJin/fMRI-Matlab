@@ -13,6 +13,7 @@ function varargout = fs_cvn_print1st(sessList, anaList, labelList, outPath, vara
 %                     folder by default].
 %
 % Optional inputs (varargin):
+%    'overlay'       <num vec> values to be displayed on surface. 
 %    'waitbar'       <boo> 1 [default]: show the wait bar; 0: do not
 %                     show the wait bar.
 %    'sigfn'         <str> name of the to-be-printed file [Default is
@@ -84,6 +85,7 @@ function varargout = fs_cvn_print1st(sessList, anaList, labelList, outPath, vara
 %% Deal with intputs
 
 defaultOpts = struct(...
+    'overlay', '', ...
     'waitbar', 1, ...
     'sigfn', 'sig.nii.gz', ...
     'dispsig', 1, ...
@@ -206,7 +208,11 @@ for iLabel = 1:nLabel
             
             % session and subject code
             thisSess = sessList{iSess};
-            subjCode = fs_subjcode(thisSess, funcPath);
+            if isempty(opts.overlay)
+                subjCode = fs_subjcode(thisSess, funcPath);
+            else
+                subjCode = thisSess;
+            end
             
             % waitbar
             if showWaitbar
@@ -228,6 +234,8 @@ for iLabel = 1:nLabel
             elseif startsWith(thisAna, 'nooverlay')
                 tempNVtx = size(fs_readsurf([thisHemi '.inflated'], trgSubj), 1);
                 sigFile = zeros(tempNVtx, 1);
+            elseif startsWith(thisAna, 'custom') && ~isempty(opts.overlay)
+                sigFile = opts.overlay;
             else
                 % full path to the to-be-printed file
                 sigFile = fullfile(funcPath, thisSess, 'bold', thisAna, thisCon, opts.sigfn);
