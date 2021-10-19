@@ -91,7 +91,7 @@ for iLabel = 1:nLabels
     else
         labelName = theLabel{whichOverlay};
     end
-    theContrast = fs_2contrast(labelName);
+    theContrast = fm_2contrast(labelName);
     
     
     for iSess = 1:nSess

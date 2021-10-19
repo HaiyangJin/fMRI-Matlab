@@ -1,11 +1,12 @@
-function mgzFile = fv_volmgz(mgzFile, subjCode, structPath, surfType, loadReg)
-% mgzFile = fv_volmgz(mgzFile, subjCode, structPath, surfType, loadReg)
+function mgzFile = fv_vol(mgzFile, subjCode, structPath, surfType, loadReg)
+% mgzFile = fv_vol(mgzFile, subjCode, structPath, surfType, loadReg)
+%
 % This function displays the *.mgz file (for volume) in Freeview.
 % 
 % Inputs: 
 %     mgzFile            *.mgz file (with path) [if is empty, 'orig.mgz' for
 %                        subjCode will be shown.] (To open a GUI for
-%                        selecting files, please use fv_mgz.m.)
+%                        selecting files, please use fv_uigetfile.)
 %     subjCode           <string> subjCode in SUBJECTS_DIR
 %     structPath         <string> the path to SUBJECTS_DIR
 %     surfType           <string> the base surface file to be displayed
@@ -19,6 +20,9 @@ function mgzFile = fv_volmgz(mgzFile, subjCode, structPath, surfType, loadReg)
 %     Open FreeView to display the mgz (mgh) file
 %
 % Created by Haiyang Jin (22-Jan-2020)
+%
+% See also:
+% fv_surf; fv_checkrecon; fv_checkreg
 
 if nargin < 1 || isempty(mgzFile) 
     dispMgz = 0;
@@ -104,7 +108,7 @@ end
 fscmd_other = ' -viewport cor';
 
 % combine commands and run 
-fscmd = ['freeview -v' fscmd_orig fscmd_vol fscmd_surf fscmd_other '&'];
+fscmd = ['freeview -v' fscmd_orig fscmd_vol fscmd_surf fscmd_other ' &'];
 system(fscmd);
 
 end

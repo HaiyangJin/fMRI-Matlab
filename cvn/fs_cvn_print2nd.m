@@ -209,7 +209,7 @@ for iSurf = 1: nSurf
     imshow(rgbimg); % display lookup results (imagesc + colorbar)
     
     % obtain the contrast name as the figure name
-    theConName = unique(cellfun(@(x) fs_2contrast(x, filesep), surfs(iSurf, :), 'uni', false));
+    theConName = unique(cellfun(@(x) fm_2contrast(x, filesep), surfs(iSurf, :), 'uni', false));
     set(fig, 'Name', theConName{1});
     
     % Load and show the group (second) level results information

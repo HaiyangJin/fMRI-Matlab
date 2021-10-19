@@ -95,7 +95,7 @@ else
     % get the surface codes
     tmpMgz = fullfile(getenv('SUBJECTS_DIR'), subjCode, 'surf', ...
         sprintf('%s.w-g.pct.mgh', hemi));
-    [~, fscmd] = fv_surfmgz(tmpMgz, opts);
+    [~, fscmd] = fv_surf(tmpMgz, opts);
     tmpLabelname = fullfile('label', 'label_1.label');
 end
 
