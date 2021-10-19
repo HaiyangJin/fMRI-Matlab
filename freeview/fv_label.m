@@ -77,7 +77,7 @@ if isempty(labelList) || ~iscon
     contrast = '';
     whichOverlay = 0;
 else
-    contrasts = fs_2contrast(labelList);
+    contrasts = fm_2contrast(labelList);
     whichOverlay = find(cellfun(@(x) contains(overlayFile, x), {contrasts}), 1);
     if isempty(whichOverlay)
         whichOverlay = 0;
@@ -120,7 +120,7 @@ annotFile = fullfile(templatePath, 'label', [hemi '.aparc.annot']); % annotation
 
 fscmd_surf = sprintf(['freeview -f %s:'... % the ?h.inflated file
     'annot=%s:annot_outline=yes:'... % the filename and settings for annotation file
-    ],...% the label file and settings
+    ' &'],...% the label file and settings
     inflateFile, annotFile);
 
 % the label files

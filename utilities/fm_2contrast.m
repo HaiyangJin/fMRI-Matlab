@@ -1,5 +1,5 @@
-function contrast = fs_2contrast(fnList, delimiter, conSign)
-% contrast = fs_2contrast(fnList, [delimiter='.', conSign='-vs-'])
+function contrast = fm_2contrast(fnList, delimiter, conSign)
+% contrast = fm_2contrast(fnList, [delimiter='.', conSign='-vs-'])
 %
 % This function obtains the contrast name from the strings (e.g., a label 
 % name when the label name is something like roi.lh.f13.f-vs-o.*label). It

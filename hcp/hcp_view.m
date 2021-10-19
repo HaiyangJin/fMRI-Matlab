@@ -28,19 +28,10 @@ function [status, hcpcmd, specFile] = hcp_view(subjCode, template, specFn, fileL
 %
 % Created by Haiyang Jin (2021-10-05)
 
-% all five templates
-templates = {['T1w' filesep 'fsaverage_LR32k'];
-    ['MNINonLinear' filesep 'fsaverage_LR32k'];
-    ['T1w' filesep 'Native'];
-    ['MNINonLinear' filesep 'Native'];
-    'MNINonLinear'};
-
 if ~exist('template', 'var') || isempty(template)
-    template = 1;
+    template = '';
 end
-if isint(template)
-    template = templates{template};
-end
+template = hcp_template(template);
 
 if ~exist('specFn', 'var') || isempty(specFn)
     specFn = '*.wb.spec';

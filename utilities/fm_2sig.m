@@ -1,5 +1,5 @@
-function sig = fs_2sig(fnList)
-% sig = fs_2sig(fnList)
+function sig = fm_2sig(fnList)
+% sig = fm_2sig(fnList)
 %
 % This function identify the significance p-value from the filename.
 %

@@ -142,8 +142,8 @@ Visualize surface data: FreeView or functions based on [knkutils](https://github
 
 ## Quality assurance of recon-all results
 To check both the volumetric and surface data, use `fv_checkreg()`.
-To check the volumetric data only, run `fv_volmgz('', subjCode)` .
-To check the surface data only, run `fv_surfmgz('', 'inflated')` and then select which participants to be displayed in FreeView.
+To check the volumetric data only, run `fv_vol('', subjCode)` .
+To check the surface data only, run `fv_surf('', 'inflated')` and then select which participants to be displayed in FreeView.
 
 ## Check other results
 Results for visualization |  functions
