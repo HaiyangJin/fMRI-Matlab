@@ -4,45 +4,42 @@ function [ds_cell, conCell] = fs_cosmo_cvsl(ds, classPairs, surfDef, sessCode, a
 % This function performs the searchlight analysis with cosmoMVPA.
 %
 % Inputs:
-%    ds              <structure> cosmo dataset.
-%    classPairs      <cell of strings> the pairs to be classified for the
+%    ds              <struct> cosmo dataset.
+%    classPairs      <cell str> the pairs to be classified for the
 %                     searchlight; a PxQ (usually is 2) cell matrix for
 %                     the pairs to be classified. Each row is one
 %                     classfication pair. For custom contrasts, the first
 %                     element is the names of the two conditions; the
 %                     second element is the condition numbers in
 %                     sa.targets. Example is {{'face', 'word'}, {[1, 2, 3,
-%                     4], [5, 6, 7, 8]}}. 
-%    surf_def        <cell of numeric array> surface denitions. The first
-%                     element is the array of vertex number and coordiantes;
-%                     the second element is the array of face number and
-%                     vertex indices. Both can be obtained by
-%                     fs_cosmo_surfcoor. More information can be found in
-%                     cosmo_surficial_neighborhood.m .
-%    sessCode        <string> subject code in $FUNCTIONALS.
-%    anaName         <string> analysis name.
+%                     4], [5, 6, 7, 8]}}.
+%    surf_def        <cell num> surface denitions. The first element is the
+%                     array of vertex number and coordiantes; the second
+%                     element is the array of face number and vertex indices.
+%                     Both can be obtained by fs_cosmo_surfcoor. More 
+%                     information can be found in cosmo_surficial_neighborhood.m .
+%    sessCode        <str> subject code in $FUNCTIONALS.
+%    anaName         <str> analysis name.
 %
 % Varargin:
 % %%%%% cosmo_surficial_neighborhood settings %%%%%%%%%%%%%%%%
-%    'metric'        <string> the method used for neighboor. Options are
+%    'metric'        <str> the method used for neighboor. Options are
 %                     'geodesic' [default], 'dijkstra', 'Euclidean'.
-%    'radius'        <numeric> the radius in mm. Default is 0. When 'areas'
+%    'radius'        <num> the radius in mm. Default is 0. When 'areas'
 %                     is not empty, 'radius' will be the starting radius
 %                     for identifying neighbors within areaMax.
-%    'count'         <integer> number of features to be used for each
+%    'count'         <int> number of features to be used for each
 %                     decoding. Default is 0.
-%    'areas'         <numeric vector> Nx1 numeric vector. Area size of each
-%                     vertex in mm^2. Default is [].
-%    'areamax'       <numeric> the maximum area for the negighbors. Default
-%                     is 100.
+%    'area'          <num> the maximum area for the negighbors. Default
+%                     is 100. 
 % %%%%% cosmo_searchlight settings %%%%%%%%%%%%%%%%
 %    'measure'       <funtion handel> the function/analysis to be run. The
 %                     avaiable options are: @cosmo_crossvalidation_measure
 %                     [default], @cosmo_correlation_measure,
 %                     @cosmo_target_dsm_corr_measure.
-%    'centerids'     <intger vector> center indices. Default is [], i.e.,
+%    'centerids'     <int vec> center indices. Default is [], i.e.,
 %                     excludes vertices outside the brain mask.
-%    'nproc'         <integer> number of processors if Matlab parallel
+%    'nproc'         <int> number of processors if Matlab parallel
 %                     processing toolbox is available. Default is 1.
 % %%%%% cross-validation settings %%%%%%%%%%%%%%%%
 %    'partitioner'   <function handle> the method to set partition
@@ -52,26 +49,26 @@ function [ds_cell, conCell] = fs_cosmo_cvsl(ds, classPairs, surfDef, sessCode, a
 %                     @cosmo_balance_partitioner,
 %                     @cosmo_oddeven_partitioner (will be used if 'measure'
 %                     is @cosmo_correlation_measure).
-%    'classifier'    <numeric> or <strings> or <cells> the classifiers
+%    'classifier'    <num> or <str> or <cell> the classifiers
 %                     to be used (only 1).
 % %%%%% other settings %%%%%%%%%%%%%%%%
-%    'applyuseless'  <logical> apply cosmo_remove_useless_data to ds.
+%    'applyuseless'  <boo> apply cosmo_remove_useless_data to ds.
 %                     Default is 0.
-%    'applycortex'   <logical> only run searchlight on vertices in the
+%    'applycortex'   <boo> only run searchlight on vertices in the
 %                     ?h.cortex.label. Default is 0.
-%    'outprefix'     <string> strings to be added at the beginning of the
+%    'outprefix'     <str> strings to be added at the beginning of the
 %                     ouput folder (the pseudo-analysis folder). Default is
 %                     'sl'.
-%    'maskedvalue'   <numeric> the default (accuracy) values for masked
+%    'maskedvalue'   <num> the default (accuracy) values for masked
 %                     vertices. Default is -999.
-%    'nbrstr'        <string> strings to be added to the nbr files. Default
+%    'nbrstr'        <str> strings to be added to the nbr files. Default
 %                     is ''.
-%    'funcPath'      <string> where to save the output. Default is
+%    'funcPath'      <str> where to save the output. Default is
 %                     $FUNCTIONALS_DIR.
 %
 % Output:
-%    ds_cell         <structure> data sets of the searchlight results.
-%    conCell         <cell string> the contrast for each dataset in ds_cell.
+%    ds_cell         <struct> data sets of the searchlight results.
+%    conCell         <cell str> the contrast for each dataset in ds_cell.
 %    For each hemispheres, the results will be saved as a *.mgz file in
 %    funcPath/sessCode/bold/analysisFolder/contrastFolder/.
 %    For the whole brain, the results will be saved as *.gii.
@@ -87,8 +84,7 @@ defaultOpt=struct(...
     'metric', 'geodesic', ...
     'radius', 0, ... % in mm
     'count', 0, ...
-    'areas', [], ...
-    'areamax', 100, ...
+    'area', 100, ... % in mm^2
     ... %%% cosmo_searchlight settings %%%
     'measure', @cosmo_crossvalidation_measure, ...
     'centerids', [], ... % all indices.
@@ -112,8 +108,7 @@ opt=fm_mergestruct(defaultOpt, varargin{:});
 metric = opt.metric; % 'euclidean'; % method used for distance
 radius = opt.radius;
 count = opt.count;
-areas = opt.areas;
-areaMax = opt.areamax;
+area = opt.area;
 %%% cosmo_searchlight %%%
 measure = opt.measure;
 center_ids = opt.centerids;
@@ -151,22 +146,19 @@ end
 
 %% Neighborhood
 % which method is used for neighbors
-if ~isempty(areas)
-    nbr_args.areas = areas;
-    nbr_args.areamax = areaMax;
-    nbr_args.metric = metric;
+nbr_args.metric = metric;
+if radius ~= 0
     nbr_args.radius = radius;
-    nbrStr = sprintf('%s_area%d', nbrStr, areaMax);
-elseif radius ~= 0
-    nbr_args.metric = metric;
-    nbr_args.radius = radius;
-    nbrStr = sprintf('%s_r%d', nbrStr, radius);
+    nbrStr = sprintf('%s_%s_r%d', nbrStr, metric, radius);
 elseif count ~= 0
     nbr_args.count = count;
-    nbrStr = sprintf('%s_count%d', nbrStr, count);
+    nbrStr = sprintf('%s_%s_c%d', nbrStr, metric, count);
+elseif ~isempty(area)
+    nbr_args.area = area;
+    nbrStr = sprintf('%s_%s_a%d', nbrStr, metric, area);
 else
     error(['Please define the method for identifying neighboorhood.' ...
-        'e.g., set ''r'' or ''count''']);
+        'e.g., set ''radius'' or ''count''']);
 end
 
 % Define the feature neighborhood for each node on the surface
@@ -176,7 +168,7 @@ nbhFn = sprintf('sl_cosmo_nbr_%s_%s_%s.mat', hemi, trgSubj, nbrStr);
 if strcmp(trgSubj, 'fsaverage')
     saveSubj = 'fsaverageSL';
     accPath = fullfile(getenv('SUBJECTS_DIR'), saveSubj, 'surf');
-    if ~exist(accPath, 'dir'); mkdir(accPath); end
+    fm_mkdir(accPath);
 else
     saveSubj = trgSubj;
 end
@@ -186,9 +178,9 @@ nbhFilename = fullfile(getenv('SUBJECTS_DIR'), saveSubj, 'surf', nbhFn);
 if exist(nbhFilename, 'file') % load the file if it is available
     fprintf('\nLoading the surficial neighborhood (%s) for %s (%s):\n',...
         nbhFn, trgSubj, hemi);
-    
+
     temp = load(nbhFilename);
-    
+
     if ~strcmp(temp.trgSubj, trgSubj) || ~strcmp(temp.hemi, hemi)
         error('The wrong file is loaded...');
     end
@@ -196,7 +188,7 @@ if exist(nbhFilename, 'file') % load the file if it is available
     nbrhood = temp.nbrhood;
     vo = temp.vo;
     fo = temp.fo;
-    
+
     clear temp
 end
 
@@ -205,13 +197,9 @@ if ~exist('nbrhood', 'var') || ~exist('vo', 'var') || ~exist('fo', 'var')
     % calculate the surficial neighborhood
     fprintf('\n\nGenerating the surficial neighborhood (%s) for %s (%s):\n',...
         nbhFn, trgSubj, hemi);
-    
-    if isempty(areas)
-        [nbrhood,vo,fo,~]=cosmo_surficial_neighborhood(ds,surfDef,nbr_args);
-    else
-        [nbrhood,vo,fo,~]=cosmo_surficial_neighborhood_area(ds,surfDef,nbr_args);
-    end
-    
+
+    [nbrhood,vo,fo]=cosmo_surficial_neighborhood(ds,surfDef,nbr_args);
+
     % save the the surficial neighborhood file
     fprintf('\nSaving the surficial neighborhood (%s) for %s (%s):\n',...
         nbhFn, trgSubj, hemi);
@@ -227,7 +215,7 @@ fprintf('The output surface has %d vertices, %d nodes\n',...
 
 %% Set center_ids
 if ismember(hemi, {'lh', 'rh'}) && isempty(center_ids)
-    
+
     % remove uselessdta
     if opt.applyuseless
         [~, useMask] = cosmo_remove_useless_data(ds);
@@ -235,7 +223,7 @@ if ismember(hemi, {'lh', 'rh'}) && isempty(center_ids)
     else
         useVtx = 1:size(ds.samples, 2);
     end
-    
+
     % mask applied to searchlight (2)
     if opt.applycortex
         % load ?h.cortex.label as a mask for surface
@@ -243,16 +231,16 @@ if ismember(hemi, {'lh', 'rh'}) && isempty(center_ids)
     else
         cortexVtx = 1:size(ds.samples, 2);
     end
-    
+
     tempIn = sort(intersect(cortexVtx, useVtx));
-    
-    % only keep neighborhood within <tempIn>    
+
+    % only keep neighborhood within <tempIn>
     isRemoved = cellfun(@(x) sum(~ismembc(sort(x), tempIn))>0, nbrhood.neighbors);
     rmvVtx = nbrhood.fa.node_indices(isRemoved);
-    
+
     % combine center_ids
     center_ids = setdiff(tempIn, rmvVtx);
-    
+
 elseif isempty(center_ids)
     % use all vertices
     center_ids = 1:size(ds.samples, 2);
@@ -272,17 +260,17 @@ ds_cell = cell(nPairs, 1);
 conCell = cell(nPairs, 1);
 
 for iPair = 1:nPairs
-    
+
     % define this classification
     thisPair = classPairs(iPair, :);
-    
+
     if ischar(thisPair{1})
         % skip if the pair is not available in this dataset
         if ~all(ismember(thisPair, unique(ds.sa.labels)))
             warning('Cannot find %s vs. %s in the dataset.', thisPair{:});
             continue;
         end
-        
+
         % dataset for this classification
         thisPairMask = cosmo_match(ds.sa.labels, thisPair);
         ds_thisPair = cosmo_slice(ds, thisPairMask);
@@ -294,60 +282,60 @@ for iPair = 1:nPairs
         % condition number of that contrast.
         conName = thisPair{1};
         conFolder = sprintf('%s-vs-%s', conName{:});
-        
+
         conCode = thisPair{2};
         if max(horzcat(conCode{:})) > max(ds.sa.targets)
             warning('The index is out of the target range(max: %d).', max(ds.sa.targets));
             continue;
         end
-        
+
         % reset the targets and labels
         targetTemp = NaN(size(ds.sa.targets));
         labelTemp = cell(size(ds.sa.labels));
-        
+
         actCon = ismember(ds.sa.targets, conCode{1});
         deactCon = ismember(ds.sa.targets, conCode{2});
-        
+
         targetTemp(actCon) = 1;
         targetTemp(deactCon) = 2;
-        
+
         labelTemp(actCon) = conName(1);
         labelTemp(deactCon) = conName(2);
-        
+
         tempds = ds;
         tempds.sa.targets = targetTemp;
         tempds.sa.labels = labelTemp;
-        
+
         tempds = cosmo_slice(tempds, ismember(tempds.sa.targets, [1,2]));
-        
+
         % get the mean for the two condition
         ds_thisPair = cosmo_fx(tempds, @(x)mean(x,1), {'chunks', 'targets'}, 1);
-        
+
     end
-    
+
     %% Set partition scheme.
     measure_args.partitions = partitioner(ds_thisPair);
-    
+
     % print measure and arguments
     fprintf('Searchlight measure:\n');
     cosmo_disp(measure);
     fprintf('Searchlight measure arguments:\n');
     cosmo_disp(measure_args);
-    
+
     %% Run the searchlight
     ds_sl = cosmo_searchlight(ds_thisPair,nbrhood,measure,measure_args,...
         'center_ids', center_ids, 'nproc', opt.nproc);
-    
+
     % print searchlight output
     fprintf('Dataset output:\n');
     cosmo_disp(ds_sl);
-    
+
     % set the accuracy for non-cortex vertices as -1
     accuracy = ones(size(vo, 1), 1) * opt.maskedvalue;
     accuracy(center_ids) = ds_sl.samples';
-    
+
     %% Save results as *.mgz files
-    
+
     % store searchlight results
     if isfield(measure_args, 'normalization') && ~isempty(measure_args.normalization)
         normStr = ['.' measure_args.normalization];
@@ -356,7 +344,7 @@ for iPair = 1:nPairs
     end
     accFn = sprintf('sl.%s%s.acc', shortName{1}, normStr);
     accPath = fullfile(funcPath, sessCode, 'bold', anaFolder, conFolder);
-    
+
     if ismember(hemi, {'lh', 'rh'})
         if ~exist(accPath, 'dir'); mkdir(accPath); end
         % save the accuracy as *.mgz
@@ -364,12 +352,12 @@ for iPair = 1:nPairs
     elseif strcmp(hemi, 'lhrh')  % save as .gii for the whole brain
         outputFile = fullfile(accPath, accFn);
         cosmo_map2surface(ds_sl, [outputFile '.gii'], 'encoding','ASCII');
-    end   
-    
+    end
+
     % save other information
     ds_cell{iPair, 1} = ds_sl;
     conCell{iPair, 1} = conFolder;
-    
+
 end  % iPair
 
 end
