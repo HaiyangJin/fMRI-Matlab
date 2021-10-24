@@ -1,7 +1,12 @@
 function [labelMatCell, cluVtxCell] = fs_trimlabel(labelFn, sessCode, outPath, varargin)
 % [labelMatCell, cluVtxCell] = fs_trimlabel(labelFn, sessCode, outPath, varargin)
 %
-% This function updates the label based on different purposes (see below).
+% This function updates the label file for different purposes (see below).
+% By default, the last column in the label file will be used to sort the
+% vertices. But you may use 'overlay' to custom the values for sorting 
+% vertices (note: the 'overlay' has to be for the whole surface). You may 
+% also use 'sortorder' to set whether you would like to keep vertices with
+% larger or smaller values.
 %
 % Inputs:
 %    labelFn       <str> the label file name saved in label/.
@@ -19,8 +24,11 @@ function [labelMatCell, cluVtxCell] = fs_trimlabel(labelFn, sessCode, outPath, v
 %    'surfdef'     <cell> {vertices, faces}.
 %               OR <str> the surface string, e.g., 'white', 'pial'. The
 %                   hemisphere information will be read from labelFn.
-%    'overlay'     <num array> result (e.g., t-values) to be displayed on
-%                   the surface. Default is empty.
+%    'overlay'     <num array> result (e.g., FreeSurfer p-values) to be 
+%                   displayed on the surface. It has to be the result for 
+%                   the whole 'surfdef'. Default is ''. 
+%    'sortorder'   <str> the order of sorting the vertices: 'ascend' or
+%                   'descend' [default]. 
 %    'ncluster'    <int> cluster numbers. Default is 1.
 %    'startvtx'    <int> index of the starting vertex. This should be
 %                   the vertex index in the Matlab (i.e., already + 1).
@@ -29,21 +37,18 @@ function [labelMatCell, cluVtxCell] = fs_trimlabel(labelFn, sessCode, outPath, v
 %                   fully developed. Ths startvtx might not be the global
 %                   maxima.] Note: when 'startvtx' is not empty and
 %                   'savegm' is 1, startvtx will be saved as 'gmfn'.
-%    'gmfn'        <str> the filename of the global maxima to be used.
-%                   Default is '' (empty) and no global maxima saved before
+%    'gmfn'        <str> the filename of the local maxima to be used.
+%                   Default is '' (empty) and no local maxima saved before
 %                   will be used. if 'gmfn' is not empty and the file
 %                   exists, the vertex index in the file will be used as
-%                   the global maxima and 'startvtx' will be ignored.
-%    'savegm'      <boo> 1 [default]: save the global maxima (matlab
+%                   the local maxima and 'startvtx' will be ignored.
+%    'savegm'      <boo> 1 [default]: save the local maxima (matlab
 %                   vertex index) used for creating the updated label as a
 %                   file. Its filename will be the same as the label
 %                   filename (replace '.label' as '.gm'. 0: do not save the
-%                   global maxima.
+%                   local maxima.
 %    'maxsize'     <num> the maximum cluster size (mm2) [based on
 %                   ?h.white]. Default is 100.
-%    'savesize'    <boo> 0 [default]: do not save the area size
-%                   information in the label file name; 1: save the area
-%                   size information.
 %    'minsize'     <num> the minimum cluster size (mm2) [based on
 %                   ?h.white]. Default is 20 (arbitrary number).
 %    'lagnvtx'     <int> number (lagvtx-1) of vertex values to be
@@ -81,8 +86,11 @@ function [labelMatCell, cluVtxCell] = fs_trimlabel(labelFn, sessCode, outPath, v
 %                   values. [Maybe not that useful]. 1: only include
 %                   vertices whose values are smaller than that of the
 %                   staring vertex in the cluster;
+%    'savesize'    <boo> 0 [default]: do not save the area size
+%                   information in the label file name; 1: save the area
+%                   size information.
 %    'peakonly'    <boo> 1 [default]: only show the peak when identify
-%                   global maxima; 0: show the outline of the label.
+%                   local maxima; 0: show the outline of the label.
 %    'showinfo'    <boo> 0 [default]: show more information; 1: do not
 %                   show label information.
 %    'extraopt1st' <cell> options used in fs_cvn_print1st.m.
@@ -92,7 +100,7 @@ function [labelMatCell, cluVtxCell] = fs_trimlabel(labelFn, sessCode, outPath, v
 %    cluVtxCell    <cell> vertex indices for each cluster.
 %
 % Different usage:
-% 1: Reduce one label file to a fixed size (on ?h.white) [in mm2].
+% 1: Reduce one label file to a fixed size (e.g., 100mm^2) on ?h.white.
 %    Step 1: Use the vertex whose value is the strongest or custom vertex
 %       ('startvtx') as staring point;
 %    Step 2: Dilate until the label area reaches a fixed size ('maxsize').
@@ -101,9 +109,9 @@ function [labelMatCell, cluVtxCell] = fs_trimlabel(labelFn, sessCode, outPath, v
 %       fs_trimlabel(labelFn, sessCode, outPath);
 %
 % 2: Separate one label file into several clusters ('ncluster'):
-%    Step 1: Idenitfy the largest p-value (P) that can separate the label
-%        into N clusters.
-%    Step 2: Identify the global maxima for each cluster and they will be
+%    Step 1: Idenitfy the largest p-value (i.e., FreeSurfer p-values) that 
+%        can separate the label into N clusters.
+%    Step 2: Identify the local maxima for each cluster and they will be
 %        used as the starting point.
 %    Step 3: Dilate until the label area reaches a fixed size ('maxsize').
 %    Step 4: Rename and save the updated lable files.
@@ -111,9 +119,9 @@ function [labelMatCell, cluVtxCell] = fs_trimlabel(labelFn, sessCode, outPath, v
 %        overlapping can be removed with fs_setdifflabel.m later.]
 %    Step 6: Save and rename the updated label files.
 %
-% Methods for 'dilating the global maxima':
+% Methods for 'dilating the local maxima':
 % 1. 'concentric'
-%    Step 1: Identify the neighbor vertices of the global maxima and
+%    Step 1: Identify the neighbor vertices of the local maxima and
 %        calculate the area of all these vertices.
 %    Step 2: Identify the outside neighbor vertices of all the vertices
 %        in Step 1, and calcuate the total area.
@@ -125,7 +133,7 @@ function [labelMatCell, cluVtxCell] = fs_trimlabel(labelFn, sessCode, outPath, v
 %        select vertices concentrically.
 %
 % 2. 'maxresp' [default]
-%    Step 1: Identify the neighbor vertices of the global maxima and
+%    Step 1: Identify the neighbor vertices of the local maxima and
 %        only keep the first 'keepratio' (e.g., 50%) of the most active
 %        neighbor vertices.
 %    Step 2: Identify the neighbor vertices of the vertices in Step 1 and,
@@ -133,33 +141,34 @@ function [labelMatCell, cluVtxCell] = fs_trimlabel(labelFn, sessCode, outPath, v
 %        active neighbor vertices.
 %    Step 3: Keep including more neighbor vertices until the total area
 %        is close enough to but not exceed 'maxsize'.
-%    Note: The global maxima is not necessarily in the center.
+%    Note: The local maxima is not necessarily in the center.
 %    Special note: when 'keepratio' is 100%, the final label will be quite
 %        similar to (or the same as) that generated by 'concentric' for the
-%        same global maxima.
+%        same local maxima.
 %
 % 3. 'con-maxresp'
 %    [not fully developed.]
 %    Step 1: Use 'concentric' method to generate the cluster/roi for the
-%        global maxima.
+%        local maxima.
 %    Step 2: Within this cluster, select the most active vertices as the
 %        final label.
 %    Note: the vertices in the final label are not necessarily contiguous.
 %
 % Created by Haiyang Jin (14-May-2020)
+
 fprintf('\nUpdating %s for %s...\n', labelFn, sessCode);
 
 %% Deal with inputs
 defaultOpts = struct(...
+    'method', 'maxresp', ...
     'surfdef', 'white', ...
     'overlay', '', ...
-    'method', 'maxresp', ...
+    'sortorder', 'descend', ...
     'ncluster', 1, ...
     'startvtx', [], ...
     'gmfn', '', ...
     'savegm', 1, ...
     'maxsize', 100, ...
-    'savesize', 0, ...
     'minsize', 20, ...
     'lagnvtx', 100, ...
     'lagvalue', [], ...
@@ -169,6 +178,7 @@ defaultOpts = struct(...
     'reflabel', '', ...
     'warnoverlap', 1, ...
     'smalleronly', 0, ...
+    'savesize', 0, ...
     'peakonly', 1, ...
     'showinfo', 0, ...
     'extraopt1st', {{}} ...
@@ -199,7 +209,7 @@ if opts.showinfo
     extraOpt = [{'annot', 'aparc', 'showinfo', 1, 'markpeak', 1}, extraOpt];
 end
 
-% use the global maxima saved before as 'startVtx' if needed
+% use the local maxima saved before as 'startVtx' if needed
 if ~isempty(opts.gmfn)
     gmFile = fullfile(getenv('SUBJECTS_DIR'), subjCode, 'label', opts.gmfn);
     if ~exist(gmFile, 'file')
@@ -217,7 +227,7 @@ theHemi = fm_2hemi(labelFn);
 oldHemi = setdiff({'lh', 'rh'}, theHemi);
 refLabel = cellfun(@(x) strrep(x, oldHemi{1}, theHemi), refLabel, 'uni', false);
 
-% only show global maxima for selecting roi
+% only show local maxima for selecting roi
 if ~isempty(opts.overlay)
     overlay = sprintf('custom.%s', theHemi);
 elseif opts.peakonly
@@ -226,6 +236,14 @@ elseif opts.peakonly
 else
     overlay = sprintf('labeloverlay.%s', theHemi);
 end
+
+% sort orders
+orders = {'ascend', 'descend'};
+orderok = ismember(orders, opts.sortorder);
+assert(any(orderok), [".sortorder has to be" ...
+    " either 'ascend' or 'descend' (but not %s)."], opts.sortorder);
+% order to sort the key thresholds (opposite to opts.sortorder)
+threshorder = orders{~orderok}; 
 
 
 %% Check if the label is available
@@ -270,7 +288,7 @@ if sum(labelMatArea(:,end)) < maxSize && nCluster == 1
         labelFn, subjCode);
     cluVtxCell = {labelMatArea(:, 1)};
 
-    % find the global maxima
+    % find the local maxima
     [~, theMax] = max(abs(labelMatArea(:, end-1)));
     gmCell = {labelMatArea(theMax, 1)};
 
@@ -289,7 +307,7 @@ else
 
     else
         % identify all unqiue vertex values
-        vtxValues = sort(abs(unique(labelMatArea(:, end-1))));
+        vtxValues = sort(abs(unique(labelMatArea(:, end-1))), threshorder);
 
         % obtain the minimum values to be used as cluster-forming thresholds
         if ~isempty(opts.lagvalue)
@@ -304,7 +322,7 @@ else
         % apply the maximum iteration for checking clusters
         nIter = numel(fmins);
         if nIter > opts.maxiter
-            fmins = fmins(sort(randperm(nIter, opts.maxiter)));
+            fmins = fmins(sort(randperm(nIter, opts.maxiter), threshorder));
             fprintf('Following thresholds are randomly selected from ''fmin'':\n');
             disp(fmins);
         end
@@ -356,7 +374,7 @@ else
     % create empty cell for saving the vertex numbers
     nKeyCluNoC = numel(keyCluNoC);
     cluVtxCell = cell(nCluster, nKeyCluNoC);
-    % create empty array (-1) for saving the global maxima
+    % create empty array (-1) for saving the local maxima
     gmCell = cell(nCluster, nKeyCluNoC);
 
     for ith = 1:nKeyCluNoC
@@ -375,7 +393,7 @@ else
             theNbrVtx = nbrVtx;
 
             % find the index and vertex number for strongest response [the
-            % global maxima].
+            % local maxima].
             % (i.e., the first iteration)
             [~, theMax] = min(thisCluIter);
             theVtx = theLabelMat(theMax, 1);
@@ -402,7 +420,7 @@ else
                 % vertices whose values are under the KEY threshold)
                 [~, ~, thisCluIter] = sf_clustervtx(theLabelMat(:, 1), theNbrVtx, '', theVtx);
             end
-            % save the global maxima (or the starting vtx)
+            % save the local maxima (or the starting vtx)
             gmCell{iClu, ith} = theVtx; % vertex index in Matlab
 
             % apply different methods for selecting vertices
@@ -433,7 +451,7 @@ else
 
                     %%%%% deal with information for this iteration
                     baseLabelMat = theLabelMat(thisCluIter == iIter, :);
-                    [~, theorder] = sort(abs(baseLabelMat(:, end-1)), 'descend');
+                    [~, theorder] = sort(abs(baseLabelMat(:, end-1)), opts.sortorder);
                     sortBaseMat = baseLabelMat(theorder, :);
 
                     % calculate the accumulative areas based on vertex values
@@ -451,7 +469,7 @@ else
                     cluVtxCell{iClu, ith} = [baseVtx; extraVtx];
 
                 case {'maxresp'}
-                    % the size of the 'refvtx' (global maxima)
+                    % the size of the 'refvtx' (local maxima)
                     refvtx = theLabelMat(thisCluIter == 1, 1);
                     thesize = theLabelMat(thisCluIter == 1, end);
                     roivtxUpdate = refvtx;
@@ -477,7 +495,7 @@ else
                         nbrResp = nbrLabelMat(:, end-1);
 
                         % sort by values of neighbor vertices
-                        [~, sortidx] = sort(abs(nbrResp), 'descend');
+                        [~, sortidx] = sort(abs(nbrResp), opts.sortorder);
                         sortLabelMat = nbrLabelMat(sortidx, :);
 
                         % only keep the first 'keepratio' vertices
@@ -619,16 +637,16 @@ for iTh = 1:nTh
             elseif ~strcmp(newlabelname{1}, thisClusterLabel)
                 updateLabelFile = strrep(thisLabelFile, thisClusterLabel, newlabelname{1});
                 movefile(thisLabelFile, updateLabelFile);
-                % save the global maxima file
+                % save the local maxima file
                 if opts.savegm
                     thegm = gmCell(iTempLabel, iTh);
                     thegmFile = strrep(updateLabelFile, '.label', '.gm');
-                    % save the global maxima file
+                    % save the local maxima file
                     fm_mkfile(thegmFile, thegm);
 
                     % print the message
                     [~, thefn, theext] = fileparts(thegmFile);
-                    fprintf('The global maxima file (%s) is saved.\n', [thefn, theext]);
+                    fprintf('The local maxima file (%s) is saved.\n', [thefn, theext]);
                 end
             end
         end
