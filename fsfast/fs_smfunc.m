@@ -1,21 +1,21 @@
-function [fscmd, isnotok] = fs_smfunc(sessList, smooth, runList, template, funcPath)
+function [fscmd, isnotok] = fs_smfunc(sessList, smooth, runInfo, template, funcPath)
 % [fscmd, isok] = fs_smfunc(sessList, [smooth = 5, runList = [allruns],
 %                           template = 'fsaverage', funcPath])
 %
 % This function will smooth all the *.sm0* files to *.sm?.* accordingly.
 %
 % Inputs:
-%    sessList         <string> session code (list) in funcPath.
-%    smooth           <integer> smoothing with FWHM.
-%    runList          <cell of strings> a list of run folder names, OR
-%                     <string> the name of the run file. All runs are
+%    sessList         <str> session code (list) in funcPath.
+%    smooth           <int> smoothing with FWHM.
+%    runInfo          <cell str> a list of run folder names, OR
+%                     <str> the name of the run file. All runs are
 %                      processed by default.
-%    template         <string> 'fsaverage' or 'self'. fsaverage is the default.
-%    funcPath         <string> the full path to the functional folder.
+%    template         <str> 'fsaverage' or 'self'. fsaverage is the default.
+%    funcPath         <str> the full path to the functional folder.
 %
 % Output:
-%    fscmd            <cell of strings> FreeSurfer commands used here.
-%    isnotok          <array of numbers> if fscmd is run successfully. [0
+%    fscmd            <cell str> FreeSurfer commands used here.
+%    isnotok          <num array> if fscmd is run successfully. [0
 %                      denotes successfully; any positive numbers denote
 %                      the commands failed; -1 denotes cannot find the
 %                      unique unsmoothed data file].
@@ -27,19 +27,23 @@ if ischar(sessList)
 end
 nSess = numel(sessList);
 
-if nargin < 2 || isempty(smooth)
+if ~exist('smooth', 'var') || isempty(smooth)
     smooth = 5;
     warning('The default smooth of 5 (FWHM) is used.');
 end
 
-if nargin < 4 || isempty(template)
+if ~exist('runInfo', 'var') || isempty(runInfo)
+    runInfo = '';
+end
+
+if ~exist('template', 'var') || isempty(template)
     template = 'fsaverage';
     warning('The template was not specified and fsaverage will be used by default.');
 elseif ~ismember(template, {'fsaverage', 'self'})
     error('The template has to be ''fsaverage'' or ''self'' (not ''%s'').', template);
 end
 
-if nargin < 5 || isempty(funcPath)
+if ~exist('funcPath', 'var') || isempty(funcPath)
     funcPath = getenv('FUNCTIONALS_DIR');
 end
 
@@ -57,18 +61,8 @@ for iSess = 1:nSess
     thisSess = sessList{iSess};
     trgSubj = fs_trgsubj(fs_subjcode(thisSess, funcPath), template);
     
-    % the bold path
-    boldPath = fullfile(funcPath, thisSess, 'bold');
-    
     % run lists
-    if nargin < 5 || isempty(runList)
-        % run the analysis for all the runs
-        runList = fs_runlist(boldPath);
-    elseif ischar(runList)
-        % get the list of run folder names from the run list file
-        runList = fm_readtext(fullfile(boldPath, runList));
-    end
-    nRun = numel(runList);
+    [runList, nRun] = fs_runlist(thisSess, runInfo, funcPath);
     
     % empty array for saving output
     fscmdTemp = cell(nRun, nHemi);
@@ -78,7 +72,7 @@ for iSess = 1:nSess
         
         % this run
         thisRun = runList{iRun};
-        runPath = fullfile(boldPath, thisRun, filesep);
+        runPath = fullfile(funcPath, thisSess, 'bold', thisRun, filesep);
         
         for iHemi = 1:nHemi
             

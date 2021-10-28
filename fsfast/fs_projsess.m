@@ -1,4 +1,4 @@
-function fscmd = fs_projsess(sessList, projFile, template, smooth, runList, hemi, funcPath)
+function fscmd = fs_projsess(sessList, projFile, template, smooth, runInfo, hemi, funcPath)
 % fscmd = fs_projsess(sessList, projFile, [template = 'self', smooth = 5,
 %                     runList = [allruns], hemi = {'lh', 'rh'}, funcPath])
 %
@@ -9,43 +9,48 @@ function fscmd = fs_projsess(sessList, projFile, template, smooth, runList, hemi
 %     brain.[template].?h.pr.nii.gz
 %
 % Inputs:
-%     sessList         <string> session code (list) in funcPath.
-%     projFile         <string> the name of the to-be-projected file
+%     sessList         <str> session code (list) in funcPath.
+%     projFile         <str> the name of the to-be-projected file
 %                       (i.e., the preprocessed functional data).
 %                       [do not need to include '.nii.gz'.]
-%     template         <string> 'fsaverage' or 'self'. fsaverage is the default.
-%     smooth           <integer> smoothing with FWHM.
-%     runList          <cell of strings> a list of run folder names, OR
-%                      <string> the name of the run file. All runs are
+%     template         <str> 'fsaverage' or 'self'. fsaverage is the default.
+%     smooth           <int> smoothing with FWHM.
+%     runInfo          <cell str> a list of run folder names, OR
+%                      <str> the name of the run file. All runs are
 %                      processed by default.
-%     hemi             <string> which hemisphere. 'lh' (default) or 'rh'.
-%     funcPath         <string> the full path to the functional folder.
+%     hemi             <str> which hemisphere. 'lh' (default) or 'rh'.
+%     funcPath         <str> the full path to the functional folder.
 %
 % Output:
-%     fscmd            <cell of strings> FreeSurfer commands used here.
+%     fscmd            <cell str> FreeSurfer commands used here.
 %
 % Created by Haiyang Jin (7-Apr-2020)
 
 % name of the preprocessed data file.
+
 projBasename = erase(projFile, '.nii.gz');
 projFile = [projBasename '.nii.gz'];
 
-if nargin < 3 || isempty(template)
+if ~exist('template', 'var') || isempty(template)
     template = 'self';
     warning('The template was not specified and self will be used by default.');
 elseif ~ismember(template, {'fsaverage', 'self'})
     error('The template has to be ''fsaverage'' or ''self'' (not ''%s'').', template);
 end
 
-if nargin < 4 || isempty(smooth)
+if ~exist('smooth', 'var') || isempty(smooth)
     smooth = 5;
 end
 
-if nargin < 6 || isempty(hemi)
+if ~exist('runInfo', 'var') || isempty(runInfo)
+    runInfo = '';
+end
+
+if ~exist('hemi', 'var') || isempty(hemi)
     hemi = {'lh', 'rh'};
 end
 
-if nargin < 7 || isempty(funcPath)
+if ~exist('funcPath', 'var') || isempty(funcPath)
     funcPath = getenv('FUNCTIONALS_DIR');
 end
 
@@ -63,18 +68,9 @@ for iSess = 1:nSess
     % this session code
     thisSess = sessList{iSess};
     
-    % the bold path
-    boldPath = fullfile(funcPath, thisSess, 'bold');
     % the list of all runs
-    runListAll = fs_runlist(boldPath);
-    
-    if nargin < 5 || isempty(runList)
-        % run the analysis for all the runs
-        runList = runListAll;
-    elseif ischar(runList)
-        % get the list of run folder names from the run list file
-        runList = fm_readtext(fullfile(boldPath, runList));
-    end
+    runListAll = fs_runlist(thisSess, '', funcPath);
+    runList = fs_runlist(thisSess, runInfo, funcPath);
     
     % all the combinations of hemispheres and runs
     [hemis, runs] = ndgrid(hemi, runList);

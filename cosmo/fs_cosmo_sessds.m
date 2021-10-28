@@ -44,7 +44,7 @@ function [ds_sess, dsInfo] = fs_cosmo_sessds(sessCode, anaName, varargin)
 
 %% Deal with inputs
 defaultOpts = struct(...
-    'runlist', '', ...
+    'runinfo', '', ...
     'runwise', 0, ... 
     'labelfn', '',... 
     'datafn', 'beta.nii.gz',... 
@@ -53,48 +53,40 @@ defaultOpts = struct(...
     'funcpath', getenv('FUNCTIONALS_DIR')...
     );
 
-opts = fm_mergestruct(defaultOpts, varargin);
+opts = fm_mergestruct(defaultOpts, varargin{:});
 
-runList = opts.runlist;
 labelFn = opts.labelfn;
 funcPath = opts.funcpath;
 
-if ischar(runList)
-    % read the file if it is char
-    runFolder = fs_readrun(runList, sessCode, funcPath);
-elseif iscell(runList) 
-    runFolder = runList;
-else
-    error('Please make sure ''runList'' is set properly.');
-end
+runList = fs_runlist(sessCode, opts.runinfo, funcPath);
 
 %% Read data and condition names
 % create the prFolder names if data for each run are read separately
 if opts.runwise
     % make the run names ('pr*') (in the analysis folder)
-    prFolder = cellfun(@(x) ['pr' x], runFolder, 'uni', false);
+    prList = cellfun(@(x) ['pr' x], runList, 'uni', false);
 else
-    prFolder = {''};
-    runFolder = runFolder(1);
+    prList = {''};
+    runList = runList(1);
 end
 
 % path to the bold folder
 boldPath = fullfile(funcPath, sessCode, 'bold');
 
 % create the full filename to the paradigm file (with path)
-parFiles = fullfile(boldPath, runFolder, opts.parfn);
+parFiles = fullfile(boldPath, runList, opts.parfn);
 % read all the par files
 parCell = cellfun(@fm_readpar, parFiles, 'uni', false);
 
 % create the to-be-read filenames (beta) with path
-betaFiles = fullfile(boldPath, anaName, prFolder, opts.datafn);
+dataFiles = fullfile(boldPath, anaName, prList, opts.datafn);
 
 % read the data and the corresponding condition names
-dsCell = arrayfun(@(x) fs_cosmo_surface(betaFiles{x}, ...
+dsCell = arrayfun(@(x) fs_cosmo_surface(dataFiles{x}, ...
     'targets', parCell{x}.Condition, ...
     'labels', parCell{x}.Label, ...
     'pct', opts.ispct, ...
-    'chunks', x), 1:numel(betaFiles), 'uni', false);
+    'chunks', x), 1:numel(dataFiles), 'uni', false);
 
 % combine data for different runs if necessary
 ds_all = cosmo_stack(dsCell,1);

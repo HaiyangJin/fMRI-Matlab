@@ -34,7 +34,7 @@ nHemi = numel(hemis);
 fscmd = cell(2, nHemi);
 
 % run information
-runList = fs_runlist(sessCode, funcPath);
+runList = fs_runlist(sessCode, '', funcPath);
 nRun = numel(runList);
 
 % bold path
