@@ -1,35 +1,39 @@
-function mvpaTable = fs_cosmo_cvdecode(sessList, anaList, labelList, runList, ...
+function mvpaTable = fs_cosmo_cvdecode(sessList, anaList, labelList, ...
     classPairs, varargin)
-% mvpaTable = fs_cosmo_cvdecode(sessList, anaList, labelList, runList, ...
-%   classPairs, outPath, classifiers)
+% mvpaTable = fs_cosmo_cvdecode(sessList, anaList, labelList, ...
+%   classPairs, varargin)
 %
 % This function run the cross-validation classification (decoding) for all
 % subjects and all pairs.
 %
 % Inputs:
-%    sessList        <cell string> a list of session codes.
-%    anaList         <cell string> a list of analysis names.
-%    labelList       <cell string> a list of label names.
-%    runList         <string> the filename of the run file (e.g.,
-%                     run_loc.txt.) [Default is '' and then names of
-%                     all run folders will be used.]
-%                OR  <string cell> a list of all the run names. (e.g.,
-%                     {'001', '002', '003'....}.
-%    classPairs      <cell string> a PxQ (usually is 2) cell matrix
-%                    for the pairs to be classified. Each row is one
+%    sessList        <cell str> a list of session codes.
+%    anaList         <cell str> a list of analysis names.
+%    labelList       <cell str> a list of label names.         
+%    classPairs      <cell str> a PxQ (usually is 2) cell matrix
+%                     for the pairs to be classified. Each row is one
 %                     classfication pair.
 %
 % Varargin:
-%    writeoutput     <logical> whether write the output into .csv and .xlsx
+%    .writeoutput    <boo> whether write the output into .csv and .xlsx
 %                     files. Default is 1. When it is 0, outpath and outfn
 %                     will be ignored.
-%    outpath         <string> where to save the output file.
-%    outfn           <string> the filename of the output file. 
-%    classifier      <numeric> or <strings> or <cells> the classifiers
-%                     to be used (only 1). Default is libsvm.
-%    classopt        <struct> the possibly other fields that are given to 
-%                     the classifer. Default is empty struct. E.g., 'c' for
-%                     libsvm.
+%    .outpath        <str> where to save the output file.
+%    .outfn          <str> the filename of the output file. 
+%    .classifier     <num> or <str> or <cells> the classifiers to be used
+%                     (only 1). Default is 'libsvm'.
+%    .classopt       <struct> the possibly other fields that are given to 
+%                     the classifer. Default is empty struct. E.g., 'c' and
+%                     'autoscale' for libsvm.
+%
+%  <all other options in fs_cosmo_sessds>. E.g.,:
+%    .runinfo        <str> the filename of the run file (e.g., 
+%                     run_loc.txt.) [Default is '' and then names of all 
+%                     run folders will be used.]
+%                OR  <cell str> a list of all the run names. (e.g.,
+%                     {'001', '002', '003'....}.
+%    .datafn         <str> the data file to be used for decoding.
+%                     ['' by default and it will use 'beta.nii.gz'].
 %
 % Outputs:
 %    mvpaTable       <table> MVPA result table (main runs).
@@ -52,10 +56,18 @@ defaultOpts.writeoutput = 1;
 defaultOpts.outpath = fullfile(pwd, 'Classification');
 defaultOpts.outfn = 'Main_CosmoMVPA';
 defaultOpts.classifier = [];
-defaultOpts.classopt = struct();
+defaultOpts.classopt = [];
 
 opts = fm_mergestruct(defaultOpts, varargin(:));
-outPath = opts.outpath;
+
+% opts for fs_cosmo_sessds
+dsopts = opts;
+dsopts.runwise = 1;
+dsopts.writeouput = [];
+dsopts.outpath = [];
+dsopts.outfn = [];
+dsopts.classifier = [];
+dsopts.classopt = [];
 
 %% Cross validation decode
 % create empty table
@@ -82,8 +94,8 @@ for iSess = 1:nSess
         theAna = anaList(isAna);
         
         % get data for CoSMoMVPA
-        [ds_subj, dsInfo] = cellfun(@(x) fs_cosmo_sessds(thisSess, x, ...
-            'labelfn', thisLabel, 'runlist', runList, 'runwise', 1), ...
+        dsopts.labelfn = thisLabel;
+        [ds_subj, dsInfo] = cellfun(@(x) fs_cosmo_sessds(thisSess, x, dsopts), ...
             theAna, 'uni', false);
         
         tempCell = cellfun(@(x, y) cosmo_cvdecode(x, classPairs, y, ...
@@ -107,10 +119,10 @@ if ~isempty(mvpaTable)
 end
 
 if opts.writeoutput
-    if ~exist(outPath, 'dir'); mkdir(outPath); end
+    fm_mkdir(opts.outpath);
     
     % MVPA for main runs
-    cosmoFn = fullfile(outPath, opts.outfn);
+    cosmoFn = fullfile(opts.outpath, opts.outfn);
     save(cosmoFn, 'mvpaTable');
     
     writetable(mvpaTable, [cosmoFn, '.xlsx']);
