@@ -51,6 +51,6 @@ else
 end
 
 % read the file
-surfData = thefunc(filename);
+surfData = squeeze(thefunc(filename));
 
 end
