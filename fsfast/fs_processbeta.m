@@ -94,17 +94,16 @@ function processbeta(betaFile, refFile, outFn, outPath, hemi)
 % output data
 outData = fs_readfunc(betaFile) ./ fs_readfunc(refFile);
 
-% read beta.nii.gz as template
-[~, hdr] = fm_readimg(betaFile);
-
-% only update .vol
-hdr.vol = outData;
-
 % save the nifti files
 if size(outData,1) == 163842
     % save as .mgz for fsaverage
-    fs_savemgz('fsaverage', outData, outFn, outPath, hemi);
+    fs_savemgz('fsaverage', outData', outFn, outPath, hemi);
 else
+    % read beta.nii.gz as template
+    [~, hdr] = fm_readimg(betaFile);
+    % only update .vol
+    hdr.vol = outData;
+    
     save_nifti(hdr,[outFn, '.nii.gz'])
 end
 
