@@ -5,26 +5,28 @@ function dtTable = fs_cosmo_readdata(sessList, anaList, varargin)
 % labels if they are not empty).
 %
 % Inputs:
-%    sessList       <cell string> a list of session codes.
-%    anaList        <cell string> a list of analysis names.
+%    sessList       <cell str> a list of session codes.
+%    anaList        <cell str> a list of analysis names.
 %
 % Optional (varargin):
-%    'labellist'    <cell string> a list of label names. Default is '' and
+%    'labellist'    <cell str> a list of label names. Default is '' and
 %                    all vertex values will be saved.
-%    'runlist'      <string> the filename of the run file (e.g.,
-%                    run_loc.txt.) [Default is '' and then names of all run
-%                    folders will be used.]
-%                OR <string cell> a list of all the run names. (e.g.,
-%                    {'001', '002', '003'....}.
-%    'runwise'      <logical> 0 [default]: load the data analyzed by
-%                    combining all runs; 1: load the data analyzed for
-%                    each run separately.
-%    'labelInfo'    <logical> 0 [default]: do not add label information in
+%    'labelInfo'    <boo> 0 [default]: do not add label information in
 %                    dtTable. 1: add label information to dtTable.
-%    'calmean'      <logical> 1 [default]: calculate and output the mean of
+%    'calmean'      <boo> 1 [default]: calculate and output the mean of
 %                    all vertex values. 0: output the vertex values
 %                    directly (without calculating the means).
-%    'extraopt'     <cell> extra options for fs_cosmo_sessds.m.
+%    <options for fs_cosmo_sessds.m> e.g.:
+%    'runinfo'      <str> the filename of the run file (e.g.,
+%                    run_loc.txt.) [Default is '' and then names of all run
+%                    folders will be used.]
+%                OR <cell str> a list of all the run names. (e.g.,
+%                    {'001', '002', '003'....}.
+%    'runwise'      <boo> 0 [default]: load the data analyzed by
+%                    combining all runs; 1: load the data analyzed for
+%                    each run separately.
+
+%    'extraopt'     <cell> extra options for .
 %
 % Output:
 %    dtTable        <table> a table of all the data.
@@ -44,11 +46,11 @@ defaultOpts = struct(...
 opts = fm_mergestruct(defaultOpts, varargin);
 
 labelList = opts.labellist;
-runList = opts.runlist;
-runwise = opts.runwise;
+opts.labellist = [];
 labelInfo = opts.labelinfo;
+opts.labelInfo = [];
 calMean = opts.calmean;
-extraOpt = [{'runlist', runList, 'runwise', runwise}, opts.extraopt];
+opts.calmean = [];
 
 if ischar(labelList)
     labelList = {labelList};
@@ -62,7 +64,7 @@ sess = tempSess(:);
 ana = tempAna(:);
 
 % load dataset
-[ds_cell, condCell] = cellfun(@(x, y) fs_cosmo_sessds(x, y, extraOpt{:}), ...
+[ds_cell, condCell] = cellfun(@(x, y) fs_cosmo_sessds(x, y, opts), ...
     sess, ana, 'uni', false);
 
 % save the condition information as a table

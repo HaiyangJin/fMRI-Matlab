@@ -7,38 +7,38 @@ function [ds_sess, dsInfo] = fs_cosmo_sessds(sessCode, anaName, varargin)
 % later).
 %
 % Inputs:
-%    sessCode       <string> session code in funcPath.
-%    anaName        <string> analysis name in funcPath.
+%    sessCode       <str> session code in funcPath.
+%    anaName        <str> analysis name in funcPath.
 %
 % Varargin:
-%    runlist        <string> the filename of the run file (e.g.,
+%    runinfo        <str> the filename of the run file (e.g.,
 %                    run_loc.txt.) [Default is '' and then names of all run
 %                    folders will be used.]
-%               OR  <string cell> a list of all the run names. (e.g.,
+%               OR  <cell str> a list of all the run names. (e.g.,
 %                    {'001', '002', '003'....}.
-%    runwise        <logical> load the data analyzed combining all runs
+%    runwise        <boo> load the data analyzed combining all runs
 %                    [runwise = 0; default]; load the data analyzed for
 %                    each run separately [runwise = 1].
-%    labelfn        <string> the label name (without path). Its vertex
+%    labelfn        <str> the label name (without path). Its vertex
 %                    indices will be used as a mask to the dataset, i.e.,
 %                    only the data for vertices in the label sare saved.
 %                    [default: '', i.e., keep data for all vertices.]
-%    datafn         <string> the filename of the to-be-read data file.
+%    datafn         <str> the filename of the to-be-read data file.
 %                    ['beta.nii.gz' by default]
-%    ispct          <logical> use whether the raw 'beta.nii.gz' or signal
+%    ispct          <boo> use whether the raw 'beta.nii.gz' or signal
 %                    percentage change. Default is 0.
-%    parfn          <string> the filename of the par file. It is empty by
+%    parfn          <str> the filename of the par file. It is empty by
 %                    default and will try to find the par file for that run.
-%    funcpath       <string> the path to the session folder, 
+%    funcpath       <str> the path to the session folder, 
 %                    $FUNCTIONALS_DIR by default.
 %
 % Outputs:
 %    ds_subj        <struct> data set for CoSMoMVPA.
 %    dsInfo         <struct> condition information for this analysis.
-%     .Label        <string> the label name.
-%     .Analysis     <string> analysis name.
-%     .nVertices    <integer> number of vertices in this label.
-%     .SessCode     <string> this session code.
+%     .Label        <str> the label name.
+%     .Analysis     <str> analysis name.
+%     .nVertices    <int> number of vertices in this label.
+%     .SessCode     <str> this session code.
 %
 % Created by Haiyang Jin (14-Apr-2020)
 

@@ -1,38 +1,38 @@
-function predTable = fs_cosmo_similarity(sessList, anaList, labelList, runList, ...
+function predTable = fs_cosmo_similarity(sessList, anaList, labelList, runInfo, ...
     classPairs, condName, condWeight, autoscale, outPath)
-% predTable = fs_cosmo_similarity(sessList, anaList, labelList, runList, ...
+% predTable = fs_cosmo_similarity(sessList, anaList, labelList, runInfo, ...
 %    classPairs, condName, condWeight, autoscale, outPath)
 %
 % This function decodes the similarity of condName to classPairs for all
 % the sessions in the project. libsvm is used in this analysis.
 %
 % Inputs:
-%    sessList        <cell string> a list of session codes.
-%    anaList         <cell string> a list of analysis names.
-%    labelList       <cell string> a list of label names.
-%    runList         <string> the filename of the run file (e.g.,
+%    sessList        <cell str> a list of session codes.
+%    anaList         <cell str> a list of analysis names.
+%    labelList       <cell str> a list of label names.
+%    runInfo         <str> the filename of the run file (e.g.,
 %                     run_loc.txt.) [Default is '' and then names of
 %                     all run folders will be used.]
-%                OR  <string cell> a list of all the run names. (e.g.,
+%                OR  <cell str> a list of all the run names. (e.g.,
 %                     {'001', '002', '003'....}.
-%    classPairs      <cell string> a PxQ (usually is 2) cell matrix 
+%    classPairs      <cell str> a PxQ (usually is 2) cell matrix 
 %                     for the pairs to be classified. Each row is one 
 %                     classfication pair. 
-%    condName        <cell string> a PxQ cell vector for the 
+%    condName        <cell str> a PxQ cell vector for the 
 %                     conditions to be combined for the similarity test.
 %                     The row number should be same as that for classPairs.
 %                     The similarity of condName to classPairs will be
 %                     tested separated for each row.
-%    condWeight      <numeric array> a PxQ numeric array for the
+%    condWeight      <num array> a PxQ numeric array for the
 %                     weights to be applied to the combination of condName.
 %                     Each row of weights is tested separately.
-%    autoscale       <logical> whether apply autoscale to train and test
+%    autoscale       <boo> whether apply autoscale to train and test
 %                     datasets. Default is 1.
-%    outPath         <string> where output to be saved.
+%    outPath         <str> where output to be saved.
 %
 % Output:
-%    predTable        <table> the prediction for the new condition and 
-%                      the related information.
+%    predTable       <table> the prediction for the new condition and 
+%                     the related information.
 %
 % Dependencies:
 %    FreeSurfer matlab functions;
@@ -97,7 +97,7 @@ for iSess = 1:nSess
         
         % load the data set
         [ds_subj, dsInfo] = fs_cosmo_sessds(thisSess, theAna{1}, ...
-            'labelfn', thisLabel, 'runlist', runList, 'runwise', 1);
+            'labelfn', thisLabel, 'runinfo', runInfo, 'runwise', 1);
         
         %%%%%%%%%%%%%%% estimate the similarity %%%%%%%%%%%%%%%%%%
         simiCell = arrayfun(@(x, y) cosmo_similarity(ds_subj, ...

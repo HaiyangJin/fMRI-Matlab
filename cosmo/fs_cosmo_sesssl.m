@@ -18,9 +18,7 @@ function contraPairs = fs_cosmo_sesssl(sessList, anaList, classPairs, varargin)
 %                        classfication pair.
 %
 % Varargin:
-%    'area'             <num> maximum area for neighbors if it is not
-%                        empty. Default is [] (it will use 100mm^2).
-%    'runlist'          <str> the filename of the run file (e.g.,
+%    'runinfo'          <str> the filename of the run file (e.g.,
 %                        run_loc.txt.) [Default is '' and then names of
 %                        all run folders will be used.]
 %                   OR  <cell str> a list of all the run names. (e.g.,
@@ -41,7 +39,9 @@ function contraPairs = fs_cosmo_sesssl(sessList, anaList, classPairs, varargin)
 %                        together; 3: run analysis for both 0 and 1.
 %    'funcpath'         <str> the full path to the functional folder.
 %                        Default is $FUNCTIONALS_DIR.
-%    'cvslopts'         <cell> varargins for fs_cosmo_cvsl.m.
+%    <varargin in fs_cosmo_cvsl.m> e.g.:
+%    'area'             <num> maximum area for neighbors if it is not
+%                        empty. Default is [] (it will use 100mm^2).
 %
 % Output:
 %    contraPairs        <cell str> the contrast folders to save the
@@ -73,8 +73,7 @@ cosmo_warning('once');
 
 % default options
 defaultOpt=struct(...
-    'area', [], ...
-    'runlist', '', ... % names of all runs in the bold path will be used.
+    'runinfo', '', ... % names of all runs in the bold path will be used.
     'nbrstr', '', ...
     'datafn', 'beta.nii.gz', ...  % beta.nii.gz will be used.
     'ispct', 0, ...
@@ -85,19 +84,24 @@ defaultOpt=struct(...
     );
 
 % parse options
-opt=fm_mergestruct(defaultOpt, varargin{:});
+opts=fm_mergestruct(defaultOpt, varargin{:});
 
-runList = opt.runlist;
-dataFn = opt.datafn;
-surfType = opt.surftype;
-bothHemi = opt.bothhemi;
-funcPath = opt.funcpath;
-cvslOpts = fm_mergestruct('funcpath', opt.funcpath, opt.cvslopts{:});
-cvslOpts.area = opt.area;
-if ~isempty(opt.nbrstr) && ~endsWith(opt.nbrstr, '_')
-    opt.nbrstr = [opt.nbrstr, '_'];
+runInfo = opts.runinfo;
+opts.runinfo = [];
+dataFn = opts.datafn;
+opts.datafn = [];
+surfType = opts.surftype;
+opts.surftype = [];
+isPct = opts.ispct;
+opts.ispct = [];
+bothHemi = opts.bothhemi;
+opts.bothhemi = [];
+
+% options for fs_cosmo_cvsl
+if ~isempty(opts.nbrstr) && ~endsWith(opts.nbrstr, '_')
+    opts.nbrstr = [opts.nbrstr, '_'];
 end
-cvslOpts.nbrstr = [opt.nbrstr, surfType];
+opts.nbrstr = [opts.nbrstr, surfType];
 
 if ischar(sessList); sessList = {sessList}; end
 if ischar(anaList)
@@ -110,7 +114,6 @@ elseif size(anaList, 1) == 2
 end
 
 % sanity check
-hemis = {'lh', 'rh'};
 if bothHemi
     assert(numel(anaList)==2, ['Please include analyses for both '...
         'hemispehres for searchlight performing on the whole brain.']);
@@ -144,12 +147,12 @@ for iSess = 1:nSess
 
     %%%%%% load the beta.nii.gz for both hemispheres separately %%%%%
     dsSurfCell = cellfun(@(x) fs_cosmo_sessds(thisSess, x, ...
-        'runlist', runList, 'runwise', 1, 'datafn', dataFn, 'ispct', opt.ispct), ...
+        'runinfo', runInfo, 'runwise', 1, 'datafn', dataFn, 'ispct', isPct), ...
         anaList, 'uni', false);
 
     %%%%%% load vertex and faces information %%%%%
     % decide the target subject for vertex coordinates based on template
-    trgSubj = fs_trgsubj(fs_subjcode(thisSess, funcPath), template);
+    trgSubj = fs_trgsubj(fs_subjcode(thisSess, opts.funcpath), template);
     % load vertex and face coordinates
     [vtxCell, faceCell] = fs_cosmo_surfcoor(trgSubj, surfType, bothHemi);
 
@@ -178,31 +181,15 @@ for iSess = 1:nSess
         faceArray = faceCell{iHemi};
         surfDef = {vtxArray, faceArray};
 
-        % load areas if necessary
-        if ~isempty(opt.area) && iHemi<3
-            try
-                % use the surface definition to calculate area
-                cvslOpts.areas = surfing_surfacearea(vtxArray, faceArray);
-            catch
-                tmpareafile = [hemis{iHemi} '.area'];
-                warning('%s is used as "suring_surfacearea" failed.', tmpareafile);
-                cvslOpts.areas = fs_readcurv(tmpareafile,trgSubj);
-            end
-        end
-
         % dataset for this searchlight analysis
         ds_this = dsSurfCell{iHemi};
 
         % run search light analysis
-        [~, contraPairs] = fs_cosmo_cvsl(ds_this, classPairs, surfDef, thisSess, anaList{iHemi}, cvslOpts);
+        [~, contraPairs] = fs_cosmo_cvsl(ds_this, classPairs, surfDef, thisSess, anaList{iHemi}, opts);
 
     end  % iSL
 
 end  % iSess
-
-% create the contrast folder names
-% contraPairs = cellfun(@(x,y) sprintf('%s-vs-%s', x, y), ...
-%     classPairs(:, 1), classPairs(:, 2), 'uni', false);
 
 % close the waitbar
 close(waitHandle);

@@ -60,7 +60,6 @@ if opts.runwise
 else
     % create one file for each analysis
     dirs = fullfile(boldDir, anaName);
-
 end
 
 % output filenames
@@ -82,15 +81,15 @@ if any(~isexist)
     warning('\n%s cannot be found and will be skipped.', nofiles{:});
 end
 reffiles = fullfile(dirs(isexist), reffns{outint});
-outfiles = fullfile(dirs(isexist), [outfns{outint} '.nii.gz']);
 
 % create files for each beta files separately
-cellfun(@(x,y,z) processbeta(x, y, z), betafiles(isexist), reffiles, outfiles, 'uni', false);
+cellfun(@(x,y,z) processbeta(x, y, outfns{outint}, z, fm_2hemi(anaName)), ...
+    betafiles(isexist), reffiles, dirs(isexist), 'uni', false);
 
 end
 
 %% For each run/analysis separately
-function processbeta(betaFile, refFile, outFn)
+function processbeta(betaFile, refFile, outFn, outPath, hemi)
 
 % output data
 outData = fs_readfunc(betaFile) ./ fs_readfunc(refFile);
@@ -102,6 +101,11 @@ outData = fs_readfunc(betaFile) ./ fs_readfunc(refFile);
 hdr.vol = outData;
 
 % save the nifti files
-save_nifti(hdr,outFn)
+if size(outData,1) == 163842
+    % save as .mgz for fsaverage
+    fs_savemgz('fsaverage', outData, outFn, outPath, hemi);
+else
+    save_nifti(hdr,[outFn, '.nii.gz'])
+end
 
 end

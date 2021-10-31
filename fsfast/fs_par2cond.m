@@ -1,32 +1,31 @@
-function conditions = fs_par2cond(sessList, runList, parFn, funcPath)
+function conditions = fs_par2cond(sessList, runInfo, parFn, funcPath)
 % conditions = fs_par2cond(sessList, [runList='', parFn='', funcPath])
 %
 % This function tries to output the unique condition names (and their
 % orders) based on all the available par (paradigm) files. 
 %
 % Inputs:
-%    sessList         <string> or <cell of strings> session code
-%                      (functional subject folder).
-%    runList          <string> the filename of the run file (e.g.,
+%    sessList         <str> or <cell str> session code in $FUNCTIONALS_DIR.
+%    runInfo          <str> the filename of the run file (e.g.,
 %                      run_loc.txt) [Default is '' and then names of
 %                      all run folders will be used.]
-%                 OR  <string cell> a list of all the run names. (e.g.,
+%                 OR  <cell STR> a list of all the run names. (e.g.,
 %                      {'001', '002', '003'....}.
-%    parFn            <string> the filename of the par file. It is empty by
+%    parFn            <str> the filename of the par file. It is empty by
 %                      default and will try to find the par file for that run.
-%    funcPath         <string> the path to the session folder,
+%    funcPath         <str> the path to the session folder,
 %                      $FUNCTIONALS_DIR by default.
 %
 % Output:
-%    conditions       <string cell> names of conditions with the same order
+%    conditions       <cell str> names of conditions with the same order
 %                      in the par (paradigm) files.
 %
 % Created by Haiyang Jin (16-Apr-2020)
 
 if ischar(sessList); sessList = {sessList}; end
 
-if ~exist('runList', 'var') || isempty(runList)
-    runList = '';
+if ~exist('runList', 'var') || isempty(runInfo)
+    runInfo = '';
 end
 
 if ~exist('parFn', 'var') || isempty(parFn)
@@ -38,18 +37,18 @@ if ~exist('funcPath', 'var') || isempty(funcPath)
 end
 
 % create full path to the par files
-if ischar(runList)
+if ischar(runInfo)
     % when runList is a run file name
-    runNames = cellfun(@(x) fs_readrun(runList, x, funcPath), sessList, 'uni', false);
+    runNames = cellfun(@(x) fs_readrun(runInfo, x, funcPath), sessList, 'uni', false);
     % parFiles for each session
     parCells = cellfun(@(x, y) fullfile(funcPath, x, 'bold', y, parFn), ...
         sessList, runNames, 'uni', false);
     parFiles = vertcat(parCells{:});
     
-elseif iscellstr(runList)
+elseif iscellstr(runInfo)
     % when runList is a cell of run names
     % create all possible combinations between sessList and runList
-    [tempSess, tempRun] = ndgrid(sessList, runList);
+    [tempSess, tempRun] = ndgrid(sessList, runInfo);
     % all the par files
     parFiles = fullfile(funcPath, tempSess(:), 'bold', tempRun(:), parFn);
 end

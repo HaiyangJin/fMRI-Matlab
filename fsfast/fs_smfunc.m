@@ -1,5 +1,5 @@
-function [fscmd, isnotok] = fs_smfunc(sessList, smooth, runInfo, template, funcPath)
-% [fscmd, isok] = fs_smfunc(sessList, [smooth = 5, runList = [allruns],
+function [fscmd, isok] = fs_smfunc(sessList, smooth, runInfo, template, funcPath)
+% [fscmd, isok] = fs_smfunc(sessList, [smooth = 5, runInfo = [allruns],
 %                           template = 'fsaverage', funcPath])
 %
 % This function will smooth all the *.sm0* files to *.sm?.* accordingly.
@@ -15,7 +15,7 @@ function [fscmd, isnotok] = fs_smfunc(sessList, smooth, runInfo, template, funcP
 %
 % Output:
 %    fscmd            <cell str> FreeSurfer commands used here.
-%    isnotok          <num array> if fscmd is run successfully. [0
+%    isok             <num array> if fscmd run successfully. [1
 %                      denotes successfully; any positive numbers denote
 %                      the commands failed; -1 denotes cannot find the
 %                      unique unsmoothed data file].
@@ -113,6 +113,6 @@ end % iSess
 
 % save the output as one column
 fscmd = vertcat(fscmd{:});
-isnotok = vertcat(isnotok{:});
+isok = ~vertcat(isnotok{:});
 
 end

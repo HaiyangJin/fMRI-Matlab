@@ -1,6 +1,6 @@
 function fscmd = fs_projsess(sessList, projFile, template, smooth, runInfo, hemi, funcPath)
 % fscmd = fs_projsess(sessList, projFile, [template = 'self', smooth = 5,
-%                     runList = [allruns], hemi = {'lh', 'rh'}, funcPath])
+%                     runInfo = [allruns], hemi = {'lh', 'rh'}, funcPath])
 %
 % This function projects the preprocessed functional (voxelwise) data for
 % that whole session to fsaverage or self surface. Then FWHM smoothing is
