@@ -14,17 +14,18 @@ function fs_hcp_prepro(hcpDir, template, varargin)
 %        (default in FreeSurfer).
 %
 % Inputs:
-%    hcpDir           <string> path to the HCP results ('Path/to/HCP/')
+%    hcpDir           <str> path to the HCP results ('Path/to/HCP/')
 %                      [Default is "$HCP_DIR"].
-%    template         <string> template used for projecting functional data
+%    template         <str> template used for projecting functional data
 %                      ('self' or 'fsaverage').
 %
 % Varargin:
-%    .funcext         <string> strings to be added at the end of
+%    .funcext         <str> strings to be added at the end of
 %                      functionals folder name.
-%    .linkt1          <logical> 1: link the T1 for all subjects. 0: copy the
+%    .linkt1          <boo> 1: link the T1 for all subjects. 0: copy the
 %                      T1 data for all subjects.
-%    .smooth          <integer> smoothness.
+%    .smooth          <int> smoothness.
+%    .extracmd        <str> extra command strings used for preproc-sess.
 %
 % Output:
 %    a folder called FreeSurfer is created in the same folder with the same
@@ -56,7 +57,8 @@ end
 defaultOpts = struct(...
     'funcext', '', ...
     'linkt1', 1, ...
-    'smooth', 0);
+    'smooth', 0, ...
+    'extracmd', '');
 opts = fm_mergestruct(defaultOpts, varargin{:});
 
 
@@ -132,15 +134,11 @@ for iSubj = 1:nSubj
     
     %% Project functional data to the template
     wdBackup = pwd;
-    
     cd(funcPath);
-    fscmd_prepro_run = sprintf(['preproc-sess -s %s -fsd bold'...
-        ' -surface %s lhrh -mni305 -fwhm %d -per-session -force'],...
-        sessCode, template, opts.smooth);
-    system(fscmd_prepro_run);
-    
-    cd(wdBackup);
-    
+
+    % project functional data onto surface
+    fs_preprocsess(sessCode, opts.smooth, template, opts.extracmd);    
+    cd(wdBackup);    
     
 end
 
