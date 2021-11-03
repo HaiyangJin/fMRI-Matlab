@@ -21,6 +21,7 @@ function [funcDir, sessList] = fs_funcdir(funcDir, strPattern, setdir)
 
 if ~exist('funcDir', 'var') || isempty(funcDir)
     funcDir = getenv('FUNCTIONALS_DIR');
+    if ~exist('setdir', 'var') || isempty(setdir); setdir = 0; end
 end
 
 if ~exist('strPattern', 'var') || isempty(strPattern)
