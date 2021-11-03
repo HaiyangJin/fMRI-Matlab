@@ -1,44 +1,49 @@
-function [funcPath, sessList] = fs_funcdir(funcPath, strPattern)
-% sessList = fs_funcdir(funcPath, strPattern)
+function [funcDir, sessList] = fs_funcdir(funcDir, strPattern, setdir)
+% [funcDir, sessList] = fs_funcdir(funcDir, strPattern)
 %
-% This function creates the structure for a project.
+% This function sets $FUNCTIONALS_DIR in FreeSurfer.
 %
 % Inputs:
-%    funcPath         <string> the path to functional data. This path will
+%    funcDir          <str> the path to functional data. This path will
 %                      also be saved as FUNCTIONALS_DIR.
-%    strPattern       <string> the string pattern for session names. It
-%                      will be used to identify all the sessions. E.g., it
-%                      can be "Face*" (without quotes).
+%    strPattern       <str> wildcard strings for identifying session names.
+%                      It will be used to identify all the sessions. E.g.,
+%                      it can be "Face*" (without quotes).
+%    setdir           <boo> 1 [default]: setenv SUBJECTS_DIR; 0: do not
+%                      set env.
 %
 % Output:
-%    funcPath         <string> path to the functional folder.
-%    sessList         <cell of strings> a list of session codes.
+%    funcPath         <str> path to the functional folder.
+%    sessList         <cell str> a list of session codes.
 %    save funcPath to $FUNCTIONALS_DIR if applicable.
 %
 % Creatd by Haiyang Jin (18-Dec-2019)
 
-if nargin < 1 || isempty(funcPath)
-    
-    if isempty(getenv('FUNCTIONALS_DIR'))
-        % if FUNCTIONALS_DIR is not set, use the default folder (not reliable)
-        funcPath = fullfile(getenv('SUBJECTS_DIR'), '..', 'functional_data');
-    else
-        funcPath = getenv('FUNCTIONALS_DIR');
-    end
+if ~exist('funcDir', 'var') || isempty(funcDir)
+    funcDir = getenv('FUNCTIONALS_DIR');
 end
 
-if nargin < 2 || isempty(strPattern)
+if ~exist('strPattern', 'var') || isempty(strPattern)
     strPattern = '';
 end
 
+if ~exist('setdir', 'var') || isempty(setdir)
+    setdir = 1;
+end
+if isempty(funcDir) && setdir
+    error('Please set $FUNCTIONALS_DIR with fs_funcdir().')
+end
+
 % make sure the struPath exists
-assert(logical(exist(funcPath, 'dir')), 'Cannot find the directory: \n%s...', funcPath);
+assert(logical(exist(funcDir, 'dir')), 'Cannot find the directory: \n%s...', funcDir);
 
 % set the environmental variable of FUNCTIONALS_DIR
-setenv('FUNCTIONALS_DIR', funcPath);
+if setdir
+    setenv('FUNCTIONALS_DIR', funcDir);
+end
 
 % sessions (bold subject codes)
-tmpDir = dir(fullfile(funcPath, strPattern));
+tmpDir = dir(fullfile(funcDir, strPattern));
 isSessDir = [tmpDir.isdir] & ~ismember({tmpDir.name}, {'.', '..'});
 
 sessDir = tmpDir(isSessDir);
