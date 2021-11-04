@@ -1,24 +1,24 @@
 function [struDir, subjList] = fs_subjdir(struDir, strPattern, setdir)
-% [struPath, subjList] = fs_subjdir(struPath, strPattern, setdir)
+% [struDir, subjList] = fs_subjdir(struDir, strPattern, setdir)
 %
-% This function set up 'SUBJECTS_DIR' and output the subject code list.
+% This function set up '$SUBJECTS_DIR' and output the subject code list.
 %
 % Input:
-%    struDir       <string> path to $SUBJECTS_DIR folder in FreeSurfer.
-%    strPattern     <string> string pattern used to identify subject
+%    struDir        <str> path to $SUBJECTS_DIR folder in FreeSurfer.
+%    strPattern     <str> string pattern used to identify subject
 %                    folders.
-%    setdir         <logical> 1 [default]: setenv SUBJECTS_DIR; 0: do not
+%    setdir         <boo> 1 [default]: setenv SUBJECTS_DIR; 0: do not
 %                    set env.
 %
 % Output:
-%    struPath       <string> path to the structural folder.
-%    subjList       <cell of strings> a list of subject codes.
-%    save struPath to $SUBJECTS_DIR if applicable.
+%    struDir        <str> path to the structural folder.
+%    subjList       <cell str> a list of subject codes.
+%    save struDir to $SUBJECTS_DIR if applicable.
 %
-% Created and updated by Haiyang Jin (16-Jan-2020)
+% Created by Haiyang Jin (2020-01-16)
 
 % Default path to SUBJECTS_DIR
-if ~exist('struPath', 'var') || isempty(struDir)
+if ~exist('struDir', 'var') || isempty(struDir)
     struDir = getenv('SUBJECTS_DIR');
     setdir = 0;
 end
@@ -37,7 +37,7 @@ if strcmp(struDir, 'myfs')
 end
 
 if setdir
-    % make sure the struPath exists
+    % make sure the struDir exists
     assert(logical(exist(struDir, 'dir')), ...
         'Cannot find the directory: \n%s...', struDir);
     setenv('SUBJECTS_DIR', struDir);
