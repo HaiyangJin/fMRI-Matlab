@@ -16,7 +16,7 @@ function [fscmd, isok] = fs_recon(t1File, subjCode, t2File)
 % Created by Haiyang Jin (6-Feb-2020)
 %
 % See also: 
-% fs_preprocsess
+% fs_preproc
 
 if ~exist('t2File', 'var') || isempty(t2File)
     warning('T2 will not be used during recon-all for %s.', subjCode);

@@ -1,5 +1,5 @@
-function [fscmd, isok] = fs_preprocsess(sessCode, sm, template, extracmd)
-% [fscmd, isok] = fs_preprocsess(sessCode, sm, template extracmd)
+function [fscmd, isok] = fs_preproc(sessCode, sm, template, extracmd)
+% [fscmd, isok] = fs_preproc(sessCode, sm, template extracmd)
 %
 % This function pre-processes the functional data with FreeSurfer (with
 % default settings).

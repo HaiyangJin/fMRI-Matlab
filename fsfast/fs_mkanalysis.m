@@ -49,7 +49,7 @@ function [anaList, fscmd] = fs_mkanalysis(runType, template, TR, ...
 % Created by Haiyang Jin (19-Dec-2019)
 %
 % See also:
-% [fs_preprocsess;] fs_mkcontrast
+% [fs_preproc;] fs_mkcontrast
 
 if ~ismember(template, {'fsaverage', 'self'})
     error('The template has to be ''fsaverage'' or ''self'' (not ''%s'').', template);

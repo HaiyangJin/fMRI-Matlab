@@ -6,7 +6,7 @@
 0. Set up FreeSurfer with `fs_setup()`;
 1. Set the HCP project folder with `hcp_dir()`;
 2. Generate functional data in native space (volume) from MNI space with `hcp_mni2native()`;
-3. Create FreeSurfer-format directory, project functional data in native space to surface, and perform (re-)preprocessing with `fs_hcp_prepro()`;
+3. Create FreeSurfer-format directory, project functional data in native space to surface, and perform (re-)preprocessing with `fs_hcp_preproc()`;
 4. Create run list files with `fs_hcp_runlistfile()`, which will be used to perform first and second level analysis in FreeSurfer.
 
 ## Potential issues

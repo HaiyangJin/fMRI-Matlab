@@ -1,5 +1,5 @@
-function fs_hcp_prepro(hcpDir, template, varargin)
-% fs_hcp_prepro(hcpDir, template, varargin)
+function fs_hcp_preproc(hcpDir, template, varargin)
+% fs_hcp_preproc(hcpDir, template, varargin)
 %
 % This function creates directory structure for analyses in FreeSurfer for
 % results obtained from Human Connectome Project pipeline. The steps
@@ -137,7 +137,7 @@ for iSubj = 1:nSubj
     cd(funcPath);
 
     % project functional data onto surface
-    fs_preprocsess(sessCode, opts.smooth, template, opts.extracmd);    
+    fs_preproc(sessCode, opts.smooth, template, opts.extracmd);    
     cd(wdBackup);    
     
 end
