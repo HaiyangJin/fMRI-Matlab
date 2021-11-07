@@ -1,26 +1,28 @@
-function fscmd = fs_bids_recon(subjCode, fsSubjCode, runcmd, useall, bidsDir)
-% fscmd = fs_bids_recon(subjCode, runcmd, useall, bidsDir)
+function fscmd = fs_bids_recon(subjCode, runcmd, useall, fsSubjCode, bidsDir, struDir)
+% fscmd = fs_bids_recon(subjCode, runcmd, useall, fsSubjCode, bidsDir, struDir)
 %
 % This function runs recon-all for one subject with BIDS directory
-% structure.
+% structure. It is recommended to set bids_dir() in advance.
 %
 % Inputs:
 %    subjCode      <str> subject code in bidsDir.
 %    runcmd        <boo> whether run the recon-all commands. 1 [default]:
 %                   run the command; 0: will not run but only ouput the
 %                   command.
-%    useall        <boo> whether use all T1 or T2 files if there are
+%    useall        <boo> whether use all T1 and T2 files if there are
 %                   multiuple files available. 1 [default]: use all
 %                   avaiable files; 0: only use the first file.
 %    fsSubjCode    <str> subject code in $SUBJECTS_DIR. It is the same as
 %                   subjCode (in bidsDir) by default.
 %    bidsDir       <str> the BIDS directory. Default is bids_dir().
+%    struDir       <str> $SUBJECTS_DIR in FreeSurfer. Default is 
+%                   <bidsDir>/derivatives/subjects.
 %
 % Output:
 %    fscmd         <str> FreeSurfer commands.
 %
 % % Example: only create recon-all command but not run
-% fscmd = fs_bids_recon('subjcode', '', 0);
+% fscmd = fs_bids_recon('sub-001', 0);
 %
 % Created by Haiyang Jin (2021-11-04)
 
@@ -39,6 +41,12 @@ end
 if ~exist('bidsDir', 'var') || isempty(bidsDir)
     bidsDir = bids_dir();
 end
+
+if ~exist('struDir', 'var') || isempty(struDir)
+    struDir = fullfile(bidsDir, 'derivatives', 'subjects');
+end
+fm_mkdir(struDir);
+fs_subjdir(struDir); 
 
 subjDir = fullfile(bidsDir, subjCode);
 % dir session folders
@@ -67,8 +75,10 @@ if ~useall
     t2list = t2list(1);
 end
 
-fprintf('\n%d T1 and %d T2 files were used in ''recon-all'' for %s.\n', ...
-    length(t1list), length(t2list), subjCode);
+fprintf('Following files were used in ''recon-all'' for %s:\n%s', subjCode, ...
+     sprintf('T1 files (%d)%s \nT2 files (%d)%s', ...
+     length(t1list), sprintf('\n%s ', t1list{:}), ...
+     length(t2list), sprintf('\n%s ', t2list{:})));
 
 % create (and run) recon-all commands
 fscmd = fs_recon(t1list, fsSubjCode, t2list, runcmd);
