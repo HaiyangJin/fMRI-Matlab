@@ -1,13 +1,13 @@
-function [data, info] = fm_readimg(filename, isnifti)
-% [data, info] = fm_readimg(filename, isnifti)
+function [data, info] = fm_readimg(filename)
+% [data, info] = fm_readimg(filename)
 %
 % This function reads the imaging files. Currently supports are: 
 %     *.mgz or *.mgh  -- needs FreeSurfer Matlab functions. You may need to
 %           set it up with fs_setup.
 %     *.nii.gz -- needs FreeSurfer Matlab functions (fs_setup).
-%     *.nii -- (cifti files only) *.nii will be regarded as cifti files. It
-%           requires "cifti-matlab" toolbox. To read *.nii as nifti files, 
-%           use fs_readnifti or load_nii.
+%     *.nii -- (cifti or nifti files) *.nii will be tried as cifti files
+%           first, which requires "cifti-matlab" toolbox. If it failed, 
+%           *.nii will be read as nifti files using load_nifti (fs_setup).
 %     *.gii --  *.gii will be read as functional data (not sure if other  
 %           data type, e.g., surface, will work). It requires "gifti"
 %           toolbox.
@@ -37,10 +37,6 @@ if ~exist('filename', 'var') || isempty(filename)
     return;
 end
 
-if ~exist('isnifti', 'var') || isempty(isnifti)
-    isnifti = 0;
-end
-
 %% Settings for extensions and the corresponding functions
 % file extensions
 exts = {
@@ -51,20 +47,18 @@ exts = {
     };
 % functions
 funcs = {
-    @fs_readmgh;   % mgh; mgz
-    @load_nifti;   % nifti
-    @cifti_read;   % cifti
-    @gifti;        % gifti
+    @fs_readmgh;       % mgh; mgz
+    @load_nifti;       % nifti
+    @cifti_nii_read;   % cifti
+    @gifti;            % gifti
     };       
 % data fieldname
 fieldn = {
-    'vol';
-    'vol';
-    'cdata';
-    'cdata';
+    {'vol'};
+    {'vol'};
+    {'cdata', 'vol'};
+    {'cdata'};
     };
-
-if isnifti; funcs{4} = @load_nifti; end % read *.nii as nifti
 
 % make sure the file exists
 assert(logical(exist(filename, 'file')), 'Cannot find the file %s.', filename);
@@ -84,11 +78,25 @@ end
 info = thefunc(filename);
 
 % extract data
-if isfield(info, fieldn{whichExt})
-    data = squeeze(info.(fieldn{whichExt}));
+thefieldn = fieldn{whichExt};
+isava = ismember(thefieldn, fieldnames(info));
+
+if any(isava)
+    data = squeeze(info.(thefieldn{isava}));
 else
     warning('The file does not seem to be an imaging file.');
     data = [];
 end
 
+end
+
+function outstruct = cifti_nii_read(filename)
+% try to read *.nii as cifti and then nifti.
+try
+    % try cifti
+    outstruct = cifti_read(filename);
+catch
+    % try nifti
+    outstruct = load_nifti(filename);
+end
 end
