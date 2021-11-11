@@ -32,7 +32,8 @@ function dist = ldc_dist(vec_hyper, vec_test, residual1)
 %                which each comparison pair (row) in vec_test could be
 %                discriminated. Under the null hypothesis, LDC values
 %                are distributed ~0 when two patterns cannot be
-%                discriminated. Values > 0 indicate higher
+%                discriminated. A value of zero or lower indicates no 
+%                discriminability and values > 0 indicate higher
 %                discriminability of the two response patterns (Walther et
 %                al., 2016).
 %
