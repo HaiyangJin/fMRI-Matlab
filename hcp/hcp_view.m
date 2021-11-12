@@ -15,7 +15,7 @@ function [status, hcpcmd, specFile] = hcp_view(subjCode, template, specFn, fileL
 %                           5 -> 'MNINonLinear'.
 %    specFn           <str> the spec filename. Default is '*.wb.spec'.
 %    fileList         <cell str> a list of files to be added the Scene.
-%    runcmd           <logic> whether run the hcp commands (default is 1).
+%    runcmd           <boo> whether run the hcp commands (default is 1).
 %
 % Outputs:
 %    status           <int array> the status of running cmds. Only 0
@@ -41,6 +41,7 @@ if ~exist('fileList', 'var') || isempty(fileList)
     fileList = {''};
 end
 if ischar(fileList); fileList = {fileList}; end
+fileList = fm_2cmdpath(fileList);
 % cmd for files to be added
 cmd_file = sprintf(repmat(' %s', 1, length(fileList)), fileList{:});
 
@@ -60,8 +61,7 @@ specFile = fullfile(specDir.folder, specDir.name);
 fprintf('\nThe spec file is: \n %s\n', specFile);
 
 % create the cmd
-hcpcmd = sprintf('wb_view %s%s', specFile, cmd_file);
-hcpcmd = fm_cleancmd(hcpcmd);
+hcpcmd = sprintf('wb_view %s%s', fm_2cmdpath(specFile), cmd_file);
 
 % run the cmd
 if runcmd

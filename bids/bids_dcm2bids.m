@@ -101,7 +101,7 @@ for iSubj = 1:length(dsubjList)
         % if no subdir is found in dcmDir, there is only 1 session
         cmd = {sprintf(['dcm2bids '...
             '-d %s -o %s -p %s -c %s --forceDcm2niix --clobber'], ...
-            dsubjDir, bidsDir, outSubj{iSubj}, config)};
+            fm_2cmdpath(dsubjDir), fm_2cmdpath(bidsDir), outSubj{iSubj}, config)};
 
     elseif ~isSess
         % if the subdir in dsubjDir are runs (instead of sessions)
@@ -109,13 +109,13 @@ for iSubj = 1:length(dsubjList)
         cmd = {sprintf(['dcm2bids '...
             '-d %s -o %s -p %s -c %s --forceDcm2niix --clobber'], ...
             sprintf('%s ', runfolders{:}),...
-            bidsDir, outSubj{iSubj}, config)};
+            fm_2cmdpath(bidsDir), outSubj{iSubj}, config)};
 
     elseif isSess
         % if the subdir in dsubjDir are sessions
         cmd = arrayfun(@(x) sprintf(['dcm2bids '...
             '-d %s -o %s -p %s -s %d -c %s --forceDcm2niix --clobber'],...
-            fullfile(dsubjDir, dcmSess(x).name), bidsDir, ...
+            fm_2cmdpath(fullfile(dsubjDir, dcmSess(x).name)), fm_2cmdpath(bidsDir), ...
             outSubj{iSubj}, x, config), ...
             1:length(dcmSess), 'uni', false)';
     end
@@ -123,7 +123,7 @@ for iSubj = 1:length(dsubjList)
     cmdCell{iSubj, 1} = cmd;
 end
 
-d2bcmd = fm_cleancmd(vertcat(cmdCell{:}));
+d2bcmd = fm_2cmdpath(vertcat(cmdCell{:}));
 
 if runcmd
     % run commands

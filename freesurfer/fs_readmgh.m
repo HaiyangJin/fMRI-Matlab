@@ -19,7 +19,7 @@ if ~exist('headeronly', 'var') || isempty(headeronly)
     headeronly = 0;
 end
 
-[vol, M, mr_parms, volsz] = load_mgh(fm_cleancmd(fname),slices,frames,headeronly);
+[vol, M, mr_parms, volsz] = load_mgh(fm_2cmdpath(fname),slices,frames,headeronly);
 
 hdr.vol = vol;
 hdr.M = M;

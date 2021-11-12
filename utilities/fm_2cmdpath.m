@@ -1,5 +1,5 @@
-function cmdcell = fm_cleancmd(cmdcell, varargin)
-% cmdcell = fm_cleancmd(cmdcell)
+function cmdcell = fm_2cmdpath(cmdcell, varargin)
+% cmdcell = fm_2cmdpath(cmdcell)
 %
 % This function clean the cmd to make it compatible with shell.
 %
