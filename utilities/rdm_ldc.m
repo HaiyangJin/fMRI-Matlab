@@ -1,5 +1,5 @@
-function rdm = ldc_rdm(mat_hyper, mat_test, residual1)
-% rdm = ldc_rdm(mat_hyper, mat_test, residual1)
+function rdm = rdm_ldc(mat_hyper, mat_test, residual1)
+% rdm = rdm_ldc(mat_hyper, mat_test, residual1)
 %
 % This function computes Linear Discriminant Contrast distance for the
 % input matrices. mat_hyper is used to make the hyperplane and mat_test is

@@ -1,5 +1,5 @@
-function dist = ldc_dist(vec_hyper, vec_test, residual1)
-% dist = ldc_dist(vec_hyper, vec_test, residual1)
+function dist = dist_ldc(vec_hyper, vec_test, residual1)
+% dist = dist_ldc(vec_hyper, vec_test, residual1)
 %
 % This function computes the representational distance with Linear
 % Discriminant Contrast (LDC). This function is built on RDMs_20180530.m in
