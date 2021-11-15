@@ -22,6 +22,12 @@ function cor = rdm_reliability(rdms, avgall, meanout)
 %    cor         <num> the (averaged) correlation (i.e., the intersubject
 %                 reliability).
 %
+% Reference:
+% Tsantani, M., Kriegeskorte, N., Storrs, K., Williams, A. L., McGettigan, 
+%   C., & Garrido, L. (2021). FFA and OFA Encode Distinct Types of Face 
+%   Identity Information. The Journal of Neuroscience, 41(9), 1952–1969. 
+%   https://doi.org/10.1523/JNEUROSCI.1449-20.2020
+%
 % Created by Haiyang Jin (2021-11-14)
 
 if ndims(rdms) == 3
