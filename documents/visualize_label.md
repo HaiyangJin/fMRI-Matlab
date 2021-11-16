@@ -32,8 +32,9 @@ Some (redundant) notes: you always have to set up FreeSurfer properly before usi
     <img src="img/vis_label_fv_2.png" width="500" style="vertical-align:middle">
 <br>
 
-3. Load label(s).
+3. Load label(s).  
     <img src="img/vis_label_fv_3.png" width="500" style="vertical-align:middle">
+    
     <br>
     You may visualize multiple labels with different colors (do not forget to rotate the brain to get the best view).
     <img src="img/vis_label_fv_4.png" width="700" style="vertical-align:middle">
