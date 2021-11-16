@@ -58,11 +58,11 @@ As most of the functions in this toolbox call FreeSurfer commands which are linu
   1. Start a new terminal;
   2. Set all the necessary global environment variables (e.g., `$FREESURFER_HOME`, `$SUBJECTS_DIR` and `$FUNCTIONALS_DIR`) and set up FreeSurfer (the instruction is available on the [FreeSurfer website](https://surfer.nmr.mgh.harvard.edu/fswiki/DownloadAndInstall#Setup.26Configuration));
   3. Start Matlab in the *same* terminal by running `path-to-matlab-folder/bin/matlab` in the terminal. [You may also add the `path-to-matlab-folder/bin` to `$PATH` by following [this instruction](https://apple.stackexchange.com/questions/358687/right-way-to-add-paths-to-path-in-mojave) and run `matlab` in the terminal].
-<br>
+
 - **Method 2**:
-  1. Start Matlab and add all subdirectory of this toolbox to the Matlab `path`;
-  2. Run `fs_setup('path/to/freesurfer/home');` to set `'path/to/freesurfer/home'` as `$FREESURFER_HOME` and add necessary paths to `$PATH`;
-  3. Run `fs_subjdir('path/to/subjects/dir');` to set `'path/to/subjects/dir'` as `$SUBJECTS_DIR`;
+  1. Start Matlab and add all subdirectory of this toolbox to the Matlab `path`;  
+  2. Run `fs_setup('path/to/freesurfer/home');` to set `'path/to/freesurfer/home'` as `$FREESURFER_HOME` and add necessary paths to `$PATH`;  
+  3. Run `fs_subjdir('path/to/subjects/dir');` to set `'path/to/subjects/dir'` as `$SUBJECTS_DIR`;  
 
 ## Create files needed for FreeSurfer
   Make sure the following files have been created properly (at least before running the general linear model (GLM) in FreeSurfer).
