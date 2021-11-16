@@ -5,7 +5,7 @@ The dependencies of `fMRI-Matlab` are [dependency](dependency.md).
 ## FreeSurfer
 - [How to set up FreeSurfer in the terminal?](fs_setup.md)
 - [How to draw ROI on surface?](draw_surface_roi.md)
-- [How to trim a label file with some restrictions (e.g., 100 mm$^2$)?](trim_label.md)
+- [How to trim a label file with some restrictions (e.g., 100 mm<sup>2</sup>)?](trim_label.md)
 - [How to visualize label files (i.e., ROIs)?](visualize_label.md)
 - [How to visualize activation maps?](visualize_activation.md)
 - [How to create FreeSurfer-format directory from HCP pipeline outputs?](fs_from_hcp.md)
