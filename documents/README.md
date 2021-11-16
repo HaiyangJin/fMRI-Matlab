@@ -10,5 +10,14 @@ The dependencies of `fMRI-Matlab` are [dependency](dependency.md).
 - [How to visualize activation maps?](visualize_activation.md)
 - [How to create FreeSurfer-format directory from HCP pipeline outputs?](fs_from_hcp.md)
 
-## HCP
+
+## BIDS
+
+
+## fMRIPrep
+
+
+## HCP pipeline
+- [From HCP to FreeSurfer](hcp2fs.md)
+
 
