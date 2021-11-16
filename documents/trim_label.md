@@ -26,7 +26,7 @@ If you would like to identify functional ROI (label file in FreeSurfer) with the
 
 ### The local maxima
 The local maxima is defined as the vertex whose -log10(p-value) is larger than its neighbors after applying certain p-value threshold.
-For example, when **<span style="color:#2F6FBA"> the blue threshold </span>** is applied, only B is identified as the local maxima. When **<span style="color:#4EAE5B"> the green threshold </span>** is applied, both A and B are local maxima. By default, only B is taken as a local maxima.
+For example, when **<span style="color:#2F6FBA"> the blue threshold </span>** is applied, only B is identified as the local maxima. When **<span style="color:#4EAE5B"> the green threshold </span>** is applied, both A and B are local maxima. By default, only B is taken as a local maxima.  
 <img src="img/trim_label_globalmaxima.png" width="500" style="vertical-align:middle">
 
 
