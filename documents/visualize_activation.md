@@ -2,13 +2,13 @@
 <!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
 - [Visualize the first-level results](#visualize-the-first-level-results)
-	- [With freeview](#with-freeview)
-	- [With tksurfer](#with-tksurfer)
-	- [With custom functions](#with-custom-functions)
+  - [With freeview](#with-freeview)
+  - [With tksurfer](#with-tksurfer)
+  - [With custom functions](#with-custom-functions)
 - [Visualize the second-level results](#visualize-the-second-level-results)
-	- [With freeview](#with-freeview)
-	- [With tksurfer](#with-tksurfer)
-	- [With custom functions](#with-custom-functions)
+  - [With freeview](#with-freeview-1)
+  - [With tksurfer](#with-tksurfer-1)
+  - [With custom functions](#with-custom-functions-1)
 
 <!-- /TOC -->
 
@@ -19,11 +19,14 @@ Some (redundant) notes: you always have to set up FreeSurfer properly before usi
 
 # Visualize the first-level results
 ## With freeview
-Note: it is similar to the first steps of [drawing surface roi with freeview](draw_surface_roi.md#draw-rois-on-surface-in-freesurfer-60-or-earlier-via-tksurfer). Additional information is available in [the FreeSurfer website](https://surfer.nmr.mgh.harvard.edu/fswiki/FsFastTutorialV6.0/FsFastFirstLevel#VisualizetheFirstLevelOutput).
+Note: it is similar to the first steps of [drawing surface roi with freeview](draw_surface_roi.md#draw-rois-on-surface-in-freesurfer-60-or-earlier-via-tksurfer). Additional information is available on [the FreeSurfer website](https://surfer.nmr.mgh.harvard.edu/fswiki/FsFastTutorialV6.0/FsFastFirstLevel#VisualizetheFirstLevelOutput).
 
 Run the FreeSurfer command:
-`tksurfer-sess -s subjfunc -a analysis.lh -c f-vs-o -fthresh 2` (for FreeSurfer 7.1 or later).
-`tksurfer-sess -s subjfunc -a analysis.lh -c f-vs-o -fthresh 2 -freeview` (for FreeSurfer 6.0).
+```shell
+tksurfer-sess -s subjfunc -a analysis.lh -c f-vs-o -fthresh 2 # for FreeSurfer 7.1 or later
+
+tksurfer-sess -s subjfunc -a analysis.lh -c f-vs-o -fthresh 2 -freeview # for FreeSurfer 6.0
+```
    - `tksurfer-sess`: the command to open the data file of a particular session;
    - `-s` (or `-subject`): subject name in the functional data;
    - `-a` (or `-analysis`): analysis name in the subject name folder;
@@ -38,7 +41,10 @@ Then you may rotate the brain and get a screenshot.
 ## With tksurfer
 Note: it is similar to the first steps of [drawing surface roi with tksurfer](draw_surface_roi.md#draw-rois-on-surface-in-freesurfer-710-or-later-via-freeview). Additional information is available in [the FreeSurfer website](https://surfer.nmr.mgh.harvard.edu/fswiki/FsFastTutorialV6.0/FsFastFirstLevel#VisualizetheFirstLevelOutput).
 
-Run the FreeSurfer command: `tksurfer-sess -s subjfunc -a analysis.lh -c f-vs-o -fthresh 2 -tksurfer`.
+Run the FreeSurfer command: 
+```shell
+tksurfer-sess -s subjfunc -a analysis.lh -c f-vs-o -fthresh 2 -tksurfer
+```
    - `tksurfer-sess`: the command to open the data file of a particular session;
    - `-s` (or `-subject`): subject name in the functional data;
    - `-a` (or `-analysis`): analysis name in the subject name folder;
@@ -56,10 +62,15 @@ You may rotate the brain by clicking the curly arrows (before clicking the clust
 ## With custom functions
 Please refer to help file for [`fs_cvn_print1st()`](../cvn/fs_cvn_print1st.m).
 
+<br>
+<br>
 
 # Visualize the second-level results
 ## With freeview
-Run the FreeSurfer command: `tksurferfv fsaverage lh inflated -aparc -overlay my-glm/osgm/sig.nii.gz -fminmax 2 3`
+Run the FreeSurfer command: 
+```shell
+tksurferfv fsaverage lh inflated -aparc -overlay my-glm/osgm/sig.nii.gz -fminmax 2 3
+```
 - `fsaverage`: display the results on the `fsaverage` surface;
 - `lh` (or `rh`): left (or right) hemisphere;
 - `inflated`: display the inflated brain;
@@ -68,7 +79,10 @@ Run the FreeSurfer command: `tksurferfv fsaverage lh inflated -aparc -overlay my
 - `-fminmax`: the threshold used to show the overlay (2 and 3 are corresponding to -p-value of 0.01 and 0.001, respectively).
 
 ## With tksurfer
-Run the FreeSurfer command: `tksurfer fsaverage lh inflated -aparc -overlay my-glm/osgm/sig.nii.gz -fminmax 2 3`
+Run the FreeSurfer command: 
+```shell
+tksurfer fsaverage lh inflated -aparc -overlay my-glm/osgm/sig.nii.gz -fminmax 2 3
+```
 - `fsaverage`: display the results on the `fsaverage` surface;
 - `lh` (or `rh`): left (or right) hemisphere;
 - `inflated`: display the inflated brain;

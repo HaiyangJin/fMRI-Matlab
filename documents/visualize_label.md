@@ -2,10 +2,10 @@
 <!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
 - [Visualize labels (ROIs)](#visualize-labels-rois)
-	- [With freeview (FreeSurfer 6.0 or later)](#with-freeview-freesurfer-60-or-later)
-	- [With tksurfer (FreeSurfer 6.0 or earlier)](#with-tksurfer-freesurfer-60-or-earlier)
-	- [With cvn codes](#with-cvn-codes)
-	- [With custom functions](#with-custom-functions)
+  - [With freeview (FreeSurfer 6.0 or later)](#with-freeview-freesurfer-60-or-later)
+  - [With tksurfer (FreeSurfer 6.0 or earlier)](#with-tksurfer-freesurfer-60-or-earlier)
+  - [With cvn codes](#with-cvn-codes)
+  - [With custom functions](#with-custom-functions)
 
 <!-- /TOC -->
 
@@ -17,7 +17,10 @@ Some (redundant) notes: you always have to set up FreeSurfer properly before usi
 
 ## With freeview (FreeSurfer 6.0 or later)
 
-1. Load the surface for one subject with: `tksurferfv fsaverage lh inflated`
+1. Load the surface for one subject with (in terminal): 
+    ```shell
+    tksurferfv fsaverage lh inflated
+    ```
     - `fsaverage`: display the results on the `fsaverage` surface, it could be any subject code (i.e., folder name in `$SUBJECTS_DIR`);
     - `lh` (or `rh`): left (or right) hemisphere;
     - `inflated`: display the inflated brain;
@@ -26,20 +29,23 @@ Some (redundant) notes: you always have to set up FreeSurfer properly before usi
 <br>
 
 2. (optional) Turn off the "red-green" color by set the `Curvature` as `Off` or `Binary`.
-<img src="img/vis_label_fv_2.png" width="500" style="vertical-align:middle">
+    <img src="img/vis_label_fv_2.png" width="500" style="vertical-align:middle">
 <br>
 
 3. Load label(s).
     <img src="img/vis_label_fv_3.png" width="500" style="vertical-align:middle">
     <br>
     You may visualize multiple labels with different colors (do not forget to rotate the brain to get the best view).
-<img src="img/vis_label_fv_4.png" width="700" style="vertical-align:middle">
+    <img src="img/vis_label_fv_4.png" width="700" style="vertical-align:middle">
 <br>
 
 
 ## With tksurfer (FreeSurfer 6.0 or earlier)
 
-1. Load the surface for one subject with: `tksurfer fsaverage lh inflated -curv -gray`
+1. Load the surface for one subject with: 
+    ```shell
+    tksurfer fsaverage lh inflated -curv -gray
+    ```
     - `fsaverage`: display the results on the `fsaverage` surface, it could be any subject code (i.e., folder name in `$SUBJECTS_DIR`);
     - `lh` (or `rh`): left (or right) hemisphere;
     - `inflated`: display the inflated brain;
@@ -49,11 +55,11 @@ Some (redundant) notes: you always have to set up FreeSurfer properly before usi
     <img src="img/vis_label_tk_1.png" width="450" style="vertical-align:middle">
 <br>
 
-2. Load the label file via `File` -> `Label` -> `Load label...`.
+2. Load the label file via `File` -> `Label` -> `Load label...`.  
     <img src="img/vis_label_tk_2.png" width="500" style="vertical-align:middle">
 <br>
 
-3. A window will open and select the label(s) you would like to display.
+3. A window will open and select the label(s) you would like to display.  
     <img src="img/vis_label_tk_3.png" width="450" style="vertical-align:middle">
 <br>
 
@@ -65,7 +71,7 @@ Some (redundant) notes: you always have to set up FreeSurfer properly before usi
 [knkutils](https://github.com/kendrickkay/knkutils.git) and [cvncode](https://github.com/kendrickkay/cvncode.git) are super useful for visualizing fMRI results on brain surfaces (in Matlab).
 
 An example Matlab code to display bilateral V1 and V2 for fsaverage is as following:
-```{matlab}
+```matlab
 % set SUBJECTS_DIR for FreeSurfer
 subjdir = '/full/path/to/subject/dir';
 setenv('SUBJECTS_DIR', subjdir);
@@ -103,7 +109,7 @@ cvnlookup('fsaverage', 5, data, '', '', 1i, '', '', ...
 Note:
 1. You may have to copy the fsaverage to somewhere you have rights to write for running this example.
 2. `read_label()` and `read_surf()` are FreeSurfer Matlab functions. You need to add these functions to the Matlab path. These FreeSurfer Matlab functions should be at e.g., `/Applications/FreeSurfer/matlab`.
-3. For the arguments in `cvnlookup()`, please check its help file ([here](https://github.com/kendrickkay/cvncode/blob/master/cvnlookup.m)).
+3. For the arguments in `cvnlookup()`, please check its [help file](https://github.com/kendrickkay/cvncode/blob/master/cvnlookup.m).
 
 The output should be something like:
 <img src="img/vis_label_cvn_1.png" width="800" style="vertical-align:middle">
