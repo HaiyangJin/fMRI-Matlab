@@ -8,8 +8,8 @@ function cor = rdm_reliability(rdms, avgall, meanout)
 % Inputs:
 %    rdms        <num array> P x P x N array. P x P is a RDM for one
 %                 participant and there are N participants in total.
-%             OR <num array> Q x N array. Q is the number of pairs in RDM and
-%                 N is the number of participants.
+%             OR <num array> Q x N array. Q is the number of pairs in RDM 
+%                 and N is the number of participants.
 %    avgall      <boo> whether calculate average RDM across all
 %                 participants: 1 (default): average of all participants;
 %                 0: average of all OTHER participants.
@@ -31,13 +31,12 @@ function cor = rdm_reliability(rdms, avgall, meanout)
 % Created by Haiyang Jin (2021-11-14)
 
 if ndims(rdms) == 3
-    [P1, P2, N] = size(rdms);
+    [P1, P2] = size(rdms, 1, 2);
     assert(P1==P2, ['The first two dimensions of <rdms> have to be the same' ...
         ' when there are 3 dimensions in <rdms>.'])
 
     % from 3d to 2d: save the upper right corner of rdms as one row vector
-    boo_triu = logical(triu(ones(P1),1));
-    rdms = reshape(rdms(repmat(boo_triu, 1, 1, N)), [], N)';
+    rdms = rdm_triu2vec(rdms);
 elseif ndims(rdms) > 3
     error('The dimension of <rdms> should be 2 or 3.')
 end
