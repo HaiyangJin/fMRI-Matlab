@@ -35,8 +35,8 @@ if ndims(rdms) == 3
     assert(P1==P2, ['The first two dimensions of <rdms> have to be the same' ...
         ' when there are 3 dimensions in <rdms>.'])
 
-    % from 3d to 2d: save the upper right corner of rdms as one row vector
-    rdms = rdm_triu2vec(rdms);
+    % from 3d to 2d: save the lower left corner of rdms as one row vector
+    rdms = rdm_rdm2vec(rdms);
 elseif ndims(rdms) > 3
     error('The dimension of <rdms> should be 2 or 3.')
 end

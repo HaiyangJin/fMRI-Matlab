@@ -1,13 +1,15 @@
-function rdms = rdm_triuvec2rdm(vec, Pceil)
-% rdms = rdm_triuvec2rdm(vec, Pceil)
+function rdms = rdm_vec2rdm(vec, tri, Pceil)
+% rdms = rdm_vec2rdm(vec, tri, Pceil)
 %
 % (May not be useful) Convert a vector (which should be obtained from
-% rdm_triu2vec() to the upper corner of RDM.
+% RDM) to RDM.
 %
 % Inputs:
 %    vec         <num array> N x Q array. Each row is one participant and
 %                 columns are for different pairs in RDM. 
 %                 Q = (1+(P-1))*(P-1)/2.
+%    tri         <str> whether it is lower {'l', 'low', 'lower'} or upper
+%                 {'u', 'up', 'upper'} [default] triangle vector.
 %    Pceil       <int> [this is a weird setting] the possible maximum of P,
 %                 i.e., the first and second dimension in the output RDM.
 %
@@ -18,10 +20,23 @@ function rdms = rdm_triuvec2rdm(vec, Pceil)
 % Created by Haiyang Jin (2021-11-16)
 %
 % See also:
-% rdm_triu2vec
+% rdm_rdm2vec
+
+if ~exist('tri', 'var') || isempty(tri)
+    tri = 'lower';
+    warning('The input vector was assumed to come from the lower triangle of RDM.');
+end
+switch tri
+    case {'l', 'low', 'lower'}
+        thefunc = @tril;
+        theidx = -1;
+    case {'u', 'up', 'upper'}
+        thefunc = @triu;
+        theidx = 1;
+end
 
 if ~exist('Pceil', 'var') || isempty(Pceil)
-    Pceil = 50;
+    Pceil = 500;
 end
 
 % Q = (1 + P-1)*(P-1)/2 
@@ -35,10 +50,16 @@ if isempty(P)
 end
 
 % empty output
-rdms = NaN(P, P, N);
+tri1 = zeros(P, P, N);
 
-% convert vec to upper corner of RDM
-boo_triu = repmat(logical(triu(ones(P),1)), 1, 1, N);
-rdms(boo_triu) = vec';
+% convert vec to one triangle of RDM
+boo_tri1 = repmat(logical(thefunc(ones(P),theidx)), 1, 1, N);
+tri1(boo_tri1) = vec';
+
+% copy one tri to the other tri
+tri2 = thefunc(tri1,1)'; 
+
+% make the diagnal 0
+rdms = tri1 + tri2;
 
 end
