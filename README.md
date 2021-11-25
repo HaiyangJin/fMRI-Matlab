@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/222379947.svg)](https://zenodo.org/badge/latestdoi/222379947)
+
 (Working in progress...) \
 Last updated: 2021-11-16
 
