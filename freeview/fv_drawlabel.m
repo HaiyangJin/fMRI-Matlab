@@ -3,12 +3,14 @@ function fscmd = fv_drawlabel(subjCode, anaName, sigFile, labelname, ...
 % fscmd = fv_drawlabel(subjCode, anaName, sigFile, labelname, ...
 %    fthresh, viewer, extracmd, runcmd)
 %
-% This function uses "tksurfer" in FreeSurfer to draw label 
+% This function uses "tksurfer" in FreeSurfer to draw label. You may want
+% to use fs_drawlabel().
 % 
 % Inputs:
 %    subjCode         <string> subject code in $SUBJECTS_DIR.
 %    anaName          <string> the analysis name.
 %    fileSig          <string> usually the sig.nii.gz from localizer scans.
+%                      This should include the path to the file if needed.
 %    labelname        <string> the label name you want to use for this
 %                      label.
 %    fthresh          <string> or <numeric> the overlay threshold minimal 
@@ -29,6 +31,9 @@ function fscmd = fv_drawlabel(subjCode, anaName, sigFile, labelname, ...
 % Created by Haiyang Jin (10-Dec-2019)
 % For furture development, I should included to define the limits of
 % p-values.
+%
+% See also:
+% fs_drawlabel
 
 hemi = fm_2hemi(anaName);
 
@@ -87,7 +92,6 @@ if viewer
 else
     % use freeview
     opts.surftype = 'inflated';
-    opts.trgsubj = trgSubj;
     opts.threshold = [fthresh ',5'];
     opts.annot = 'aparc';
     opts.overlay = sigFile;
@@ -95,7 +99,7 @@ else
     % get the surface codes
     tmpMgz = fullfile(getenv('SUBJECTS_DIR'), subjCode, 'surf', ...
         sprintf('%s.w-g.pct.mgh', hemi));
-    [~, fscmd] = fv_surf(tmpMgz, opts);
+    [~, fscmd] = fv_surf(tmpMgz, trgSubj, opts);
     tmpLabelname = fullfile('label', 'label_1.label');
 end
 
