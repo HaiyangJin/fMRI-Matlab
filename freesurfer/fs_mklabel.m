@@ -2,24 +2,26 @@ function labelFile = fs_mklabel(data, subjCode, labelFn, coordSurf)
 % labelFile = fs_mklabel(data, subjCode, labelFn, coordSurf)
 %
 % This function converts the surface dataset in CoSMoMVPA to label file in
-% FreeSurfer. It also can save ones in a binary mask as a label. 
+% FreeSurfer. It also can save ones in a binary mask as a label. [Note: the
+% vertex index in the first column starts from 1.]
 % 
 % Inputs:
-%    data             <numeric vector> a Px5 numeric vector to be saved as
-%                      a label file. The first column is the verte indices.
+%    data             <num vector> a Px5 numeric vector to be saved as
+%                      a label file. The first column is the vertex indices.
 %                      The second to forth columns are their XYZ coordinates
 %                      on ?h.white surface. The fifth column is the values
-%                      for each vertex.
+%                      for each vertex. [The first column (vertex index)
+%                      starts from 0.]
 %                   OR If 'data' is a bianry mask, the 1 will be saved in
 %                      the label.
-%    subjCode         <string> subject code in $SUBJECTS_DIR.
-%    labelFn          <string> the filename of the label to be saved later 
+%    subjCode         <str> subject code in $SUBJECTS_DIR.
+%    labelFn          <str> the filename of the label to be saved later 
 %                      (without path).
-%    coordSurf        <string> coordinates on which surface. Default is
+%    coordSurf        <str> coordinates on which surface. Default is
 %                      'white'.
 % 
 % Output:
-%    labelFile        <string> full filename of the label file.
+%    labelFile        <str> full filename of the label file.
 %    a label file saved in the label folder.
 %
 % Created by Haiyang Jin (25-Nov-2019)
@@ -60,6 +62,7 @@ fid = fopen(labelFile, 'w');
 fprintf(fid, '#!ascii label  from subject %s coords=%s\n', subjCode, coordSurf);
 fprintf(fid, '%d\n', nVtx);
 for vtxID = 1:nVtx
+    % convert index starting from 1 to starting from 0
     fprintf(fid, '%d %5.3f %5.3f %5.3f %f\n', data(vtxID, 1)-1, data(vtxID, 2), ...
         data(vtxID, 3), data(vtxID, 4), data(vtxID, 5));  
 end

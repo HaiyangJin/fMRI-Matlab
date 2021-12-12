@@ -1,24 +1,25 @@
 function fscmd = fv_drawlabel(subjCode, anaName, sigFile, labelname, ...
-    fthresh, viewer, extracmd, runcmd)
+    fthresh, istk, extracmd, runcmd)
 % fscmd = fv_drawlabel(subjCode, anaName, sigFile, labelname, ...
-%    fthresh, viewer, extracmd, runcmd)
+%    fthresh, istk, extracmd, runcmd)
 %
 % This function uses "tksurfer" in FreeSurfer to draw label. You may want
 % to use fs_drawlabel().
 % 
 % Inputs:
-%    subjCode         <string> subject code in $SUBJECTS_DIR.
-%    anaName          <string> the analysis name.
-%    fileSig          <string> usually the sig.nii.gz from localizer scans.
+%    subjCode         <str> subject code in $SUBJECTS_DIR.
+%    anaName          <str> the analysis name.
+%    sigFile          <str> usually the sig.nii.gz from localizer scans.
 %                      This should include the path to the file if needed.
-%    labelname        <string> the label name you want to use for this
+%    labelname        <str> the label name you want to use for this
 %                      label.
-%    fthresh          <string> or <numeric> the overlay threshold minimal 
-%                      value.
-%    viewer           <integer> 1 for 'tksurfer' and 2 for 'freeview'. For
-%                      FS5 and FS6, default is 1 and for FS7, default is 2.
-%    extracmd         <string> extra commands for the viewer. Default is ''.
-%    runcmd           <logical> 0: do not run but only make fscmd; 1: run
+%    fthresh          <str> or <nume> the overlay threshold minimal value.
+%    istk             <int> 1 for 'tksurfer' [note: not tksurfer-sess] and 
+%                      0 for fv_surf(), which implements custom codes to
+%                      run freeview. For FS5 and FS6, default is 1. For
+%                      FS7, default is 0.
+%    extracmd         <str> extra commands for the viewer. Default is ''.
+%    runcmd           <boo> 0: do not run but only make fscmd; 1: run
 %                      FreeSurfer commands. Default is 1.
 %
 % Output:
@@ -43,9 +44,8 @@ elseif isnumeric(fthresh)
     fthresh = num2str(fthresh);
 end
 % the default viewer
-% fsV = ;
-if ~exist('viewer', 'var') || isempty(viewer)
-   viewer = fs_version(1) < 7;
+if ~exist('istk', 'var') || isempty(istk)
+   istk = fs_version(1) < 7;
 end
     
 if ~exist('extracmd', 'var') || isempty(extracmd)
@@ -81,8 +81,8 @@ end
 % create FreeSurfer command and run it
 titleStr = sprintf('%s==%s==%s', subjCode, labelname, anaName);
 
-if viewer
-    % use tksurfer
+if istk
+    % use tksurfer (cannot be tested now)
     fscmd = sprintf('tksurfer %s %s inflated -aparc -overlay %s -title %s %s',...
         trgSubj, hemi, sigFile, titleStr, extracmd);
     if ~isempty(fthresh)
@@ -105,7 +105,6 @@ end
 
 % finish this command if do not need to run fscmd
 if ~runcmd; return; end
-
 system(fscmd);
 
 %%%%%%%%%%%%%%%% Manual working in FreeSurfer %%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -122,16 +121,22 @@ system(fscmd);
 % the "/" in the default folder or filename
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%% Rename the label file
 % created an empty file with the label filename
 labelFile = fullfile(subjPath, subjCode, 'label', labelname);
 
 % rename and move this label file
 tempLabelFile = fullfile(subjPath, trgSubj, tmpLabelname);
 
-if exist(tempLabelFile, 'file')
+if logical(exist(tempLabelFile, 'file'))
     movefile(tempLabelFile, labelFile);
+    fprintf('Label %s is saved.\n', labelname);
 end
-fprintf('Label %s is saved.\n', labelname);
+
+%% Add sig values if freeview is used
+% if ~istk
+%     fs_labelval(labelname, subjCode, sigFile);
+% end
 
 % close the msgbox
 close(f);
