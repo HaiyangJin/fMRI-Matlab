@@ -61,6 +61,7 @@ else
 end
 
 %% Read the surface file 
+assert(exist(surfFile, 'file'), 'Cannot find %s...', surfFile);
 % run read_surf.m from FreeSurfer Matlab functions
 [coords, faces] = read_surf(surfFile);
 

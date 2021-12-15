@@ -5,18 +5,21 @@ function [hemi, nHemi] = fm_hemi_multi(files, forceString, fnOnly)
 % or 'rh' is included in the filename).
 %
 % Inputs:
-%    filenames         <cell> or <string> filenames (with out path)
-%    forceString       <logical> force the output to be string if the
-%                        length of filenames is 1
-%    fnOnly            <logical> 1 [default]: only check the filename; 0:
+%    filenames         <cell> or <str> filenames (with out path).
+%    forceString       <boo> force the output to be string if the
+%                        length of filenames is 1.
+%    fnOnly            <boo> 1 [default]: only check the filename; 0:
 %                        also check the path.
 %
 % Outputs:
-%    hemi              could be a cell of 'lh' and 'rh'. Or a string based
-%                       on forceString
-%    nHemi             number of different hemispheres for filenames
+%    hemi              <cell str> could be a cell of 'lh' and 'rh'. Or a 
+%                       string based on forceString.
+%    nHemi             <int> number of different hemispheres for filenames.
 %
 % Created by Haiyang Jin (1-Dec-2019)
+%
+% See also:
+% fm_2hemi
 
 % convert the filenames to a cell if it is a string
 if ischar(files)
@@ -51,7 +54,7 @@ if nHemi == 1 && forceString
 else
     hemi = hemis;
     if nHemi == 2
-        warning('These files are for both hemispheres.');
+        warning('These files are not for the same hemisphere.');
     end
 end
 

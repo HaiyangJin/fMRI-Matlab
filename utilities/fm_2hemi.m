@@ -12,6 +12,9 @@ function hemi = fm_2hemi(filename, fnOnly)
 %    hemi           <string> the hemi information.
 %
 % Created by Haiyang Jin (18-Nov-2019)
+%
+% See also:
+% fm_hemi_multi
 
 if ~exist('fnOnly', 'var') || isempty(fnOnly)
     fnOnly = 1;
