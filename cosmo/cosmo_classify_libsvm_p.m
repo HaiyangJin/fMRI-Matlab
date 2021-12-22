@@ -10,10 +10,11 @@ function [predicted, probability] =cosmo_classify_libsvm_p(samples_train, target
 %
 % Outputs:
 %    predicted         same as 'predicted' in cosmo_classify_libsvm.
-%    probability       it is the third out argument of svmpredict, i.e.,  
-%                      decision_values/prob_estimates. It is a QxN matrix 
-%                      of probabilty. N is the number of different 
-%                      labels/categories. 
+%    probability      <mat> it is the third out argument of svmpredict, i.e.,  
+%                      [decision_values/prob_estimates]. (By default, it is
+%                      a QxN matrix of probabilty. N is the number of the 
+%                      labels/categories and Q is the number of test
+%                      samples. More see https://github.com/cjlin1/libsvm/tree/master/matlab
 %
 % Modified by Haiyang Jin (8-March-2020)
 
