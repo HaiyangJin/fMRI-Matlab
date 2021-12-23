@@ -63,14 +63,12 @@ function [ds_cell, conCell] = fs_cosmo_cvsl(ds, classPairs, surfDef, sessCode, a
 %                     vertices. Default is -999.
 %    'nbrstr'        <str> strings to be added to the nbr files. Default
 %                     is ''.
-%    'funcPath'      <str> where to save the output. Default is
-%                     $FUNCTIONALS_DIR.
 %
 % Output:
 %    ds_cell         <struct> data sets of the searchlight results.
 %    conCell         <cell str> the contrast for each dataset in ds_cell.
 %    For each hemispheres, the results will be saved as a *.mgz file in
-%    funcPath/sessCode/bold/analysisFolder/contrastFolder/.
+%    funcDir/sessCode/bold/analysisFolder/contrastFolder/.
 %    For the whole brain, the results will be saved as *.gii.
 %
 % Dependency:
@@ -98,8 +96,7 @@ defaultOpt=struct(...
     'applycortex', 0, ...
     'outprefix', 'sl', ...
     'maskedvalue', -999, ...
-    'nbrstr', '', ...
-    'funcpath', getenv('FUNCTIONALS_DIR') ...
+    'nbrstr', '' ...
     );
 
 % parse options
@@ -117,7 +114,6 @@ classifier = opt.classifier;
 partitioner = opt.partitioner;
 %%% other settings %%%
 nbrStr = opt.nbrstr;
-funcPath = opt.funcpath;
 
 % pre-process classifer
 if isempty(classifier)
@@ -136,7 +132,7 @@ template = fs_2template(anaName, '', 'fsaverage');
 hemi = fs_2template(anaName, {'lh', 'rh'});
 
 % decide whose surface information will be used
-subjCode = fs_subjcode(sessCode, funcPath);
+subjCode = fs_subjcode(sessCode);
 trgSubj = fs_trgsubj(subjCode, template);
 
 % use oddeven for split-half correlations
@@ -343,7 +339,7 @@ for iPair = 1:nPairs
         normStr = '';
     end
     accFn = sprintf('sl.%s%s.acc', shortName{1}, normStr);
-    accPath = fullfile(funcPath, sessCode, 'bold', anaFolder, conFolder);
+    accPath = fullfile(getenv('FUNCTIONALS_DIR'), sessCode, 'bold', anaFolder, conFolder);
 
     if ismember(hemi, {'lh', 'rh'})
         if ~exist(accPath, 'dir'); mkdir(accPath); end

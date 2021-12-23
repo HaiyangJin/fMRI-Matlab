@@ -5,7 +5,7 @@ function contraPairs = fs_cosmo_sesssl(sessList, anaList, classPairs, varargin)
 % with CoSMoMVPA. Data were analyzed with FreeSurfer.
 %
 % Inputs:
-%    sessList           <str> or <cell str> session codes in funcPath.
+%    sessList           <str> or <cell str> session codes in $FUNCTIONALS_DIR.
 %                        (functional subject folder).
 %    anaList            <str> or <cell str> one or two analysis name.
 %                        If two analysis names are used here, they should
@@ -37,8 +37,6 @@ function contraPairs = fs_cosmo_sesssl(sessList, anaList, classPairs, varargin)
 %                        for the two hemnispheres separately; 1: run
 %                        searchlight anlaysis only for the whole brain
 %                        together; 3: run analysis for both 0 and 1.
-%    'funcpath'         <str> the full path to the functional folder.
-%                        Default is $FUNCTIONALS_DIR.
 %    <varargin in fs_cosmo_cvsl.m> e.g.:
 %    'area'             <num> maximum area for neighbors if it is not
 %                        empty. Default is [] (it will use 100mm^2).
@@ -79,7 +77,6 @@ defaultOpt=struct(...
     'ispct', 0, ...
     'surftype', 'white', ... % the surface layer
     'bothhemi', 0, ...  % do not run both hemispheres
-    'funcpath', getenv('FUNCTIONALS_DIR'), ...
     'cvslopts', {{}} ...
     );
 
@@ -152,7 +149,7 @@ for iSess = 1:nSess
 
     %%%%%% load vertex and faces information %%%%%
     % decide the target subject for vertex coordinates based on template
-    trgSubj = fs_trgsubj(fs_subjcode(thisSess, opts.funcpath), template);
+    trgSubj = fs_trgsubj(fs_subjcode(thisSess), template);
     % load vertex and face coordinates
     [vtxCell, faceCell] = fs_cosmo_surfcoor(trgSubj, surfType, bothHemi);
 

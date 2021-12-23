@@ -1,29 +1,25 @@
-function [runNames, nRun] = fs_readrun(runFn, sessCode, funcPath)
-% [runNames, nRun] = fs_readrun(runFn, sessCode, funcPath)
+function [runNames, nRun] = fs_readrun(runFn, sessCode)
+% [runNames, nRun] = fs_readrun(runFn, sessCode)
 %
 % This function loads run file (.txt) and output the list of run numbers
 %
 % Inputs:
-%     runFn        <string> filenames of the run file (*.txt) (with or
+%     runFn        <str> filenames of the run file (*.txt) (with or
 %                   without path).
-%     sessCode     <string> session code in funcPath.
-%     funcPath     <string> the full path to the functional folder.
+%     sessCode     <str> session code in $FUNCTIONALS_DIR.
 %
 % Outputs:
-%     runNames     <cell of string> list of run names.
-%     nRun         <integer> number of runs.
+%     runNames     <cell str> list of run names.
+%     nRun         <int> number of runs.
 %
 % Created by Haiyang Jin (08-Dec-2019)
 
-% get the funcPath from global environment
-if ~exist('funcPath', 'var') || isempty(funcPath)
-    funcPath = getenv('FUNCTIONALS_DIR');
-end
+funcDir = getenv('FUNCTIONALS_DIR');
 
 % if runFn is empty
 if (~exist('runFn', 'var') || isempty(runFn)) && ~isempty(sessCode)
     % find names of all runs
-    boldDir = dir(fullfile(funcPath, sessCode, 'bold'));
+    boldDir = dir(fullfile(funcDir, sessCode, 'bold'));
     boldDir([boldDir.isdir]~=1) = [];  % remove non-folders
     isRun = ~isnan(cellfun(@str2double, {boldDir.name}));
     runNames = {boldDir(isRun).name};
@@ -37,7 +33,7 @@ else
         if ~exist('sessCode', 'var') || isempty(sessCode)
             error('''sessCode'' is missing.');
         else
-            runFile = fullfile(funcPath, sessCode, 'bold', runFn);
+            runFile = fullfile(funcDir, sessCode, 'bold', runFn);
         end
     else
         runFile = runFn;

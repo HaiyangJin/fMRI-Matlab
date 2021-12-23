@@ -1,19 +1,18 @@
-function area = fs_vtxarea(vtxIdx, subjCode, hemi, struPath)
-% area = fs_vtxarea(vtxIdx, subjCode, hemi, struPath)
+function area = fs_vtxarea(vtxIdx, subjCode, hemi, struDir)
+% area = fs_vtxarea(vtxIdx, subjCode, hemi, struDir)
 % 
 % This function calculates the areas (mm2) for all the input vertices based
 % on ?h.area in surf/.
 % 
 % Inputs:
-%    vtxIdx          <cell of numeric vector> array of vertex indices. 
+%    vtxIdx          <cell num vector> array of vertex indices. 
 %                     Each cell contains all the vertex indices for one group.
-%    subjCode        <string> subject code in $SUBJECTS_DIR.
-%    hemi            <string> 'lh' or 'rh'.
-%    struPath        <string> $SUBJECTS_DIR.
+%    subjCode        <str> subject code in $SUBJECTS_DIR.
+%    hemi            <str> 'lh' or 'rh'.
+%    struDir         <str> $SUBJECTS_DIR.
 %
 % Output:
-%    area            <array of numeric> area (in mm2) for all the input 
-%                     vertices.
+%    area            <num array> area (in mm2) for all the input vertices.
 %
 % Created by Haiyang Jin (9-Apr-2020)
 %
@@ -33,13 +32,13 @@ if ~exist('hemi', 'var') || isempty(hemi)
     hemi = 'lh';
 end
 
-if ~exist('struPath', 'var') || isempty(struPath)
-    struPath = getenv('SUBJECTS_DIR');
+if ~exist('struDir', 'var') || isempty(struDir)
+    struDir = getenv('SUBJECTS_DIR');
 end
 
 % area files
 areaFn = sprintf('%s.area', hemi);
-areaFile = fullfile(struPath, subjCode, 'surf', areaFn);
+areaFile = fullfile(struDir, subjCode, 'surf', areaFn);
 
 % read the area file
 areaData = read_curv(areaFile);

@@ -1,16 +1,15 @@
-function curv = fs_readcurv(curvFn, subjCode, struPath)
-% curv = fs_readcurv(curvFn, subjCode, struPath)
+function curv = fs_readcurv(curvFn, subjCode, struDir)
+% curv = fs_readcurv(curvFn, subjCode, struDir)
 %
 % This function reads the FreeSurfer curvature file with FreeSurfer Matlab 
 % functions (read_curv.m).
 %
 % Input:
-%    curvFn         <string> the curvature filename (e.g., 'lh.area') or 
+%    curvFn         <str> the curvature filename (e.g., 'lh.area') or 
 %                    the full path (or relative path) to the curvature 
 %                    filename. Default is lh.area.
-%    subjCode       <string> subject code in strucPath. Default is
-%                    fsaverage.
-%    struPath       <string> $SUBJECTS_DIR.
+%    subjCode       <str> subject code in strucPath. Default is 'fsaverage'.
+%    struDir        <str> $SUBJECTS_DIR.
 %
 % Output:
 %    curv           <array of numeric> Each row is one vertex and the
@@ -44,11 +43,11 @@ if isempty(curvPath)
         warning('''fsaverage'' is used as ''subjCode'' by default.');
     end
     % use SUBJECTS_DIR as the default subject path
-    if ~exist('struPath', 'var') || isempty(struPath)
-        struPath = getenv('SUBJECTS_DIR');
+    if ~exist('struDir', 'var') || isempty(struDir)
+        struDir = getenv('SUBJECTS_DIR');
     end
     % the default path to surf/
-    curvFile = fullfile(struPath, subjCode, 'surf', curvFn);
+    curvFile = fullfile(struDir, subjCode, 'surf', curvFn);
 else
     curvFile = curvFn;
 end

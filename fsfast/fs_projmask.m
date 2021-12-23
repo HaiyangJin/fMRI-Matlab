@@ -1,21 +1,20 @@
-function fscmd = fs_projmask(sessCode, runFolder, template, hemi, funcPath)
-% fscmd = fs_projmask(sessCode, runFolder, template, hemi, funcPath)
+function fscmd = fs_projmask(sessCode, runFolder, template, hemi)
+% fscmd = fs_projmask(sessCode, runFolder, template, hemi)
 %
-% This function projects the brain.nii.gz (funcPath/sessCode/bold/runDir)
+% This function projects the brain.nii.gz ($FUNCTIONALS_DIR/sessCode/bold/runDir)
 % to the fsaverage or self surface space (without smoothing). It will
 % create following files in masks/:
 %     brain.[template].?h.pr.nii.gz
 %     brain.[template].?h.nii.gz
 %
 % Inputs:
-%     sessCode         <string> session code in funcPath.
-%     runFolder        <string> the run folder name.
-%     template         <string> 'fsaverage' or 'self'. fsaverage is the default.
-%     hemi             <string> which hemisphere. 'lh' (default) or 'rh'. 
-%     funcPath         <string> the full path to the functional folder.
+%     sessCode         <str> session code in $FUNCTIONALS_DIR.
+%     runFolder        <str> the run folder name.
+%     template         <str> 'fsaverage' or 'self'. fsaverage is the default.
+%     hemi             <str> which hemisphere. 'lh' (default) or 'rh'. 
 %
 % Output:
-%     fscmd            <cell of strings> FreeSurfer commands used here.
+%     fscmd            <cell str> FreeSurfer commands used here.
 %
 % Created by Haiyang Jin (7-Apr-2020)
 %
@@ -35,18 +34,14 @@ if nargin < 4 || isempty(hemi)
         'created for the left hemisphere (lh) by default.']);
 end
 
-if nargin < 5 || isempty(funcPath)
-    funcPath = getenv('FUNCTIONALS_DIR');
-end
-
 % empty cell for saving FreeSurfer commands
 fscmd = cell(2, 1);
 
 % target subject code and name
-trgSubj = fs_trgsubj(fs_subjcode(sessCode, funcPath), template);
+trgSubj = fs_trgsubj(fs_subjcode(sessCode), template);
 
 % full path to the run folder
-runPath = fullfile(funcPath, sessCode, 'bold', runFolder, filesep);
+runPath = fullfile(getenv('FUNCTIONALS_DIR'), sessCode, 'bold', runFolder, filesep);
 
 % full filename of the output file
 outprFilename = fullfile(runPath, 'masks', sprintf('brain.%s.%s.pr.nii.gz', template, hemi));

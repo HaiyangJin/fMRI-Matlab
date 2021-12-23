@@ -1,12 +1,10 @@
-function [conList, conStruct] = fs_ana2con(anaList, funcPath)
-% [conList, conStruct] = fs_ana2con(anaList, funcPath)
+function [conList, conStruct] = fs_ana2con(anaList)
+% [conList, conStruct] = fs_ana2con(anaList)
 %
 % This funciton read the contrast names within the analysis folders.
 %
 % Inputs:
 %    anaList           <cell string> list of analysis names.
-%    funcPath          <string> path to functional folder
-%                       ($FUNCTIONALS_DIR).
 %
 % Output:
 %    conList           <cell string> list of contrast names.
@@ -17,13 +15,9 @@ function [conList, conStruct] = fs_ana2con(anaList, funcPath)
 
 if ischar(anaList); anaList = {anaList}; end
 
-if ~exist('funcPath', 'var') || isempty(funcPath)
-    funcPath = getenv('FUNCTIONALS_DIR');
-end
-
 %% Find unique contrast names
 % find all the *.mat files
-matFiles = fullfile(funcPath, anaList, '*.mat');
+matFiles = fullfile(getenv('FUNCTIONALS_DIR'), anaList, '*.mat');
 dirCell = cellfun(@dir, matFiles, 'uni', false);
 conDir = vertcat(dirCell{:});
 

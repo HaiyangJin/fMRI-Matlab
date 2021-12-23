@@ -67,22 +67,22 @@ opts = fm_mergestruct(defaultOpts, varargin{:});
 fsPath = fullfile(hcpDir, '..', 'FreeSurfer');
 
 % create subjects/
-structPath = fullfile(fsPath, 'subjects');
-fm_mkdir(structPath);
-fs_subjdir(structPath);  % set 'SUBJECTS_DIR'
+struDir = fullfile(fsPath, 'subjects');
+fm_mkdir(struDir);
+fs_subjdir(struDir);  % set 'SUBJECTS_DIR'
 
 % link fsaverage in subjects/ to fsaverage in FREESURFER 7.1 (or 6.0)
-if ~exist(fullfile(structPath, 'fsaverage'), 'dir') && strcmp(template, 'fsaverage')
+if ~exist(fullfile(struDir, 'fsaverage'), 'dir') && strcmp(template, 'fsaverage')
     fsaverage = fullfile(fshomePath, 'subjects', 'fsaverage');
     if opts.linkt1 % link file
-        fscmd_fsaverage = sprintf('ln -s %s %s', fsaverage, structPath);
+        fscmd_fsaverage = sprintf('ln -s %s %s', fsaverage, struDir);
         system(fscmd_fsaverage);
     else % copy file
-        copyfile(fsaverage, fullfile(structPath, 'fsaverage'));
+        copyfile(fsaverage, fullfile(struDir, 'fsaverage'));
     end
 end
 % link other subjects
-fs_hcp_linksubjdir(structPath, hcpDir, opts.linkt1);
+fs_hcp_linksubjdir(struDir, hcpDir, opts.linkt1);
 
 [hcpList, nSubj] = hcp_subjlist(hcpDir);
 for iSubj = 1:nSubj
@@ -107,9 +107,9 @@ for iSubj = 1:nSubj
     
     %% copy and rename from preprocessed folder to functional_data_'template'
     % make directory for the functional data
-    funcPath = fullfile(fsPath, ['functional_data' opts.funcext]);
+    funcDir = fullfile(fsPath, ['functional_data' opts.funcext]);
     sessCode = [thisSubj '_' template];
-    sessPath = fullfile(funcPath, sessCode);
+    sessPath = fullfile(funcDir, sessCode);
     thisBoldPath = fullfile(sessPath, 'bold');
     fm_mkdir(thisBoldPath);
     
@@ -134,7 +134,7 @@ for iSubj = 1:nSubj
     
     %% Project functional data to the template
     wdBackup = pwd;
-    cd(funcPath);
+    cd(funcDir);
 
     % project functional data onto surface
     fs_preproc(sessCode, opts.smooth, template, opts.extracmd);    

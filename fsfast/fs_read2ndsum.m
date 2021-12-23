@@ -1,24 +1,24 @@
 function sumTable = fs_read2ndsum(groupName, anaList, conList, glmFolder, ...
-    statName, sumFn, funcPath)
+    statName, sumFn, funcDir)
 % sumTable = fs_read2ndsum(groupName, anaList, [conList='', glmFolder='glm-group', ...
-%    statName='osgm', sumFn='perm.th30.abs.sig.cluster.summary', funcPath])
+%    statName='osgm', sumFn='perm.th30.abs.sig.cluster.summary', funcDir])
 %
 % This function pools all the summary file (sumFn) together. 
 %
 % Inputs:
-%    groupName        <string> the name of the group folder.
-%    anaList          <string cell> list of the analysis names within 
+%    groupName        <str> the name of the group folder.
+%    anaList          <cell str> list of the analysis names within 
 %                      groupName.
-%    conList          <string cell> list of the contrast names within
+%    conList          <cell str> list of the contrast names within
 %                      anaList. Default is '' and all the contrasts in the
 %                      analysis folders will be used.
-%    glmFolder        <string> name of the glm output folder. Default is 
+%    glmFolder        <str> name of the glm output folder. Default is 
 %                      'glm-group'.
-%    statName         <string> name of the statistics [contrast] folder.
+%    statName         <str> name of the statistics [contrast] folder.
 %                      Default is 'osgm'.
-%    sumFn            <string> name of the summary file. Default is 
+%    sumFn            <str> name of the summary file. Default is 
 %                      'perm.th30.abs.sig.cluster.summary'.
-%    funcPath         <string> path to the functional folder. Default is 
+%    funcDir          <str> path to the functional folder. Default is 
 %                      '$FUNCTIONALS_DIR'.
 %
 % Output:
@@ -29,13 +29,13 @@ function sumTable = fs_read2ndsum(groupName, anaList, conList, glmFolder, ...
 
 if ischar(anaList); anaList = {anaList}; end
 
-if ~exist('funcPath', 'var') || isempty(funcPath)
-    funcPath = getenv('FUNCTIONALS_DIR');
+if ~exist('funcDir', 'var') || isempty(funcDir)
+    funcDir = getenv('FUNCTIONALS_DIR');
 end
 
 if ~exist('conList', 'var') || isempty(conList)
     % use all contrasts in the analysis folders
-    conList = fs_ana2con(anaList, funcPath);
+    conList = fs_ana2con(anaList, funcDir);
 elseif ischar(conList)
     conList = {conList}; 
 end
@@ -56,7 +56,7 @@ end
 [anaTemp, conTemp] = ndgrid(anaList, conList);
 
 % paths to the summary file
-sumFile = fullfile(funcPath, groupName, anaTemp(:), conTemp(:), glmFolder, statName, sumFn);
+sumFile = fullfile(funcDir, groupName, anaTemp(:), conTemp(:), glmFolder, statName, sumFn);
 
 % read all the summary files
 sumTCell = cellfun(@(x) fs_readsummary(x, 1), sumFile, 'uni', false);

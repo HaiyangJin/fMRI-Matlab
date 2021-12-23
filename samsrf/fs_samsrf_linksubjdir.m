@@ -1,12 +1,12 @@
 function fs_samsrf_linksubjdir(sourcePath, targetPath, isLink, force)
-% This function links the structPath (source) to the session folder in the 
+% This function links the struDir (source) to the session folder in the 
 % functional data folder (target).
 %
 % Inputs:
 %     sourcePath         <string> the path to the source folder. [usually
-%                        should be the sessCode folder in funcPath.]
+%                        should be the sessCode folder in $FUNCTIONALS_DIR.]
 %     targetPath         <string> the path to the target folder. [usually
-%                        should be the subjCode in structPath.
+%                        should be the subjCode in struDir.
 %     isLink             <logical> if link the two folder. 1 (default): 
 %                        link folder; 0: copy folder.
 %     force              <logical> if force, the target folders will be

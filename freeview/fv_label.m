@@ -110,17 +110,16 @@ if ~exist(outPath, 'dir'); mkdir(outPath); end % create the folder if necessary
 
 %% Create commands for each "section"
 % FreeSurfer setup 
-structPath = getenv('SUBJECTS_DIR');
+struDir = getenv('SUBJECTS_DIR');
 
 % surface files and the annotation file
 trgSubj = fs_trgsubj(subjCode, template);
-templatePath = fullfile(structPath, trgSubj);
+templatePath = fullfile(struDir, trgSubj);
 inflateFile = fullfile(templatePath, 'surf', [hemi '.inflated']); % inflated file
 annotFile = fullfile(templatePath, 'label', [hemi '.aparc.annot']); % annotation file
 
 fscmd_surf = sprintf(['freeview -f %s:'... % the ?h.inflated file
-    'annot=%s:annot_outline=yes:'... % the filename and settings for annotation file
-    ' &'],...% the label file and settings
+    'annot=%s:annot_outline=yes:'],... % the filename and settings for annotation file
     inflateFile, annotFile);
 
 % the label files
@@ -128,7 +127,7 @@ fscmd_label = '';
 for iLabel = 1:nLabel
     
     theLabelFn = labelList{iLabel};
-    thelabelFile = fullfile(structPath, subjCode, 'label', theLabelFn); % label file
+    thelabelFile = fullfile(struDir, subjCode, 'label', theLabelFn); % label file
     thelabelColor = colorLabel{iLabel};
     
     % make sure there is the label for this subject

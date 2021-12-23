@@ -4,57 +4,56 @@ function labelTable = fs_labelinfo(labelList, subjList, varargin)
 % This function gathers the information of the label files.
 %
 % Inputs:
-%    labelList       <string> filename of the label file (with or without
+%    labelList       <str> filename of the label file (with or without
 %                     path). If path is included in labelFn, 'subjCode'
-%                     and struPath will be ignored. Default is
+%                     and .strupath will be ignored. Default is
 %                     'lh.cortex.label'.
-%    subjList        <string> subject code in struPath. Default is
+%    subjList        <str> subject code in $SUBJECTS_DIR . Default is
 %                     fsaverage.
 %
 % Optional (varargin):
-%    'bycluster'     <logical> whether output the information for clusters
+%    'bycluster'     <boo> whether output the information for clusters
 %                     separately if there are multiple contiguous clusters
 %                     for the label. Default is 0.
-%    'fmin'          <numeric> The (absolute) minimum value for vertices to
+%    'fmin'          <num> The (absolute) minimum value for vertices to
 %                     be used for summarizing information. Default is 0,
 %                     i.e., all vertices will be used.
-%    'gminfo'        <logical> 1 [default]: only show gm coordinate 
+%    'gminfo'        <boo> 1 [default]: only show gm coordinate 
 %                     information (but not he maxresp) 2: additionally show
 %                     global maxima information (also show maxresp); 0: do 
 %                     not show gm information.
-%    'isndgrid'      <logical> 1 [default]: all the combinations of
+%    'isndgrid'      <boo> 1 [default]: all the combinations of
 %                     labelList and subjList will be created, i.e.,
 %                     summarize all labels in labelList for each subject
 %                     separately. 0: only summarize the first label for the
 %                     first subject, second label for the second subject,
 %                     etc...
-%    'saveall'       <logical> 0 [default]: only save information for the
+%    'saveall'       <b00> 0 [default]: only save information for the
 %                     available labels. 1: save information for all labels
 %                     files. For unavaiable labels, their information is 
 %                     saved as empty or NaN.
-%    'strupath'      <string> $SUBJECTS_DIR.
+%    'strudir'       <str> $SUBJECTS_DIR.
 %
 % Output:
 %    labelInfo       <struct> includes information about the label file.
 %      .SubjCode       <cell> the input subjCode save as a cell.
 %      .Label          <cell> the input labelFn (without path) but save as
 %                       a cell.
-%      .ClusterNo      <integer> the cluster number. If sepCluster is 0,
+%      .ClusterNo      <int> the cluster number. If sepCluster is 0,
 %                       .ClusterNo is the total number of contiguous
 %                       clusters. If sepCluster is 1, .ClusterNo is the
 %                       cluster number for each row (cluster).
-%      .Max            <numeric> the peak response value.
-%      .VtxMax         <integer> vertex index of the peak response.
-%      .Size           <numeric> the size (area) of the label in mm^2.
-%      .MNI305         <1x3 numeric vector> coordinates (XYZ) of VtxMax in
+%      .Max            <num> the peak response value.
+%      .VtxMax         <int> vertex index of the peak response.
+%      .Size           <num> the size (area) of the label in mm^2.
+%      .MNI305         <1x3 num vector> coordinates (XYZ) of VtxMax in
 %                       MNI305 (fsaverage) space.
-%      .Talairach      <1x3 numeric vector> coordinates (XYZ) of VtxMax in
+%      .Talairach      <1x3 num vector> coordinates (XYZ) of VtxMax in
 %                       Talairach space (use the same method used in
 %                       FreeSurfer converting from MNI305 to Talairach).
-%      .NVtxs          <integer> number of vertices in this label.
-%      .fmin           <numeric> the minimum threshold.
-%      .GlobalMax      <integer> the global maxima used to create the
-%                       label.
+%      .NVtxs          <int> number of vertices in this label.
+%      .fmin           <num> the minimum threshold.
+%      .GlobalMax      <int> the global maxima used to create the label.
 %
 % Created by Haiyang Jin (22-Apr-2020)
 
@@ -64,7 +63,7 @@ defaultOpts = struct(...
     'gminfo', 1, ...
     'isndgrid', 1, ...
     'saveall', 0, ...
-    'strupath', getenv('SUBJECTS_DIR') ...
+    'strudir', getenv('SUBJECTS_DIR') ...
 );
 
 opts = fm_mergestruct(defaultOpts, varargin{:});
@@ -73,7 +72,6 @@ fmin = opts.fmin;
 gmInfo = opts.gminfo;
 isndgrid = opts.isndgrid;
 saveAll = opts.saveall;
-struPath = opts.strupath;
 
 if ~exist('labelList', 'var') || isempty(labelList)
     labelList = {'lh.cortex.label'};
@@ -99,7 +97,7 @@ else
 end
 
 % read the label information
-labelInfoCell = cellfun(@(x, y) labelinfo(x, y, byCluster, fmin, gmInfo, saveAll, struPath),...
+labelInfoCell = cellfun(@(x, y) labelinfo(x, y, byCluster, fmin, gmInfo, saveAll, opts.strudir),...
     tempList(:), tempSubj(:), 'uni', false);
 
 labelTable = vertcat(labelInfoCell{:});
@@ -107,13 +105,13 @@ labelTable = vertcat(labelInfoCell{:});
 end
 
 %% Obtain the label information separately
-function labelInfo = labelinfo(labelFn, subjCode, byCluster, fmin0, gmInfo, saveall, struPath)
+function labelInfo = labelinfo(labelFn, subjCode, byCluster, fmin0, gmInfo, saveall, struDir)
 
 % get the cluster (contiguous)
 [clusterNo, nCluster] = fs_clusterlabel(labelFn, subjCode, fmin0);
 
 % read the label file
-labelMat = fs_readlabel(labelFn, subjCode, struPath);
+labelMat = fs_readlabel(labelFn, subjCode, struDir);
 
 if isempty(labelMat)
     if saveall
@@ -181,7 +179,7 @@ MNI305 = vertcat(theMNI305{:});
 Talairach = vertcat(theTal{:});
 
 % label area (in mm^2)
-labelSize = cellfun(@(x) fs_labelarea(labelFn, subjCode, x(:, 1), struPath),...
+labelSize = cellfun(@(x) fs_labelarea(labelFn, subjCode, x(:, 1), struDir),...
     matCell, 'uni', true);
 
 %% Create a table to save all the information

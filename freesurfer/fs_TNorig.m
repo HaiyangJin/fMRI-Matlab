@@ -1,5 +1,5 @@
-function origMat = fs_TNorig(subjCode, TN, struPath)
-% origMat = fs_Torig([subjCode='fsaverage', TN, struPath])
+function origMat = fs_TNorig(subjCode, TN, struDir)
+% origMat = fs_Torig([subjCode='fsaverage', TN, struDir])
 %
 % This function get the Torig (TkSurfer or surface Vox2RAS) or Norig 
 % (Native or Scanner Vox2RAS) matrix from FreeSurfer.  
@@ -23,13 +23,13 @@ function origMat = fs_TNorig(subjCode, TN, struPath)
 % and Matlab properly.
 %
 % Input:
-%    subjCode        <string> subject code in struPath. Default is 'fsaverage'.
-%    TN              <string> 't' (for Torig) or 'n' (for Norig). Default
+%    subjCode        <str> subject code in $SUBJECTS_DIR. Default is 'fsaverage'.
+%    TN              <str> 't' (for Torig) or 'n' (for Norig). Default
 %                     is 't'. 
-%    struPath        <string> $SUBJECTS_DIR.
+%    struDir         <str> $SUBJECTS_DIR.
 %
 % Output:
-%    origMat         <numeric matrix> origMat matrix is the vox2vox matrix
+%    origMat         <num matrix> origMat matrix is the vox2vox matrix
 %                     from VoxCRS (orig.mgz) to Vertex RAS in real world 
 %                     (in tksurfer tools window) [when TN is 't'], or from 
 %                     VoxCRS to VoxXYZ (VoxRAS) in real world.
@@ -42,12 +42,12 @@ end
 if ~exist('TN', 'var') || isempty(TN)
     TN = 't';
 end
-if ~exist('struPath', 'var') || isempty(struPath)
-    struPath = getenv('SUBJECTS_DIR');
+if ~exist('struDir', 'var') || isempty(struDir)
+    struDir = getenv('SUBJECTS_DIR');
 end
 
 % define the path to orig.mgz
-origFile = fullfile(struPath, subjCode, 'mri', 'orig.mgz');
+origFile = fullfile(struDir, subjCode, 'mri', 'orig.mgz');
 
 % Create and run the FreeSurfer command
 if strcmpi(TN, 't') % for Torig

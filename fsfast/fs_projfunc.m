@@ -1,5 +1,5 @@
-function fscmd = fs_projfunc(sessCode, projFile, runFolder, template, hemi, sm, funcPath)
-% fscmd = fs_projfunc(sessCode, projFile, runFolder, template, hemi, sm, funcPath)
+function fscmd = fs_projfunc(sessCode, projFile, runFolder, template, hemi, sm)
+% fscmd = fs_projfunc(sessCode, projFile, runFolder, template, hemi, sm)
 %
 % This function projects the preprocessed functional (voxelwise) data to 
 % fsaverage or self surface. Then FWHM smoothing is applied if needed. The
@@ -8,18 +8,17 @@ function fscmd = fs_projfunc(sessCode, projFile, runFolder, template, hemi, sm, 
 %     fmcpr.*.[template].sm5.*.?h.nii.gz (if smoothing is applied)
 %
 % Inputs:
-%    sessCode         <string> session code in funcPath.
-%    projFile         <string> the name of the to-be-projected file 
+%    sessCode         <str> session code in $FUNCTIONALS_DIR.
+%    projFile         <str> the name of the to-be-projected file 
 %                       (i.e., the preprocessed functional data).
 %                       [do not need to include '.nii.gz'.] 
-%    runFolder        <string> the run folder name.
-%    template         <string> 'fsaverage' or 'self'. fsaverage is the default.
-%    hemi             <string> which hemisphere. 'lh' (default) or 'rh'. 
-%    sm               <integer> smoothing with FWHM.
-%    funcPath         <string> the full path to the functional folder.
+%    runFolder        <str> the run folder name.
+%    template         <str> 'fsaverage' or 'self'. fsaverage is the default.
+%    hemi             <str> which hemisphere. 'lh' (default) or 'rh'. 
+%    sm               <int> smoothing with FWHM.
 %
 % Output:
-%    fscmd            <cell of strings> FreeSurfer commands used here.
+%    fscmd            <cell str> FreeSurfer commands used here.
 %
 % Created by Haiyang Jin (7-Apr-2020)
 %
@@ -46,18 +45,14 @@ if nargin < 6 || isempty(sm)
     sm = 0;
 end
 
-if nargin < 7 || isempty(funcPath)
-    funcPath = getenv('FUNCTIONALS_DIR');
-end
-
 % empty cell for saving FreeSurfer commands
 fscmd = cell(1 + logical(sm), 1);
 
 % target subject code and name
-trgSubj = fs_trgsubj(fs_subjcode(sessCode, funcPath), template);
+trgSubj = fs_trgsubj(fs_subjcode(sessCode), template);
 
 % full path to the run folder
-runPath = fullfile(funcPath, sessCode, 'bold', runFolder, filesep);
+runPath = fullfile(getenv('FUNCTIONALS_DIR'), sessCode, 'bold', runFolder, filesep);
 
 % full filename of the output file
 outFnString = '%s.sm%d.%s.%s.nii.gz';

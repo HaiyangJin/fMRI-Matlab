@@ -16,11 +16,11 @@ function fv_check1st(overlayFile)
 
 if nargin < 1 || isempty(overlayFile)
     % set the default folder is FUNCTIONALS_DIR if it is not empty
-    funcPath = getenv('FUNCTIONALS_DIR');
-    if isempty(funcPath)
+    funcDir = getenv('FUNCTIONALS_DIR');
+    if isempty(funcDir)
         startPath = pwd;
     else
-        startPath = funcPath;
+        startPath = funcDir;
     end
     
     [theFn, thePath] = uigetfile({fullfile(startPath, '*.*')}', ...
@@ -47,8 +47,7 @@ strings = strsplit(overlayFile, filesep);
 hemi = fm_2hemi(strings(end-2));
 contrast = strings{end-1};
 theLabel = sprintf('%s.%s', hemi, contrast);
-funcPath = fullfile(filesep, strings{1:end-5});
-subjCode = fs_subjcode(strings{end-4}, funcPath);
+subjCode = fs_subjcode(strings{end-4});
 outputPath = '';
 threshold = '';
 
@@ -59,6 +58,6 @@ fprintf('Hemisphere: %s.\n', hemi);
 fprintf('Contrast: %s.\n', contrast);
 
 % display the overlay file
-fv_label(subjCode, theLabel, outputPath, overlayFile, threshold, 0, '', 0);
+fv_label(subjCode, theLabel, outputPath, overlayFile, threshold, [], 0);
 
 end

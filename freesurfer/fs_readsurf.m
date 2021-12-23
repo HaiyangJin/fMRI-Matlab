@@ -1,24 +1,23 @@
-function [coords, faces] = fs_readsurf(surfFn, subjCode, struPath)
-% [coords, faces] = fs_readsurf(surfType, subjCode, struPath)
+function [coords, faces] = fs_readsurf(surfFn, subjCode, struDir)
+% [coords, faces] = fs_readsurf(surfType, subjCode, struDir)
 %
 % This function reads the FreeSurfer surface file with FreeSurfer Matlab 
 % functions (read_surf.m). This function further corrects the vertex 
 % numbers in the faces.
 %
 % Input:
-%    surfFn         <string> the surface filename (e.g., 'lh.white') or the 
+%    surfFn         <str> the surface filename (e.g., 'lh.white') or the 
 %                    full path (or relative path) to the surface filename.
 %                    Default is lh.white.
-%    subjCode       <string> subject code in strucPath. Default is
+%    subjCode       <str> subject code in strucPath. Default is
 %                    fsaverage.
-%    struPath       <string> $SUBJECTS_DIR.
+%    struDir        <str> $SUBJECTS_DIR.
 %
 % Output:
-%    coords         <array of numeric> Each row is one vertex and the
-%                    three columns are the coordinates for X, Y, and Z.
-%    faces          <array of numeric> Each row is one face and the
-%                    three columns are the indices of the three vertices
-%                    making that face.
+%    coords         <num array> Each row is one vertex and the three 
+%                    columns are the coordinates for X, Y, and Z.
+%    faces          <num array> Each row is one face and the three columns
+%                    are the indices of the three vertices making that face.
 %
 % Surface files [faces for all these files should be the same]:
 %   ?h.orig
@@ -51,11 +50,11 @@ if isempty(surfPath)
         warning('''fsaverage'' is used as ''subjCode'' by default.');
     end
     % use SUBJECTS_DIR as the default subject path
-    if ~exist('struPath', 'var') || isempty(struPath)
-        struPath = getenv('SUBJECTS_DIR');
+    if ~exist('struDir', 'var') || isempty(struDir)
+        struDir = getenv('SUBJECTS_DIR');
     end
     % the default path to surf/
-    surfFile = fullfile(struPath, subjCode, 'surf', surfFn);
+    surfFile = fullfile(struDir, subjCode, 'surf', surfFn);
 else
     surfFile = surfFn;
 end

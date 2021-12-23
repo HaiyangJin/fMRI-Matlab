@@ -16,14 +16,14 @@ function fv_check2nd(overlayFile)
 
 if nargin < 1 || isempty(overlayFile)
     % set the default folder is FUNCTIONALS_DIR if it is not empty
-    funcPath = getenv('FUNCTIONALS_DIR');
-    if isempty(funcPath)
-        startPath = pwd;
+    funcDir = getenv('FUNCTIONALS_DIR');
+    if isempty(funcDir)
+        startDir = pwd;
     else
-        startPath = funcPath;
+        startDir = funcDir;
     end
     
-    [theFn, thePath] = uigetfile({fullfile(startPath, '*.sig.cluster.nii.gz')}', ...
+    [theFn, thePath] = uigetfile({fullfile(startDir, '*.sig.cluster.nii.gz')}', ...
         ['Please select the overlay file(s) [for results of the second-'...
         'level analysis] you want to display'],...
         'MultiSelect', 'off');

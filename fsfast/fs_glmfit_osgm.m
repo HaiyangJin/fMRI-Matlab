@@ -43,9 +43,8 @@ end
 
 % obtain the path to contrast folders
 if isstruct(contraPath)
-    funcPath = getenv('FUNCTIONALS_DIR');
-    conPaths = fullfile(funcPath, {contraPath.group}, {contraPath.analysisName}, ...
-        {contraPath.contrastName}, filesep);
+    conPaths = fullfile(getenv('FUNCTIONALS_DIR'), {contraPath.group}, ...
+        {contraPath.analysisName}, {contraPath.contrastName}, filesep);
 else
     if ischar(contraPath); contraPath = {contraPath}; end
     conPaths = fullfile(contraPath, filesep);

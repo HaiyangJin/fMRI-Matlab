@@ -4,7 +4,7 @@ function varargout = fs_cvn_print1st(sessList, anaList, labelList, outPath, vara
 % This function prints the first-level results and the labels in label/.
 %
 % Inputs:
-%    sessList        <cell str> list of session codes (in funcPath).
+%    sessList        <cell str> list of session codes in $FUNCTIONALS_DIR.
 %    anaList         <cell str> list of analysis names. Default is empty
 %                     and the overlay in the label file will be displayed.
 %    labelList       <cell str> list of label names.
@@ -67,7 +67,7 @@ function varargout = fs_cvn_print1st(sessList, anaList, labelList, outPath, vara
 %    'drawroi'       <boo> whether draw ROI with fs_cvn_lookup. Default
 %                     is 0.
 %    'cvnopts'       <cell> extra options for cvnlookupimages.m.
-%    'funcPath'      <str> the path to functional folder [Default is
+%    'funcdir'      <str> the path to functional folder [Default is
 %                     $FUNCTIONALS_DIR].
 %
 % Output:
@@ -109,8 +109,8 @@ defaultOpts = struct(...
     'imgext', 'png', ...
     'drawroi', 0, ...
     'cvnopts', {{}}, ...
-    'funcpath', getenv('FUNCTIONALS_DIR'), ...
-    'strupath', getenv('SUBJECTS_DIR'));  % not in use now
+    'funcdir', getenv('FUNCTIONALS_DIR'), ...
+    'strudir', getenv('SUBJECTS_DIR'));  % not in use now
 
 opts = fm_mergestruct(defaultOpts, varargin);
 
@@ -125,8 +125,6 @@ viewpt = opts.viewpt;
 clim = opts.clim;
 cmap = opts.cmap;  % use jet(256) as the colormap
 imgNameExtra = opts.suffixstr;
-
-funcPath = opts.funcpath;
 
 if ~isempty(imgNameExtra) && ~startsWith(imgNameExtra, ' || ')
     imgNameExtra = [' || ' imgNameExtra];
@@ -209,7 +207,7 @@ for iLabel = 1:nLabel
             % session and subject code
             thisSess = sessList{iSess};
             if isempty(opts.overlay)
-                subjCode = fs_subjcode(thisSess, funcPath);
+                subjCode = fs_subjcode(thisSess);
             else
                 subjCode = thisSess;
             end
@@ -238,7 +236,7 @@ for iLabel = 1:nLabel
                 sigFile = opts.overlay;
             else
                 % full path to the to-be-printed file
-                sigFile = fullfile(funcPath, thisSess, 'bold', thisAna, thisCon, opts.sigfn);
+                sigFile = fullfile(opts.funcdir, thisSess, 'bold', thisAna, thisCon, opts.sigfn);
             end
             
             % read data

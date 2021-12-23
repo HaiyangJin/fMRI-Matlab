@@ -1,5 +1,5 @@
-function varargout = fs_readannot(annotFn, subjCode, roiName, rmEmpty, struPath, extraopts)
-% [rois, roiColors, roiList, nVtxRoi] = fs_readannot([annotFn, subjCode, roiName, rmEmpty, struPath, extraopts])
+function varargout = fs_readannot(annotFn, subjCode, roiName, rmEmpty, struDir, extraopts)
+% [rois, roiColors, roiList, nVtxRoi] = fs_readannot([annotFn, subjCode, roiName, rmEmpty, struDir, extraopts])
 %
 % This funciton reads the annotation files and output the binary masks for
 % all the parcellations (rois) and their colors.
@@ -7,15 +7,15 @@ function varargout = fs_readannot(annotFn, subjCode, roiName, rmEmpty, struPath,
 % Inputs:
 %    annotFn         <string> filename of the annotation file (with or without
 %                     path). If path is included in annotFn, 'subjCode'
-%                     and struPath will be ignored. Default is
+%                     and struDir will be ignored. Default is
 %                     'lh.aparc.annot'.
-%    subjCode        <string> subject code in struPath. Default is
+%    subjCode        <string> subject code in $SUBJECTS_DIR. Default is
 %                     fsaverage.
 %    roiName         <cell string> a list of parcellation (roi) names to be
 %                     output. Default is all roi names.
 %    rmEmpty         <logical> whether remove the empty annotation. Default
 %                     is do not remove the empty annotation. 
-%    struPath        <string> $SUBJECTS_DIR.
+%    struDir        <string> $SUBJECTS_DIR.
 %    extraopts       <integer> if true (>0), disp running output; if false
 %                     (==0), be quiet and do not display any running
 %                     output.
@@ -52,10 +52,10 @@ if isempty(filepath)
         warning('''fsaverage'' is used as ''subjCode'' by default.');
     end
     % use SUBJECTS_DIR as the default subject path
-    if ~exist('struPath', 'var') || isempty(struPath)
-        struPath = getenv('SUBJECTS_DIR');
+    if ~exist('struDir', 'var') || isempty(struDir)
+        struDir = getenv('SUBJECTS_DIR');
     end
-    annotFile = fullfile(struPath, subjCode, 'label', annotFn);
+    annotFile = fullfile(struDir, subjCode, 'label', annotFn);
 else
     % use the label filename directly
     annotFile = annotFn;

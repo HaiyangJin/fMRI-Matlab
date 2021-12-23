@@ -36,7 +36,7 @@ function fs_cvn_print2nd(sigPathInfo, sigFn, outPath, varargin)
 %    'wantfig'       <boo/int> Default is 2, i.e., do not show the
 %                     figure. More please check fs_cvn_lookup.
 %    'cvnopts'       <cell> extra options for cvnlookupimages.m.
-%    'funcPath'      <str> the path to functional folder [Default is
+%    'funcdir'      <str> the path to functional folder [Default is
 %                     $FUNCTIONALS_DIR].
 %
 % Output:
@@ -69,8 +69,8 @@ defaultOpts = struct(...
     'showinfo', 0, ...
     'wantfig', 2, ... % do not show figure with fs_cvn_lookuplmv.m
     'cvnopts', {{}}, ...
-    'funcpath', getenv('FUNCTIONALS_DIR'), ...
-    'strupath', getenv('SUBJECTS_DIR')); % not in use now
+    'funcdir', getenv('FUNCTIONALS_DIR'), ...
+    'strudir', getenv('SUBJECTS_DIR')); % not in use now
 
 opts = fm_mergestruct(defaultOpts, varargin);
 
@@ -89,7 +89,7 @@ isFullPath = cellfun(@(x) startsWith(x, filesep), sigPath);
 needsFull = ~isExist1 & ~isFullPath;
 
 if any(needsFull)
-    sigPath(needsFull) = fullfile(opts.funcpath, sigPath(needsFull));
+    sigPath(needsFull) = fullfile(opts.funcdir, sigPath(needsFull));
 end
 
 isExist2 = cellfun(@(x) exist(x, 'dir'), sigPath);

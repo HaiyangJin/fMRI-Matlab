@@ -1,18 +1,17 @@
-function [corMask, nCorMask] = fs_cortexmask(subjCode, hemi, struPath)
-% [corMask, nCorMask] = fs_cortexmask([subjCode = 'fsaverage', hemi = 'lh', struPath])
+function [corMask, nCorMask] = fs_cortexmask(subjCode, hemi, struDir)
+% [corMask, nCorMask] = fs_cortexmask([subjCode = 'fsaverage', hemi = 'lh', struDir])
 %
 % This function load ?h.cortex.label and output the vertex indices as the
 % mask for surfaces. 
 %
 % Inputs:
-%    subjCode         <string> subject code in $SUBJECTS_DIR.
-%    hemi             <string> 'lh' or 'rh'.
-%    struPath         <string> full path to the subject folder
-%                      ($SUBJECTS_DIR).
+%    subjCode         <str> subject code in $SUBJECTS_DIR.
+%    hemi             <str> 'lh' or 'rh'.
+%    struDir          <str> full path to the subject folder ($SUBJECTS_DIR).
 %
 % Outputs:
-%    corMask          <numeric vector> a vector of the vertex indices.
-%    nCorMask         <integer> number of vertices in the mask. 
+%    corMask          <num vec> a vector of the vertex indices.
+%    nCorMask         <int> number of vertices in the mask. 
 %
 % Created by Haiyang Jin
 
@@ -28,15 +27,15 @@ if ~ismember(hemi, {'lh', 'rh'})
     error('''hemi'' has to be ''lh'' or ''rh'' (not %s).', hemi);
 end
 
-if nargin < 3 || isempty(struPath)
-    struPath = getenv('SUBJECTS_DIR');
+if nargin < 3 || isempty(struDir)
+    struDir = getenv('SUBJECTS_DIR');
 end
 
 % path and filename of the label file
 labelFn = sprintf('%s.cortex.label', hemi);
 
 % load the label information
-labelData = fs_readlabel(labelFn, subjCode, struPath);
+labelData = fs_readlabel(labelFn, subjCode, struDir);
 
 % outputs
 corMask = labelData(:, 1);

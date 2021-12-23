@@ -1,5 +1,5 @@
-function mgzFile = fv_vol(mgzFile, subjCode, structPath, surfType, loadReg)
-% mgzFile = fv_vol(mgzFile, subjCode, structPath, surfType, loadReg)
+function mgzFile = fv_vol(mgzFile, subjCode, struDir, surfType, loadReg)
+% mgzFile = fv_vol(mgzFile, subjCode, struDir, surfType, loadReg)
 %
 % This function displays the *.mgz file (for volume) in Freeview.
 % 
@@ -7,12 +7,12 @@ function mgzFile = fv_vol(mgzFile, subjCode, structPath, surfType, loadReg)
 %     mgzFile            *.mgz file (with path) [if is empty, 'orig.mgz' for
 %                        subjCode will be shown.] (To open a GUI for
 %                        selecting files, please use fv_uigetfile.)
-%     subjCode           <string> subjCode in SUBJECTS_DIR
-%     structPath         <string> the path to SUBJECTS_DIR
-%     surfType           <string> the base surface file to be displayed
+%     subjCode          <str> subjCode in SUBJECTS_DIR
+%     struDir           <str> the path to SUBJECTS_DIR
+%     surfType          <str> the base surface file to be displayed
 %                        ('white', 'pial') [porbably should not
 %                        be 'inflated' or 'sphere']
-%     loadReg            <logical> 1: load 'register.lta' if it is available; 
+%     loadReg           <boo> 1: load 'register.lta' if it is available; 
 %                        0: do not load 'register.lta'.
 %
 % Output:
@@ -35,8 +35,8 @@ if nargin < 2 %|| isempty(subjCode)
     subjCode = '';
 end
 
-if nargin < 3 || isempty(structPath)
-    structPath = getenv('SUBJECTS_DIR');
+if nargin < 3 || isempty(struDir)
+    struDir = getenv('SUBJECTS_DIR');
 end
 
 if nargin < 4 || isempty(surfType)
@@ -68,11 +68,11 @@ else
     fscmd_vol = '';
 end
 
-% get the structPath for this subjCode
-if (isempty(subjCode) || isempty(structPath))
+% get the struDir for this subjCode
+if (isempty(subjCode) || isempty(struDir))
     subjPath = fullfile(thePath, '..');
 else
-    subjPath = fullfile(structPath, subjCode);
+    subjPath = fullfile(struDir, subjCode);
 end
 origFile = fullfile(subjPath, 'mri', 'orig.mgz');
 

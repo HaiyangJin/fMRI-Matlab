@@ -3,7 +3,7 @@ function [conStruct, fscmd] = fs_isxconcat(sessid, anaList, conList, groupFolder
 %
 % This function gathers the first-level results from different participant 
 % together (via isxconcat-sess). [The first step in group analysis].
-% Please make sure to run this command in funcPath ($FUNCTIONALS_DIR).
+% Please make sure to run this command in $FUNCTIONALS_DIR.
 %
 % Inputs:
 %    sessid          <str> the filename of the session id file.

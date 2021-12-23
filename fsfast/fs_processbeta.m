@@ -20,8 +20,6 @@ function fs_processbeta(sessList, anaList, varargin)
 %                    folders will be used.]
 %               OR  <str cell> a list of all the run names. (e.g.,
 %                    {'001', '002', '003'....}.
-%    .funcpath      <str> the path to the session folder,
-%                    $FUNCTIONALS_DIR by default.
 %
 % Output:
 %    'betat.nii.gz' or 'betapct.nii.gz' in the same folder as
@@ -32,8 +30,7 @@ function fs_processbeta(sessList, anaList, varargin)
 defaultOpts = struct(...
     'outfn', 'betat', ...
     'runwise', 0, ...
-    'runinfo', '', ...
-    'funcpath', getenv('FUNCTIONALS_DIR')...
+    'runinfo', '' ...
     );
 
 opts = fm_mergestruct(defaultOpts, varargin{:});
@@ -49,12 +46,12 @@ end
 %% For each session code and analysis separately
 function sessbeta(sessCode, anaName, opts)
 
-boldDir = fullfile(opts.funcpath, sessCode, 'bold');
+boldDir = fullfile(getenv('FUNCTIONALS_DIR'), sessCode, 'bold');
 
 if opts.runwise
     % create files for each run separately
     runList = cellfun(@(x) sprintf('pr%s', x), ...
-        fs_runlist(sessCode, opts.runinfo, opts.funcpath), 'uni', false);
+        fs_runlist(sessCode, opts.runinfo), 'uni', false);
 
     dirs = fullfile(boldDir, anaName, runList);
 else

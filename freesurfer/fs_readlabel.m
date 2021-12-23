@@ -1,5 +1,5 @@
-function varargout = fs_readlabel(labelFn, subjCode, struPath)
-% [labelMat, nVtx] = fs_readlabel(labelFn, [subjCode='fsaverage', struPath])
+function varargout = fs_readlabel(labelFn, subjCode, struDir)
+% [labelMat, nVtx] = fs_readlabel(labelFn, [subjCode='fsaverage', struDir])
 %
 % This function loads label file in FreeSurfer to matrix in Matlab. Note:
 % all the vertex indices are added one when loading into Matlab. This is
@@ -10,11 +10,11 @@ function varargout = fs_readlabel(labelFn, subjCode, struPath)
 % Inputs:
 %    labelFn         <string> filename of the label file (with or without
 %                     path). If path is included in labelFn, 'subjCode'
-%                     and struPath will be ignored. Default is
+%                     and struDir will be ignored. Default is
 %                     'no.label', i.e., no labels.
-%    subjCode        <string> subject code in struPath. Default is
+%    subjCode        <string> subject code in struDir. Default is
 %                     fsaverage.
-%    struPath        <string> $SUBJECTS_DIR.
+%    struDir        <string> $SUBJECTS_DIR.
 %
 % Outputs:
 %    labelMat        <numeric array> the data matrix from the label file.
@@ -38,10 +38,10 @@ if isempty(filepath)
         warning('''fsaverage'' is used as ''subjCode'' by default.');
     end
     % use SUBJECTS_DIR as the default subject path
-    if ~exist('struPath', 'var') || isempty(struPath)
-        struPath = getenv('SUBJECTS_DIR');
+    if ~exist('struDir', 'var') || isempty(struDir)
+        struDir = getenv('SUBJECTS_DIR');
     end
-    labelFile = fullfile(struPath, subjCode, 'label', labelFn);
+    labelFile = fullfile(struDir, subjCode, 'label', labelFn);
 else
     % use the label filename directly
     labelFile = labelFn;

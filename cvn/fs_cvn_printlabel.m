@@ -7,8 +7,8 @@ function infoTable = fs_cvn_printlabel(labelList, sessList, thmins, outPath, mul
 % Inputs:
 %    labelList       <cell string> list of label names or list of contrast
 %                     names.
-%    sessList        <cell string> list of session codes (in funcPath). The
-%                     number of sessList has to be the same as that of
+%    sessList        <cell string> list of session codes in $FUNCTIONALS_DIR.
+%                     The number of sessList has to be the same as that of
 %                     'labelList'.
 %    thmins          <numeric array> a vector of minimum thresholds.
 %                     Default is from the minimum to the maximum values in

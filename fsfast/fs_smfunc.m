@@ -1,17 +1,16 @@
-function [fscmd, isok] = fs_smfunc(sessList, smooth, runInfo, template, funcPath)
+function [fscmd, isok] = fs_smfunc(sessList, smooth, runInfo, template)
 % [fscmd, isok] = fs_smfunc(sessList, [smooth = 5, runInfo = [allruns],
-%                           template = 'fsaverage', funcPath])
+%                           template = 'fsaverage'])
 %
 % This function will smooth all the *.sm0* files to *.sm?.* accordingly.
 %
 % Inputs:
-%    sessList         <str> session code (list) in funcPath.
+%    sessList         <str> session code (list) in $FUNCTIONALS_DIR.
 %    smooth           <int> smoothing with FWHM.
 %    runInfo          <cell str> a list of run folder names, OR
 %                     <str> the name of the run file. All runs are
 %                      processed by default.
 %    template         <str> 'fsaverage' or 'self'. fsaverage is the default.
-%    funcPath         <str> the full path to the functional folder.
 %
 % Output:
 %    fscmd            <cell str> FreeSurfer commands used here.
@@ -43,10 +42,6 @@ elseif ~ismember(template, {'fsaverage', 'self'})
     error('The template has to be ''fsaverage'' or ''self'' (not ''%s'').', template);
 end
 
-if ~exist('funcPath', 'var') || isempty(funcPath)
-    funcPath = getenv('FUNCTIONALS_DIR');
-end
-
 % hemispheres (not support mni305 now, but it is possible)
 hemis = {'lh', 'rh'};
 nHemi = numel(hemis);
@@ -59,10 +54,10 @@ for iSess = 1:nSess
     
     % this session
     thisSess = sessList{iSess};
-    trgSubj = fs_trgsubj(fs_subjcode(thisSess, funcPath), template);
+    trgSubj = fs_trgsubj(fs_subjcode(thisSess), template);
     
     % run lists
-    [runList, nRun] = fs_runlist(thisSess, runInfo, funcPath);
+    [runList, nRun] = fs_runlist(thisSess, runInfo);
     
     % empty array for saving output
     fscmdTemp = cell(nRun, nHemi);
@@ -72,7 +67,7 @@ for iSess = 1:nSess
         
         % this run
         thisRun = runList{iRun};
-        runPath = fullfile(funcPath, thisSess, 'bold', thisRun, filesep);
+        runPath = fullfile(getenv('FUNCTIONALS_DIR'), thisSess, 'bold', thisRun, filesep);
         
         for iHemi = 1:nHemi
             

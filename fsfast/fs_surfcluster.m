@@ -1,14 +1,14 @@
 function [labelTable, fscmd] = fs_surfcluster(sessCode, anaName,...
-    labelFn, sigFn, thmin, outPath, funcPath, struPath)
+    labelFn, sigFn, thmin, outPath)
 % [labelTable, fscmd] = fs_surfcluster(sessCode, anaName,...
-%     labelFn, [sigFn='sig.nii.gz', thmin=1.3, outPath=pwd, funcPath, struPath])
+%     labelFn, [sigFn='sig.nii.gz', thmin=1.3, outPath=pwd])
 %
 % This function obtains the size of the label (ROI) from FreeSurfer
 % commands (mri_surfcluster). All the output information will be calculated
 % based on white surface.
 %
 % Inputs:
-%    sessCode         <string> session code in funcPath.
+%    sessCode         <string> session code in $FUNCTIONALS_DIR.
 %    anaName          <string> name of the analysis folder.
 %    lableFn          <string> label filename.
 %                  OR <string> the contrast name within the analysis
@@ -17,8 +17,6 @@ function [labelTable, fscmd] = fs_surfcluster(sessCode, anaName,...
 %                      cluster. Default is sig.nii.gz.
 %    thmin            <numeric> the minimal threshold. Default is 1.3.
 %    outPath          <string> where the temporary output file is saved.
-%    funcPath         <string> the full path to the functional folder.
-%    struPath         <string> $SUBJECTS_DIR.
 %
 % Outputs:
 %    labelTable       <table> includes information about the label file.
@@ -47,17 +45,12 @@ if ~exist('outPath', 'var') || isempty(outPath)
 end
 outPath = fullfile(outPath, 'SurfCluster');
 if ~exist(outPath, 'dir'); mkdir(outPath); end
-if ~exist('funcPath', 'var') || isempty(funcPath)
-    funcPath = getenv('FUNCTIONALS_DIR');
-end
-if ~exist('struPath', 'var') || isempty(struPath)
-    struPath = getenv('SUBJECTS_DIR');
-end
+struDIR = getenv('SUBJECTS_DIR');
 
 isLabel = endsWith(labelFn, '.label');
 hemi = fm_2hemi(anaName);
 template = fs_2template(anaName, '', 'self');
-subjCode = fs_subjcode(sessCode, funcPath);
+subjCode = fs_subjcode(sessCode);
 trgSubj = fs_trgsubj(subjCode, template);
 
 % create cmd for label if needed
@@ -68,12 +61,12 @@ if isLabel
     conName = fm_2contrast(labelFn);
     
     % make sure the label exists
-    if isempty(fs_readlabel(labelFn, subjCode, struPath))
+    if isempty(fs_readlabel(labelFn, subjCode, struDIR))
         labelTable = [];
         fscmd = '';
         return;
     end
-    fscmd_label = sprintf(' --clabel %s', fullfile(struPath, subjCode, ...
+    fscmd_label = sprintf(' --clabel %s', fullfile(struDIR, subjCode, ...
         'label', labelFn));
 else
     conName = labelFn;
@@ -81,7 +74,7 @@ else
 end
 
 % sig file
-sigfile = fullfile(funcPath, sessCode, 'bold', anaName, conName, sigFn);
+sigfile = fullfile(getenv('FUNCTIONALS_DIR'), sessCode, 'bold', anaName, conName, sigFn);
 
 % create the freesurfer command
 outFn = sprintf('cluster=%s=%s=%s=thmin%0.2f.txt', anaName, labelFn, ...

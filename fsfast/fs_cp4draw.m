@@ -1,5 +1,5 @@
-function fs_cp4draw(sessList, targetPath, analysisList, contrastList, funcPath, structPath)
-% fs_cp4draw(sessList, targetPath, analysisList, contrastList, funcPath, structPath)
+function fs_cp4draw(sessList, targetPath, analysisList, contrastList, funcDir, struDir)
+% fs_cp4draw(sessList, targetPath, analysisList, contrastList, funcDir, structDir)
 %
 % This function copy the files necessary for drawing labels later.
 %
@@ -9,11 +9,11 @@ function fs_cp4draw(sessList, targetPath, analysisList, contrastList, funcPath, 
 %                       copied to
 %     analysisList     <string> or <cell of strings> the list of analysis
 %                       name(s); it equals to the parent directory of
-%                       funcPath.
+%                       funcDir.
 %     contrastList     <string> or <cell of strings> the list of the
 %                       contrast name(s).
-%     funcPath         <string> the full path to the functional folder.
-%     structPath       <string> the full path to the subjects folder.
+%     funcDir         <string> the full path to the functional folder.
+%     struDir       <string> the full path to the subjects folder.
 %
 % Output:
 %     the necessary files for drawing labels
@@ -28,29 +28,29 @@ function fs_cp4draw(sessList, targetPath, analysisList, contrastList, funcPath, 
 %           mri/orig.mgz
 %           mri/transforms/talairach.xfm
 %
-%     funcPath/sessCode/bold/analysisName/contrastNames
+%     funcDir/sessCode/bold/analysisName/contrastNames
 %
-%     funcPath/sessCode/subjectname
+%     funcDir/sessCode/subjectname
 %
-%     funcPath/analysisname
+%     funcDir/analysisname
 %
 % Created by Haiyang Jin (10-Feb-2020)
 
-if nargin < 5 || isempty(funcPath)
-    funcPath = getenv('FUNCTIONALS_DIR');
+if nargin < 5 || isempty(funcDir)
+    funcDir = getenv('FUNCTIONALS_DIR');
 end
 
-if nargin < 6 || isempty(structPath)
-    funcPath = getenv('SUBJECTS_DIR');
+if nargin < 6 || isempty(struDir)
+    struDir = getenv('SUBJECTS_DIR');
 end
 
-[~, structFolder] = fileparts(structPath);
-[~, funcFolder] = fileparts(funcPath);
+[~, structFolder] = fileparts(struDir);
+[~, funcFolder] = fileparts(funcDir);
 
 surfFiles = {'*h.inflated', '*h.orig', '*h.curv', '*h.white', '*h.pial'};
 
-% copy the analysis folders in funcPath
-cellfun(@fm_copyfile, fullfile(funcPath, analysisList), ...
+% copy the analysis folders in funcDir
+cellfun(@fm_copyfile, fullfile(funcDir, analysisList), ...
     fullfile(targetPath, funcFolder, analysisList));
 
 nSess = numel(sessList);
@@ -64,28 +64,28 @@ for iSess = 1: nSess
     [tempAna, tempCon] = ndgrid(analysisList, contrastList);
    
     % copy all the contrast folders
-    cellfun(@(x, y) fm_copyfile(fullfile(funcPath, tempBold, x, y), ...
+    cellfun(@(x, y) fm_copyfile(fullfile(funcDir, tempBold, x, y), ...
         fullfile(targetPath, funcFolder, tempBold, x, y)), tempAna, tempCon, ...
         'uni', false);
     
     % subjectname
-    fm_copyfile(fullfile(funcPath, thisSess, 'subjectname'), ...
+    fm_copyfile(fullfile(funcDir, thisSess, 'subjectname'), ...
         fullfile(targetPath, funcFolder, thisSess));
     
     % structural data
-    thisSubj = fs_subjcode(thisSess, funcPath);
+    thisSubj = fs_subjcode(thisSess);
     
     tempSurf = fullfile(thisSubj, 'surf');
     tempLabel = fullfile(thisSubj, 'label');
     tempOrig = fullfile(thisSubj, 'mri');
     
-    cellfun(@(x) fm_copyfile(fullfile(structPath, tempSurf, x), ...
+    cellfun(@(x) fm_copyfile(fullfile(struDir, tempSurf, x), ...
         fullfile(targetPath, structFolder, tempSurf)), surfFiles, 'uni', false);
-    fm_copyfile(fullfile(structPath, tempLabel, '*h.aparc.annot'), ...
+    fm_copyfile(fullfile(struDir, tempLabel, '*h.aparc.annot'), ...
         fullfile(targetPath, structFolder, tempLabel));
-    fm_copyfile(fullfile(structPath, tempOrig, 'orig.mgz'), ...
+    fm_copyfile(fullfile(struDir, tempOrig, 'orig.mgz'), ...
         fullfile(targetPath, structFolder, tempOrig));
-    fm_copyfile(fullfile(structPath, tempOrig, 'transforms', 'talairach.xfm'), ...
+    fm_copyfile(fullfile(struDir, tempOrig, 'transforms', 'talairach.xfm'), ...
         fullfile(targetPath, structFolder, tempOrig, 'transforms'));
     
 end

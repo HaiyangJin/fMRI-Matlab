@@ -10,7 +10,7 @@ function [cluVtx, makeupVtx] = fs_makeupcluster(vtxIdx, hemi, subjCode)
 %    hemi            <string> 'lh' or 'rh'. Which hemisphere is 'vtxIdx'
 %                     from.
 %                 OR <numeric array> vertex face array. 
-%    subjCode        <string> subject code in struPath. Default is empty.
+%    subjCode        <string> subject code in $SUBJECTS_DIR. Default is empty.
 % 
 % Output:
 %    cluVtx          <integer vector> all the vertices including 'vtxIdx'

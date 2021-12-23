@@ -1,6 +1,6 @@
-function [vtxCell, faceCell] = fs_cosmo_surfcoor(subjCode, surfType, combineHemi, struPath)
+function [vtxCell, faceCell] = fs_cosmo_surfcoor(subjCode, surfType, combineHemi)
 % [vtxCell, faceCell] = fs_cosmo_surfcoor(subjCode, [surfType = 'sphere', ...
-% combineHemi = 0, struPath])
+% combineHemi = 0])
 % 
 % This function load ?h.sphere (inflated or white or pial) into Matlab. The
 % vertices will be masked by label/?h.cortex.label. Vertices (faces) for 
@@ -35,12 +35,8 @@ if ~exist('combineHemi', 'var') || isempty(combineHemi)
     combineHemi = 0;
 end
 
-if ~exist('struPath', 'var') || isempty(struPath)
-    struPath = getenv('SUBJECTS_DIR');
-end
-
 % FreeSurfer setup
-surfPath = fullfile(struPath, subjCode, 'surf');
+surfPath = fullfile(getenv('SUBJECTS_DIR'), subjCode, 'surf');
 hemis = {'lh', 'rh'};
 nHemi = 2;
 

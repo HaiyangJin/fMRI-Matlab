@@ -13,9 +13,9 @@ function [funcDir, sessList] = fs_funcdir(funcDir, strPattern, setdir)
 %                      set env.
 %
 % Output:
-%    funcPath         <str> path to the functional folder.
+%    funcDir          <str> path to the functional folder.
 %    sessList         <cell str> a list of session codes.
-%    save funcPath to $FUNCTIONALS_DIR if applicable.
+%    save funcDir to $FUNCTIONALS_DIR if applicable.
 %
 % Creatd by Haiyang Jin (18-Dec-2019)
 
@@ -35,7 +35,7 @@ if isempty(funcDir) && setdir
     error('Please set $FUNCTIONALS_DIR with fs_funcdir().')
 end
 
-% make sure the struPath exists
+% make sure the struDir exists
 assert(logical(exist(funcDir, 'dir')), 'Cannot find the directory: \n%s...', funcDir);
 
 % set the environmental variable of FUNCTIONALS_DIR

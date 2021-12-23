@@ -1,27 +1,26 @@
 function fscmd = fs_drawlabel(sessList, anaList, conList, fthresh, ...
-    extraLabelStr, viewer, extracmd, runcmd, funcPath)
+    extraLabelStr, viewer, extracmd, runcmd)
 % fscmd = fs_drawlabel(sessList, anaList, conList, fthresh, ...
-%    extraLabelStr, viewer, extracmd, runcmd, funcPath)
+%    extraLabelStr, viewer, extracmd, runcmd)
 %
 % This function use FreeSurfer ("tksurfer") to draw labels.
 %
 % Inputs:
-%    sessList       <string> session code in $FUNCTIONALS_DIR;
-%                   <cell of string> cell of session codes in
+%    sessList       <str> session code in $FUNCTIONALS_DIR;
+%                   <cell str> cell of session codes in
 %                    %SUBJECTS_DIR.
-%    anaList        <string> or <a cell of strings> the names of the
-%                    analysis (i.e., the names of the analysis folders).
-%    conList        <string> contrast name used glm (i.e., the names of
+%    anaList        <str> or <cell str> the names of the analysis (i.e.,
+%                    the names of the analysis folders).
+%    conList        <str> contrast name used glm (i.e., the names of
 %                    contrast folders).
-%    fthresh        <numeric> significance level (default is 2 (.01)).
-%    extraLabelStr  <string> extra label information added to the end
+%    fthresh        <num> significance level (default is 2 (.01)).
+%    extraLabelStr  <str> extra label information added to the end
 %                    of the label name.
-%    viewer         <integer> 1 for 'tksurfer' and 2 for 'freeview'. For
+%    viewer         <int> 1 for 'tksurfer' and 2 for 'freeview'. For
 %                    FS5 and FS6, default is 1 and for FS7, default is 2.
-%    extracmd       <string> extra commands for 'tksurfer'. Default is ''.
-%    runcmd         <logical> 1: run FreeSurfer commands; 0: do not run
+%    extracmd       <str> extra commands for 'tksurfer'. Default is ''.
+%    runcmd         <boo> 1: run FreeSurfer commands; 0: do not run
 %                    but only output FreeSurfer commands. 
-%    funcPath       <string> the full path to the functional folder.
 %
 % Tips:
 % To invert the display of overlay, set extracmd as '-invphaseflag 1'.
@@ -62,9 +61,7 @@ end
 if ~exist('runcmd', 'var') || isempty(runcmd)
     runcmd = 1;
 end
-if ~exist('funcPath', 'var') || isempty(funcPath)
-    funcPath = getenv('FUNCTIONALS_DIR');
-end
+
 
 %% Draw labels for all participants for both hemispheres
 % create all the combinations
@@ -83,8 +80,8 @@ extraStr(notdot) = cellfun(@(x) [x '.'], extraStr(notdot), 'uni', false);
 
 % obtain necessary information
 hemi = cellfun(@fm_2hemi, ana, 'uni', false);
-subjCode = cellfun(@(x) fs_subjcode(x, funcPath), sess, 'uni', false);
-sigFile = fullfile(funcPath, sess, 'bold', ana, con, 'sig.nii.gz');
+subjCode = fs_subjcode(x, sess);
+sigFile = fullfile(getenv('FUNCTIONALS_DIR'), sess, 'bold', ana, con, 'sig.nii.gz');
 labelName = cellfun(@(x1, x2, x3, x4) sprintf('roi.%s.f%d.%s.%slabel', ...
     x1, x2*10, x3, x4), hemi, thresh, con, extraStr, 'uni', false);
 

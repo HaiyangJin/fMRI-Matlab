@@ -8,15 +8,15 @@ function gmTable = fs_labelgm(labelList, subjList)
 % *.gm file is the vertex number in Matlab. 
 %
 % Inputs:
-%    labelList       <cell string> list of the label files (with or without
+%    labelList       <cell str> list of the label files (with or without
 %                     path). If path is included in labelFn, 'subjCode'
 %                     will be ignored. 
-%    subjList        <cell string> subject code in struPath. 
+%    subjList        <cell str> subject code in $SUBJECTS_DIR. 
 %
 % Output:
 %    gmTable         <table> the vertex index of the global maxima for each
 %                     label and subject.
-%    GlobalMax       <integer> a vector of the vertex indices of the global
+%    GlobalMax       <int> a vector of the vertex indices of the global
 %                     maxima.
 %
 % Created by Haiyang Jin (15-Jun-2020)

@@ -1,19 +1,18 @@
 function periVtx = sf_perivtx(vtxIdx, faces)
-% periVtx = sf_perivtx(vtxIdx, hemi, subjCode)
+% periVtx = sf_perivtx(vtxIdx, faces)
 %
 % This function identifies the peripheral (the most outside) vertices of
 % 'vtxIdx', which should be contiguous to each other. 
 %
 % Inputs:
-%    vtxIdx          <integer array> indices of vertices whose areas will
+%    vtxIdx          <int array> indices of vertices whose areas will
 %                     be calculated. Default is all vertices in the label.
-%    hemi            <string> 'lh' or 'rh'. Which hemisphere is 'vtxIdx'
-%                     from.
-%                 OR <numeric array> vertex face array. 
-%    subjCode        <string> subject code in struPath. Default is empty.
+%    hemi            <str> 'lh' or 'rh'. Which hemisphere is 'vtxIdx' from.
+%                 OR <num array> vertex face array. 
+%    subjCode        <str> subject code in $SUBJECTS_DIR. Default is empty.
 %
 % Output:
-%    periVtx         <integer array> the peripheral vertices of 'vtxIdx'.
+%    periVtx         <int array> the peripheral vertices of 'vtxIdx'.
 %
 % Created by Haiyang Jin (4-Jun-2020)
 

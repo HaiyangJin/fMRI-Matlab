@@ -20,11 +20,11 @@ function olFile = fv_uigetfile(subjCode, surfType, runFV)
 
 %% open a gui to select file if olFile is empty
 % set the default folder is SUBJECTS_DIR if it is not empty
-struPath = getenv('SUBJECTS_DIR');
-if isempty(struPath)
+struDir = getenv('SUBJECTS_DIR');
+if isempty(struDir)
     startPath = pwd;
 else
-    startPath = struPath;
+    startPath = struDir;
 end
 
 % open a gui to select mgz files

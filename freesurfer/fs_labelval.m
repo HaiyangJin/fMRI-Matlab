@@ -7,9 +7,8 @@ function fs_labelval(labelFn, subjCode, sigFile)
 % Inputs:
 %    labelFn         <str> filename of the label file (with or without
 %                     path). If path is included in labelFn, 'subjCode'
-%                     and struPath will be ignored. Default is
-%                     'no.label', i.e., no labels.
-%    subjCode        <str> subject code in struPath. Default is
+%                     will be ignored. Default is 'no.label', i.e., no labels.
+%    subjCode        <str> subject code in $SUBJECTS_DIR. Default is
 %                     fsaverage.
 %    sigFile         <str> usually the sig.nii.gz from localizer scans.
 %                     This should include the path to the file if needed.

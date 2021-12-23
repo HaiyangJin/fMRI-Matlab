@@ -1,15 +1,14 @@
-function sessList = fs_sesslist(sessid, funcPath)
-% sessList = fs_sesslist(sessid, funcPath)
+function sessList = fs_sesslist(sessid)
+% sessList = fs_sesslist(sessid)
 %
 % This function reads the session ID file and output the session list.
 %
 % Inputs:
-%    sessid           <string> name of the sessiond id file. OR the full
+%    sessid           <str> name of the sessiond id file. OR the full
 %                      name of the session id file (with path).
-%    funcPath         <string> the full path to the functional folder.
 %
 % Output:
-%    sessList         <cell of string> a list of session names.
+%    sessList         <cell str> a list of session names.
 % 
 % Created by Haiyang Jin (7-Apr-2020)
 
@@ -17,15 +16,9 @@ if nargin < 1 || isempty(sessid)
     sessid = 'sessid*';
 end
     
-if isempty(fileparts(sessid))
-    % if there is no path included in sessid
-    
-    if nargin < 2 || isempty(funcPath)
-        funcPath = getenv('FUNCTIONALS_DIR');
-    end
-    
+if isempty(fileparts(sessid))    
     % dir all the possible session files
-    sessDir = dir(fullfile(funcPath, sessid));
+    sessDir = dir(fullfile(getenv('FUNCTIONALS_DIR'), sessid));
     nID = numel(sessDir);
     
     % error if there are multiple session files

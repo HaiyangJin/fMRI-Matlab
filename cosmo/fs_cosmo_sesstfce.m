@@ -9,7 +9,7 @@ function tfce_cell = fs_cosmo_sesstfce(sessList, anaList, contraList, dataFn, va
 % Inputs:
 %    sessList           <string> the filename of the session file stored in
 %                        '$FUNCTIONALS_DIR'.
-%                    or <string cell> a list of session codes in funcPath.
+%                    or <string cell> a list of session codes in 
 %                        ('$FUNCTIONALS_DIR').
 %    anaList            <string> or <string cell> one or two analysis name.
 %                        If two analysis names are used here, they should

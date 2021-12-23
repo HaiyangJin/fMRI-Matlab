@@ -1,4 +1,4 @@
-function outpoints = fs_self2tal(inpoints, subjCode, struPath)
+function outpoints = fs_self2tal(inpoints, subjCode)
 % outpoints = fs_self2tal(inpoints, subjCode)
 %
 % This function converts self RAS to Talairach coordinates. But the output
@@ -12,12 +12,11 @@ function outpoints = fs_self2tal(inpoints, subjCode, struPath)
 %    Volume Talairach = fs_self2tal(Volume RAS, subjcode);
 %
 % Inputs:
-%    inpoints        <numeric array> RAS on self surface [real world].
-%    subjCode        <string> subject code in struPath.
-%    struPath        <string> $SUBJECTS_DIR.
+%    inpoints        <num array> RAS on self surface [real world].
+%    subjCode        <str> subject code in $SUBJECTS_DIR.
 %    
 % Output:
-%    outpoints       <numeric array> cooridnates in Talairach space. 
+%    outpoints       <num array> cooridnates in Talairach space. 
 %
 % Created by Haiyang Jin (13-Nov-2019)
 %
@@ -27,12 +26,9 @@ function outpoints = fs_self2tal(inpoints, subjCode, struPath)
 if ~exist('subjCode', 'var') || isempty(subjCode)
     error('Please input the subject code.');
 end
-if ~exist('struPath', 'var') || isempty(struPath)
-    struPath = getenv('SUBJECTS_DIR');
-end
 
 % from Vertex RAS (or Volume RAS) to MNI305 RAS (fsaverage or MNI Talairach)
-outpoints1 = fs_self2fsavg(inpoints, subjCode, struPath);
+outpoints1 = fs_self2fsavg(inpoints, subjCode);
 
 % from MNI305 RAS (fsaverage or MNI Talairach) to Talairach
 outpoints = mni2tal(outpoints1);

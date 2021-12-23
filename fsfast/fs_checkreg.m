@@ -1,5 +1,5 @@
-function output = fs_checkreg(sessList, isSort, funcPath)
-% output = fs_checkreg(sessList, isSort, funcPath)
+function output = fs_checkreg(sessList, isSort)
+% output = fs_checkreg(sessList, isSort)
 % 
 % This function check the co-registration conducted by preproc-sess.
 %
@@ -9,7 +9,6 @@ function output = fs_checkreg(sessList, isSort, funcPath)
 %                       column). 0: do not sort (default); 1: sort the
 %                       quality by 'descend'; 2: sort the quality by
 %                       'ascend'. 
-%    funcPath          <string> the full path to the functional folder.
 %
 % Output:
 %    output            a cell of registration quality if isSort is true.
@@ -25,13 +24,9 @@ elseif isSort == 2
     order = 'ascend';
 end
 
-if nargin < 3 || isempty(funcPath)
-    funcPath = getenv('FUNCTIONALS_DIR');
-end
-
 % creat the commands for checking co-registration
 wdBackup = pwd;
-cd(funcPath);
+cd(getenv('FUNCTIONALS_DIR'));
 
 fscmd = cellfun(@(x) sprintf('tkregister-sess -s %s -fsd bold -per-run -bbr-sum',...
     x), sessList, 'uni', false);

@@ -1,17 +1,16 @@
-function fscmd = fs_sessmeanmask(sessCode, template, funcPath)
-% fscmd = fs_sessmeanmask(sessCode, template, funcPath)
+function fscmd = fs_sessmeanmask(sessCode, template)
+% fscmd = fs_sessmeanmask(sessCode, template)
 %
 % This function generates the mean mask of all run masks within that session. 
 % Its outputs are:
 %     boldPath/masks/brain.[template].?h.pr.nii.gz
 %
 % Inputs:
-%     sessCode         <string> session code in funcPath.
-%     template         <string> 'fsaverage' or 'self'. fsaverage is the default.
-%     funcPath         <string> the full path to the functional folder.
+%     sessCode         <str> session code in $FUNCTIONALS_DIR.
+%     template         <str> 'fsaverage' or 'self'. fsaverage is the default.
 %
 % Output:
-%     fscmd            <cell of strings> FreeSurfer commands used here.
+%     fscmd            <cell str> FreeSurfer commands used here.
 %
 % Created by Haiyang Jin (7-Apr-2020)
 
@@ -22,10 +21,6 @@ elseif ~ismember(template, {'fsaverage', 'self'})
     error('The template has to be ''fsaverage'' or ''self'' (not ''%s'').', template);
 end
 
-if nargin < 3 || isempty(funcPath)
-    funcPath = getenv('FUNCTIONALS_DIR');
-end
-
 % hemispheres
 hemis = {'lh', 'rh'};
 nHemi = numel(hemis);
@@ -34,11 +29,11 @@ nHemi = numel(hemis);
 fscmd = cell(2, nHemi);
 
 % run information
-runList = fs_runlist(sessCode, '', funcPath);
+runList = fs_runlist(sessCode);
 nRun = numel(runList);
 
 % bold path
-boldPath = fullfile(funcPath, sessCode, 'bold');
+boldPath = fullfile(getenv('FUNCTIONALS_DIR'), sessCode, 'bold');
     
 % calculate the mean mask for each hemisphere separately
 for iHemi = 1:nHemi

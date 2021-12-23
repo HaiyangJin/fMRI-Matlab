@@ -7,8 +7,8 @@ function [ds_sess, dsInfo] = fs_cosmo_sessds(sessCode, anaName, varargin)
 % later).
 %
 % Inputs:
-%    sessCode       <str> session code in funcPath.
-%    anaName        <str> analysis name in funcPath.
+%    sessCode       <str> session code in $FUNCTIONALS_DIR.
+%    anaName        <str> analysis name in $FUNCTIONALS_DIR.
 %
 % Varargin:
 %    runinfo        <str> the filename of the run file (e.g.,
@@ -18,7 +18,8 @@ function [ds_sess, dsInfo] = fs_cosmo_sessds(sessCode, anaName, varargin)
 %                    {'001', '002', '003'....}.
 %    runwise        <boo> load the data analyzed combining all runs
 %                    [runwise = 0; default]; load the data analyzed for
-%                    each run separately [runwise = 1].
+%                    each run separately [runwise = 1] (this applies only 
+%                    when argument '-run-wise' is used for 'selxavg3-sess'. 
 %    labelfn        <str> the label name (without path). Its vertex
 %                    indices will be used as a mask to the dataset, i.e.,
 %                    only the data for vertices in the label sare saved.

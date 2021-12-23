@@ -1,5 +1,5 @@
-function outpoints = fs_self2fsavg(inpoints, subjCode, struPath)
-% outpoints = fs_self2fsavg(inpoints, subjCode, [struPath])
+function outpoints = fs_self2fsavg(inpoints, subjCode)
+% outpoints = fs_self2fsavg(inpoints, subjCode)
 %
 % This functions converts self surface (or volume) RAS [in real world] to 
 % MNI305 (fsaverage) RAS by following 
@@ -16,8 +16,7 @@ function outpoints = fs_self2fsavg(inpoints, subjCode, struPath)
 %
 % Inputs:
 %    inpoints        <numeric array> RAS on self surface [real world].
-%    subjCode        <string> subject code in struPath.
-%    struPath        <string> $SUBJECTS_DIR.
+%    subjCode        <string> subject code in $SUBJECTS_DIR.
 %
 % Output:
 %    outpoints       <numeric array> cooridnates on fsaverage (MNI305 or
@@ -31,12 +30,9 @@ function outpoints = fs_self2fsavg(inpoints, subjCode, struPath)
 if ~exist('subjCode', 'var') || isempty(subjCode)
     error('Please input the subject code.');
 end
-if ~exist('struPath', 'var') || isempty(struPath)
-    struPath = getenv('SUBJECTS_DIR');
-end
 
 %% Load the TalXFM file for this subject
-taldir = fullfile(struPath, subjCode, 'mri', 'transforms', 'talairach.xfm');
+taldir = fullfile(getenv('SUBJECTS_DIR'), subjCode, 'mri', 'transforms', 'talairach.xfm');
 [~, talXFM] = system(sprintf('cat %s', taldir));
 
 % split talXFM

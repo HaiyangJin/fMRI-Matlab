@@ -1,23 +1,23 @@
-function fscmd = fs_label2label(srcSubj, srcLabel, trgSubj, trgLabel, runcmd, struPath)
-% fscmd = fs_label2label(srcSubj, srcLabel, trgSubj, trgLabel, runcmd, struPath)
+function fscmd = fs_label2label(srcSubj, srcLabel, trgSubj, trgLabel, runcmd, struDir)
+% fscmd = fs_label2label(srcSubj, srcLabel, trgSubj, trgLabel, runcmd, struDir)
 %
 % This fucntion converts the label from one space to another via FreeSurfer
 % commands (mri_label2label). . By default, it will convert the label to 
 % fsaverage space (but still saved in that subject folder).
 %
 % Inputs:
-%    srcSubj      <cell string> list of source subject codes.
-%    srcLabel     <cell string> list of source label files.
-%    trgSubj      <cell string> the target subject. Default is 'fsaverage'.
-%    trgLabel     <cell string> the names of the target labels. By default,
+%    srcSubj      <cell str> list of source subject codes.
+%    srcLabel     <cell str> list of source label files.
+%    trgSubj      <cell str> the target subject. Default is 'fsaverage'.
+%    trgLabel     <cell str> the names of the target labels. By default,
 %                  '.2fsaverage' will be added before '.label'.
-%    runcmd       <logical> 1: run and output FreeSurfer commands (fscmd);
+%    runcmd       <boo> 1: run and output FreeSurfer commands (fscmd);
 %                  0: do not run but only output fscmd.
-%    struPath     <string> the path to the subjects folder. Default is
+%    struDir      <str> the path to the subjects folder. Default is
 %                  $SUBJECTS_DIR.
 %
 % Outputs:
-%    fscmd        <cell of strings> The first column is FreeSurfer 
+%    fscmd        <cell str> The first column is FreeSurfer 
 %                  commands used in the current session. And the  
 %                  second column is whether the command successed. 
 %                  [0: successed; other numbers: failed.] 
@@ -41,16 +41,16 @@ tSubjList = tempTSubj(:);
 
 nComb = numel(sSubjList);
 
-if ~exist('struPath', 'var') || isempty(struPath)
-    struPath = getenv('SUBJECTS_DIR');
+if ~exist('struDir', 'var') || isempty(struDir)
+    struDir = getenv('SUBJECTS_DIR');
 end
 % get the full path to labels
-sFileList = fullfile(struPath, sSubjList, 'label', sLabelList); 
+sFileList = fullfile(struDir, sSubjList, 'label', sLabelList); 
 
 if ~exist('trgLabel', 'var') || isempty(trgLabel)
     trgLabel = cellfun(@(x) strrep(x, '.label', '.2fsaverage.label'), sFileList, 'uni', false);
 elseif strcmp(trgLabel, 'samename')
-    trgLabel = fullfile(struPath, tSubjList, 'label', sLabelList);
+    trgLabel = fullfile(struDir, tSubjList, 'label', sLabelList);
 elseif ischar(trgLabel)
     trgLabel = {trgLabel};
 end
