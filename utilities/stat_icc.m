@@ -1,5 +1,5 @@
-function [r, LB, UB, p] = stat_icc(M, type, alpha, r0)
-% [r, LB, UB, p] = stat_icc(M, type, alpha, r0)
+function [r, LB, UB, F, df1, df2, p] = stat_icc(M, type, alpha, r0)
+% [r, LB, UB, F, df1, df2, p] = stat_icc(M, type, alpha, r0)
 %
 % Calculates the Intraclass correlation coefficient with ICC(), which is
 % available at https://www.mathworks.com/matlabcentral/fileexchange/22099-intraclass-correlation-coefficient-icc
@@ -19,6 +19,7 @@ function [r, LB, UB, p] = stat_icc(M, type, alpha, r0)
 %              significance.
 %    UB       <num> the upper bound of the ICC with alpha level of
 %              significance.
+%    F, df1, df2 <num> parameters estimated during ICC calculation.
 %    p        <num> the p-value.
 %
 % % Examples:
@@ -62,6 +63,6 @@ if ~exist('r0', 'var') || isempty(r0)
     r0 = 0; % its default in ICC()
 end
 
-[r, LB, UB, ~, ~, ~, p] = ICC(M, type, alpha, r0);
+[r, LB, UB, F, df1, df2, p] = ICC(M, type, alpha, r0);
 
 end
