@@ -25,7 +25,7 @@ function mvpaTable = cosmo_cvdecode(ds, classPairs, dsInfo, classifiers, classop
 %
 % Created by Haiyang Jin (12-Dec-2019)
 
-if isempty(ds.samples)
+if isempty(ds) || isempty(ds.samples)
     mvpaTable = table;
     return;
 end

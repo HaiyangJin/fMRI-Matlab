@@ -1,7 +1,7 @@
 function predTable = fs_cosmo_similarity(sessList, anaList, labelList, runInfo, ...
-    classPairs, condName, condWeight, autoscale, outPath)
+    trainPairs, testCond, testWeight, autoscale, outPath)
 % predTable = fs_cosmo_similarity(sessList, anaList, labelList, runInfo, ...
-%    classPairs, condName, condWeight, autoscale, outPath)
+%    trainPairs, testWeight, condWeight, autoscale, outPath)
 %
 % This function decodes the similarity of condName to classPairs for all
 % the sessions in the project. libsvm is used in this analysis.
@@ -15,17 +15,24 @@ function predTable = fs_cosmo_similarity(sessList, anaList, labelList, runInfo, 
 %                     all run folders will be used.]
 %                OR  <cell str> a list of all the run names. (e.g.,
 %                     {'001', '002', '003'....}.
-%    classPairs      <cell str> a PxQ (usually is 2) cell matrix 
-%                     for the pairs to be classified. Each row is one 
-%                     classfication pair. 
-%    condName        <cell str> a PxQ cell vector for the 
-%                     conditions to be combined for the similarity test.
-%                     The row number should be same as that for classPairs.
-%                     The similarity of condName to classPairs will be
-%                     tested separated for each row.
-%    condWeight      <num array> a PxQ numeric array for the
+%    trainPairs      <cell str> a PxQ (usually is 2) cell matrix 
+%                     for the pairs to be trained. Each row is one 
+%                     classfication (train) pair. 
+%    testCond        <cell str> a PxR cell vector for the conditions to be
+%                     tested. Each row will be combined with the weights in 
+%                     [condWeight] for the similarity test. E.g., if R is
+%                     1, the sample will be tested directly. The row number
+%                     should be same as that for classPairs (i.e., P).
+%                     The similarity of [testCond] to classPairs will be
+%                     tested for each row separatedly.
+%    testWeight      <num array> a SxR numeric array for the
 %                     weights to be applied to the combination of condName.
-%                     Each row of weights is tested separately.
+%                     Each row of weights is tested separately. Default is
+%                     the mean of each row. If [conWeight] is -1, each of
+%                     the test conditions (in each row) will be test 
+%                     separately with the classifier trained with 
+%                     [trainPairs] on that row. No combination will be
+%                     performed.
 %    autoscale       <boo> whether apply autoscale to train and test
 %                     datasets. Default is 1.
 %    outPath         <str> where output to be saved.
@@ -51,14 +58,12 @@ if ischar(labelList); labelList = {labelList}; end
 nLabel = numel(labelList);
 
 % The row numbers of classPairs and condName have to be the same.
-nClass = size(classPairs, 1);
-assert(nClass == size(condName, 1), ...
+nClass = size(trainPairs, 1);
+assert(nClass == size(testCond, 1), ...
     'The row numbers of classPairs and condName should be the same.');
 
-if ~exist('condWeight', 'var') || isempty(condWeight)
-    condWeight = '';
-elseif size(condWeight, 2) ~= size(condName, 2)
-    error('The column numbers of condWeight and condName should be the same.');
+if ~exist('testWeight', 'var') || isempty(testWeight)
+    testWeight = [];
 end
 
 if ~exist('autoscale', 'var') || isempty(autoscale)
@@ -99,11 +104,28 @@ for iSess = 1:nSess
         [ds_subj, dsInfo] = fs_cosmo_sessds(thisSess, theAna{1}, ...
             'labelfn', thisLabel, 'runinfo', runInfo, 'runwise', 1);
         
-        %%%%%%%%%%%%%%% estimate the similarity %%%%%%%%%%%%%%%%%%
-        simiCell = arrayfun(@(x, y) cosmo_similarity(ds_subj, ...
-            classPairs(x, :), condName(x, :), condWeight, dsInfo, autoscale), ...
-            1:nClass, 'uni', false);
-        
+        if numel(testWeight)==1 && testWeight==-1
+            %%%%%%%%%% estimate the similarity (without combination) %%%%%%%%%%
+            simiCell = cell(size(trainPairs, 1), 1);
+            
+            for iTrain = 1:size(trainPairs, 1)
+
+                tmpTestC = testCond{iTrain};
+
+                tmpSimiCell = cellfun(@(x) cosmo_similarity(ds_subj, ...
+                    trainPairs(iTrain, :), x, 1, dsInfo, autoscale), ...
+                    tmpTestC(:), 'uni', false);
+
+                simiCell{iTrain, 1} = vertcat(tmpSimiCell{:});
+            end
+
+        else
+            %%%%%%%%%% estimate the similarity (with combination) %%%%%%%%%%
+            simiCell = arrayfun(@(x) cosmo_similarity(ds_subj, ...
+                trainPairs(x, :), testCond(x, :), testWeight, dsInfo, autoscale), ...
+                1:nClass, 'uni', false);
+        end
+
         predCell{iSess, iLabel} = vertcat(simiCell{:});
     
     end
