@@ -70,12 +70,13 @@ Then following steps should be repeated for each subject, analysis, contrast, an
 3. Click the `Custom Fill` icon, which is at the middle of the second row.
    - A new window called `Custom Fill` will open; select `Up to functional values below threshold` and then click `Fill`.
        <img src="img/draw_surface_roi_image3.png" width="500" >
+       <img src="img/draw_surface_roi_image4.png" width="200" >
    <br>
 4. Save this label.
    - `File` -> `Label` -> `Save Selected Label...`;  
-       <img src="img/draw_surface_roi_image4.png" width="350" >
-   - Select where you would like to save the label and rename the label. Click `OK`.  
        <img src="img/draw_surface_roi_image5.png" width="350" >
+   - Select where you would like to save the label and rename the label. Click `OK`.  
+       <img src="img/draw_surface_roi_image6.png" width="350" >
    <br>
 5. Done. Click `File` -> `Quit` to quit.
 
