@@ -29,8 +29,6 @@ function [ds_sess, dsInfo] = fs_cosmo_sessds(sessCode, anaName, varargin)
 %                    percentage change. Default is 0.
 %    parfn          <str> the filename of the par file. It is empty by
 %                    default and will try to find the par file for that run.
-%    funcpath       <str> the path to the session folder, 
-%                    $FUNCTIONALS_DIR by default.
 %
 % Outputs:
 %    ds_subj        <struct> data set for CoSMoMVPA.
@@ -49,16 +47,20 @@ defaultOpts = struct(...
     'labelfn', '',... 
     'datafn', 'beta.nii.gz',... 
     'parfn', '', ... 
-    'ispct', '', ... % 0 default for fs_cosmo_surface
-    'funcpath', getenv('FUNCTIONALS_DIR')...
+    'ispct', '' ... % 0 default for fs_cosmo_surface
     );
 
 opts = fm_mergestruct(defaultOpts, varargin{:});
 
+% skip if the label file (if not empty) is not avaiable 
 labelFn = opts.labelfn;
-funcPath = opts.funcpath;
+if ~isempty(labelFn) && isempty(fs_readlabel(labelFn, fs_subjcode(sessCode)))
+    ds_sess = [];
+    dsInfo = table;
+    return;
+end
 
-runList = fs_runlist(sessCode, opts.runinfo, funcPath);
+runList = fs_runlist(sessCode, opts.runinfo);
 
 %% Read data and condition names
 % create the prFolder names if data for each run are read separately
@@ -71,7 +73,7 @@ else
 end
 
 % path to the bold folder
-boldPath = fullfile(funcPath, sessCode, 'bold');
+boldPath = fullfile(getenv('FUNCTIONALS_DIR'), sessCode, 'bold');
 
 % create the full filename to the paradigm file (with path)
 parFiles = fullfile(boldPath, runList, opts.parfn);
@@ -94,7 +96,7 @@ ds_all = cosmo_stack(dsCell,1);
 %% Apply the label file as mask if necessary
 if ~isempty(labelFn)
     % convert label into mask
-    roiMask = fs_label2mask(labelFn, fs_subjcode(sessCode, funcPath), size(ds_all.samples, 2));
+    roiMask = fs_label2mask(labelFn, fs_subjcode(sessCode), size(ds_all.samples, 2));
     % apply the mask
     ds_sess = cosmo_slice(ds_all, logical(roiMask), 2);
 else
