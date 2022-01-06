@@ -1,5 +1,5 @@
-function labelarea = fs_labelarea(labelFn, subjCode, vtxIdx, struDir)
-% labelarea = fs_labelarea(labelFn, subjCode, vtxIdx, struDir)
+function labelarea = fs_labelarea(labelFn, subjCode, vtxIdx, surface)
+% labelarea = fs_labelarea(labelFn, subjCode, vtxIdx, surface)
 %
 % This function calculates the area (mm^2) for the label file. [It should
 % be the area on the ?h.white surface (I guess)].
@@ -7,11 +7,12 @@ function labelarea = fs_labelarea(labelFn, subjCode, vtxIdx, struDir)
 % Inputs:
 %    labelFn         <str> filename of the label file (with or without
 %                     path). If path is included in labelFn, 'subjCode'
-%                     and struDir will be ignored. 
-%    subjCode        <str> subject code in struDir. Default is empty.
+%                     and struPath will be ignored. 
+%    subjCode        <str> subject code in struPath. Default is empty.
 %    vtxIdx          <int array> vertex indices (in this label) whose
 %                     area will be calculated.
-%    struDir         <str> $SUBJECTS_DIR.
+%    surface         <str> surface without hemisphere information, which
+%                     will be obtained from [labelFn].
 %
 % Output:
 %    labelarea       <num> the label area in mm^2.
@@ -25,27 +26,32 @@ if ~exist('subjCode', 'var') || isempty(subjCode)
     subjCode = 'fsaverage';
     warning('''fsaverage'' is used as ''subjCode'' by default.');
 end
-if ~exist('struDir', 'var') || isempty(struDir)
-    struDir = '';
-end
 
 % load the label matrix
-labelMat = fs_readlabel(labelFn, subjCode, struDir);
+labelMat = fs_readlabel(labelFn, subjCode);
 
 if isempty(labelMat)
     labelarea = 0;
     return;
 end
 
-% the vertex indices
+% the vertex indices (calculate the all vertices by default)
 if ~exist('vtxIdx', 'var') || isempty(vtxIdx)
     vtxIdx = labelMat(:, 1);
 end
 
-% calculate the all vertices by default
-hemi = fm_2hemi(labelFn);
+if ~exist('surface', 'var') || isempty(surface)
+    % by default fs_vexarea() will use ?h.area
+    surface = fm_2hemi(labelFn);
+elseif ~startsWith(surface, {'lh', 'rh'})
+    surface = [fm_2hemi(labelFn) surface];
+else
+    assert(strcmp(fm_2hemi(labelfn), fm_2hemi(surface)), ['The hemisphere ' ...
+        'information of labelFn (%s) and surface (%s) does not match.'], ...
+        fm_2hemi(labelfn), fm_2hemi(surface));
+end
 
 % calculate the area
-labelarea = fs_vtxarea(vtxIdx, subjCode, hemi, struDir);
+labelarea = fs_vtxarea(vtxIdx, subjCode, surface);
 
 end

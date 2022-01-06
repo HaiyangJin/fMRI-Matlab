@@ -1,16 +1,18 @@
 function overlapTable = fs_labeloverlap(labels, subjList, outPath)
 % overlapTable = fs_labeloverlap(labels, subjList, outPath)
 %
-% This function calcualtes the overlapping between two labels
+% This function calcualtes the overlapping between every two labels.
 %
 % Inputs:
-%   labels            <cell string> a list (matrix) of label names (can be 
+%   labels            <cell str> a list (matrix) of label names (can be 
 %                      more than 2). The labels in the same row will be 
 %                      compared with each other. (each row is another cell).
-%   subjList          <cell string> subject code in $SUBJECTS_DIR.
-%   outPath           <string> where the output file will be saved
+%   subjList          <cell str> subject code in $SUBJECTS_DIR.
+%   outPath           <str> where the output file will be saved. If it is
+%                      'none', no output files will be saved. 
+%
 % Output
-%   overlapTable       a table contains the overlapping information
+%   overlapTable      <table> a table contains the overlapping information
 %
 % Created by Haiyang Jin (11/12/2019)
 
@@ -21,7 +23,7 @@ if ~exist('outPath', 'var') || isempty(outPath)
     outPath = '.';
 end
 outPath = fullfile(outPath, 'Label_Overlapping');
-if ~exist(outPath, 'dir'); mkdir(outPath); end
+if ~strcmp(outPath, 'none') && ~exist(outPath, 'dir'); mkdir(outPath); end
 
 nLabelGroup = size(labels, 1);
 
@@ -82,6 +84,8 @@ clear n
 
 overlapTable = struct2table(overlapStr); % convert structure to table
 overlapTable = rmmissing(overlapTable, 1); % remove empty rows
-writetable(overlapTable, fullfile(outPath, 'Label_Overlapping.xlsx'));
+if ~strcmp(outPath, 'none')
+    writetable(overlapTable, fullfile(outPath, 'Label_Overlapping.xlsx'));
+end
 
 end

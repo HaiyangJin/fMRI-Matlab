@@ -40,6 +40,9 @@ function [ds_sess, dsInfo] = fs_cosmo_sessds(sessCode, anaName, varargin)
 %     .SessCode     <str> this session code.
 %
 % Created by Haiyang Jin (14-Apr-2020)
+%
+% See also:
+% fs_cosmo_multids
 
 %% Deal with inputs
 defaultOpts = struct(...
