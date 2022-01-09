@@ -20,6 +20,8 @@ function fs_processbeta(sessList, anaList, varargin)
 %                    folders will be used.]
 %               OR  <str cell> a list of all the run names. (e.g.,
 %                    {'001', '002', '003'....}.
+%                    [to be deprecated; this information is read from
+%                    'analysis.info'.]
 %
 % Output:
 %    'betat.nii.gz' or 'betapct.nii.gz' in the same folder as
@@ -49,6 +51,11 @@ function sessbeta(sessCode, anaName, opts)
 boldDir = fullfile(getenv('FUNCTIONALS_DIR'), sessCode, 'bold');
 
 if opts.runwise
+    if isempty(opts.runinfo)
+        anaInfo = fs_readanainfo(anaName, sessCode);
+        opts.runinfo = anaInfo.runlistfile;
+    end
+
     % create files for each run separately
     runList = cellfun(@(x) sprintf('pr%s', x), ...
         fs_runlist(sessCode, opts.runinfo), 'uni', false);

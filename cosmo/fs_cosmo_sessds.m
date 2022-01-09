@@ -11,11 +11,6 @@ function [ds_sess, dsInfo] = fs_cosmo_sessds(sessCode, anaName, varargin)
 %    anaName        <str> analysis name in $FUNCTIONALS_DIR.
 %
 % Varargin:
-%    runinfo        <str> the filename of the run file (e.g.,
-%                    run_loc.txt.) [Default is '' and then names of all run
-%                    folders will be used.]
-%               OR  <cell str> a list of all the run names. (e.g.,
-%                    {'001', '002', '003'....}.
 %    runwise        <boo> load the data analyzed combining all runs
 %                    [runwise = 0; default]; load the data analyzed for
 %                    each run separately [runwise = 1] (this applies only 
@@ -30,6 +25,15 @@ function [ds_sess, dsInfo] = fs_cosmo_sessds(sessCode, anaName, varargin)
 %                    percentage change. Default is 0.
 %    parfn          <str> the filename of the par file. It is empty by
 %                    default and will try to find the par file for that run.
+%                    [to be deprecated; this information is read from
+%                    'analysis.info'.]
+%    runinfo        <str> the filename of the run file (e.g.,
+%                    run_loc.txt.) [Default is '' and then names of all run
+%                    folders will be used.]
+%               OR  <cell str> a list of all the run names. (e.g.,
+%                    {'001', '002', '003'....}. 
+%                    [to be deprecated; this information is read from
+%                    'analysis.info'.]
 %
 % Outputs:
 %    ds_subj        <struct> data set for CoSMoMVPA.
@@ -46,12 +50,12 @@ function [ds_sess, dsInfo] = fs_cosmo_sessds(sessCode, anaName, varargin)
 
 %% Deal with inputs
 defaultOpts = struct(...
-    'runinfo', '', ...
     'runwise', 0, ... 
     'labelfn', '',... 
     'datafn', 'beta.nii.gz',... 
-    'parfn', '', ... 
-    'ispct', '' ... % 0 default for fs_cosmo_surface
+    'ispct', '', ... % 0 default for fs_cosmo_surface
+    'parfn', '', ... % to be deprecated
+    'runinfo', '' ... % to be deprecated
     );
 
 opts = fm_mergestruct(defaultOpts, varargin{:});
@@ -64,7 +68,15 @@ if ~isempty(labelFn) && isempty(fs_readlabel(labelFn, fs_subjcode(sessCode)))
     return;
 end
 
+anaInfo = fs_readanainfo(anaName, sessCode);
+if isempty(opts.runinfo)
+    opts.runinfo = anaInfo.runlistfile;
+end
 runList = fs_runlist(sessCode, opts.runinfo);
+
+if isempty(opts.parfn)
+    opts.parfn = anaInfo.parname;
+end
 
 %% Read data and condition names
 % create the prFolder names if data for each run are read separately

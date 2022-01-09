@@ -1,5 +1,5 @@
-function content = fm_readtext(filename)
-% content = fm_readtext(filename)
+function content = fm_readtext(filename, tostr)
+% content = fm_readtext(filename, tostr)
 % 
 % This function reads the text files and output a cell of strings. [The 
 % output will be converted to strings if possible.] This function can read
@@ -18,10 +18,14 @@ function content = fm_readtext(filename)
 %
 % Created by Haiyang Jin (7-April-2020)
 
+if ~exist('tostr', 'var') || isempty(tostr)
+    tostr = 0;
+end
+
 % open the file
 fid = fopen(filename, 'r');
 if fid == -1
-  error('Cannot open file fpr reading: %s', filename);
+  error('Cannot open file for reading: %s', filename);
 end
 
 % read the file for each row separately
@@ -36,7 +40,7 @@ contents = cellfun(@(x) split(x, {' ', ','}), contentR, 'uni', false);
 content = horzcat(contents{:})';
 
 % convert the output to string if possible
-if numel(content) == 1
+if numel(content) == 1 && tostr
     content = content{1};
 end
 
