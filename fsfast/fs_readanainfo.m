@@ -23,7 +23,8 @@ path = fileparts(anainfofn);
 if isempty(path)
     % add path to runFn if sessCode is not empty
     if ~exist('sessCode', 'var') || isempty(sessCode)
-        error('''sessCode'' is missing.');
+        anainfofilename = fullfile(getenv('FUNCTIONALS_DIR'), anainfofn);
+        warning('Analysis information is obtained from the folder in $FUNCTIONALS_DIR.');
     else
         anainfofilename = fullfile(getenv('FUNCTIONALS_DIR'), sessCode, 'bold', anainfofn);
     end
@@ -43,24 +44,29 @@ if fid == -1 % sanity check
     anaInfo = [];
     return;
 end
-dataCell = textscan(fid, '%s%s', 'CommentStyle', '#');
+% read each row separately
+contentC = textscan(fid, '%s', 'delimiter', '\n', 'whitespace', '', ...
+    'CommentStyle', '#');
 fclose(fid);
 
-fns = dataCell{1,1};
-values = dataCell{1,2};
+contents = cellfun(@(x) split(x, ' '), contentC{1}, 'uni', false);
+contents(cellfun(@length, contents)<2) = [];
 
-% only save the data for the first 31 rows (which should provide sufficient
-% information)
+% save the data in struct
 anaInfo = struct;
-for i = 1:31
+for i = 1:length(contents)
 
-    tmp_value = str2double(values{i});
+    thisrow = contents{i};
 
-    if isnan(tmp_value)
-        anaInfo.(fns{i}) = values{i};
+    tmp_value = str2double(thisrow{2});
+
+    if length(thisrow) > 2
+        anaInfo.(thisrow{1}) = sprintf('%s ', thisrow{2:end});
+    elseif isnan(tmp_value)
+        anaInfo.(thisrow{1}) = thisrow{2};
     else
         % convert to double if possible
-        anaInfo.(fns{i}) = tmp_value;
+        anaInfo.(thisrow{1}) = tmp_value;
     end
 end
 
