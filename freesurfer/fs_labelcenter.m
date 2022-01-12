@@ -1,11 +1,9 @@
 function [cenInfo, D] = fs_labelcenter(labelFn, subjCode, varargin)
 % [cenInfo, D] = fs_labelcenter(labelFn, subjCode, varargin)
 %
-% Identify the label center (for label files on the surface).
-% (1) the label (ROI) center is defined as the vertex/voxel whose (sum/
-% average) geodesic (or Euclidian) distances from all other vertices/voxels
-% are shortest. 
-% (2) 
+% Identify the label center (for label files on the surface). The label 
+% (ROI) center is defined as the vertex/voxel whose (sum/average) geodesic
+% (or Euclidian) distances from all other vertices/voxels are shortest. 
 %
 % Inputs:
 %    labelFn         <str> filename of the label file (with or without
@@ -19,8 +17,8 @@ function [cenInfo, D] = fs_labelcenter(labelFn, subjCode, varargin)
 %    .surface        <str> the specific surface to be used to calculate the
 %                     distiance. The hemisphere information should match
 %                     the label file. Default is the ?h.white. 
-%                 or <cell> 1x2 num cell. [coord, faces]. The vertex
-%                     indices should start from 1.
+%                 OR <cell> 1x2 num cell. [coord, faces]. The vertex
+%                     indices should start from 1. coord: Px3; faces: Qx3.
 %    .distmetric     <str> 'euclidean', 'dijkstra', or 'geodesic' (default).
 %
 % Outputs:
@@ -34,6 +32,7 @@ function [cenInfo, D] = fs_labelcenter(labelFn, subjCode, varargin)
 %
 % Created by Haiyang Jin (2022-Jan-12)
 
+%% Inputs
 defaultOpts = struct( ...
     'surface', '', ...
     'distmetric', 'geodesic');
@@ -65,7 +64,7 @@ else
     faces = opts.surface{2};
 end
 
-% compute the distance matrix
+%% Compute the distance matrix
 switch opts.distmetric
     case 'euclidean'
         D = squareform(pdist(coords(vtxidx, :))); 

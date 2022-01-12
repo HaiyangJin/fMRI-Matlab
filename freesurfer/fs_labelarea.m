@@ -7,8 +7,9 @@ function labelarea = fs_labelarea(labelFn, subjCode, vtxIdx, surface)
 % Inputs:
 %    labelFn         <str> filename of the label file (with or without
 %                     path). If path is included in labelFn, 'subjCode'
-%                     and struPath will be ignored. 
-%    subjCode        <str> subject code in struPath. Default is empty.
+%                     will be ignored. 
+%    subjCode        <str> subject code in $SUBJECTS_DIR. Default is 
+%                     'fsaverage'.
 %    vtxIdx          <int array> vertex indices (in this label) whose
 %                     area will be calculated.
 %    surface         <str> surface without hemisphere information, which
