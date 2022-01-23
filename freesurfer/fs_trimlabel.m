@@ -4,9 +4,14 @@ function [labelMatCell, cluVtxCell] = fs_trimlabel(labelFn, sessCode, outPath, v
 % This function updates the label file for different purposes (see below).
 % By default, the last column in the label file will be used to sort the
 % vertices. But you may use 'overlay' to custom the values for sorting 
-% vertices (note: the 'overlay' has to be for the whole surface). You may 
-% also use 'sortorder' to set whether you would like to keep vertices with
-% larger or smaller values.
+% vertices (note: the 'overlay' has to be for the whole surface). 
+%
+% Please note that it seems that the label created by FreeSurfer 7.2  
+% (i.e., the FreeView) and potentially later, the p-values were not saved
+% in the last column of the label file. In this case, you have to specify 
+% 'overlay' to set the functional data to be used to trim the label (which
+% usually should be the p-values used to identify the ROI) [you may use 
+% fm_readimg() to read the functional data into Matlab].
 %
 % Inputs:
 %    labelFn       <str> the label file name saved in label/.
@@ -24,11 +29,12 @@ function [labelMatCell, cluVtxCell] = fs_trimlabel(labelFn, sessCode, outPath, v
 %    'surfdef'     <cell> {vertices, faces}.
 %               OR <str> the surface string, e.g., 'white', 'pial'. The
 %                   hemisphere information will be read from labelFn.
-%    'overlay'     <num array> result (e.g., FreeSurfer p-values) to be 
+%    'overlay'     <num vec> result (e.g., FreeSurfer p-values) to be 
 %                   displayed on the surface. It has to be the result for 
 %                   the whole 'surfdef'. Default is ''. 
 %    'sortorder'   <str> the order of sorting the vertices by the absolute 
-%                   values of overlay: 'ascend' or 'descend' [default]. 
+%                   values of overlay: 'ascend' or 'descend' [default].
+%                   (Probalby this should be deprecated.)
 %    'ncluster'    <int> cluster numbers. Default is 1.
 %    'startvtx'    <int> index of the starting vertex. This should be
 %                   the vertex index in the Matlab (i.e., already + 1).
@@ -194,11 +200,11 @@ refLabel = opts.reflabel;
 extraOpt = opts.extraopt1st;
 
 % convert sessCode to subjCode
-if isempty(opts.overlay)
+% if isempty(opts.overlay)
     subjCode = fs_subjcode(sessCode);
-else
-    subjCode = sessCode;
-end
+% else
+%     subjCode = sessCode;
+% end
 
 if ~exist('outPath', 'var') || isempty(outPath)
     outPath = fullfile(pwd, 'temporary');

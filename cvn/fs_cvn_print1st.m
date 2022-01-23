@@ -206,11 +206,11 @@ for iLabel = 1:nLabel
             
             % session and subject code
             thisSess = sessList{iSess};
-            if isempty(opts.overlay)
+%             if isempty(opts.overlay)
                 subjCode = fs_subjcode(thisSess);
-            else
-                subjCode = thisSess;
-            end
+%             else
+%                 subjCode = thisSess;
+%             end
             
             % waitbar
             if showWaitbar
