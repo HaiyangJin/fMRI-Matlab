@@ -27,8 +27,8 @@ function [labelMatCell, cluVtxCell] = fs_trimlabel(labelFn, sessCode, outPath, v
 %    'overlay'     <num array> result (e.g., FreeSurfer p-values) to be 
 %                   displayed on the surface. It has to be the result for 
 %                   the whole 'surfdef'. Default is ''. 
-%    'sortorder'   <str> the order of sorting the vertices: 'ascend' or
-%                   'descend' [default]. 
+%    'sortorder'   <str> the order of sorting the vertices by the absolute 
+%                   values of overlay: 'ascend' or 'descend' [default]. 
 %    'ncluster'    <int> cluster numbers. Default is 1.
 %    'startvtx'    <int> index of the starting vertex. This should be
 %                   the vertex index in the Matlab (i.e., already + 1).

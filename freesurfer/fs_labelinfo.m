@@ -179,7 +179,7 @@ MNI305 = vertcat(theMNI305{:});
 Talairach = vertcat(theTal{:});
 
 % label area (in mm^2)
-labelSize = cellfun(@(x) fs_labelarea(labelFn, subjCode, x(:, 1), struDir),...
+labelSize = cellfun(@(x) fs_labelarea(labelFn, subjCode, x(:, 1)),...
     matCell, 'uni', true);
 
 %% Create a table to save all the information

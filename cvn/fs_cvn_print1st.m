@@ -263,6 +263,7 @@ for iLabel = 1:nLabel
                 cmap = fm_heatscale(fmin, fmax);
                 thisclim0 = [-fmax, fmax];
             end
+            if length(unique(thisclim0))==1; opts.dispcolorbar = 0; end
             
             % read the label and remove empty cells
             thisMat = cellfun(@(x) fs_readlabel(x, subjCode), theseLabel, 'uni', false);
