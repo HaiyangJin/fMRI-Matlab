@@ -6,12 +6,16 @@ function [labelMatCell, cluVtxCell] = fs_trimlabel(labelFn, sessCode, outPath, v
 % vertices. But you may use 'overlay' to custom the values for sorting 
 % vertices (note: the 'overlay' has to be for the whole surface). 
 %
-% Please note that it seems that the label created by FreeSurfer 7.2  
-% (i.e., the FreeView) and potentially later, the p-values were not saved
-% in the last column of the label file. In this case, you have to specify 
-% 'overlay' to set the functional data to be used to trim the label (which
-% usually should be the p-values used to identify the ROI) [you may use 
-% fm_readimg() to read the functional data into Matlab].
+% Please note it seems that the label created by FreeSurfer 7.2 (FreeView)  
+% and potentially later versions, the functional data used to identify ROI 
+% were not saved in the last column of the label file. In this case, only
+% the 'concentric' method works. If you would like to use 'maxresp', you
+% need to adopt one of the two approaches:
+%    (1) use 'analysis' and 'valuefn' to set the analysis and file used to
+%        trim the label. 
+%    (2) use 'overlay' to set the functional data to be used to trim the 
+%        label (e.g., p-values used to identify the ROI) [you may use 
+%        fm_readimg() to read the functional data into Matlab].
 %
 % Inputs:
 %    labelFn       <str> the label file name saved in label/.
@@ -29,6 +33,11 @@ function [labelMatCell, cluVtxCell] = fs_trimlabel(labelFn, sessCode, outPath, v
 %    'surfdef'     <cell> {vertices, faces}.
 %               OR <str> the surface string, e.g., 'white', 'pial'. The
 %                   hemisphere information will be read from labelFn.
+%    'analysis'    <str> the analysis used to create the label. If 
+%                   'overlay' is not empty, 'analysis' will be ignored.
+%    'valuefn'     <str> the file (in the contrast folder) used to create
+%                   the label. Default is 'sig.nii.gz'. If 'overlay' is not
+%                   empty, 'valuefn' will be ignored.
 %    'overlay'     <num vec> result (e.g., FreeSurfer p-values) to be 
 %                   displayed on the surface. It has to be the result for 
 %                   the whole 'surfdef'. Default is ''. 
@@ -168,6 +177,8 @@ fprintf('\nUpdating %s for %s...\n', labelFn, sessCode);
 defaultOpts = struct(...
     'method', 'maxresp', ...
     'surfdef', 'white', ...
+    'analysis', '', ...
+    'valuefn', 'sig.nii.gz', ...
     'overlay', '', ...
     'sortorder', 'descend', ...
     'ncluster', 1, ...
@@ -185,7 +196,7 @@ defaultOpts = struct(...
     'warnoverlap', 1, ...
     'smalleronly', 0, ...
     'savesize', 0, ...
-    'peakonly', 1, ...
+    'peakonly', 0, ...
     'showinfo', 0, ...
     'extraopt1st', {{}} ...
     );
@@ -233,14 +244,23 @@ theHemi = fm_2hemi(labelFn);
 oldHemi = setdiff({'lh', 'rh'}, theHemi);
 refLabel = cellfun(@(x) strrep(x, oldHemi{1}, theHemi), refLabel, 'uni', false);
 
-% only show local maxima for selecting roi
+% only show local maxima for selecting roi (analysis for fs_cvn_print1st())
+anaInfo = sprintf('labeloverlay.%s', theHemi);
 if ~isempty(opts.overlay)
-    overlay = sprintf('custom.%s', theHemi);
-elseif opts.peakonly
+    anaInfo = sprintf('custom.%s', theHemi);
+    opts.analysis = '';
+end
+
+if ~isempty(opts.analysis) 
+    % read the functional data if 'analysis' is not empty
+    anaInfo = opts.analysis;
+    opts.overlay = fm_readimg(fullfile(getenv('FUNCTIONALS_DIR'), sessCode, ...
+        'bold', opts.analysis, fm_2contrast(labelFn), opts.valuefn));
+end
+
+if opts.peakonly
     extraOpt = [{'peakonly', 1}, extraOpt];
-    overlay = sprintf('nooverlay.%s', theHemi);
-else
-    overlay = sprintf('labeloverlay.%s', theHemi);
+    anaInfo = sprintf('nooverlay.%s', theHemi);
 end
 
 % sort orders
@@ -279,7 +299,15 @@ if ~isempty(opts.overlay)
     labelMat(:, end) = opts.overlay(labelMat(:,1));
 end
 
-% add area information
+% throw warning if no functional data are available in the label file
+if ~any(labelMat(:, 5)) && strcmp(opts.method, 'maxresp')
+    opts.method = 'concentric';
+    warning('%s \n%s', ['The functional data used to create the label ' ...
+        'is not avaiable in the label file.'], ...
+        '''concentric'' method will be used.');
+end
+
+% add area information (the sixth column)
 vtxarea=surfing_surfacearea(vertices,faces);
 labelMatArea = horzcat(labelMat, vtxarea(labelMat(:,1)));
 
@@ -574,7 +602,7 @@ for iTh = 1:nTh
     if nLabelClu > 1
 
         % show all clusters together if there are more than one cluster
-        fs_cvn_print1st(sessCode, overlay, {[labelFn refLabel tmpLabelFn]}, outPath, ...
+        fs_cvn_print1st(sessCode, anaInfo, {[labelFn refLabel tmpLabelFn]}, outPath, ...
             'overlay', opts.overlay, ...
             'visualimg', 'on', 'waitbar', 0, 'gminfo', 0);
         %     waitfor(msgbox('Please checking all the sub-labels...'));
@@ -601,7 +629,7 @@ for iTh = 1:nTh
         if opts.warnoverlap && any(isOverlap)
             for iOverlap = find(isOverlap)
                 % show overlapping between any pair of clusters
-                fs_cvn_print1st(sessCode, overlay, {[labelFn refLabel tmpLabelFn(allComb(iOverlap, :))]}, outPath, ...
+                fs_cvn_print1st(sessCode, anaInfo, {[labelFn refLabel tmpLabelFn(allComb(iOverlap, :))]}, outPath, ...
                     'overlay', opts.overlay, ...
                     'visualimg', 'on', 'waitbar', 0, 'gminfo', 0, extraOpt{:});
                 waitfor(msgbox('There is overlapping between sub-labels...', 'Overlapping...', 'warn'));
@@ -618,7 +646,7 @@ for iTh = 1:nTh
         thisClusterLabel = tmpLabelFn{iTempLabel};
 
         % display this temporary cluster
-        fs_cvn_print1st(sessCode, overlay, {[labelFn refLabel thisClusterLabel]}, outPath, ...
+        fs_cvn_print1st(sessCode, anaInfo, {[labelFn refLabel thisClusterLabel]}, outPath, ...
             'overlay', opts.overlay, ...
             'visualimg', 'on', 'waitbar', 0, 'gminfo', 0, extraOpt{:});
 
