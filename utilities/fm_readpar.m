@@ -48,14 +48,24 @@ assert(logical(exist(parFile, 'file')), 'Cannot find %s.', parFile);
 onecell = importdata(parFile, '');
 
 % convert it to 1*5 cell in each cell
-fivecell = arrayfun(@(x) strsplit(x{1}), onecell, 'UniformOutput', false);
+sepcell = arrayfun(@(x) strsplit(x{1}), onecell, 'UniformOutput', false);
 
 % remove empty cells
-emptyCell = cellfun(@(x) cellfun(@(y) ~isempty(y), x), fivecell, 'uni', false);
-fivecell = cellfun(@(x,y) x(y), fivecell, emptyCell, 'uni', false);
+emptyCell = cellfun(@(x) cellfun(@(y) ~isempty(y), x), sepcell, 'uni', false);
+sepcell = cellfun(@(x,y) x(y), sepcell, emptyCell, 'uni', false);
+
+nPerRow = unique(cellfun(@length, sepcell));
+assert(nPerRow >= 3 && nPerRow <= 5, ...
+    'Please make sure the par file is prepared appropriately.');
 
 % convert it to one cell vector
-cellTran = reshape([fivecell{:}], 5, []);
+cellTran = reshape([sepcell{:}], nPerRow, []);
+
+if nPerRow == 3
+    cellTran = vertcat(cellTran, repmat({'1'}, 1, size(cellTran, 2)), cellTran(2,:));
+elseif nPerRow == 4
+    cellTran = vertcat(cellTran, cellTran(2,:));
+end
 
 tableNames = {'OnsetTime', 'Condition', 'Duration', 'Weight', 'Label'};
 
