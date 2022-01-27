@@ -3,23 +3,30 @@ function mvpaTable = fs_cosmo_cvdecode(sessList, anaList, labelList, ...
 % mvpaTable = fs_cosmo_cvdecode(sessList, anaList, labelList, ...
 %   classPairs, varargin)
 %
-% This function run the cross-validation classification (decoding) for all
-% subjects and all pairs.
+% Performs the cross-validation classification (decoding) for all
+% sessions and all classification pairs.
 %
 % Inputs:
 %    sessList        <cell str> a list of session codes.
-%    anaList         <cell str> a list of analysis names.
+%    anaList         <cell str> a list of analysis names. This should be
+%                     two analyses, which are essentially the same analysis
+%                     but for different hemispheres.
 %    labelList       <cell str> a list of label names.         
-%    classPairs      <cell str> a PxQ (usually is 2) cell matrix
-%                     for the pairs to be classified. Each row is one
-%                     classfication pair.
+%    classPairs      <cell str> a PxQ (usually Q is 2) cell matrix for the
+%                     pairs to be classified. Each row is one classfication
+%                     pair. It could be either the Condition names (i.e.,
+%                     the fifth column in the par file; recommended) or
+%                     Condition numbers (i.e., the second column in par
+%                     files).
 %
 % Varargin:
 %    .writeoutput    <boo> whether write the output into .csv and .xlsx
 %                     files. Default is 1. When it is 0, outpath and outfn
 %                     will be ignored.
-%    .outpath        <str> where to save the output file.
-%    .outfn          <str> the filename of the output file. 
+%    .outpath        <str> where to save the output file. The output will
+%                     be saved in a folder named 'Classification' within the
+%                     current wording directory by default.
+%    .outfn          <str> the filename of the output file.
 %    .classifier     <num> or <str> or <cells> the classifiers to be used
 %                     (only 1). Default is 'libsvm'.
 %    .classopt       <struct> the possibly other fields that are given to 
@@ -27,16 +34,25 @@ function mvpaTable = fs_cosmo_cvdecode(sessList, anaList, labelList, ...
 %                     'autoscale' for libsvm.
 %
 %  <all other options in fs_cosmo_sessds>. E.g.,:
-%    .runinfo        <str> the filename of the run file (e.g., 
-%                     run_loc.txt.) [Default is '' and then names of all 
-%                     run folders will be used.]
-%                OR  <cell str> a list of all the run names. (e.g.,
-%                     {'001', '002', '003'....}.
 %    .datafn         <str> the data file to be used for decoding.
 %                     ['' by default and it will use 'beta.nii.gz'].
 %
 % Outputs:
-%    mvpaTable       <table> MVPA result table (main runs).
+%    mvpaTable       <table> MVPA result table.
+%                     And save mvpaTable locally.
+%
+% The column names in mvpaTable:
+%    'Label'            the label for this classification.
+%    'Analysis'         the FS-FAST analysis for this classifciation.
+%    'nVertices'        the number of vertices in the label.
+%    'SessCode'         the session code.
+%    'ClassifyPair'     the decoding pair. The two conditions are separated
+%                         by '-'. 
+%    'Classifier'       the employed classifier.
+%    'Run'              the test run.
+%    'Predicted'        the predicted result from the trained classifier.
+%    'Targets'          the real condition name, i.e., the answer.
+%    'ACC'              whether the prediction is correct.
 %
 % Created by Haiyang Jin (12-Dec-2019)
 
@@ -68,6 +84,14 @@ dsopts.outpath = [];
 dsopts.outfn = [];
 dsopts.classifier = [];
 dsopts.classopt = [];
+
+% convert classPairs to char if needed
+if isnumeric(classPairs)
+    classPairs = arrayfun(@num2str, classPairs, 'uni', false);
+elseif iscell(classPairs) && any(cellfun(@isnumeric, classPairs), 'all')
+    thenum = cellfun(@isnumeric, classPairs);
+    classPairs(thenum) = cellfun(@num2str, classPairs(thenum), 'uni', false);
+end
 
 %% Cross validation decode
 % create empty table

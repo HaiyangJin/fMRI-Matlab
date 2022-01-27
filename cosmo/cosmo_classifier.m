@@ -41,7 +41,7 @@ elseif iscell(classifiers) % cell input
     % convert strings in cell to function handle if possible
     
     % all the strings in the cell
-    isstr_class = cellfun(@isstr, classifiers);
+    isstr_class = cellfun(@ischar, classifiers);
     
     % if the functional handles can be found for the strings
     isvalid_class = isstr_class;
@@ -63,6 +63,9 @@ elseif iscell(classifiers) % cell input
     
 elseif ischar(classifiers)  % string input
     classifiers= classifierList(contains(classifierListNames, classifiers));
+
+elseif isa(classifiers,'function_handle')
+    classifiers = {classifiers};
 end
 
 % remove non-function handles

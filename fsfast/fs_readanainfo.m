@@ -18,6 +18,12 @@ if ~exist('anainfofn', 'var') || isempty(anainfofn)
     anainfofn = pwd;
 end
 
+if endsWith(anainfofn, '.txt')
+    % if it is a run file
+    anaInfo = [];
+    return;
+end
+
 path = fileparts(anainfofn);
 
 if isempty(path)
