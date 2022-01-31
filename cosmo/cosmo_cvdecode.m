@@ -101,7 +101,8 @@ for iPair = 1:nPair
         
         tmpMVPA.Run = ds_predicted.sa.folds;
         tmpMVPA.Predicted = ds_predicted.samples;
-        tmpMVPA.Targets = ds_predicted.sa.targets;
+        tmpMVPA.Target = ds_predicted.sa.targets;
+        tmpMVPA.TargetName = ds_thisPair.sa.labels;
         tmpMVPA.ACC = ds_predicted.samples == ds_predicted.sa.targets;
         
         tmpMVPA.Confusion = repmat({thisConMatrix}, nRowTemp, 1);

@@ -56,7 +56,7 @@ function mvpaTable = fs_cosmo_cvdecode(sessList, anaList, labelList, ...
 %                     And save mvpaTable locally.
 %
 % The column names in mvpaTable:
-%    'Label'            the label for this classification.
+%    'Label'            the FreeSurfer label for this classification.
 %    'Analysis'         the FS-FAST analysis for this classifciation.
 %    'nVertices'        the number of vertices in the label.
 %    'SessCode'         the session code.
@@ -65,7 +65,8 @@ function mvpaTable = fs_cosmo_cvdecode(sessList, anaList, labelList, ...
 %    'Classifier'       the employed classifier.
 %    'Run'              the test run.
 %    'Predicted'        the predicted result from the trained classifier.
-%    'Targets'          the real condition name, i.e., the answer.
+%    'Target'           the real condition code, i.e., the answer.
+%    'TargetName'       the real condition name.
 %    'ACC'              whether the prediction is correct.
 %
 % Created by Haiyang Jin (12-Dec-2019)
