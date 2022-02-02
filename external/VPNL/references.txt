@@ -1,8 +1,0 @@
-?h.MFS.label:
-Weiner, K. S., Natu, V. S., & Grill-Spector, K. (2018). On object selectivity and the anatomy of the human fusiform gyrus. NeuroImage, 173(February), 604–609. https://doi.org/10.1016/j.neuroimage.2018.02.040
-
-
-Others:
-Rosenke, M., Weiner, K. S., Barnett, M., Zilles, K., Goebel, R., Grill-Spector, K. (2017). A cross-validated cytoarchitectonic atlas of the human ventral visual stream. http://dx.doi.org/10.1016/j.neuroimage.2017.02.040
-
-
