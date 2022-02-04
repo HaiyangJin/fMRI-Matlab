@@ -123,7 +123,7 @@ for iSubj = 1:length(dsubjList)
     cmdCell{iSubj, 1} = cmd;
 end
 
-d2bcmd = fm_2cmdpath(vertcat(cmdCell{:}));
+d2bcmd = vertcat(cmdCell{:});
 
 if runcmd
     % run commands

@@ -117,7 +117,7 @@ for iHemi = 1:nHemi
         
         assert(numel(surfType) == 1, 'Please define only one type of surface.');
         isThisHemi = strcmp(thisHemi, hemis);
-        theseMgzFile = sdataFile(isThisHemi);
+        theseMgzFile = fm_2cmdpath(sdataFile(isThisHemi));
         fscmd_mgz = sprintf(repmat('overlay=%s:', 1, numel(theseMgzFile)), theseMgzFile{:});
         fscmd_threshold = sprintf('overlay_threshold=%s', opts.threshold);
     else
@@ -141,7 +141,7 @@ for iHemi = 1:nHemi
     
     % cmd for surface file with annotation 
     [tempSurf, tempAnnot] = ndgrid(surfFile, {annotFile});
-    tempCmdSurf = horzcat(tempSurf, tempAnnot)';
+    tempCmdSurf = fm_2cmdpath(horzcat(tempSurf, tempAnnot)');
     fscmd_surf = sprintf([' -f %s:'... % the ?h.inflated file
         'annot=%s:annot_outline=yes:'... % the filename and settings for annotation file
         ],...% the label file and settings

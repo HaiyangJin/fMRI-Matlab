@@ -40,8 +40,8 @@ if setdir
     % make sure the struDir exists
     assert(logical(exist(struDir, 'dir')), ...
         'Cannot find the directory: \n%s...', struDir);
-    setenv('SUBJECTS_DIR', struDir);
-    fprintf('SUBJECTS_DIR is set as %s now...\n', struDir);
+    setenv('SUBJECTS_DIR', fm_2cmdpath(struDir));
+    fprintf('SUBJECTS_DIR is set as %s now...\n', getenv('SUBJECTS_DIR'));
 end
 
 % subject code information
