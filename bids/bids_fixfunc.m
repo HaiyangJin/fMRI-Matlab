@@ -7,6 +7,8 @@ function bids_fixfunc(taskStr, taskName, subjList, bidsDir)
 % Inputs:
 %    taskStr       <str> wildcard strings to identify a list of func runs,
 %                   for which 'TaskName' will be added to their json files.
+%                   Default is empty and then all func files are treated as
+%                   one task. The name will be <taskName>.
 %    taskName      <str> task name to be added to the files identified by
 %                   <taskStr>.
 %    subjList      <cell str> a list of subject folders in <bidsDir>.
@@ -23,8 +25,12 @@ function bids_fixfunc(taskStr, taskName, subjList, bidsDir)
 % [bids_dcm2bids;] bids_mktsv; bids_fixfmap; bids_mkignore
 
 %% Deal with inputs
-if ~endsWith(taskStr, '*.json')
+if ~exist('taskStr', 'var') || isempty(taskStr)
+    taskStr = '';
+end
+if ~endsWith(taskStr, '.json')
     taskStr = [taskStr '*.json'];
+    taskStr = strrep(taskStr, '**', '*');
 end
 
 if ~exist('bidsDir', 'var') || isempty(bidsDir)

@@ -49,6 +49,8 @@ fm_mkdir(struDir);
 fs_subjdir(struDir); 
 
 subjDir = fullfile(bidsDir, subjCode);
+assert(exist(subjDir, 'dir'), ['Cannot find the subject (%s) in the bids ' ...
+    'folder (%s).'], subjCode, bidsDir);
 % dir session folders
 sessdir = dir(fullfile(subjDir, 'ses-*'));
 
