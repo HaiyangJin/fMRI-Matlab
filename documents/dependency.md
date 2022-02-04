@@ -3,6 +3,11 @@
 ## FreeSurfer
 - FreeSurfer and its Matlab functions ([`fs_setup`](../setup/fs_setup.m))
 
+## BIDS
+- [Docker](https://www.docker.com)
+- [dcm2bids](https://unfmontreal.github.io/Dcm2Bids/docs/2-tutorial/)
+- [dcm2niix](https://github.com/rordenlab/dcm2niix)
+
 ## fmriPrep
 - [jsonlab](https://github.com/fangq/jsonlab)
 
