@@ -1,4 +1,4 @@
-function [fscmd, isok] = fs_preproc(sessCode, sm, template, extracmd)
+function [fscmd, isok] = fs_preproc(sessCode, sm, template, extracmd, runcmd)
 % [fscmd, isok] = fs_preproc(sessCode, sm, template extracmd)
 %
 % This function pre-processes the functional data with FreeSurfer (with
@@ -13,6 +13,7 @@ function [fscmd, isok] = fs_preproc(sessCode, sm, template, extracmd)
 %    template       <str> surface template: 'self' [default], 'fsaverage',
 %                    'fsaverage5'. 
 %    extracmd       <str> extra commands to be added for preproc-sess.
+%    runcmd       <boo> whether to run the recon-all commands [default: 1].
 %
 % Output:
 %    fscmd          <str> FreeSurfer commands.
@@ -45,13 +46,21 @@ if ~exist('extracmd', 'var') || isempty(extracmd)
     extracmd = '';
 end
 
+if ~exist('runcmd', 'var') || isempty(runcmd)
+    runcmd = 1;
+end
+
 % create the FreeSurfer command
 fscmd = sprintf(['preproc-sess %s -fsd bold -surface %s lhrh ' ...
     '-mni305 -fwhm %d -per-run -nostc %s -force'], ...
     fscmd_sess, template, sm, extracmd);
 
 % run the command
-isnotok = system(fscmd);
-isok = ~isnotok;
+if runcmd
+    isnotok = system(fscmd);
+    isok = ~isnotok;
+else
+    isok = 0;
+end
 
 end

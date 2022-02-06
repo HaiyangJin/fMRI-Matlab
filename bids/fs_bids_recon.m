@@ -5,7 +5,7 @@ function fscmd = fs_bids_recon(subjCode, runcmd, useall, fsSubjCode, bidsDir, st
 % structure. It is recommended to set bids_dir() in advance.
 %
 % Inputs:
-%    subjCode      <str> subject code in bidsDir.
+%    bsubjCode     <str> bids subject code in bidsDir.
 %    runcmd        <boo> whether run the recon-all commands. 1 [default]:
 %                   run the command; 0: will not run but only ouput the
 %                   command.
@@ -77,7 +77,7 @@ if ~useall
     t2list = t2list(1);
 end
 
-fprintf('Following files were used in ''recon-all'' for %s:\n%s', subjCode, ...
+fprintf('Following files were used in ''recon-all'' for %s:\n%s\n', subjCode, ...
      sprintf('T1 files (%d)%s \nT2 files (%d)%s', ...
      length(t1list), sprintf('\n%s ', t1list{:}), ...
      length(t2list), sprintf('\n%s ', t2list{:})));

@@ -26,6 +26,9 @@ function fs_hcp_preproc(hcpDir, template, varargin)
 %                      T1 data for all subjects.
 %    .smooth          <int> smoothness.
 %    .extracmd        <str> extra command strings used for preproc-sess.
+%    .runcmd          <boo> whether run the preproc-sess commands. 1 [default]:
+%                     run the command; 0: will not run but only ouput the
+%                     command.
 %
 % Output:
 %    a folder called FreeSurfer is created in the same folder with the same
@@ -58,7 +61,8 @@ defaultOpts = struct(...
     'funcext', '', ...
     'linkt1', 1, ...
     'smooth', 0, ...
-    'extracmd', '');
+    'extracmd', '', ...
+    'runcmd', []);
 opts = fm_mergestruct(defaultOpts, varargin{:});
 
 
@@ -105,9 +109,9 @@ for iSubj = 1:nSubj
     cellfun(@(x) copyfile(fullfile(sourceFunc, x, [x '_native.nii.gz']), ...
         fullfile(thisPreproPath, [x '_native.nii.gz'])), runNameCell);
     
-    %% copy and rename from preprocessed folder to functional_data_'template'
+    %% copy and rename from preprocessed folder to functionals_'template'
     % make directory for the functional data
-    funcDir = fullfile(fsPath, ['functional_data' opts.funcext]);
+    funcDir = fullfile(fsPath, ['functionals' opts.funcext]);
     sessCode = [thisSubj '_' template];
     sessPath = fullfile(funcDir, sessCode);
     thisBoldPath = fullfile(sessPath, 'bold');
@@ -137,7 +141,7 @@ for iSubj = 1:nSubj
     cd(funcDir);
 
     % project functional data onto surface
-    fs_preproc(sessCode, opts.smooth, template, opts.extracmd);    
+    fs_preproc(sessCode, opts.smooth, template, opts.extracmd, opts.runcmd);    
     cd(wdBackup);    
     
 end
