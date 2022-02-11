@@ -58,6 +58,7 @@ ext = fname(idx:end);
 
 %% Gather information
 % split string by '_' for section (field) and by "-" for value
+if isempty(idx); idx = length(fname)+1; end % when there is no ext
 sec = split(fname(1:idx-1), secsep);
 
 % deal with values without fieldname

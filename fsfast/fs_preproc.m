@@ -13,7 +13,7 @@ function [fscmd, isok] = fs_preproc(sessCode, sm, template, extracmd, runcmd)
 %    template       <str> surface template: 'self' [default], 'fsaverage',
 %                    'fsaverage5'. 
 %    extracmd       <str> extra commands to be added for preproc-sess.
-%    runcmd       <boo> whether to run the recon-all commands [default: 1].
+%    runcmd         <boo> whether to run the recon-all commands [default: 1].
 %
 % Output:
 %    fscmd          <str> FreeSurfer commands.

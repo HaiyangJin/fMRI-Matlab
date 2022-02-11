@@ -1,5 +1,5 @@
 function [conStruct, fscmd] = fs_isxconcat(sessid, anaList, conList, groupFolder, runcmd)
-% [conStruct, fscmd] = fs_isxconcat(sessid, anaList, conList, [groupFolder='group', runcmd = 1])
+% [conStruct, fscmd] = fs_isxconcat(sessid, anaList, conList, groupFolder, runcmd)
 %
 % This function gathers the first-level results from different participant 
 % together (via isxconcat-sess). [The first step in group analysis].
@@ -14,7 +14,8 @@ function [conStruct, fscmd] = fs_isxconcat(sessid, anaList, conList, groupFolder
 %                     anaList is a struct, conList will be ignored; if 
 %                     anaList is cell and conList is empty, all the
 %                     contrasts in the analysis folders will be used].
-%    groupFolder     <str> the name of the output (group) folder.
+%    groupFolder     <str> the name of the output (group) folder. Default
+%                     is created from the shared information in anaList.
 %    runcmd          <boo> do not run the fscmd and only make the
 %                     FreeSurfer commands. 1: run fscmd (default); 0: do
 %                     not run fscmd.
@@ -32,18 +33,14 @@ function [conStruct, fscmd] = fs_isxconcat(sessid, anaList, conList, groupFolder
 % See also:
 % [fs_selxavg3;] fs_glmfit_osgm
 
-if ~exist('groupFolder', 'var') || isempty(groupFolder)
-    groupFolder = 'group';
-end
-
 if ~exist('runcmd', 'var') || isempty(runcmd)
     runcmd = 1;
 end
 
 % obtain the analysis and contrast lists
 if isstruct(anaList)
-   conStruct = anaList;
-
+    conStruct = anaList;
+    anaList = unique({conStruct.analysisName});
 else
     % convert to cell if necessary 
     if ischar(anaList); anaList = {anaList}; end
@@ -59,6 +56,15 @@ else
     
     % create the strucutre to save analysis and contrast names
     conStruct = struct('analysisName', analysisName(:), 'contrastName', contrastName(:));
+end
+
+% default group folder names
+if ~exist('groupFolder', 'var') || isempty(groupFolder)
+    anaInfo = fp_fn2info(anaList{1});
+    anaInfo.type = 'group';
+    anaInfo = rmfield(anaInfo, 'hemi');
+
+    groupFolder = fp_info2fn(anaInfo);
 end
 
 % add group folder name to the structure

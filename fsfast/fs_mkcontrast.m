@@ -1,5 +1,5 @@
-function [conStruct, fscmd] = fs_mkcontrast(anaList, contrasts, conditions, method, runcmd)
-% [conStruct, fscmd] = fs_mkcontrast(anaList, contrasts, conditions, ...
+function [conStruct, fscmd] = fs_mkcontrast(anaList, conditions, contrasts, method, runcmd)
+% [conStruct, fscmd] = fs_mkcontrast(anaList, conditions, contrasts, ...
 %                      [method=1, runcmd=1])
 %
 % This function creates contrast and run mkcontrast-sess in FreeSurfer.
@@ -9,6 +9,8 @@ function [conStruct, fscmd] = fs_mkcontrast(anaList, contrasts, conditions, meth
 %
 % Inputs:
 %    anaList           <cell str> a list of all analysis names;
+%    conditions        <cell str> the full names of all conditions;
+%                       [conditions can be obtained from fs_par2cond.m]
 %    contrasts         <cell> a cell of contrasts to be created. One row
 %                       is one contrast; the conditions in the first cell
 %                       is the activation condition; the conditions in the
@@ -24,10 +26,10 @@ function [conStruct, fscmd] = fs_mkcontrast(anaList, contrasts, conditions, meth
 %                       you want to use initials of conditions in the
 %                       contrast names (e.g., 'f' for 'faces'; 'w' for
 %                       'wrods').]
-%    conditions        <cell str> the full names of all conditions;
-%                       [conditions can be obtained from fs_par2cond.m]
+%                       Default is all pairs. 
 %    method            <int> which method (function) to be used identify 
-%                       the condition number for each contrasts. 
+%                       the condition number for each contrasts. More see
+%                       below.
 %    runcmd            <boo> whether run the fscmd in FreeSufer (i.e.,
 %                       make contrasts in FreeSurfer). 1: run fscmd
 %                       [default]; 0: do not run fscmds and only output
@@ -91,6 +93,13 @@ function [conStruct, fscmd] = fs_mkcontrast(anaList, contrasts, conditions, meth
 
 if ischar(anaList); anaList = {anaList}; end
 nAnalysis = numel(anaList);
+
+if ~exist('contrasts', 'var') || isempty(contrasts)
+    % use all pairs in conditions as default
+    nCond = numel(conditions);
+    comb = nchoosek(1:nCond, 2);
+    contrasts = conditions(comb);
+end
 nContrast = size(contrasts, 1);
 
 if ~exist('method', 'var') || isempty(method)
@@ -215,6 +224,5 @@ if any(isnotok)
 elseif runcmd
     fprintf('\nmkcontrast-sess finished without error.\n');
 end
-
 
 end

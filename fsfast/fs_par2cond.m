@@ -22,7 +22,7 @@ function conditions = fs_par2cond(sessList, runInfo, parFn)
 
 if ischar(sessList); sessList = {sessList}; end
 
-if ~exist('runList', 'var') || isempty(runInfo)
+if ~exist('runInfo', 'var') || isempty(runInfo)
     runInfo = '';
 end
 

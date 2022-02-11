@@ -1,21 +1,25 @@
-function fscmd = fs_bids_recon(subjCode, runcmd, useall, fsSubjCode, bidsDir, struDir)
-% fscmd = fs_bids_recon(subjCode, runcmd, useall, fsSubjCode, bidsDir, struDir)
+function fscmd = fs_bids_recon(subjCode, varargin)
+% fscmd = fs_bids_recon(subjCode, varargin)
 %
 % This function runs recon-all for one subject with BIDS directory
 % structure. It is recommended to set bids_dir() in advance.
 %
 % Inputs:
 %    bsubjCode     <str> bids subject code in bidsDir.
-%    runcmd        <boo> whether run the recon-all commands. 1 [default]:
+%
+% Varargin:
+%    .runcmd       <boo> whether run the recon-all commands. 1 [default]:
 %                   run the command; 0: will not run but only ouput the
 %                   command.
-%    useall        <boo> whether use all T1 and T2 files if there are
+%    .hires        <boo> whether run recon-all with native high resolution.
+%                   default is []; use the default in fs_recon().
+%    .useall       <boo> whether use all T1 and T2 files if there are
 %                   multiuple files available. 1 [default]: use all
 %                   avaiable files; 0: only use the first file.
-%    fsSubjCode    <str> subject code in $SUBJECTS_DIR. It is the same as
+%    .fssubjcode   <str> subject code in $SUBJECTS_DIR. It is the same as
 %                   subjCode (in bidsDir) by default.
-%    bidsDir       <str> the BIDS directory. Default is bids_dir().
-%    struDir       <str> $SUBJECTS_DIR in FreeSurfer. Default is 
+%    .bidsDir      <str> the BIDS directory. Default is bids_dir().
+%    .struDir      <str> $SUBJECTS_DIR in FreeSurfer. Default is 
 %                   <bidsDir>/derivatives/subjects.
 %
 % Output:
@@ -26,31 +30,24 @@ function fscmd = fs_bids_recon(subjCode, runcmd, useall, fsSubjCode, bidsDir, st
 %
 % Created by Haiyang Jin (2021-11-04)
 
-if ~exist('runcmd', 'var')
-    runcmd = [];
-end
+defaultOpts = struct( ...
+    'runcmd', [], ...
+    'hires', [], ...
+    'useall', 1, ...
+    'fssubjcode', subjCode, ...
+    'bidsdir', bids_dir());
 
-if ~exist('useall', 'var') || isempty(useall)
-    useall = 1;
-end
+opts = fm_mergestruct(defaultOpts, varargin{:});
 
-if ~exist('fsSubjCode', 'var') || isempty(fsSubjCode)
-    fsSubjCode = subjCode;
+if ~isfield(opts, 'strudir')
+    opts.strudir = fullfile(opts.bidsdir, 'derivatives', 'subjects');
 end
+fm_mkdir(opts.strudir);
+fs_subjdir(opts.strudir); 
 
-if ~exist('bidsDir', 'var') || isempty(bidsDir)
-    bidsDir = bids_dir();
-end
-
-if ~exist('struDir', 'var') || isempty(struDir)
-    struDir = fullfile(bidsDir, 'derivatives', 'subjects');
-end
-fm_mkdir(struDir);
-fs_subjdir(struDir); 
-
-subjDir = fullfile(bidsDir, subjCode);
+subjDir = fullfile(opts.bidsdir, subjCode);
 assert(exist(subjDir, 'dir'), ['Cannot find the subject (%s) in the bids ' ...
-    'folder (%s).'], subjCode, bidsDir);
+    'folder (%s).'], subjCode, opts.bidsdir);
 % dir session folders
 sessdir = dir(fullfile(subjDir, 'ses-*'));
 
@@ -72,7 +69,7 @@ else
 end
 
 % whether use all avaiable files
-if ~useall
+if ~opts.useall
     t1list = t1list(1);
     t2list = t2list(1);
 end
@@ -83,7 +80,7 @@ fprintf('Following files were used in ''recon-all'' for %s:\n%s\n', subjCode, ..
      length(t2list), sprintf('\n%s ', t2list{:})));
 
 % create (and run) recon-all commands
-fscmd = fs_recon(t1list, fsSubjCode, t2list, runcmd);
+fscmd = fs_recon(t1list, opts.fssubjcode, t2list, opts.hires, opts.runcmd);
 
 end
 
