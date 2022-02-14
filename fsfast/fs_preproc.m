@@ -1,5 +1,5 @@
-function [fscmd, isok] = fs_preproc(sessCode, sm, template, extracmd, runcmd)
-% [fscmd, isok] = fs_preproc(sessCode, sm, template extracmd)
+function [fscmd, isnotok] = fs_preproc(sessCode, sm, template, extracmd, runcmd)
+% [fscmd, isnotok] = fs_preproc(sessCode, sm, template extracmd, runcmd)
 %
 % This function pre-processes the functional data with FreeSurfer (with
 % default settings).
@@ -17,7 +17,7 @@ function [fscmd, isok] = fs_preproc(sessCode, sm, template, extracmd, runcmd)
 %
 % Output:
 %    fscmd          <str> FreeSurfer commands.
-%    isok           <boo> whether the command works properly.
+%    isnotok        <boo> whether the command works properly. 0 denotes ok.
 %    Preprocessed functional data saved in $FUNCTIONALS_DIR.
 %
 % Created by Haiyang Jin (6-Oct-2020)
@@ -56,11 +56,6 @@ fscmd = sprintf(['preproc-sess %s -fsd bold -surface %s lhrh ' ...
     fscmd_sess, template, sm, extracmd);
 
 % run the command
-if runcmd
-    isnotok = system(fscmd);
-    isok = ~isnotok;
-else
-    isok = 0;
-end
+[fscmd, isnotok] = fm_runcmd(fscmd, runcmd);
 
 end

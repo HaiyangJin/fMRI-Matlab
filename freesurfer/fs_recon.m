@@ -1,5 +1,5 @@
-function [fscmd, isok] = fs_recon(t1list, subjCode, t2list, hires, runcmd)
-% [fscmd, isok] = fs_recon(t1File, subjCode, t2File, hires, runcmd)
+function [fscmd, isnotok] = fs_recon(t1list, subjCode, t2list, hires, runcmd)
+% [fscmd, isnotok] = fs_recon(t1File, subjCode, t2File, hires, runcmd)
 %
 % This function run 'recon-all' in FreeSurfer.
 %
@@ -15,7 +15,8 @@ function [fscmd, isok] = fs_recon(t1list, subjCode, t2list, hires, runcmd)
 %
 % Output:
 %    fscmd        <str> FreeSurfer commands.
-%    isok         <boo> whether the command works properly.
+%    isnotok      <boo> whether the command works not properly. 0 denotes
+%                  ok.
 %    Projected structural data saved in $SUBJECTS_DIR.
 %
 % Created by Haiyang Jin (6-Feb-2020)
@@ -62,12 +63,6 @@ fscmd = sprintf('recon-all -s %s %s %s%s  -all', ...
 
 % display the recon-all command
 fprintf('\n%s \n', fscmd);
-
-if runcmd
-    isnotok = system(fscmd);
-    isok = ~isnotok;
-else
-    isok = 0;
-end
+[fscmd, isnotok] = fm_runcmd(fscmd, runcmd);
 
 end

@@ -206,15 +206,7 @@ fscmd = arrayfun(@(x) sprintf('mkcontrast-sess -analysis %s -contrast %s %s', ..
     analysisName{x}, contrastName{x}, contrastCode{x}), 1:numel(analysisName), 'uni', false)';
 
 %% Run FreeSurfer commands if needed
-if runcmd
-    % run all the FreeSurfer commands
-    isnotok = cellfun(@system, fscmd);
-else
-    isnotok = zeros(size(fscmd));
-end
-
-% add isnotok to fscmd
-fscmd = horzcat(fscmd, num2cell(isnotok));
+[fscmd, isnotok] = fm_runcmd(fscmd, runcmd);
 
 %% Create conStruct including analysis and contrast information
 conStruct = table2struct(table(analysisName, contrastName, contrastCode, contrastMethod));

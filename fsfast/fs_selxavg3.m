@@ -67,16 +67,7 @@ otherArg = sprintf('%s%s%s', owArg, runArg, cpuArg);
 fscmd = cellfun(@(x) sprintf('selxavg3-sess %s -analysis %s %s', ...
     sess_cmd, x, otherArg), anaList(:), 'uni', false)';
 
-if runcmd ~= 0
-    % run the analysis
-    isnotok = cellfun(@system, fscmd);
-else
-    % do not run fscmd
-    isnotok = zeros(size(fscmd));
-end
-
-% make the fscmd one column
-fscmd = [fscmd; num2cell(isnotok)]';
+[fscmd, isnotok] = fm_runcmd(fscmd, runcmd);
 
 if any(isnotok)
     warning('Some FreeSurfer commands (selxavg3-sess) failed.');

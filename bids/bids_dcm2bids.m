@@ -1,5 +1,5 @@
-function [d2bcmd, status] = bids_dcm2bids(dcmSubj, outSubj, config, isSess, runcmd, bidsDir)
-% [d2bcmd, status] = bids_dcm2bids(dcmSubj, outSubj, config, isSess, runcmd, bidsDir)
+function [d2bcmd, isnotok] = bids_dcm2bids(dcmSubj, outSubj, config, isSess, runcmd, bidsDir)
+% [d2bcmd, isnotok] = bids_dcm2bids(dcmSubj, outSubj, config, isSess, runcmd, bidsDir)
 %
 % This function run dcm2bids for DICOM files. DICOM files should be saved
 % in a folder called "sourcedata" within bidsDir.
@@ -36,7 +36,7 @@ function [d2bcmd, status] = bids_dcm2bids(dcmSubj, outSubj, config, isSess, runc
 %
 % Outputs:
 %    d2bcmd        <cell str> dcm2bids commands.
-%    status        <int array> status of running d2bcmd.
+%    isnotok       <vec> status of running d2bcmd.
 %    BIDS saved in <bidsDir>/bids/
 %
 % Created by Haiyang Jin (2021-10-13)
@@ -124,12 +124,7 @@ for iSubj = 1:length(dsubjList)
 end
 
 d2bcmd = vertcat(cmdCell{:});
-
-if runcmd
-    % run commands
-    status = cellfun(@system, d2bcmd);
-else
-    status = -ones(size(d2bcmd));
-end
+% run cmd
+[~, isnotok] = fm_runcmd(d2bcmd, runcmd);
 
 end

@@ -145,18 +145,8 @@ for iRun = 1:nRunfn
     
 end  % iRun
 
-% save the FreeSurfer commands as one column
-fscmd = fscmd(:);
-
 % run or not running the fscmd
-if opts.runcmd
-    isnotok = cellfun(@system, fscmd);
-else
-    isnotok = zeros(size(fscmd));
-end
-
-% add isnotok to fscmd
-fscmd = horzcat(fscmd, num2cell(isnotok));
+[fscmd, isnotok] = fm_runcmd(fscmd, opts.runcmd);
 
 % finishing message
 if any(isnotok)
