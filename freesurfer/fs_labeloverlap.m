@@ -16,6 +16,10 @@ function overlapTable = fs_labeloverlap(labels, subjList, outPath)
 %
 % Created by Haiyang Jin (11/12/2019)
 
+if nargin < 1
+    fprintf('Usage: overlapTable = fs_labeloverlap(labels, subjList, varargin);\n');
+    return;
+end
 if ischar(subjList); subjList = {subjList}; end
 nSubj = numel(subjList);
 

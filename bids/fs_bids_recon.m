@@ -30,6 +30,11 @@ function fscmd = fs_bids_recon(subjCode, varargin)
 %
 % Created by Haiyang Jin (2021-11-04)
 
+if nargin < 1
+    fprintf('Usage: fscmd = fs_bids_recon(subjCode, varargin);\n');
+    return;
+end
+
 defaultOpts = struct( ...
     'runcmd', [], ...
     'hires', [], ...

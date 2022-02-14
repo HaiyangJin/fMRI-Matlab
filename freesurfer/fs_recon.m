@@ -24,6 +24,11 @@ function [fscmd, isnotok] = fs_recon(t1list, subjCode, t2list, hires, runcmd)
 % See also:
 % fs_preproc
 
+if nargin < 1 
+    fprintf('Usage: [fscmd, isnotok] = fs_recon(t1list, subjCode, t2list, hires, runcmd);\n');
+    return;
+end
+
 if ~exist('runcmd', 'var') || isempty(runcmd)
     runcmd = 1;
 end

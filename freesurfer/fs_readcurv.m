@@ -29,6 +29,11 @@ function curv = fs_readcurv(curvFn, subjCode, struDir)
 %
 % Created by Haiyang Jin (22-Apr-2020)
 
+if nargin < 1
+    fprintf('Usage: curv = fs_readcurv(curvFn, subjCode, struDir);\n');
+    return;
+end
+
 if ~exist('curvFn', 'var') || isempty(curvFn)
     curvFn = 'lh.area';
     warning('''%s'' is loaded by default.', curvFn);

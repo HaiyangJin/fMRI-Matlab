@@ -44,6 +44,11 @@ function [d2bcmd, isnotok] = bids_dcm2bids(dcmSubj, outSubj, config, isSess, run
 % See also:
 % [bids_dir;] bids_mktsv; bids_fixfmap; bids_fixfunc; bids_mkignore
 
+if nargin < 1
+    fprintf('Usage: [d2bcmd, isnotok] = bids_dcm2bids(dcmSubj, outSubj, config, isSess, runcmd, bidsDir);\n');
+    return;
+end
+
 if ~exist('bidsDir', 'var') || isempty(bidsDir)
     bidsDir = bids_dir();
 end

@@ -18,6 +18,11 @@ function fs_labelval(labelFn, subjCode, sigFile)
 % 
 % Created by Haiyang Jin (2021-12-12)
 
+if nargin < 1
+    fprintf('Usage: fs_labelval(labelFn, subjCode, sigFile);\n');
+    return;
+end
+
 % read the files
 labelmat = fs_readlabel(labelFn, subjCode);
 vals = fm_readimg(sigFile);

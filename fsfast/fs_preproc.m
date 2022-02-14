@@ -25,7 +25,9 @@ function [fscmd, isnotok] = fs_preproc(sessCode, sm, template, extracmd, runcmd)
 % See also: 
 % [fs_recon;] fs_mkanalysis;
 
-if exist(sessCode, 'dir') == 7
+if nargin < 1
+    fprintf('Usage: [fscmd, isnotok] = fs_preproc(sessCode, sm, template, extracmd, runcmd);\n');
+elseif exist(sessCode, 'dir') == 7
     % if sessCode is a session folder and exists
     fscmd_sess = sprintf('-s %s', sessCode);
 elseif ~exist(sessCode, 'file')

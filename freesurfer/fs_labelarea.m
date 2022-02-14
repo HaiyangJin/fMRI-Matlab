@@ -23,6 +23,11 @@ function labelarea = fs_labelarea(labelFn, subjCode, vtxIdx, surface)
 % See also:
 % fs_vtxarea
 
+if nargin < 1
+    fprintf('Usage: labelarea = fs_labelarea(labelFn, subjCode, vtxIdx, surface);\n');
+    return;
+end
+
 if ~exist('subjCode', 'var') || isempty(subjCode)
     subjCode = 'fsaverage';
     warning('''fsaverage'' is used as ''subjCode'' by default.');

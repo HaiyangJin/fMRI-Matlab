@@ -31,6 +31,11 @@ function ratio = stat_overlap(cluster1, cluster2, overlap, method)
 %
 % Created by Haiyang Jin (2021-12-14)
 
+if nargin < 1
+    fprintf('Usage: ratio = stat_overlap(cluster1, cluster2, overlap, method);\n');
+    return;
+end
+
 if ~exist('method', 'var') || isempty(method)
     method = 'dice'; % or 'jaccard'
 elseif isint(method)

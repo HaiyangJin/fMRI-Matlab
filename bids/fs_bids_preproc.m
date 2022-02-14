@@ -30,6 +30,11 @@ function fscmd = fs_bids_preproc(subjCode, varargin)
 %
 % Created by Haiyang Jin (2022-02-06)
 
+if nargin < 1
+    fprintf('Usage: fscmd = fs_bids_preproc(subjCode, varargin);\n');
+    return;
+end
+
 backupDir = pwd;
 
 defaultOpts = struct( ...

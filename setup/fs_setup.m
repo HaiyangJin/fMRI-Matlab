@@ -57,6 +57,7 @@ iserror = system(sprintf('source %s/FreeSurferEnv.sh', fsPath));
 % throw error if FreeSurfer is not sourced successfully
 if iserror
     setenv('FREESURFER_HOME', '');
+    fprintf('Usage: fs_setup(fsPath, fslPath, force);\n')
     error('SetUpFreeSurfer.sh cannot be found at %s.', fsPath);
 end
 

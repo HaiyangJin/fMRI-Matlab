@@ -91,8 +91,14 @@ function [conStruct, fscmd] = fs_mkcontrast(anaList, conditions, contrasts, meth
 
 %% Deal with inputs
 
-if ischar(anaList); anaList = {anaList}; end
-anaList = anaList(:);
+if nargin < 1
+    fprintf('Usage: [conStruct, fscmd] = fs_mkcontrast(anaList, conditions, contrasts, method, runcmd);\n');
+    return;
+elseif ischar(anaList)
+    anaList = {anaList}; 
+else
+    anaList = anaList(:);
+end
 nAnalysis = numel(anaList);
 
 if ~exist('contrasts', 'var') || isempty(contrasts)

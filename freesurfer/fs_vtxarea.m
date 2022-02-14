@@ -22,6 +22,11 @@ function area = fs_vtxarea(vtxIdx, subjCode, surface)
 % See also:
 % fs_labelarea
 
+if nargin < 1
+    fprintf('Usage: area = fs_vtxarea(vtxIdx, subjCode, surface);\n');
+    return;
+end
+
 % convert the numeric vector to a cell
 if isnumeric(vtxIdx)
     vtxIdx = {vtxIdx};

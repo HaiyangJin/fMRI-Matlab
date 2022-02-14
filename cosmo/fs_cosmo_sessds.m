@@ -49,6 +49,12 @@ function [ds_sess, dsInfo] = fs_cosmo_sessds(sessCode, anaName, varargin)
 % fs_cosmo_multids
 
 %% Deal with inputs
+
+if nargin < 1
+    fprintf('Usage: [ds_sess, dsInfo] = fs_cosmo_sessds(sessCode, anaName, varargin);\n');
+    return;
+end
+
 defaultOpts = struct(...
     'runwise', 0, ... 
     'labelfn', '',... 

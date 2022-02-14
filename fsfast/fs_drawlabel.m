@@ -37,6 +37,11 @@ function fscmd = fs_drawlabel(sessList, anaList, conList, fthresh, ...
 %
 % Created by Haiyang Jin (10-Dec-2019)
 
+if nargin < 1
+    fprintf('Usage: fscmd = fs_drawlabel(sessList, anaList, conList, fthresh, extraLabelStr, viewer, extracmd, runcmd);\n');
+    return;
+end
+
 % convert to cell if it is char
 if ischar(sessList); sessList = {sessList}; end
 if ischar(anaList); anaList = {anaList}; end

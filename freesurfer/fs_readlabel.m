@@ -25,6 +25,11 @@ function varargout = fs_readlabel(labelFn, subjCode, struDir)
 %
 % Created by Haiyang Jin (28-Nov-2019)
 
+if nargin < 1
+    fprintf('Usage: [labelMat, nVtx] = fs_readlabel(labelFn, subjCode, struDir);\n');
+    return;
+end
+
 if ~exist('labelFn', 'var') || isempty(labelFn)
     labelFn = 'no.label';
 end

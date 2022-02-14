@@ -14,6 +14,11 @@ function subjList = fs_subjcode(sessList, forceCell)
 %
 % Created by Haiyang Jin (10-Dec-2019)
 
+if nargin < 1
+    fprintf('Usage: subjList = fs_subjcode(sessList, forceCell);\n');
+    return;
+end
+
 if ~exist('forceCell', 'var') || isempty(forceCell)
     forceCell = 0;
 end

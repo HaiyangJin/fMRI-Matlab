@@ -20,7 +20,14 @@ function conditions = fs_par2cond(sessList, runInfo, parFn)
 %
 % Created by Haiyang Jin (16-Apr-2020)
 
-if ischar(sessList); sessList = {sessList}; end
+if nargin < 1
+    fprintf('Usage: conditions = fs_par2cond(sessList, runInfo, parFn);\n');
+    return;
+elseif ischar(sessList)
+    sessList = {sessList};
+else
+    sessList = sessList(:);
+end
 
 if ~exist('runInfo', 'var') || isempty(runInfo)
     runInfo = '';

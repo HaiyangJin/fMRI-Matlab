@@ -36,6 +36,11 @@ function fscmd = fv_drawlabel(subjCode, anaName, sigFile, labelname, ...
 % See also:
 % fs_drawlabel
 
+if nargin < 1
+    fprintf('Usage: fscmd = fv_drawlabel(subjCode, anaName, sigFile, labelname, varargin);\n');
+    return;
+end
+
 hemi = fm_2hemi(anaName);
 
 if ~exist('fthresh', 'var') || isempty(fthresh)

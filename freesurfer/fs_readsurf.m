@@ -36,6 +36,11 @@ function [coords, faces] = fs_readsurf(surfFn, subjCode, struDir)
 %
 % Created by Haiyang Jin (30-March-2020)
 
+if nargin < 1
+    fprintf('Usage: [coords, faces] = fs_readsurf(surfFn, subjCode, struDir);\n');
+    return;
+end
+
 if ~exist('surfFn', 'var') || isempty(surfFn)
     surfFn = 'lh.white';
     warning('''%s'' is loaded by default.', surfFn);

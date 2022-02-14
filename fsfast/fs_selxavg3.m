@@ -26,9 +26,11 @@ function fscmd = fs_selxavg3(sessidfile, anaList, runwise, runcmd, allCPU)
 % See also:
 % [fs_mkcontrast;] fs_isxconcat; fs_cvn_print1st
 
-if iscell(sessidfile)
-    assert(numel(sessidfile)==1, ...
-        'The size of sessidfile has to be 1x1 when it is a cell');
+if nargin < 1
+    fprintf('Usage: fscmd = fs_selxavg3(sessidfile, anaList, runwise, runcmd, allCPU);\n');
+    return;
+end
+
 assert(ischar(sessidfile), '<sessidfile> has to be a string or char.');
 
 if exist(sessidfile, 'dir')

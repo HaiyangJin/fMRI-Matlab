@@ -28,7 +28,8 @@ if ~exist('bidsDir', 'var') || isempty(bidsDir)
     if ~isempty(getenv("BIDS_DIR"))
         bidsDir = getenv("BIDS_DIR");
     else
-        error('Please input the BIDS directory.')
+        fprintf('Usage: bidsDir=bids_dir(bidsDir, isfped);\n');
+        return;
     end
 else
     % make sure the bidsDir exists

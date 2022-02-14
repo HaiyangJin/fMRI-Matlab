@@ -51,6 +51,7 @@ function [anaList, fscmd] = fs_mkanalysis(runFn, parfn, TR, nCond, refDura, vara
 
 if nargin < 1
     fprintf('Usage: [anaList, fscmd] = fs_mkanalysis(runFn, parfn, TR, nCond, refDura, varargin)');
+    return;
 elseif ischar(runFn)
     runFn = {runFn};
 end
