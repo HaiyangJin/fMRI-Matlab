@@ -42,9 +42,9 @@ elseif isint(method)
     method = num2str(method);
 end
 
-assert(overlap <= cluster1, 'overlap (%f) should not exceed cluster1 (%f).', ...
+assert(overlap <= cluster1+1e-12, 'overlap (%f) should not exceed cluster1 (%f).', ...
     overlap, cluster1);
-assert(overlap <= cluster2, 'overlap (%f) should not exceed cluster2 (%f).', ...
+assert(overlap <= cluster2+1e-12, 'overlap (%f) should not exceed cluster2 (%f).', ...
     overlap, cluster2);
 
 switch method
@@ -54,5 +54,8 @@ switch method
     case {'jaccard', '2'}
         ratio = overlap / (cluster1 + cluster2 - overlap);
 end
+
+ratio = max(ratio, 0);
+ratio = min(ratio, 1);
 
 end

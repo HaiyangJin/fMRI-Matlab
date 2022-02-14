@@ -11,7 +11,8 @@ function labelarea = fs_labelarea(labelFn, subjCode, vtxIdx, surface)
 %    subjCode        <str> subject code in $SUBJECTS_DIR. Default is 
 %                     'fsaverage'.
 %    vtxIdx          <int array> vertex indices (in this label) whose
-%                     area will be calculated.
+%                     area will be calculated. [not the row number in this
+%                     label file.]
 %    surface         <str> surface without hemisphere information, which
 %                     will be obtained from [labelFn].
 %
@@ -48,9 +49,9 @@ end
 
 if ~exist('surface', 'var') || isempty(surface)
     % by default fs_vexarea() will use ?h.area
-    surface = fm_2hemi(labelFn);
+    surface = fm_2hemi(labelFn); % hemisphere information only
 elseif ~startsWith(surface, {'lh', 'rh'})
-    surface = [fm_2hemi(labelFn) surface];
+    surface = [fm_2hemi(labelFn) '.' surface];
 else
     assert(strcmp(fm_2hemi(labelfn), fm_2hemi(surface)), ['The hemisphere ' ...
         'information of labelFn (%s) and surface (%s) does not match.'], ...
