@@ -1,7 +1,5 @@
-function fscmd = fv_drawlabel(subjCode, anaName, sigFile, labelname, ...
-    fthresh, istk, extracmd, runcmd)
-% fscmd = fv_drawlabel(subjCode, anaName, sigFile, labelname, ...
-%    fthresh, istk, extracmd, runcmd)
+function fscmd = fv_drawlabel(subjCode, anaName, sigFile, labelname, varargin)
+% fscmd = fv_drawlabel(subjCode, anaName, sigFile, labelname, varargin)
 %
 % This function uses "tksurfer" in FreeSurfer to draw label. You may want
 % to use fs_drawlabel().
@@ -13,13 +11,18 @@ function fscmd = fv_drawlabel(subjCode, anaName, sigFile, labelname, ...
 %                      This should include the path to the file if needed.
 %    labelname        <str> the label name you want to use for this
 %                      label.
-%    fthresh          <str> or <nume> the overlay threshold minimal value.
-%    istk             <int> 1 for 'tksurfer' [note: not tksurfer-sess] and 
+%
+% Varargin:
+%    .fthresh         <str> or <num> the overlay threshold minimal value.
+%    .istk            <int> 1 for 'tksurfer' [note: not tksurfer-sess] and 
 %                      0 for fv_surf(), which implements custom codes to
 %                      run freeview. For FS5 and FS6, default is 1. For
 %                      FS7, default is 0.
-%    extracmd         <str> extra commands for the viewer. Default is ''.
-%    runcmd           <boo> 0: do not run but only make fscmd; 1: run
+%    .addvalue        <boo> whether add the functional data/values used to
+%                      create the label when 'freeview' is used. Default is
+%                      1.
+%    .extracmd        <str> extra commands for the viewer. Default is ''.
+%    .runcmd          <boo> 0: do not run but only make fscmd; 1: run
 %                      FreeSurfer commands. Default is 1.
 %
 % Output:
@@ -30,8 +33,7 @@ function fscmd = fv_drawlabel(subjCode, anaName, sigFile, labelname, ...
 % To invert the display of overlay, set extracmd as '-invphaseflag 1'.
 % 
 % Created by Haiyang Jin (10-Dec-2019)
-% For furture development, I should included to define the limits of
-% p-values.
+% Furture development should include defining the limits of p-values.
 %
 % See also:
 % fs_drawlabel
@@ -43,30 +45,24 @@ end
 
 hemi = fm_2hemi(anaName);
 
-if ~exist('fthresh', 'var') || isempty(fthresh)
-    fthresh = '';
-elseif isnumeric(fthresh)
+defaultOpts = struct( ...
+    'fthresh', '', ...
+    'istk', fs_version(1) < 7, ... % the default viewer
+    'addvalue', 1, ...
+    'extracmd', '', ...
+    'runcmd', 1);
+opts = fm_mergestruct(defaultOpts, varargin{:});
+
+fthresh = opts.fthresh;
+if isnumeric(fthresh)
     fthresh = num2str(fthresh);
 end
-% the default viewer
-if ~exist('istk', 'var') || isempty(istk)
-   istk = fs_version(1) < 7;
-end
-    
-if ~exist('extracmd', 'var') || isempty(extracmd)
-    extracmd = '';
-end
-if ~exist('runcmd', 'var') || isempty(runcmd)
-    runcmd = 1;
-end
-
-subjPath = getenv('SUBJECTS_DIR');
 
 % find the template for this analysis
 template = fs_2template(anaName, '', 'self');
 trgSubj = fs_trgsubj(subjCode, template);
 
-if runcmd
+if opts.runcmd
     
     % open a message box to display information
     CreateStruct.Interpreter = 'tex';
@@ -86,30 +82,30 @@ end
 % create FreeSurfer command and run it
 titleStr = sprintf('%s==%s==%s', subjCode, labelname, anaName);
 
-if istk
+if opts.istk
     % use tksurfer (cannot be tested now)
     fscmd = sprintf('tksurfer %s %s inflated -aparc -overlay %s -title %s %s',...
-        trgSubj, hemi, sigFile, titleStr, extracmd);
+        trgSubj, hemi, sigFile, titleStr, opts.extracmd);
     if ~isempty(fthresh)
         fscmd = sprintf('%s -fthresh %s', fscmd, fthresh);
     end
     tmpLabelname = 'label.label';
 else
     % use freeview
-    opts.surftype = 'inflated';
-    opts.threshold = [fthresh ',5'];
-    opts.annot = 'aparc';
-    opts.overlay = sigFile;
-    opts.runcmd = 0;
+    fvopts.surftype = 'inflated';
+    fvopts.threshold = [fthresh ',5'];
+    fvopts.annot = 'aparc';
+    fvopts.overlay = sigFile;
+    fvopts.runcmd = 0;
     % get the surface codes
     tmpMgz = fullfile(getenv('SUBJECTS_DIR'), subjCode, 'surf', ...
         sprintf('%s.w-g.pct.mgh', hemi));
-    [~, fscmd] = fv_surf(tmpMgz, trgSubj, opts);
+    [~, fscmd] = fv_surf(tmpMgz, trgSubj, fvopts);
     tmpLabelname = fullfile('label', 'label_1.label');
 end
 
 % finish this command if do not need to run fscmd
-if ~runcmd; return; end
+if ~opts.runcmd; return; end
 system(fscmd);
 
 %%%%%%%%%%%%%%%% Manual working in FreeSurfer %%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -128,10 +124,10 @@ system(fscmd);
 
 %% Rename the label file
 % created an empty file with the label filename
-labelFile = fullfile(subjPath, subjCode, 'label', labelname);
+labelFile = fullfile(getenv('SUBJECTS_DIR'), subjCode, 'label', labelname);
 
 % rename and move this label file
-tempLabelFile = fullfile(subjPath, trgSubj, tmpLabelname);
+tempLabelFile = fullfile(getenv('SUBJECTS_DIR'), trgSubj, tmpLabelname);
 
 if logical(exist(tempLabelFile, 'file'))
     movefile(tempLabelFile, labelFile);
@@ -139,9 +135,9 @@ if logical(exist(tempLabelFile, 'file'))
 end
 
 %% Add sig values if freeview is used
-% if ~istk
-%     fs_labelval(labelname, subjCode, sigFile);
-% end
+if ~opts.istk & opts.addvalue
+    fs_labelval(labelname, subjCode, sigFile);
+end
 
 % close the msgbox
 close(f);
