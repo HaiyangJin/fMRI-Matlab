@@ -6,7 +6,7 @@ function fscmd = fs_selxavg3(sessidfile, anaList, runwise, runcmd, allCPU)
 % Inputs:
 %    sessidfile         <str> filename of the session id file. the file 
 %                        contains all session codes.
-%                   OR  <cell> 1x1 cell. Will be used as sessid (for -s).
+%                   OR  <str> sessid (for -s).
 %    anaList            <cell str> the list of analysis names.
 %    runwise            <boo> 0: run the first-level analysis for all 
 %                        runs together [default]; 1: run the analysis for
@@ -29,8 +29,11 @@ function fscmd = fs_selxavg3(sessidfile, anaList, runwise, runcmd, allCPU)
 if iscell(sessidfile)
     assert(numel(sessidfile)==1, ...
         'The size of sessidfile has to be 1x1 when it is a cell');
+assert(ischar(sessidfile), '<sessidfile> has to be a string or char.');
+
+if exist(sessidfile, 'dir')
     % will be used as sessid
-    sess_cmd = sprintf('-s %s', sessidfile{1});
+    sess_cmd = sprintf('-s %s', sessidfile);
 else
     % will be used as sessidfile
     sess_cmd = sprintf('-sf %s', sessidfile);
