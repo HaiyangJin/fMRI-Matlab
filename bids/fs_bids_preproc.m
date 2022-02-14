@@ -71,8 +71,9 @@ else
     sessList = {sessdir.name};
 
     % all func files in all sessions
-    bfuncdir = cellfun(@dir, (fm_fullfile(bsubjDir, 'func', sessList, ...
-        '*bold.nii.gz')), 'uni', false);
+    bfuncdir = cellfun(@(x) dir(fullfile(bsubjDir, x, 'func', ...
+        sprintf('%s_%s*bold.nii.gz', subjCode, x))), sessList, 'uni', false);
+    bfuncdir = bfuncdir(:);
 
     if opts.combinesess
         % if save multiple BIDS sessions as one session in FS-FAST
@@ -82,8 +83,9 @@ else
         fssessList = cellfun(@(x) sprintf('%s_%s', ...
             opts.fssesscode, x), sessList, 'uni', false);
     end
-
 end
+
+assert(~isempty(bfuncdir), 'Cannot find any functional data.')
 
 %% Conduct analysis for each FS-FAST session separately
 fscmdc = cell(size(bfuncdir, 1), 1);
@@ -150,11 +152,24 @@ RunCode = runCodeList;
 RunName = {bfuncdir.name}';
 writetable(table(RunCode, RunName), fullfile(boldDir, 'run_info.txt'));
 
-% make run list files
+% make run list files for each task
 tasks = unique({bfuncInfo.task});
 for thisTask = tasks
     theTaskRuns = runCodeList(strcmp({bfuncInfo.task}', thisTask));
     fm_mkfile(fullfile(boldDir, [thisTask{1} '.txt']), theTaskRuns);
+end
+
+% make run list files for each task and each session
+if isfield(bfuncInfo, 'ses') % only when ses information is available
+    sess = unique({bfuncInfo.ses});
+    for thisSes = sess
+        for thisTask = tasks
+            theTaskRuns = runCodeList(logical(strcmp({bfuncInfo.task}', thisTask) .* ...
+                strcmp({bfuncInfo.ses}', thisSes)));
+            fm_mkfile(fullfile(boldDir, sprintf('%s_ses-%s.txt', ...
+                thisTask{1}, thisSes{1})), theTaskRuns);
+        end
+    end
 end
 
 end

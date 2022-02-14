@@ -92,6 +92,7 @@ function [conStruct, fscmd] = fs_mkcontrast(anaList, conditions, contrasts, meth
 %% Deal with inputs
 
 if ischar(anaList); anaList = {anaList}; end
+anaList = anaList(:);
 nAnalysis = numel(anaList);
 
 if ~exist('contrasts', 'var') || isempty(contrasts)
@@ -195,7 +196,7 @@ disp(conCell);
 % create all the combinations of analyses and contrasts
 [anaTemp, conTemp] = ndgrid(1:nAnalysis, 1:nContrast);
 
-analysisName = anaList(anaTemp(:))';
+analysisName = anaList(anaTemp(:));
 contrastName = conCell(conTemp(:), 1);
 contrastCode = conCell(conTemp(:), 2);
 contrastMethod = conCell(conTemp(:), 3);
