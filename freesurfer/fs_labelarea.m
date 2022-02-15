@@ -50,12 +50,16 @@ end
 if ~exist('surface', 'var') || isempty(surface)
     % by default fs_vexarea() will use ?h.area
     surface = fm_2hemi(labelFn); % hemisphere information only
-elseif ~startsWith(surface, {'lh', 'rh'})
-    surface = [fm_2hemi(labelFn) '.' surface];
-else
-    assert(strcmp(fm_2hemi(labelfn), fm_2hemi(surface)), ['The hemisphere ' ...
-        'information of labelFn (%s) and surface (%s) does not match.'], ...
-        fm_2hemi(labelfn), fm_2hemi(surface));
+end
+
+if ischar(surface)
+    if ~startsWith(surface, {'lh', 'rh'})
+        surface = [fm_2hemi(labelFn) '.' surface];
+    else
+        assert(strcmp(fm_2hemi(labelfn), fm_2hemi(surface)), ['The hemisphere ' ...
+            'information of labelFn (%s) and surface (%s) does not match.'], ...
+            fm_2hemi(labelfn), fm_2hemi(surface));
+    end
 end
 
 % calculate the area

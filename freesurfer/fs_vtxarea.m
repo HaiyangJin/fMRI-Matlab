@@ -38,13 +38,15 @@ end
 
 if ~exist('surface', 'var') || isempty(surface)
     surface = 'lh.area';
-elseif ismember(surface, {'lh', 'rh'})
+elseif ischar(surface) && ismember(surface, {'lh', 'rh'})
     surface = [surface, '.area'];
 end
 
-if endsWith(surface, 'area')
+if ischar(surface) && endsWith(surface, 'area')
     % area files (?h.area)
     vtx2areas = fs_readcurv(surface, subjCode);
+elseif ~ischar(surface)
+    vtx2areas = surfing_surfacearea(surface{1}, surface{2});
 else
     % read the surface and calculate the area
     [coords, faces] = fs_readsurf(surface, subjCode);

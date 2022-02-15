@@ -76,7 +76,8 @@ switch opts.distmetric
 
     case 'geodesic'
         % modified from surfing_circleROI.m
-        [sc, sf, si] = surfing_subsurface(coords, faces, vtxidx, []);
+        v2f=surfing_nodeidxs2faceidxs(faces');
+        [sc, sf, si] = surfing_subsurface(coords, faces, vtxidx, [], v2f);
         % this requires the Fast Marching toolbox (Peyre)
         Dcell = arrayfun(@(x) perform_fast_marching_mesh(sc, sf, x), si, 'uni', false);
         % convert D from cell to mat
@@ -85,8 +86,9 @@ switch opts.distmetric
         D = Dmat(si, :);
 
     case 'dijkstra'
+        v2f=surfing_nodeidxs2faceidxs(faces');
         % modified from surfing_circleROI.m
-        [sc, sf, si] = surfing_subsurface(coords, faces, vtxidx, []);
+        [sc, sf, si] = surfing_subsurface(coords, faces, vtxidx, [], v2f);
         Dcell = arrayfun(@(x) surfing_dijkstradist(sc', sf', x), si, 'uni', false);
         % convert D from cell to mat
         Dmat = horzcat(Dcell{:});
