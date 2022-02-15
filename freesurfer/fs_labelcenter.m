@@ -32,6 +32,11 @@ function [cenInfo, D] = fs_labelcenter(labelFn, subjCode, varargin)
 %
 % Created by Haiyang Jin (2022-Jan-12)
 
+if nargin < 2
+    fprintf('Usage: [cenInfo, D] = fs_labelcenter(labelFn, subjCode, varargin);\n');
+    return;
+end
+
 %% Inputs
 defaultOpts = struct( ...
     'surface', '', ...

@@ -134,8 +134,8 @@ if logical(exist(tempLabelFile, 'file'))
     fprintf('Label %s is saved.\n', labelname);
 end
 
-%% Add sig values if freeview is used
-if ~opts.istk & opts.addvalue
+% Add sig values if freeview is used
+if ~opts.istk && opts.addvalue
     fs_labelval(labelname, subjCode, sigFile);
 end
 

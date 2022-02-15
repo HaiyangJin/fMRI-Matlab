@@ -19,7 +19,7 @@ function fscmd = fs_drawlabel(sessList, anaList, conList, varargin)
 %    .viewer        <int> 1 for 'tksurfer' and 2 for 'freeview'. For
 %                    FS5 and FS6, default is 1 and for FS7, default is 2.
 %    .addvalue      <boo> whether add the functional data/values used to
-%                    create the label. 
+%                    create the label. Default is 1.
 %    .extracmd      <str> extra commands (cmd). Default is ''.
 %    .runcmd        <boo> 1: run FreeSurfer commands; 0: do not run
 %                    but only output FreeSurfer commands. 
@@ -39,7 +39,7 @@ function fscmd = fs_drawlabel(sessList, anaList, conList, varargin)
 %
 % Created by Haiyang Jin (10-Dec-2019)
 
-if nargin < 1
+if nargin < 3
     fprintf('Usage: fscmd = fs_drawlabel(sessList, anaList, conList, varargin);\n');
     return;
 end

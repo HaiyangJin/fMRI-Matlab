@@ -18,8 +18,21 @@ function fs_labelval(labelFn, subjCode, sigFile)
 % 
 % Created by Haiyang Jin (2021-12-12)
 
-if nargin < 1
+if nargin < 3
     fprintf('Usage: fs_labelval(labelFn, subjCode, sigFile);\n');
+    return;
+end
+
+% make sure the label and the sigFile are for the same hemisphere
+lhemi = fm_2hemi(labelFn);
+shemi = fm_2hemi(sigFile,0);
+assert(strcmp(lhemi, shemi), ['labelFn (%s) and sigFile (%s) should be ' ...
+    'from the same hemisphere.'], lhemi, shemi);
+
+% make sure the label exists
+if ~fs_checklabel(labelFn, subjCode)
+    warning('Cannot find the label file (%s) for subjCode (%s).', ...
+        labelFn, subjCode);
     return;
 end
 

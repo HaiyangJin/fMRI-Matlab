@@ -16,6 +16,11 @@ function hemi = fm_2hemi(filename, fnOnly)
 % See also:
 % fm_hemi_multi
 
+if nargin < 1
+    fprintf('Usage: hemi = fm_2hemi(filename, fnOnly);\n');
+    return;
+end
+
 if ~exist('fnOnly', 'var') || isempty(fnOnly)
     fnOnly = 1;
 end

@@ -21,6 +21,11 @@ function [hemi, nHemi] = fm_hemi_multi(files, forceString, fnOnly)
 % See also:
 % fm_2hemi
 
+if nargin < 1
+    fprintf('Usage: [hemi, nHemi] = fm_hemi_multi(files, forceString, fnOnly);\n');
+    return;
+end
+
 % convert the filenames to a cell if it is a string
 if ischar(files)
     files = {files};
