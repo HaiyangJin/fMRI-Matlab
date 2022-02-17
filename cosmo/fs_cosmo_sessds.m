@@ -23,6 +23,10 @@ function [ds_sess, dsInfo] = fs_cosmo_sessds(sessCode, anaName, varargin)
 %                    ['beta.nii.gz' by default]
 %    ispct          <boo> use whether the raw 'beta.nii.gz' or signal
 %                    percentage change. Default is 0.
+%    contrast       <cell list> a list of contrast names. Default is empty,
+%                    if it is not empty, the <datafn> in contrast folder
+%                    will be read. When it is 'all', data in all the 
+%                    contrast folders (with fs_ana2con()) will be read. 
 %    parfn          <str> the filename of the par file. It is empty by
 %                    default and will try to find the par file for that run.
 %                    [to be deprecated; this information is read from
@@ -43,14 +47,24 @@ function [ds_sess, dsInfo] = fs_cosmo_sessds(sessCode, anaName, varargin)
 %     .nVertices    <int> number of vertices in this label.
 %     .SessCode     <str> this session code.
 %
+% % Example 1: read beta data within one label (across all runs)
+% [ds_sess, dsInfo] = fs_cosmo_sessds(sessCode, anaName, 'labelfn', labelfilename);
+%
+% % Example 2: read all data for runwise
+% [ds_sess, dsInfo] = fs_cosmo_sessds(sessCode, anaName, 'runwise', 1);
+%
+% % Example 3: read contrast data (sig.nii.gz)
+% [ds_sess, dsInfo] = fs_cosmo_sessds(sessCode, anaName, ...
+%     'contrast', 'face-vs-object', 'datafn', 'sig.nii.gz');
+%
 % Created by Haiyang Jin (14-Apr-2020)
 %
 % See also:
-% fs_cosmo_multids
+% fs_cosmo_sessdsmulti
 
 %% Deal with inputs
 
-if nargin < 1
+if nargin < 2
     fprintf('Usage: [ds_sess, dsInfo] = fs_cosmo_sessds(sessCode, anaName, varargin);\n');
     return;
 end
@@ -60,6 +74,7 @@ defaultOpts = struct(...
     'labelfn', '',... 
     'datafn', 'beta.nii.gz',... 
     'ispct', '', ... % 0 default for fs_cosmo_surface
+    'contrast', '', ...
     'parfn', '', ... % to be deprecated
     'runinfo', '' ... % to be deprecated
     );
@@ -97,20 +112,45 @@ end
 % path to the bold folder
 boldPath = fullfile(getenv('FUNCTIONALS_DIR'), sessCode, 'bold');
 
-% create the full filename to the paradigm file (with path)
-parFiles = fullfile(boldPath, runList, opts.parfn);
-% read all the par files
-parCell = cellfun(@fm_readpar, parFiles, 'uni', false);
+if isempty(opts.contrast) 
+    % create the full filename to the paradigm file (with path)
+    parFiles = fullfile(boldPath, runList, opts.parfn);
+    % read all the par files
+    parCell = cellfun(@fm_readpar, parFiles, 'uni', false);
 
-% create the to-be-read filenames (beta) with path
-dataFiles = fullfile(boldPath, anaName, prList, opts.datafn);
+    % create the to-be-read filenames (beta) with path
+    dataFiles = fullfile(boldPath, anaName, prList, opts.datafn);
 
-% read the data and the corresponding condition names
-dsCell = arrayfun(@(x) fs_cosmo_surface(dataFiles{x}, ...
-    'targets', parCell{x}.Condition, ...
-    'labels', parCell{x}.Label, ...
-    'pct', opts.ispct, ...
-    'chunks', x), 1:numel(dataFiles), 'uni', false);
+    % read the data and the corresponding condition names
+    dsCell = arrayfun(@(x) fs_cosmo_surface(dataFiles{x}, ...
+        'targets', parCell{x}.Condition, ...
+        'labels', parCell{x}.Label, ...
+        'pct', opts.ispct, ...
+        'chunks', x), 1:numel(dataFiles), 'uni', false);
+    
+else 
+    % read data in the contrast folder
+    if ischar(opts.contrast) && strcmp(opts.contrast, 'all')
+        opts.contrast = fs_ana2con(anaName);
+    elseif ischar(opts.contrast)
+        opts.contrast = {opts.contrast};
+    end
+
+    % create the to-be-read filenames (beta) with path
+    dataFiles = fm_fullfile(boldPath, anaName, prList, opts.contrast, opts.datafn);
+
+    dstargets = repmat(1:numel(opts.contrast), numel(prList), 1);
+    dstargets = dstargets(:);
+    dslabels = opts.contrast(dstargets(:));
+    dschunks = repmat(1:numel(prList), 1, numel(opts.contrast));
+
+    % read the data and the corresponding condition names
+    dsCell = arrayfun(@(x) fs_cosmo_surface(dataFiles{x}, ...
+        'targets', dstargets(x), ...
+        'labels', dslabels(x), ...
+        'pct', opts.ispct, ...
+        'chunks', dschunks(x)), 1:numel(dataFiles), 'uni', false);
+end
 
 % combine data for different runs if necessary
 ds_all = cosmo_stack(dsCell,1);

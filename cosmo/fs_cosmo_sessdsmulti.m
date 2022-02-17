@@ -4,8 +4,8 @@ function ds = fs_cosmo_sessdsmulti(sessList, anaList, varargin)
 % Use fs_cosmo_sessds() to read and stack data for multiple sessions. 
 % Typically, sessList should inlcude sessions for the same participant
 % and anaList should include analyses for the same hemisphere. At least, 
-% the output data should have the same number of ertices (and they have the
-% same meanings, e.g., same coordinates). Otherwise, even the data can be 
+% the output data should have the same number of vertices (and they have the
+% same meanings, i.e., same coordinates). Otherwise, even the data can be 
 % stacked but they may not make sense [never mind if this description does 
 % not make sense :)].
 %
@@ -17,7 +17,12 @@ function ds = fs_cosmo_sessdsmulti(sessList, anaList, varargin)
 %                  refer to the same hemisphere. (It may be for both
 %                  hemispheres if sessList are participants using the same
 %                  template, e.g., 'fsaverage'; not recommended).
-%    varargin     see varargin in fs_cosmo_sessds().
+%
+% Varargin     
+%    .across      <boo> whether all analyses are available in all sessions,
+%                  default is 1. Otherwise, one session only corresponds to
+%                  one analysis in order. 
+%    For other options see varargin in fs_cosmo_sessds().
 %
 % Output:
 %    ds           <struct> (cosmo) dataset struct (with "redundant" sample
@@ -28,10 +33,31 @@ function ds = fs_cosmo_sessdsmulti(sessList, anaList, varargin)
 % See also:
 % fs_cosmo_sessds
 
-defaultOpts = struct();
+if nargin < 2
+    fprintf('Usage: ds = fs_cosmo_sessdsmulti(sessList, anaList, varargin);\n');
+    return;
+end
+
+if ischar(sessList); sessList = {sessList}; end
+subjList = fs_subjcode(sessList, 1);
+assert(numel(unique(subjList))==1, ['It seems that the multiple sessions do ' ...
+    'not correspond to the same subject.'])
+
+if ischar(anaList); anaList = {anaList}; end
+[~, nHemi] = fm_hemi_multi(anaList);
+assert(nHemi==1, 'Please make sure the multiple analyses are for the same hemisphere.')
+
+defaultOpts = struct('across', 1);
 opts = fm_mergestruct(defaultOpts, varargin{:});
 
-[tmpSess, tmpAna] = ndgrid(sessList, anaList);
+if opts.across
+    % across sessions and analyses
+    [tmpSess, tmpAna] = ndgrid(sessList, anaList);
+else
+    % one session correspond to one analysis
+    tmpSess = sessList;
+    tmpAna = anaList;
+end
 allSess = tmpSess(:);
 allAna = tmpAna(:);
 

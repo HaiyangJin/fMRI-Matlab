@@ -31,18 +31,27 @@ function iccT = fs_icc(sessList, anaList, labelList, varargin)
 %
 % Varargin:
 %
-% %%%% for ICC %%%%
+% %%%% for fs_cosmo_sessdsmulti() %%%%
+%     .across      <boo> more see fs_cosmo_sessdsmulti().
+%
+% %%%% for ICC() %%%%
 %     .type, .alpha, .r0    in-arguments for ICC. see help fule for
 %     stat_icc().
 %
-%
 % Output:
+%     iccT         <table> output ICC table.
+%     iccT.Session       session(s) used to calculated ICC.
+%     iccT.Analysis      analyses used to calculated ICC.
+%     iccT.Labelfn       the label file used to mask the data.
+%     iccT.Condition     the condition or contrast name.
+%     For all other outputs, please see ICC() or stat_icc().
 %
 % Created by Haiyang Jin (2022-Jan-06)
 
 defaultOpts = struct(...
     'runwise', 0, ...
     'datafn', 'beta.nii.gz', ...
+    'across', 1, ...
     'type', 'C-1', ...
     'alpha', [], ...
     'r0', []);
@@ -52,11 +61,17 @@ opts = fm_mergestruct(defaultOpts, varargin);
 if ischar(sessList); sessList = {sessList}; end
 if ischar(anaList); anaList = {anaList}; end
 
+if ~exist('labelList', 'var') || isempty(labelList)
+    labelList = {[]};
+elseif ischar(labelList)
+    labelList = {labelList};
+end
+
 nLabel = numel(labelList);
 [nSess, nSessM] = size(sessList); % P x Q
 [nICC, nAnaM] = size(anaList);    % M x N
-assert(ismember(nSessM * nAnaM, [nSessM, nAnaM]), ['Either the second ' ...
-    'dimention of sessList (%d) or anaList (%d) has to be 1.'], ...
+assert(nSessM > 1 || nAnaM > 1, ['Either the second ' ...
+    'dimention of sessList (%d) or anaList (%d) has to be larger than 1.'], ...
     nSessM, nAnaM);
 
 %% Calculate ICC for each pair/group
@@ -95,11 +110,20 @@ for iSess = 1:nSess
 
                 ds_con = cosmo_slice(ds, cosmo_match(ds.sa.labels, conditions(iCon)));
 
+                if size(ds_con.samples, 1) == 1
+                    warning('There is only one sample in the dataset.');
+                end
+
                 [tmp.r, tmp.LB, tmp.UB, tmp.F, tmp.df1, tmp.df2, tmp.p] =  ...
                     stat_icc(ds_con.samples', opts.type, opts.alpha, opts.r0);
 
+                % save ICC type information
+                tmp.type = opts.type;
+                tmp.alpha = opts.alpha;
+                tmp.r0 = opts.r0;
 
                 icc_con_cell{iCon, 1} = tmp;
+
             end % iCon
 
             icc_out{iSess, iICC, iLabel} = vertcat(icc_con_cell{:});
@@ -108,6 +132,6 @@ for iSess = 1:nSess
     end % iICC
 end % iSess
 
-iccT = vertcat(icc_out{:});
+iccT = struct2table(vertcat(icc_out{:}));
 
 end
