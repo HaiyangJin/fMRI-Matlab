@@ -23,6 +23,8 @@ function ds = fs_cosmo_sessdsmulti(sessList, anaList, varargin)
 %                  default is 1. Otherwise, one session only corresponds to
 %                  one analysis in order. 
 %    For other options see varargin in fs_cosmo_sessds().
+%    .contrast    <str> to read the data within the contrast folder.
+%    .datafn      <str> the file to be read.
 %
 % Output:
 %    ds           <struct> (cosmo) dataset struct (with "redundant" sample

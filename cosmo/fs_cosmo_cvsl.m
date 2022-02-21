@@ -117,7 +117,7 @@ nbrStr = opt.nbrstr;
 
 % pre-process classifer
 if isempty(classifier)
-    [classifier, ~, shortName, nClass] = cosmo_classifier;
+    [classifier, ~, shortName, nClass] = cosmo_classifier();
 else
     [classifier, ~, shortName, nClass] = cosmo_classifier(classifier);
 end
@@ -140,18 +140,27 @@ if strcmp(func2str(measure), 'cosmo_correlation_measure')
     partitioner = @cosmo_oddeven_partitioner;
 end
 
+% whether perform icc searchlight
+isicc = 0;
+if strcmp(func2str(opt.measure), 'cosmo_slicc')
+    isicc = 1;
+end
+
 %% Neighborhood
 % which method is used for neighbors
 nbr_args.metric = metric;
+if ~isempty(nbrStr) && ~endsWith(nbrStr, '_')
+    nbrStr = [nbrStr '_'];
+end
 if radius ~= 0
     nbr_args.radius = radius;
-    nbrStr = sprintf('%s_%s_r%d', nbrStr, metric, radius);
+    nbrStr = sprintf('%s%s_r%d', nbrStr, metric, radius);
 elseif count ~= 0
     nbr_args.count = count;
-    nbrStr = sprintf('%s_%s_c%d', nbrStr, metric, count);
+    nbrStr = sprintf('%s%s_c%d', nbrStr, metric, count);
 elseif ~isempty(area)
     nbr_args.area = area;
-    nbrStr = sprintf('%s_%s_a%d', nbrStr, metric, area);
+    nbrStr = sprintf('%s%s_a%d', nbrStr, metric, area);
 else
     error(['Please define the method for identifying neighboorhood.' ...
         'e.g., set ''radius'' or ''count''']);
@@ -163,8 +172,8 @@ nbhFn = sprintf('sl_cosmo_nbr_%s_%s_%s.mat', hemi, trgSubj, nbrStr);
 % the target folder
 if strcmp(trgSubj, 'fsaverage')
     saveSubj = 'fsaverageSL';
-    accPath = fullfile(getenv('SUBJECTS_DIR'), saveSubj, 'surf');
-    fm_mkdir(accPath);
+    outPath = fullfile(getenv('SUBJECTS_DIR'), saveSubj, 'surf');
+    fm_mkdir(outPath);
 else
     saveSubj = trgSubj;
 end
@@ -326,9 +335,13 @@ for iPair = 1:nPairs
     fprintf('Dataset output:\n');
     cosmo_disp(ds_sl);
 
-    % set the accuracy for non-cortex vertices as -1
-    accuracy = ones(size(vo, 1), 1) * opt.maskedvalue;
-    accuracy(center_ids) = ds_sl.samples';
+    if isicc
+        outdata = ds_sl.samples';
+    else
+        % set the accuracy for non-cortex vertices as -1
+        outdata = ones(size(vo, 1), 1) * opt.maskedvalue;
+        outdata(center_ids) = ds_sl.samples';
+    end
 
     %% Save results as *.mgz files
 
@@ -338,15 +351,21 @@ for iPair = 1:nPairs
     else
         normStr = '';
     end
-    accFn = sprintf('sl.%s%s.acc', shortName{1}, normStr);
-    accPath = fullfile(getenv('FUNCTIONALS_DIR'), sessCode, 'bold', anaFolder, conFolder);
+    
+    if isicc
+        outFn = sprintf('sl.icc%s.r', normStr);
+    else
+        outFn = sprintf('sl.%s%s.acc', shortName{1}, normStr);
+    end
+    if endsWith(conFolder, '-vs-'); conFolder = conFolder(1:end-4); end
+    outPath = fullfile(getenv('FUNCTIONALS_DIR'), sessCode, 'bold', anaFolder, conFolder);
 
     if ismember(hemi, {'lh', 'rh'})
-        if ~exist(accPath, 'dir'); mkdir(accPath); end
+        if ~exist(outPath, 'dir'); mkdir(outPath); end
         % save the accuracy as *.mgz
-        fs_savemgz(trgSubj, accuracy, accFn, accPath, hemi);
+        fs_savemgz(trgSubj, outdata, outFn, outPath, hemi);
     elseif strcmp(hemi, 'lhrh')  % save as .gii for the whole brain
-        outputFile = fullfile(accPath, accFn);
+        outputFile = fullfile(outPath, outFn);
         cosmo_map2surface(ds_sl, [outputFile '.gii'], 'encoding','ASCII');
     end
 

@@ -27,16 +27,24 @@ function iccT = fs_icc(sessList, anaList, labelList, varargin)
 %    labelList    <cell str> a list of label files. If it is empty
 %                  (default), ICC for all vertices will be computed. If it
 %                  is not empty, only vertices in the label will be used to
-%                  calculate the ICC.
+%                  calculate the ICC. When it is 'slicc', it will conduct
+%                  searchlight and in the output *.mgz file, the seven
+%                  columns are the output of ICC(). More see ICC().
 %
 % Varargin:
 %
 % %%%% for fs_cosmo_sessdsmulti() %%%%
 %     .across      <boo> more see fs_cosmo_sessdsmulti().
+%     .contrast    <str> to read the data within the contrast folder.
+%     .datafn      <str> the file to be read.
 %
 % %%%% for ICC() %%%%
 %     .type, .alpha, .r0    in-arguments for ICC. see help fule for
 %     stat_icc().
+%
+% %%%% fs_cosmo_cvsl() %%%%
+%     .metric, .radius, .count, .area, % options for deciding the nbr
+%     .nproc and other options see fs_csomo_cvsl().
 %
 % Output:
 %     iccT         <table> output ICC table.
@@ -79,7 +87,7 @@ icc_out = cell(nSess, nICC, nLabel);
 tmp_icc = struct;
 
 for iSess = 1:nSess
-    
+
     % for each session (pair/group)
     theSess = sessList(iSess,:);
     tmp_icc.Session = theSess(:)';
@@ -94,7 +102,9 @@ for iSess = 1:nSess
             tmp_icc.Labelfn = labelList{iLabel};
 
             % load data for multiple sessions/measurement
-            opts.labelfn = labelList{iLabel};
+            if ~strcmp(labelList{iLabel}, 'slicc')
+                opts.labelfn = labelList{iLabel};
+            end
             ds = fs_cosmo_sessdsmulti(theSess, theAna, opts);
 
             % all conditions in the ds
@@ -111,16 +121,31 @@ for iSess = 1:nSess
                 ds_con = cosmo_slice(ds, cosmo_match(ds.sa.labels, conditions(iCon)));
 
                 if size(ds_con.samples, 1) == 1
-                    warning('There is only one sample in the dataset.');
+                    warning(['There is only one sample in the dataset ' ...
+                        'and the ICC results are invalid.']);
                 end
 
-                [tmp.r, tmp.LB, tmp.UB, tmp.F, tmp.df1, tmp.df2, tmp.p] =  ...
-                    stat_icc(ds_con.samples', opts.type, opts.alpha, opts.r0);
 
-                % save ICC type information
-                tmp.type = opts.type;
-                tmp.alpha = opts.alpha;
-                tmp.r0 = opts.r0;
+                if strcmp(labelList{iLabel}, 'slicc')
+                    % searchlight ICC
+                    [co, fa] = fs_readsurf([fm_2hemi(theAna{1}) '.white'], fs_subjcode(theSess));
+                    
+                    fs_cosmo_cvsl(ds_con, conditions(iCon), {co, fa}, theSess{1}, theAna{1}, ...
+                        'measure', @cosmo_slicc, ...
+                        'classopt', {'type', opts.type, 'alpha', opts.alpha, 'r0', opts.r0});
+                    tmp = struct;
+
+                else
+                    % ICC for one pair of samples
+                    [tmp.r, tmp.LB, tmp.UB, tmp.F, tmp.df1, tmp.df2, tmp.p] =  ...
+                        stat_icc(ds_con.samples', opts.type, opts.alpha, opts.r0);
+
+                    % save ICC type information
+                    tmp.type = opts.type;
+                    tmp.alpha = opts.alpha;
+                    tmp.r0 = opts.r0;
+
+                end
 
                 icc_con_cell{iCon, 1} = tmp;
 
