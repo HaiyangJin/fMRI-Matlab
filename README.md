@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/222379947.svg)](https://zenodo.org/badge/latestdoi/222379947)
+[DOI: 10.17605/OSF.IO/D76FM](https://osf.io/d76fm/)
 
 (Working in progress...) \
 Last updated: 2021-11-16
