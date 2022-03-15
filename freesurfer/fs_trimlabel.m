@@ -533,7 +533,7 @@ else
                         sortLabelMat = nbrLabelMat(sortidx, :);
 
                         % only keep the first 'keepratio' vertices
-                        isKept = 1:numel(nbrResp) <= floor(numel(nbrResp) * opts.keepratio);
+                        isKept = 1:numel(nbrResp) <= max(floor(numel(nbrResp) * opts.keepratio),1);
                         % save the data for kept vertices
                         keptLabelMat = sortLabelMat(isKept, :);
 
@@ -604,7 +604,7 @@ for iTh = 1:nTh
         % show all clusters together if there are more than one cluster
         fs_cvn_print1st(sessCode, anaInfo, {[labelFn refLabel tmpLabelFn]}, outPath, ...
             'overlay', opts.overlay, ...
-            'visualimg', 'on', 'waitbar', 0, 'gminfo', 0);
+            'visualimg', 'on', 'waitbar', 0, 'gminfo', 0, 'surfarea', opts.surfdef);
         %     waitfor(msgbox('Please checking all the sub-labels...'));
         % input the label names
         prompt = {'Please checking all the sub-labels...'};
@@ -631,7 +631,7 @@ for iTh = 1:nTh
                 % show overlapping between any pair of clusters
                 fs_cvn_print1st(sessCode, anaInfo, {[labelFn refLabel tmpLabelFn(allComb(iOverlap, :))]}, outPath, ...
                     'overlay', opts.overlay, ...
-                    'visualimg', 'on', 'waitbar', 0, 'gminfo', 0, extraOpt{:});
+                    'visualimg', 'on', 'waitbar', 0, 'gminfo', 0, 'surfarea', opts.surfdef, extraOpt{:});
                 waitfor(msgbox('There is overlapping between sub-labels...', 'Overlapping...', 'warn'));
                 close all;
             end
@@ -648,7 +648,7 @@ for iTh = 1:nTh
         % display this temporary cluster
         fs_cvn_print1st(sessCode, anaInfo, {[labelFn refLabel thisClusterLabel]}, outPath, ...
             'overlay', opts.overlay, ...
-            'visualimg', 'on', 'waitbar', 0, 'gminfo', 0, extraOpt{:});
+            'visualimg', 'on', 'waitbar', 0, 'gminfo', 0, 'surfarea', opts.surfdef, extraOpt{:});
 
         % input the label names
         prompt = {'Enter the label name for this cluster:'};

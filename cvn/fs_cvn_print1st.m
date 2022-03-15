@@ -66,8 +66,10 @@ function varargout = fs_cvn_print1st(sessList, anaList, labelList, outPath, vara
 %                     'pdf'. 
 %    'drawroi'       <boo> whether draw ROI with fs_cvn_lookup. Default
 %                     is 0.
+%    'surfarea'      <str> the surface to be used to calculate the area,
+%                     default is 'white'.
 %    'cvnopts'       <cell> extra options for cvnlookupimages.m.
-%    'funcdir'      <str> the path to functional folder [Default is
+%    'funcdir'       <str> the path to functional folder [Default is
 %                     $FUNCTIONALS_DIR].
 %
 % Output:
@@ -108,6 +110,7 @@ defaultOpts = struct(...
     'visualimg', 'off', ...
     'imgext', 'png', ...
     'drawroi', 0, ...
+    'surfarea', 'white', ...
     'cvnopts', {{}}, ...
     'funcdir', getenv('FUNCTIONALS_DIR'), ...
     'strudir', getenv('SUBJECTS_DIR'));  % not in use now
@@ -197,7 +200,7 @@ for iLabel = 1:nLabel
         thisHemi = fm_2hemi(thisAna);
         
         if isempty(labelHemi)
-            theLabelName = [theLabel '_' thisHemi];
+            theLabelName = [theLabel '_' thisAna];
         else
             theLabelName = theLabel;
         end
@@ -356,7 +359,7 @@ for iLabel = 1:nLabel
             
             % Load and show the (first) label related information
             labelCell = cellfun(@(x) fs_labelinfo(x, subjCode, ...
-                'bycluster', 1, 'fmin', fmin, 'gminfo', opts.gminfo), ...
+                'bycluster', 1, 'fmin', fmin, 'gminfo', opts.gminfo, 'surf', opts.surfarea), ...
                 theLabelNames, 'uni', false);
             labelTable = vertcat(labelCell{:});
             labelTable.Properties.VariableNames{3} = 'No';

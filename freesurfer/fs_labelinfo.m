@@ -14,7 +14,7 @@ function labelTable = fs_labelinfo(labelList, subjList, varargin)
 % Optional (varargin):
 %    'bycluster'     <boo> whether output the information for clusters
 %                     separately if there are multiple contiguous clusters
-%                     for the label. Default is 0.
+%                     for the label. Default is 1.
 %    'fmin'          <num> The (absolute) minimum value for vertices to
 %                     be used for summarizing information. Default is 0,
 %                     i.e., all vertices will be used.
@@ -22,6 +22,7 @@ function labelTable = fs_labelinfo(labelList, subjList, varargin)
 %                     information (but not he maxresp) 2: additionally show
 %                     global maxima information (also show maxresp); 0: do 
 %                     not show gm information.
+%    'surf'          <str> or <cell> see fs_labelarea().
 %    'isndgrid'      <boo> 1 [default]: all the combinations of
 %                     labelList and subjList will be created, i.e.,
 %                     summarize all labels in labelList for each subject
@@ -58,9 +59,10 @@ function labelTable = fs_labelinfo(labelList, subjList, varargin)
 % Created by Haiyang Jin (22-Apr-2020)
 
 defaultOpts = struct(...
-    'bycluster', 0, ...
+    'bycluster', 1, ...
     'fmin', 0, ...
     'gminfo', 1, ...
+    'surf', [], ...
     'isndgrid', 1, ...
     'saveall', 0, ...
     'strudir', getenv('SUBJECTS_DIR') ...
@@ -97,7 +99,8 @@ else
 end
 
 % read the label information
-labelInfoCell = cellfun(@(x, y) labelinfo(x, y, byCluster, fmin, gmInfo, saveAll, opts.strudir),...
+labelInfoCell = cellfun(@(x, y) labelinfo(x, y, byCluster, fmin, gmInfo, ...
+    opts.surf, saveAll, opts.strudir),...
     tempList(:), tempSubj(:), 'uni', false);
 
 labelTable = vertcat(labelInfoCell{:});
@@ -105,7 +108,8 @@ labelTable = vertcat(labelInfoCell{:});
 end
 
 %% Obtain the label information separately
-function labelInfo = labelinfo(labelFn, subjCode, byCluster, fmin0, gmInfo, saveall, struDir)
+function labelInfo = labelinfo(labelFn, subjCode, byCluster, fmin0, ...
+    gmInfo, surface, saveall, struDir)
 
 % get the cluster (contiguous)
 [clusterNo, nCluster] = fs_clusterlabel(labelFn, subjCode, fmin0);
@@ -179,7 +183,7 @@ MNI305 = vertcat(theMNI305{:});
 Talairach = vertcat(theTal{:});
 
 % label area (in mm^2)
-labelSize = cellfun(@(x) fs_labelarea(labelFn, subjCode, x(:, 1)),...
+labelSize = cellfun(@(x) fs_labelarea(labelFn, subjCode, x(:, 1), surface),...
     matCell, 'uni', true);
 
 %% Create a table to save all the information

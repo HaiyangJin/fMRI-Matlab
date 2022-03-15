@@ -56,9 +56,9 @@ if ischar(surface)
     if ~startsWith(surface, {'lh', 'rh'})
         surface = [fm_2hemi(labelFn) '.' surface];
     else
-        assert(strcmp(fm_2hemi(labelfn), fm_2hemi(surface)), ['The hemisphere ' ...
+        assert(strcmp(fm_2hemi(labelFn), fm_2hemi(surface)), ['The hemisphere ' ...
             'information of labelFn (%s) and surface (%s) does not match.'], ...
-            fm_2hemi(labelfn), fm_2hemi(surface));
+            fm_2hemi(labelFn), fm_2hemi(surface));
     end
 end
 
