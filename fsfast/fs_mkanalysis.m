@@ -15,7 +15,7 @@ function [anaList, fscmd] = fs_mkanalysis(runFn, parfn, TR, nCond, refDura, vara
 %                      (the total duration of one "block" or one "trial")
 %
 % Varargin:
-%    .template        <str> 'fsaverage' or 'self'.
+%    .template        <str> 'fsaverage' or 'self' (default).
 %    .smooth          <num> smoothing (FWHM). Default is 0.
 %    .hemis           <cell str> or <str> 'lh', 'rh' (and
 %                      'mni' or 'mni1'). Default is {{'lh', 'rh'}}.
@@ -24,6 +24,9 @@ function [anaList, fscmd] = fs_mkanalysis(runFn, parfn, TR, nCond, refDura, vara
 %                      Default is ''.
 %    .nskip           <int> number of TRs to be skipped at the run start.
 %                      Default is 0.
+%    .ananame         <str> the analysis name; if it is not empty, the
+%                      length of <runFn> should be 1; .extrastr and the 
+%                      default analysis name will be ignored.
 %    .extrastr        <str> extra strings to be added to the analysis
 %                      name.
 %    .runcmd          <boo> whether run the fscmd in FreeSufer (i.e.,
@@ -67,6 +70,7 @@ defaultOpts = struct(...
     'hemis', {{'lh', 'rh'}}, ...
     'stc', '', ...
     'nskip', 0, ...
+    'ananame', '', ...
     'extrastr', '', ...
     'runcmd', 1 ...
 );
@@ -87,6 +91,12 @@ else
     stcInfo = sprintf(' -stc %s', opts.stc);
 end
 
+% only one run file can be used if custom analysis name is used
+if ~isempty(opts.ananame)
+    assert(nRunfn == 1, ['The length of runFn has to be 1 when custom ' ...
+        'analysis name is used.']);
+end
+
 % empty cell for saving analysis names
 anaList = cell(nRunfn, nHemi);
 
@@ -103,17 +113,21 @@ for iRun = 1:nRunfn
         hemi = opts.hemis{iHemi};
 
         anaName = struct;
-        anaName.type = 'ana';
         anaName.runs = erase(thisRunFn, '.txt');
         anaName.par = erase(parfn, '.par');
         anaName.sm = num2str(opts.smooth);
         anaName.template = opts.template;
         anaName.hemi = hemi;
+        anaName.modality = 'analysis';
         if ~isempty(opts.extrastr)
             anaName.custom = opts.extrastr;
         end
         analysisName = fp_info2fn(anaName);
         clear anaName
+
+        if ~isempty(opts.ananame)
+            analysisName = [opts.ananame '.' hemi];
+        end
         
         % save the analysis names into the cell
         anaList(iRun, iHemi) = {analysisName};

@@ -35,6 +35,11 @@ function outVtx = fs_midthickness(subjCode, vtx1, vtx2, ratio, outStr, faces)
 %
 % Created by Haiyang Jin (10-Oct-2020)
 
+if nargin < 1
+    fprintf('Usage: fs_midthickness(subjCode, vtx1, vtx2, ratio, outStr, faces);\n');
+    return;
+end
+
 if ~exist('vtx1', 'var') || isempty(vtx1)
     vtx1 = 'lh.white';
 end

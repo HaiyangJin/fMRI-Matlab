@@ -59,7 +59,7 @@ end
 % read the parfiles
 [parTCell, numCell] = cellfun(@fm_readpar, parFiles, 'uni', false);
 
-if ~isequal(numCell{:})
+if numel(numCell)>1 && ~isequal(numCell{:})
     warning('The number of conditions are not consistent for these par files.');
 end
 

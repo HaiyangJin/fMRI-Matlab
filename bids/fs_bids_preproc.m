@@ -132,9 +132,26 @@ fm_mkfile(fullfile(sessDir, 'subjectname'), opts.fssubjcode);
 %% (Within the bold folder)
 % list of run names
 bfuncInfoC = cellfun(@fp_fn2info, {bfuncdir.name}, 'uni', false);
-bfuncInfo = vertcat(bfuncInfoC{:});
+% stupid way to make bfuncInfoC have the same fieldnames
+bfuncInfo = fm_vmergestruct(bfuncInfoC{:});
 
-runCodeList = arrayfun(@(x) sprintf('%03d', x), 1:size(bfuncInfo,1), 'uni', false)'; 
+% % get the json filenames
+jsonfns = cellfun(@(x) strrep(x, '.nii.gz', '.json'), {bfuncdir.name}, 'uni', false);
+[bfuncdir.jsname] = deal(jsonfns{:});
+% get the run series number
+vals = cellfun(@(x) jsondecode(fileread(x)), ...
+    fullfile({bfuncdir.folder}, {bfuncdir.jsname}), 'uni', false);
+runCodeList = vertcat(vals{:});
+[bfuncInfo.sn] = runCodeList.SeriesNumber;
+
+% add dummy ses if there are no session info
+if ~isfield(bfuncInfo, 'ses') || ~opts.combinesess
+    emptyses = repmat({'0'}, length(bfuncInfo), 1);
+    [bfuncInfo.ses] = emptyses{:};
+end
+
+runCodeList = arrayfun(@(x) sprintf('%s%02d', bfuncInfo(x).ses, bfuncInfo(x).sn), ...
+    1:size(bfuncInfo,1), 'uni', false)'; 
 [bfuncInfo.runname] = deal(runCodeList{:});
 
 % make dir for each run
@@ -165,7 +182,7 @@ for thisTask = tasks
 end
 
 % make run list files for each task and each session
-if isfield(bfuncInfo, 'ses') % only when ses information is available
+if opts.combinesess     % only when the sessions are combined
     sess = unique({bfuncInfo.ses});
     for thisSes = sess
         for thisTask = tasks

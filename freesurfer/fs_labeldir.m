@@ -1,4 +1,6 @@
 function labelDir = fs_labeldir(subjCode, labelNames)
+% labelDir = fs_labeldir(subjCode, labelNames)
+%
 % This function list all labels for the label names
 %
 % Inputs:
@@ -13,6 +15,11 @@ function labelDir = fs_labeldir(subjCode, labelNames)
 % 
 % Created by Haiyang Jin (09/12/2019)
 
+if nargin < 1
+    fprintf('Usage: labelDir = fs_labeldir(subjCode, labelNames);\n');
+    return;
+end
+
 % label folder
 labelPath = fullfile(getenv('SUBJECTS_DIR'), subjCode, 'label');
 
@@ -23,7 +30,6 @@ end
 
 % number of input label
 nLabelInput = numel(labelNames);
-
 
 labelDir = struct([]); % empty struct 
 
@@ -40,6 +46,5 @@ for iLabelInput = 1:nLabelInput
     labelDir = [labelDir; tempDir]; %#ok<AGROW>
  
 end
-
 
 end

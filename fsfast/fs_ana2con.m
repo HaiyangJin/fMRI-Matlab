@@ -13,6 +13,11 @@ function [conList, conStruct] = fs_ana2con(anaList)
 %
 % Created by Haiyang Jin (16-Apr-2020)
 
+if nargin < 1
+    fprintf('Usage: [conList, conStruct] = fs_ana2con(anaList);\n');
+    return;
+end
+
 if ischar(anaList); anaList = {anaList}; end
 
 %% Find unique contrast names
