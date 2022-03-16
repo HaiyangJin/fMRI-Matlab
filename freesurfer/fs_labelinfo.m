@@ -58,6 +58,11 @@ function labelTable = fs_labelinfo(labelList, subjList, varargin)
 %
 % Created by Haiyang Jin (22-Apr-2020)
 
+if nargin < 1
+    fprintf('Usage: labelTable = fs_labelinfo(labelList, subjList, varargin);\n');
+    return;
+end
+
 defaultOpts = struct(...
     'bycluster', 1, ...
     'fmin', 0, ...

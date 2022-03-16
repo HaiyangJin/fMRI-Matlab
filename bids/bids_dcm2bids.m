@@ -30,7 +30,10 @@ function [d2bcmd, isnotok] = bids_dcm2bids(dcmSubj, outSubj, config, isSess, run
 %                   Default is 0 (i.e., runs). Note that if run folders are
 %                   mistaken as session folders, each run will be saved as
 %                   a separate session. No messages will be displayed for
-%                   this case but you will notice it in the output.
+%                   this case but you will notice it in the output. A
+%                   special usage of isSess is: when isSess is not 0 and
+%                   there is only one folder withi9n subdir, isSess will be
+%                   used as the session code.
 %    runcmd        <boo> Whether to run the commands. Default is 1.
 %    bidsDir       <str> the BIDS directory. Default is bids_dir().
 %
@@ -65,7 +68,8 @@ assert(logical(exist(dcmDir, 'dir')), 'Cannot find sourcedata/ in %s', bidsDir);
 
 % deal with the list of subject codes for dicom files
 if ischar(dcmSubj)
-    dSubjdir = dir(fullfile(dcmDir, dcmSubj));
+    if ~endsWith(dcmSubj, '*'); dcmSubj=[dcmSubj '*'];end
+    dSubjdir = dir(fullfile(dcmDir, [dcmSubj]));
     dsubjList = {dSubjdir.name};
 elseif iscell(dcmSubj)
     dsubjList = dcmSubj;
@@ -117,12 +121,17 @@ for iSubj = 1:length(dsubjList)
             fm_2cmdpath(bidsDir), outSubj{iSubj}, config)};
 
     elseif isSess
+
+        dcmid = 1:length(dcmSess);
+        sessid = dcmid;
+        if length(dcmid)==1; sessid = isSess; end
+
         % if the subdir in dsubjDir are sessions
-        cmd = arrayfun(@(x) sprintf(['dcm2bids '...
+        cmd = arrayfun(@(x,y) sprintf(['dcm2bids '...
             '-d %s -o %s -p %s -s %d -c %s --forceDcm2niix --clobber'],...
             fm_2cmdpath(fullfile(dsubjDir, dcmSess(x).name)), fm_2cmdpath(bidsDir), ...
-            outSubj{iSubj}, x, config), ...
-            1:length(dcmSess), 'uni', false)';
+            outSubj{iSubj}, y, config), ...
+            dcmid, sessid, 'uni', false)';
     end
 
     cmdCell{iSubj, 1} = cmd;

@@ -16,7 +16,7 @@ function fscmd = fs_bids_preproc(subjCode, varargin)
 %    .extracmd     <str> extra command strings used for preproc-sess.
 %                   default ''.
 %    .combinesess  <boo> whether combine the runs from multiple runs to one
-%                   session folder in FreeSurfer (FS-FAST). Default is 1.
+%                   session folder in FreeSurfer (FS-FAST). Default is 0.
 %    .fssesscode   <str> session code in $FUNCTIONALS_DIR. It is the same as
 %                   subjCode (in bidsDir) by default.
 %    .fssubjcode   <str> the corresponding FreeSurfer subject code, which
@@ -38,11 +38,11 @@ end
 backupDir = pwd;
 
 defaultOpts = struct( ...
-    'runcmd', [], ... % use defualt in fs_preproc: 1
+    'runcmd', 1, ... % use defualt in fs_preproc: 1
     'smooth', [], ... % use defualt in fs_preproc: 0
     'template', [], ... % use defualt in fs_preproc: 'self'
     'extracmd', '', ... % use defualt in fs_preproc: ''
-    'combinesess', 1, ...
+    'combinesess', 0, ...
     'fssesscode', subjCode, ...
     'fssubjcode', subjCode, ...
     'bidsdir', bids_dir(), ...

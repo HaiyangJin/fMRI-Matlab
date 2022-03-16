@@ -1,4 +1,4 @@
-function bids_fixfmap(intendList, subjList, bidsDir)
+function bids_fixfmap(intendList, subjList, fmapwc, bidsDir)
 % bids_fixfmap(intendList, subjList, bidsDir)
 %
 % bids_dcm2bids does not set "intendedFor" in fmap json appropriately (if
@@ -15,6 +15,10 @@ function bids_fixfmap(intendList, subjList, bidsDir)
 %    subjList          <cell str> a list of subject folders in <bidsDir>.
 %                   OR <str> wildcard strings to match the subject folders
 %                       via bids_subjlist(). Default is all subjects.
+%    fmapwc            <str> wildcard for the fmap json files, for which
+%                       the intendList will be added to. Default is
+%                       '*.json', i.e., all json files in fmap/ will be
+%                       updated.
 %    bidsDir           <str> the BIDS directory. Default is bids_dir().
 %
 % Output:
@@ -34,6 +38,10 @@ if ~exist('bidsDir', 'var') || isempty(bidsDir)
     bidsDir = bids_dir();
 end
 
+if ~exist('fmapwc', 'var') || isempty(fmapwc)
+    fmapwc = '*.json';
+end
+
 if ~exist('subjList', 'var') || isempty(subjList)
     subjList = '';
 end
@@ -51,11 +59,11 @@ for iSubj = 1:nSubj
 
     if contains('fmap', {theSubjdir.name})
         % if there is no sessions
-        fmapdir_c = dir(fullfile(bidsDir, subjList{iSubj}, 'fmap', '*.json'));
+        fmapdir_c = dir(fullfile(bidsDir, subjList{iSubj}, 'fmap', fmapwc));
     else
         % if there are different sessions
         fmapdir_c = cellfun(@(x) ...
-            dir(fullfile(bidsDir, subjList{iSubj}, x, 'fmap', '*.json')), ...
+            dir(fullfile(bidsDir, subjList{iSubj}, x, 'fmap', fmapwc)), ...
             {theSubjdir.name}, 'uni', false);
         fmapdir_c = vertcat(fmapdir_c{:});
     end
