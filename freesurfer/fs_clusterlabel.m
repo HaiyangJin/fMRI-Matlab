@@ -54,11 +54,12 @@ if size(labelMat, 2) >= 5 && ~isempty(fmin)
 else
     isCluster = true(size(labelMat, 1), 1);
     vtxValue = [];
+    values = [];
 end
 
 % return if no vertices are larger than fmin
 if ~any(isCluster) 
-    if ~isempty(vtxValue) && any(vtxValue ~= 0)
+    if ~isempty(values) && any(values ~= 0)
         warning('Values for all vertices are smaller than ''fmin (%.1f)''.', fmin);
     end
     clusterIdx = -ones(size(labelMat, 1), 1);

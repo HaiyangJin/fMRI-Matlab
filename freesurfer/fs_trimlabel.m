@@ -3,18 +3,18 @@ function [labelMatCell, cluVtxCell] = fs_trimlabel(labelFn, sessCode, outPath, v
 %
 % This function updates the label file for different purposes (see below).
 % By default, the last column in the label file will be used to sort the
-% vertices. But you may use 'overlay' to custom the values for sorting 
-% vertices (note: the 'overlay' has to be for the whole surface). 
+% vertices. But you may use 'overlay' to custom the values for sorting
+% vertices (note: the 'overlay' has to be for the whole surface).
 %
-% Please note it seems that the label created by FreeSurfer 7.2 (FreeView)  
-% and potentially later versions, the functional data used to identify ROI 
+% Please note it seems that the label created by FreeSurfer 7.2 (FreeView)
+% and potentially later versions, the functional data used to identify ROI
 % were not saved in the last column of the label file. In this case, only
 % the 'concentric' method works. If you would like to use 'maxresp', you
 % need to adopt one of the two approaches:
 %    (1) use 'analysis' and 'valuefn' to set the analysis and file used to
-%        trim the label. 
-%    (2) use 'overlay' to set the functional data to be used to trim the 
-%        label (e.g., p-values used to identify the ROI) [you may use 
+%        trim the label.
+%    (2) use 'overlay' to set the functional data to be used to trim the
+%        label (e.g., p-values used to identify the ROI) [you may use
 %        fm_readimg() to read the functional data into Matlab].
 %
 % Inputs:
@@ -33,15 +33,15 @@ function [labelMatCell, cluVtxCell] = fs_trimlabel(labelFn, sessCode, outPath, v
 %    'surfdef'     <cell> {vertices, faces}.
 %               OR <str> the surface string, e.g., 'white', 'pial'. The
 %                   hemisphere information will be read from labelFn.
-%    'analysis'    <str> the analysis used to create the label. If 
+%    'analysis'    <str> the analysis used to create the label. If
 %                   'overlay' is not empty, 'analysis' will be ignored.
 %    'valuefn'     <str> the file (in the contrast folder) used to create
 %                   the label. Default is 'sig.nii.gz'. If 'overlay' is not
 %                   empty, 'valuefn' will be ignored.
-%    'overlay'     <num vec> result (e.g., FreeSurfer p-values) to be 
-%                   displayed on the surface. It has to be the result for 
-%                   the whole 'surfdef'. Default is ''. 
-%    'sortorder'   <str> the order of sorting the vertices by the absolute 
+%    'overlay'     <num vec> result (e.g., FreeSurfer p-values) to be
+%                   displayed on the surface. It has to be the result for
+%                   the whole 'surfdef'. Default is ''.
+%    'sortorder'   <str> the order of sorting the vertices by the absolute
 %                   values of overlay: 'ascend' or 'descend' [default].
 %                   (Probalby this should be deprecated.)
 %    'ncluster'    <int> cluster numbers. Default is 1.
@@ -103,7 +103,8 @@ function [labelMatCell, cluVtxCell] = fs_trimlabel(labelFn, sessCode, outPath, v
 %                   staring vertex in the cluster;
 %    'savesize'    <boo> 0 [default]: do not save the area size
 %                   information in the label file name; 1: save the area
-%                   size information.
+%                   size information at the end; 2: save the area size 
+%                   information after 'roi.'.
 %    'peakonly'    <boo> 1 [default]: only show the peak when identify
 %                   local maxima; 0: show the outline of the label.
 %    'showinfo'    <boo> 0 [default]: show more information; 1: do not
@@ -124,7 +125,7 @@ function [labelMatCell, cluVtxCell] = fs_trimlabel(labelFn, sessCode, outPath, v
 %       fs_trimlabel(labelFn, sessCode, outPath);
 %
 % 2: Separate one label file into several clusters ('ncluster'):
-%    Step 1: Idenitfy the largest p-value (i.e., FreeSurfer p-values) that 
+%    Step 1: Idenitfy the largest p-value (i.e., FreeSurfer p-values) that
 %        can separate the label into N clusters.
 %    Step 2: Identify the local maxima for each cluster and they will be
 %        used as the starting point.
@@ -198,6 +199,7 @@ defaultOpts = struct(...
     'savesize', 0, ...
     'peakonly', 0, ...
     'showinfo', 0, ...
+    'showgm', 0, ...
     'extraopt1st', {{}} ...
     );
 
@@ -212,7 +214,7 @@ extraOpt = opts.extraopt1st;
 
 % convert sessCode to subjCode
 % if isempty(opts.overlay)
-    subjCode = fs_subjcode(sessCode);
+subjCode = fs_subjcode(sessCode);
 % else
 %     subjCode = sessCode;
 % end
@@ -223,7 +225,7 @@ end
 if ~exist(outPath, 'dir'); mkdir(outPath); end
 
 if opts.showinfo
-    extraOpt = [{'annot', 'aparc', 'showinfo', 1, 'markpeak', 1}, extraOpt];
+    extraOpt = [{'annot', 'aparc', 'showinfo', 1, 'showpeak', 1}, extraOpt];
 end
 
 % use the local maxima saved before as 'startVtx' if needed
@@ -251,7 +253,7 @@ if ~isempty(opts.overlay)
     opts.analysis = '';
 end
 
-if ~isempty(opts.analysis) 
+if ~isempty(opts.analysis)
     % read the functional data if 'analysis' is not empty
     anaInfo = opts.analysis;
     opts.overlay = fm_readimg(fullfile(getenv('FUNCTIONALS_DIR'), sessCode, ...
@@ -269,7 +271,7 @@ orderok = ismember(orders, opts.sortorder);
 assert(any(orderok), [".sortorder has to be" ...
     " either 'ascend' or 'descend' (but not %s)."], opts.sortorder);
 % order to sort the key thresholds (opposite to opts.sortorder)
-threshorder = orders{~orderok}; 
+threshorder = orders{~orderok};
 
 
 %% Check if the label is available
@@ -604,7 +606,7 @@ for iTh = 1:nTh
         % show all clusters together if there are more than one cluster
         fs_cvn_print1st(sessCode, anaInfo, {[labelFn refLabel tmpLabelFn]}, outPath, ...
             'overlay', opts.overlay, ...
-            'visualimg', 'on', 'waitbar', 0, 'gminfo', 0, 'surfarea', opts.surfdef);
+            'visualimg', 'on', 'waitbar', 0, 'gminfo', 0, 'surfarea', opts.surfdef, opts.extraopt1st{:});
         %     waitfor(msgbox('Please checking all the sub-labels...'));
         % input the label names
         prompt = {'Please checking all the sub-labels...'};
@@ -645,6 +647,14 @@ for iTh = 1:nTh
         thisLabelFile = labelfile{iTempLabel};
         thisClusterLabel = tmpLabelFn{iTempLabel};
 
+        % print gm info
+        thegm = gmCell(iTempLabel, iTh);
+        fprintf('The local maxima is %d.\n', thegm{1});
+        if ischar(opts.surfdef) && opts.showgm
+            gmcoord = fs_vtx2fsavg(thegm{1}, subjCode, [theHemi '.' opts.surfdef]);
+            fprintf('Its MNI305 coordinates on %s are: %s\n', opts.surfdef, sprintf('%f %f %f', gmcoord(:)));
+        end
+
         % display this temporary cluster
         fs_cvn_print1st(sessCode, anaInfo, {[labelFn refLabel thisClusterLabel]}, outPath, ...
             'overlay', opts.overlay, ...
@@ -654,9 +664,12 @@ for iTh = 1:nTh
         prompt = {'Enter the label name for this cluster:'};
         dlgtitle = 'Input';
         dims = [1 35];
-        if opts.savesize
+        if opts.savesize==1
             tmpStr = erase(labelFn, {'f13.', 'manual.', 'alt.', 'label'});
             definput = {sprintf('%sa%d.label', tmpStr, maxSize)};
+        elseif opts.savesize==2
+            tmpStr = erase(labelFn, {'manual.', 'alt.'});
+            definput = {strrep(tmpStr, 'f13', sprintf('a%d', maxSize))};
         else
             definput = {erase(labelFn, {'f13.', 'manual.', 'alt.'})};
         end
@@ -673,7 +686,6 @@ for iTh = 1:nTh
                 movefile(thisLabelFile, updateLabelFile);
                 % save the local maxima file
                 if opts.savegm
-                    thegm = gmCell(iTempLabel, iTh);
                     thegmFile = strrep(updateLabelFile, '.label', '.gm');
                     % save the local maxima file
                     fm_mkfile(thegmFile, thegm);

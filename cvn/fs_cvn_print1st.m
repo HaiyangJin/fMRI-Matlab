@@ -48,8 +48,6 @@ function varargout = fs_cvn_print1st(sessList, anaList, labelList, outPath, vara
 %                     1 [default]: only show the global maxima information,
 %                     but not the maxresp; 2: show both global maxima and 
 %                     maxresp information.
-%    'markpeak'      <boo> mark the location of the peak response.
-%                     Default is 0.
 %    'showinfo'      <boo> show label information in the figure.
 %                     Default is 0, i.e., do not show the label information.
 %    'shortinfo'     <boo> show the short version of the information
@@ -285,12 +283,15 @@ for iLabel = 1:nLabel
             else
                 thisRoi = cellfun(@(x) makeroi(nVtx, x(:, 1)), thisMat, 'uni', false)';
                 nTheLabel = numel(thisRoi);
-                roicolor = opts.roicolors(1:nTheLabel, :);
+                roicolor = opts.roicolors(~isEmptyMat, :);
                 
                 % mark the peak in the label
                 tempLabelT = fs_labelinfo(theseLabel, subjCode, ...
-                    'bycluster', 1, 'fmin', fmin);
-                peakRoi = arrayfun(@(x) makeroi(nVtx, x), tempLabelT.VtxMax, 'uni', false);
+                    'bycluster', 1, 'fmin', fmin, 'surf', opts.surfarea);
+                [~, faces] = fs_readsurf([thisHemi '.' opts.surfarea], subjCode);
+                vtxNbr = sf_neighborvtx(tempLabelT.VtxMax, faces, 1);
+                peakRoi = cellfun(@(x) makeroi(nVtx, x), vtxNbr, 'uni', false);
+%                 peakRoi = arrayfun(@(x) makeroi(nVtx, x), tempLabelT.VtxMax, 'uni', false);
                 if opts.showpeak
                     rois = [thisRoi; peakRoi];
                     roicolor = repmat(roicolor, 2, 1);
@@ -354,7 +355,7 @@ for iLabel = 1:nLabel
             
             % obtain the contrast name as the figure name
             imgName = sprintf('%s%s || %s%s', maskStr, labelNames, thisSess, imgNameExtra);
-            if length(imgName) > 200; imgName = imgName(end-200:end); end
+            if length(imgName) > 200; imgName = [imgName(1:200) '||' datestr(now,'yyyy-mm-dd-HHMM')]; end
             set(fig, 'Name', imgName);
             
             % Load and show the (first) label related information

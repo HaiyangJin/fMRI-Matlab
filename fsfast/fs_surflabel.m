@@ -1,16 +1,17 @@
-function [outTable, fscmd] = fs_surflabel(sessList, labelList, anaList, thmin, outPath)
-% [outTable, fscmd] = fs_surflabel(sessList, labelList, anaList, thmin, outPath)
+function [outTable, fscmd] = fs_surflabel(sessList, labelList, anaList, surffn, thmin, outPath)
+% [outTable, fscmd] = fs_surflabel(sessList, labelList, anaList, surffn, thmin, outPath)
 %
 % This function gathers information of the label files via mri_surfcluster.
 %
 % Inputs:
-%    sessList        <cell string> a list of session codes.
-%    labelList       <cell string> a list of label names.
-%    anaList         <cell string> a list of analysis names. This will be
+%    sessList        <cell str> a list of session codes.
+%    labelList       <cell str> a list of label names.
+%    anaList         <cell str> a list of analysis names. This will be
 %                     used to read the corresponding sig.nii.gz.
-%    thmin           <numeric> the minimal threshold. Default is [], which
+%    surffn          <str> the surface to be used. Default is 'white'.
+%    thmin           <nume> the minimal threshold. Default is [], which
 %                     will use the default in fs_surfcluster.m (i.e.,1.3).
-%    outPath         <string> where the outputs are saved.
+%    outPath         <str> where the outputs are saved.
 %
 % Output:
 %    outTable        <table> information about all the available label file
@@ -18,6 +19,10 @@ function [outTable, fscmd] = fs_surflabel(sessList, labelList, anaList, thmin, o
 %    fscmd           <cell string> all the FreeSurfer commands used.
 %
 % Created by Haiyang Jin (26-Apr-2020)
+
+if ~exist('surffn', 'var') || isempty(surffn)
+    surffn = 'white';
+end
 
 if ~exist('thmin', 'var') || isempty(thmin)
     thmin = [];
@@ -66,7 +71,7 @@ for iSess = 1:nSess
             
             % run mri_surfcluster
             [tableCell{iSess, iLabel, iAna}, fscmdCell{iSess, iLabel, iAna}] ...
-                = fs_surfcluster(thisSess, thisAna, thisLabel, '', thmin, outPath);
+                = fs_surfcluster(thisSess, thisAna, thisLabel, surffn, '', thmin, outPath);
             
         end % iAna
     end % iLabel

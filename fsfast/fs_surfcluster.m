@@ -1,22 +1,23 @@
 function [labelTable, fscmd] = fs_surfcluster(sessCode, anaName,...
-    labelFn, sigFn, thmin, outPath)
+    labelFn, surffn, sigFn, thmin, outPath)
 % [labelTable, fscmd] = fs_surfcluster(sessCode, anaName,...
-%     labelFn, [sigFn='sig.nii.gz', thmin=1.3, outPath=pwd])
+%     labelFn, [surffn = 'white', sigFn='sig.nii.gz', thmin=1.3, outPath=pwd])
 %
 % This function obtains the size of the label (ROI) from FreeSurfer
 % commands (mri_surfcluster). All the output information will be calculated
 % based on white surface.
 %
 % Inputs:
-%    sessCode         <string> session code in $FUNCTIONALS_DIR.
-%    anaName          <string> name of the analysis folder.
-%    lableFn          <string> label filename.
-%                  OR <string> the contrast name within the analysis
+%    sessCode         <str> session code in $FUNCTIONALS_DIR.
+%    anaName          <str> name of the analysis folder.
+%    lableFn          <str> label filename.
+%                  OR <str> the contrast name within the analysis
 %                      folder.
-%    sigFn            <string> based on which data file to obtain the
+%    surffn           <str> the surface to be used. Default is 'white'.
+%    sigFn            <str> based on which data file to obtain the
 %                      cluster. Default is sig.nii.gz.
-%    thmin            <numeric> the minimal threshold. Default is 1.3.
-%    outPath          <string> where the temporary output file is saved.
+%    thmin            <num> the minimal threshold. Default is 1.3.
+%    outPath          <str> where the temporary output file is saved.
 %
 % Outputs:
 %    labelTable       <table> includes information about the label file.
@@ -24,15 +25,25 @@ function [labelTable, fscmd] = fs_surfcluster(sessCode, anaName,...
 %      .Analysis       <cell> the analysis name save as a cell.
 %      .Label          <cell> the input labelFn (without path) but save as 
 %                       a cell.
-%      .ClusterNo      <integer> the number (index) of the cluster.
-%      .Max            <numeric> the peak response value.
-%      .VtxMax         <integer> vertex index of the peak response.
-%      .Size           <numeric> the size (area) of the label in mm^2.
-%      .MNI305         <1x3 numeric vector> coordinates (XYZ) of VtxMax in
+%      .ClusterNo      <int> the number (index) of the cluster.
+%      .Max            <num> the peak response value.
+%      .VtxMax         <int> vertex index of the peak response.
+%      .Size           <num> the size (area) of the label in mm^2.
+%      .MNI305         <1x3 num vec> coordinates (XYZ) of VtxMax in
 %                       MNI305 (fsaverage) space.
-%      .NVtxs          <integer> number of vertices in this label.
+%      .NVtxs          <int> number of vertices in this label.
 %
 % Created by Haiyang Jin (18-Nov-2019)
+
+if nargin < 1
+    fprintf(['Usage: [labelTable, fscmd] = fs_surfcluster(sessCode, anaName,' ...
+        ' labelFn, surffn, sigFn, thmin, outPath);\n']);
+    return;
+end
+
+if ~exist('surffn', 'var') || isempty(surffn)
+    surffn = 'white';
+end
 
 if ~exist('sigFn', 'var') || isempty(sigFn)
     sigFn = 'sig.nii.gz';
@@ -83,8 +94,8 @@ outFile = fullfile(outPath, outFn);
 
 % create and run FreeSurfer commands
 fscmd = sprintf(['mri_surfcluster --in %s --subject %s ' ...
-    '--surf white --thmin %d --hemi %s --sum %s --nofixmni%s'], ...
-    sigfile, trgSubj, thmin, hemi, outFile, fscmd_label);
+    '--surf %s --thmin %d --hemi %s --sum %s --nofixmni%s'], ...
+    sigfile, trgSubj, surffn, thmin, hemi, outFile, fscmd_label);
 isnotok = system(fscmd);
 assert(~isnotok, 'FreeSurfer commands (mri_surfcluster) failed.');
 
