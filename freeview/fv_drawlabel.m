@@ -62,22 +62,9 @@ end
 template = fs_2template(anaName, '', 'self');
 trgSubj = fs_trgsubj(subjCode, template);
 
-if opts.runcmd
-    
-    % open a message box to display information
-    CreateStruct.Interpreter = 'tex';
-    CreateStruct.WindowStyle = 'modal';
-    % msgbox('\fontsize{18} Now is big =)', CreateStruct)
-    
-    message = {sprintf('\\fontsize{20}SubjCode: %s', replace(subjCode, '_', '\_'));
-        sprintf('analysis: %s', replace(anaName, '_', '\_'));
-        sprintf('label: %s', labelname);
-        sprintf('fthresh: %s', fthresh)};
-    title = 'The current session...';
-    f = msgbox(message,title, CreateStruct);
-    
-%     movegui(f, 'northeast');
-end
+% print the information
+fprintf('\nSubjCode: %s\nAnalysis: %s\nLabel: %s\nfthresh: %s\n\n', ...
+    subjCode, anaName, labelname, fthresh);
 
 % create FreeSurfer command and run it
 titleStr = sprintf('%s==%s==%s', subjCode, labelname, anaName);
@@ -127,19 +114,35 @@ system(fscmd);
 labelFile = fullfile(getenv('SUBJECTS_DIR'), subjCode, 'label', labelname);
 
 % rename and move this label file
-tempLabelFile = fullfile(getenv('SUBJECTS_DIR'), trgSubj, tmpLabelname);
+tmpLabelFile = fullfile(getenv('SUBJECTS_DIR'), trgSubj, tmpLabelname);
 
-if logical(exist(tempLabelFile, 'file'))
-    movefile(tempLabelFile, labelFile);
-    fprintf('Label %s is saved.\n', labelname);
+if logical(exist(tmpLabelFile, 'file'))
+
+    tooverwrite = 'move';
+    % throw warning if the target label exists
+    if logical(exist(labelFile, 'file'))
+        fig1 = uifigure;
+        tooverwrite = uiconfirm(fig1, 'Overwrite the target label file?', ...
+            'The target label file already exists...', 'Icon', 'warning');
+        close(fig1);
+    end
+
+    switch tooverwrite
+        case 'move'
+            movefile(tmpLabelFile, labelFile);
+            fprintf('Label %s is created.\n', labelname);
+        case 'OK'
+            movefile(tmpLabelFile, labelFile);
+            fprintf('Label %s is overwritten.\n', labelname);
+        case 'Cancel'
+            delete(tmpLabelFile)
+            fprintf('The old %s is not updated.\n', labelname);
+    end
 end
 
 % Add sig values if freeview is used
 if ~opts.istk && opts.addvalue
     fs_labelval(labelname, subjCode, sigFile);
 end
-
-% close the msgbox
-close(f);
 
 end

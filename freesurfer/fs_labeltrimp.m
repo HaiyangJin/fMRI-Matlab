@@ -181,6 +181,10 @@ for iTh = 1:nTh
         if ~isempty(newlabelname)
             if endsWith(newlabelname, {'remove', 'rm'})
                 delete(thisLabelFile);
+            elseif endsWith(newlabelname, 'skip')
+                % do not show all the following labels
+                delete(thisLabelFile);
+                return;
             elseif ~strcmp(newlabelname{1}, thisClusterLabel)
                 updateLabelFile = strrep(thisLabelFile, thisClusterLabel, newlabelname{1});
                 movefile(thisLabelFile, updateLabelFile);
