@@ -1,5 +1,5 @@
 function bids_fixfmap(intendList, subjList, fmapwc, bidsDir)
-% bids_fixfmap(intendList, subjList, bidsDir)
+% bids_fixfmap(intendList, subjList, fmapwc, bidsDir)
 %
 % bids_dcm2bids does not set "intendedFor" in fmap json appropriately (if
 % more than 1 func run are available). The run information is missing. This
@@ -30,8 +30,11 @@ function bids_fixfmap(intendList, subjList, fmapwc, bidsDir)
 % [bids_dcm2bids;] bids_mktsv; bids_fixfunc; bids_mkignore
 
 %% Deal with inputs
-if ~exist('intendList', 'var') || isempty(intendList)
-    intendList = '*_run-*.nii.gz';
+if ~exist('intendList', 'var') 
+    fprintf('Usage: bids_fixfmap(intendList, subjList, fmapwc, bidsDir);\n');
+    return;
+elseif isempty(intendList)
+    intendList = '*_bold.nii.gz';
 end
 
 if ~exist('bidsDir', 'var') || isempty(bidsDir)
@@ -40,6 +43,8 @@ end
 
 if ~exist('fmapwc', 'var') || isempty(fmapwc)
     fmapwc = '*.json';
+elseif ~endsWith(fmapwc, '.json')
+    fmapwc = [fmapwc '.json'];
 end
 
 if ~exist('subjList', 'var') || isempty(subjList)
@@ -84,7 +89,14 @@ for ifmap = 1:length(fmapdir)
     if ischar(intendList)
         % only identify the func runs in the same session
         intenddir = dir(fullfile(fmapdir(ifmap).folder, '..', 'func', intendList));
-        allintend = fullfile('func', {intenddir.name});
+        intendinfo = cellfun(@(x) fp_fn2info(x), {intenddir.name}, 'uni', true);
+        sesstr = '';
+        if isfield(intendinfo, 'ses')
+            unisession = unique({intendinfo.ses});
+            assert(length(unisession), 'It seems that more than one session file are included here.')
+            sesstr = ['ses-' unisession{1}];
+        end
+        allintend = cellfun(@(x) fullfile(sesstr, 'func', x), {intenddir.name}, 'uni', false);
     else
         allintend = intendList;
     end
