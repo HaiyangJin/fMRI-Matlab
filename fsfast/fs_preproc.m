@@ -9,7 +9,9 @@ function [fscmd, isnotok] = fs_preproc(sessCode, sm, template, extracmd, runcmd)
 % Input:
 %    sessCode       <str> session code (folders).
 %                OR <str> the session file.
-%    sm             <int> smoothing. Default is 0 (i.e., no smoothing).
+%    sm             <int> smoothing. Default is 0 (i.e., no smoothing). If
+%                    sm is imagery number (e.g., 5i), the smoothing is
+%                    applied on the cortical surface.
 %    template       <str> surface template: 'self' [default], 'fsaverage',
 %                    'fsaverage5'. 
 %    extracmd       <str> extra commands to be added for preproc-sess.
@@ -52,10 +54,18 @@ if ~exist('runcmd', 'var') || isempty(runcmd)
     runcmd = 1;
 end
 
+% options for smoothing
+% volume (default?) and surface
+if isreal(sm)
+    smstr = sprintf('-fwhm %d', sm);
+else
+    smstr = sprintf('-surf-fwhm %d', imag(sm));
+end
+
 % create the FreeSurfer command
 fscmd = sprintf(['preproc-sess %s -fsd bold -surface %s lhrh ' ...
-    '-mni305 -fwhm %d -per-run -nostc %s -force'], ...
-    fscmd_sess, template, sm, extracmd);
+    '-mni305 %s -per-run -nostc %s -force'], ...
+    fscmd_sess, template, smstr, extracmd);
 
 % run the command
 [fscmd, isnotok] = fm_runcmd(fscmd, runcmd);
