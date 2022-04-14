@@ -18,6 +18,7 @@ function fscmd = fs_bids_recon(subjCode, varargin)
 %                   avaiable files; 0: only use the first file.
 %    .fssubjcode   <str> subject code in $SUBJECTS_DIR. It is the same as
 %                   subjCode (in bidsDir) by default.
+%    .extracmd     <str> the extra commands to be used. Default is ''.
 %    .bidsDir      <str> the BIDS directory. Default is bids_dir().
 %    .struDir      <str> $SUBJECTS_DIR in FreeSurfer. Default is 
 %                   <bidsDir>/derivatives/subjects.
@@ -39,6 +40,7 @@ defaultOpts = struct( ...
     'runcmd', [], ...
     'hires', [], ...
     'useall', 1, ...
+    'extracmd', '', ...
     'fssubjcode', subjCode, ...
     'bidsdir', bids_dir());
 
@@ -85,7 +87,7 @@ fprintf('Following files were used in ''recon-all'' for %s:\n%s\n', subjCode, ..
      length(t2list), sprintf('\n%s ', t2list{:})));
 
 % create (and run) recon-all commands
-fscmd = fs_recon(t1list, opts.fssubjcode, t2list, opts.hires, opts.runcmd);
+fscmd = fs_recon(t1list, opts.fssubjcode, t2list, opts.hires, opts.extracmd, opts.runcmd);
 
 end
 

@@ -1,5 +1,5 @@
-function [fscmd, isnotok] = fs_recon(t1list, subjCode, t2list, hires, runcmd)
-% [fscmd, isnotok] = fs_recon(t1File, subjCode, t2File, hires, runcmd)
+function [fscmd, isnotok] = fs_recon(t1list, subjCode, t2list, hires, extracmd, runcmd)
+% [fscmd, isnotok] = fs_recon(t1list, subjCode, t2list, hires, extracmd, runcmd)
 %
 % This function run 'recon-all' in FreeSurfer.
 %
@@ -11,6 +11,7 @@ function [fscmd, isnotok] = fs_recon(t1list, subjCode, t2list, hires, runcmd)
 %              OR <cell str> a list of T2 files.
 %    hires        <boo> whether run recon-all with native high resolution.
 %                   default is 0.
+%    extracmd     <str> extra cmd to be used. Default is ''.
 %    runcmd       <boo> whether to run the recon-all commands [default: 1].
 %
 % Output:
@@ -50,6 +51,10 @@ if ~exist('hires', 'var') || isempty(hires)
     hires = 0;
 end
 
+if ~exist('extracmd', 'var') || isempty(extracmd)
+    extracmd = '';
+end
+
 % cmd for run with native high resolution
 if hires
     hicmd = '-hires';
@@ -63,8 +68,8 @@ if ischar(t1list)
     t1list = {t1list};
 end
 
-fscmd = sprintf('recon-all -s %s %s %s%s  -all', ...
-    subjCode, sprintf(' -i %s', t1list{:}), t2cmd, hicmd);
+fscmd = sprintf('recon-all -s %s %s %s%s %s -all', ...
+    subjCode, sprintf(' -i %s', t1list{:}), t2cmd, hicmd, extracmd);
 
 % display the recon-all command
 fprintf('\n%s \n', fscmd);
