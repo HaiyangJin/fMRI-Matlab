@@ -61,7 +61,11 @@ if iserror
     error('SetUpFreeSurfer.sh cannot be found at %s.', fsPath);
 end
 
-fsl_setup(fslPath);  % setup fsl
+try
+    fsl_setup(fslPath);  % setup fsl
+catch
+    warning('FSL is not set up.')
+end
 
 %% Set PATH and environemnt variable
 % setenv('PATH', sprintf('/usr/bin:%s', getenv('PATH'))); % add /usr/bin to PATH
