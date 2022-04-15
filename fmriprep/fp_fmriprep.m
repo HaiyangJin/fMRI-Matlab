@@ -19,6 +19,8 @@ function [fpcmd, status] = fp_fmriprep(subjCode, varargin)
 %    .nthreads      <int> number of threads. Default is 8.
 %    .maxnthreads   <int> maximum number of threads per-process. Default is
 %                    8.
+%    .wd            <str> working directory. Default is '', i.e., not
+%                    including this argument.
 %    .ignore        <str> steps to be ignored in fmriprep. Available
 %                    options are 'fieldmaps,slicetiming,sbref'.
 %    .runcmd        <boo> whether to run the command. Default is 1.
@@ -47,6 +49,7 @@ defaultOpts = struct(...
     'cifti', '91k', ... --cifti-output 
     'nthreads', 8, ... % above 8 does not seem to help (further)
     'maxnthreads', 8, ... % maximum number of threads per-process
+    'wd', '', ...
     'ignore', '', ... % {fieldmaps,slicetiming,sbref}
     'runcmd', 1, ...
     'bidsdir', bids_dir(), ...
@@ -79,16 +82,21 @@ if ~contains(opts.extracmd, '--fs-license-file')
     extracell{3, 1} = sprintf('--fs-license-file %s', opts.fslicense);
 end
 
+if ~isempty(opts.wd) && ~contains(opts.extracmd, '-w')
+    fm_mkdir(fullfile(opts.wd, subjCode));
+    extracell{4, 1} = sprintf('-w %s', opts.wd);
+end
+
 if ~isempty(opts.ignore) && ~contains(opts.extracmd, '--ignore')
-    extracell{4, 1} = ['--ignore ' opts.ignore];
+    extracell{5, 1} = ['--ignore ' opts.ignore];
 end
 
 if opts.nthreads > 0 && ~contains(opts.extracmd, '--nthreads')
-    extracell{5, 1} = sprintf('--nthreads %d', opts.nthreads);
+    extracell{6, 1} = sprintf('--nthreads %d', opts.nthreads);
 end
 
 if opts.maxnthreads > 0 && ~contains(opts.extracmd, '--omp-nthreads')
-    extracell{6, 1} = sprintf('--omp-nthreads %d', opts.maxnthreads);
+    extracell{7, 1} = sprintf('--omp-nthreads %d', opts.maxnthreads);
 end
 
 extracmd = sprintf(' %s', extracell{:});
