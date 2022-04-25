@@ -15,6 +15,8 @@ function fscmd = fs_bids_preproc(subjCode, varargin)
 %                   ('self' [default] or 'fsaverage').
 %    .extracmd     <str> extra command strings used for preproc-sess.
 %                   default ''.
+%    .tsv2par      <boo> whether to convert tsv from bids to par files in
+%                   FreeSurfer. Default is 1.
 %    .combinesess  <boo> whether combine the runs from multiple runs to one
 %                   session folder in FreeSurfer (FS-FAST). Default is 0.
 %    .fssesscode   <str> session code in $FUNCTIONALS_DIR. It is the same as
@@ -42,6 +44,7 @@ defaultOpts = struct( ...
     'smooth', [], ... % use defualt in fs_preproc: 0
     'template', [], ... % use defualt in fs_preproc: 'self'
     'extracmd', '', ... % use defualt in fs_preproc: ''
+    'tsv2par', 1, ... 
     'combinesess', 0, ...
     'fssesscode', subjCode, ...
     'fssubjcode', subjCode, ...
@@ -191,6 +194,23 @@ if opts.combinesess     % only when the sessions are combined
             fm_mkfile(fullfile(boldDir, sprintf('%s_ses-%s.txt', ...
                 thisTask{1}, thisSes{1})), theTaskRuns);
         end
+    end
+end
+
+% convert events.tsv to *.par files if needed
+if opts.tsv2par
+    % source tsv file lists
+    eventlist = cellfun(@(x) strrep(x, '_bold.nii.gz', '_events.tsv'), ...
+        sources, 'uni', false);
+    % check if all source files exist
+    allexist = all(cellfun(@(x) logical(exist(x, 'file')), eventlist));
+
+    if allexist
+        % target par file lists
+        parlist = cellfun(@(x,y) strrep(x, 'f.nii.gz', sprintf('%s.par',y)), ...
+            targets, {bfuncInfo.task}', 'uni', false);
+        
+        cellfun(@fm_event2par, eventlist, parlist);
     end
 end
 
