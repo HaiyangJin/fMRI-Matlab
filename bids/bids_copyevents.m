@@ -46,7 +46,7 @@ assert(nwd == length(runwd), ['eventwd (%d) and runwd (%d) should have the' ...
 
 if ~exist('ses', 'var') || isempty(ses)
     ses = '';
-elseif isint(ses)
+elseif isnumeric(ses)
     ses = num2str(ses);
 end
 if ~startsWith(ses, 'ses-')

@@ -12,7 +12,7 @@ function fs_addrunfile(sessList, runFn, groups, runExtraFn)
 %                 a separate one. Default is each run is saved as a
 %                 separate run file.
 %    runExtraFn  <str> the extra strings to be added at the end of runFn.
-%                 Default is 'part'.
+%                 Default is ''.
 %
 % Output:
 %    A gorup of newly added run files.
@@ -43,7 +43,7 @@ groups = logical(groups);
 nGroup = size(groups, 2);
 
 if ~exist('runExtraFn', 'var') || isempty(runExtraFn)
-    runExtraFn = 'part';
+    runExtraFn = '';
 end
 
 %% Add more run files
