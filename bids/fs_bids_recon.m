@@ -19,8 +19,8 @@ function fscmd = fs_bids_recon(subjCode, varargin)
 %    .fssubjcode   <str> subject code in $SUBJECTS_DIR. It is the same as
 %                   subjCode (in bidsDir) by default.
 %    .extracmd     <str> the extra commands to be used. Default is ''.
-%    .bidsDir      <str> the BIDS directory. Default is bids_dir().
-%    .struDir      <str> $SUBJECTS_DIR in FreeSurfer. Default is 
+%    .bidsdir      <str> the BIDS directory. Default is bids_dir().
+%    .subjdir      <str> $SUBJECTS_DIR in FreeSurfer. Default is 
 %                   <bidsDir>/derivatives/subjects.
 %
 % Output:
@@ -46,11 +46,15 @@ defaultOpts = struct( ...
 
 opts = fm_mergestruct(defaultOpts, varargin{:});
 
-if ~isfield(opts, 'strudir')
-    opts.strudir = fullfile(opts.bidsdir, 'derivatives', 'subjects');
+if ~isfield(opts, 'subjdir') || isempty(opts.subjdir)
+    if ~isempty(getenv('SUBJECTS_DIR'))
+        opts.subjdir = getenv('SUBJECTS_DIR');
+    else
+        opts.subjdir = fullfile(opts.bidsdir, 'derivatives', 'subjects');
+    end
 end
-fm_mkdir(opts.strudir);
-fs_subjdir(opts.strudir); 
+fm_mkdir(opts.subjdir);
+fs_subjdir(opts.subjdir); 
 
 subjDir = fullfile(opts.bidsdir, subjCode);
 assert(exist(subjDir, 'dir'), ['Cannot find the subject (%s) in the bids ' ...

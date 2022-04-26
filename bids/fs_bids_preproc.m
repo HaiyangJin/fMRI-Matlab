@@ -24,7 +24,7 @@ function fscmd = fs_bids_preproc(subjCode, varargin)
 %    .fssubjcode   <str> the corresponding FreeSurfer subject code, which
 %                   will be saved as subjectname in the session folder.
 %    .bidsdir      <str> the BIDS directory. Default is bids_dir().
-%    .strudir      <str> $SUBJECTS_DIR in FreeSurfer. Default is 
+%    .funcdir      <str> $FUNCTIONALS_DIR in FreeSurfer. Default is 
 %                   <bidsDir>/derivatives/functionals.
 %
 % Output:
@@ -59,7 +59,11 @@ assert(exist(bsubjDir, 'dir'), ['Cannot find the subject (%s) in the bids ' ...
 
 % make the functionals_dir
 if isempty(opts.funcdir)
-    opts.funcdir = fullfile(opts.bidsdir, 'derivatives', 'functionals');
+    if isempty(getenv('FUNCTIONALS_DIR'))
+        opts.funcdir = fullfile(opts.bidsdir, 'derivatives', 'functionals');
+    else
+        opts.funcdir = getenv('FUNCTIONALS_DIR');
+    end
 end
 fm_mkdir(opts.funcdir);
 fs_funcdir(opts.funcdir);
