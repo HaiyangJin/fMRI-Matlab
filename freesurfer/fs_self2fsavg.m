@@ -1,5 +1,5 @@
-function outpoints = fs_self2fsavg(inpoints, subjCode)
-% outpoints = fs_self2fsavg(inpoints, subjCode)
+function [outpoints, vtx, esterr] = fs_self2fsavg(inpoints, subjCode, surf)
+% [outpoints, vtx, esterr] = fs_self2fsavg(inpoints, subjCode, surf)
 %
 % This functions converts self surface (or volume) RAS [in real world] to 
 % MNI305 (fsaverage) RAS by following 
@@ -15,17 +15,35 @@ function outpoints = fs_self2fsavg(inpoints, subjCode)
 %    MNI Talairach = fs_self2fsavg(Volume RAS, subjCode);
 %
 % Inputs:
-%    inpoints        <numeric array> RAS on self surface [real world].
-%    subjCode        <string> subject code in $SUBJECTS_DIR.
+%    inpoints        <num mat> RAS on self surface [real world].
+%    subjCode        <str> subject code in $SUBJECTS_DIR.
+%    surf            <str> which surface to be used to estimate the vertex
+%                     on fsaverage (e.g., 'lh.white'). Default is ''; then 
+%                     not estimate the vertex. When hemisphere infor is 
+%                     included, please make sure it is not the wrong 
+%                     hemisphere. Note if no hemisphere information is 
+%                     inclluded in surf, e.g., 'white', both hemispheres
+%                     will be loaded to estimate the vertex.
 %
 % Output:
-%    outpoints       <numeric array> cooridnates on fsaverage (MNI305 or
-%                     MNI Talairach).
+%    outpoints       <num mat> cooridnates on fsaverage (MNI305 or MNI 
+%                     Talairach).
+%    vtx             <int> the vertex index on fsaverage. When no hemisphere
+%                     is specified, 1-163842 refer to vertices on left 
+%                     hemisphere and 163843 and larger numbers refer to
+%                     right hemisphere.
+%    esterr          <num vec> estiamtion error; i.e., distance between the
+%                     outpoints and the corresponding vertices on fsaverage.
 %
 % Created by Haiyang Jin (13-Nov-2019)
 %
 % See also:
 % fs_self2tal; mni2tal
+
+if nargin < 1
+    fprintf('Usage: [outpoints, vtx, esterr] = fs_self2fsavg(inpoints, subjCode, surf);\n');
+    return;
+end
 
 if ~exist('subjCode', 'var') || isempty(subjCode)
     error('Please input the subject code.');
@@ -53,5 +71,25 @@ inRAS = horzcat(inpoints, ones(size(inpoints, 1), 1))';
 outRAS = talMat * Norig / Torig * inRAS;
 
 outpoints = outRAS';
+
+%% Estimate the vertex index if needed
+if ~exist('surf', 'var') || isempty(surf)
+    vtx = 0;
+    esterr = 0;
+    return;
+end
+
+if ~contains(surf, 'lh') && ~contains(surf, 'rh')
+    lhc = fs_readsurf(['lh.' surf], subjCode);
+    rhc = fs_readsurf(['rh.' surf], subjCode);
+    c = [lhc; rhc];
+else
+    c = fs_readsurf(surf);
+end
+
+% euclidean
+Ds = pdist2(c, outpoints);
+% which vertex
+[esterr, vtx] = min(Ds);
 
 end
