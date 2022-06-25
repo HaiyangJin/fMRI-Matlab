@@ -53,7 +53,8 @@ map = fullfile(dir_uti, 'final_warps_FS5.3', 'allSub_fsaverage_to_FSL_MNI152_FS4
 load(map, 'lh_vertex', 'rh_vertex');
 
 % Mask out non-cortical areas
-mask = MRIread(fullfile(dir_uti, 'liberal_cortex_masks_FS5.3', 'FSL_MNI152_FS4.5.0_cortex_estimate.nii.gz'));
+% mask = MRIread(fullfile(dir_uti, 'liberal_cortex_masks_FS5.3', 'FSL_MNI152_FS4.5.0_cortex_estimate.nii.gz'));
+mask = MRIread(fm_2cmdpath(fullfile(dir_uti, 'liberal_cortex_masks_FS5.3', 'FSL_MNI152_FS4.5.0_cortex_estimate.nii.gz')));
 lh_vertex(mask.vol==0) = 0;
 rh_vertex(mask.vol==0) = 0;
 
