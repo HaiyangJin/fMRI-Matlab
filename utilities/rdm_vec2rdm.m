@@ -1,4 +1,4 @@
-function rdms = rdm_vec2rdm(vec, tri, Pceil)
+function rdms = rdm_vec2rdm(vec, tri, chanceValue, Pceil)
 % rdms = rdm_vec2rdm(vec, tri, Pceil)
 %
 % (May not be useful) Convert a vector (which should be obtained from
@@ -10,6 +10,8 @@ function rdms = rdm_vec2rdm(vec, tri, Pceil)
 %                 Q = (1+(P-1))*(P-1)/2.
 %    tri         <str> whether it is lower {'l', 'low', 'lower'} or upper
 %                 {'u', 'up', 'upper'} [default] triangle vector.
+%    chanceValue <num> the default chance value used to create the array.
+%                 Default is 0.
 %    Pceil       <int> [this is a weird setting] the possible maximum of P,
 %                 i.e., the first and second dimension in the output RDM.
 %
@@ -33,6 +35,10 @@ switch tri
     case {'u', 'up', 'upper'}
         thefunc = @triu;
         theidx = 1;
+end
+
+if ~exist('chanceValue', 'var') || isempty(chanceValue)
+    chanceValue = 0;
 end
 
 if ~exist('Pceil', 'var') || isempty(Pceil)
@@ -61,5 +67,8 @@ tri2 = thefunc(tri1,1)';
 
 % make the diagnal 0
 rdms = tri1 + tri2;
+
+% assign the chancel value
+rdms(repmat(logical(eye(P)), 1, 1, N)) = chanceValue;
 
 end

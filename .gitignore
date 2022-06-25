@@ -41,3 +41,5 @@ octave-workspace
 # ignore folders
 examples/
 deprecated/
+
+external/CBIG_Wu2017/final_warps_FS5.3/*.mat
