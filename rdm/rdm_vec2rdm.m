@@ -63,10 +63,10 @@ boo_tri1 = repmat(logical(thefunc(ones(P),theidx)), 1, 1, N);
 tri1(boo_tri1) = vec';
 
 % copy one tri to the other tri
-tri2 = thefunc(tri1,1)'; 
+tri2 = arrayfun(@(x) thefunc(tri1(:,:,x),1)', 1:size(tri1,3), 'uni', false); 
 
 % make the diagnal 0
-rdms = tri1 + tri2;
+rdms = tri1 + cat(3, tri2{:});
 
 % assign the chancel value
 rdms(repmat(logical(eye(P)), 1, 1, N)) = chanceValue;
