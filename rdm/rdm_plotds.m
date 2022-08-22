@@ -14,7 +14,7 @@ function rdm_plotds(ds, varargin)
 % Created by Haiyang Jin (2022-Aug-22)
 
 if nargin < 1
-    fprintf('rdm_plotds(ds, varargin);\n');
+    fprintf('Usage: rdm_plotds(ds, varargin);\n');
 end
 
 % convert ds.samples to RDM (matrix from vector)

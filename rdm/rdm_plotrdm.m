@@ -1,5 +1,5 @@
 function rdm_plotrdm(rdms, varargin)
-%
+% rdm_plotrdm(rdms, varargin)
 %
 % Quickly show the RDM (matrix).
 %
@@ -19,6 +19,10 @@ function rdm_plotrdm(rdms, varargin)
 %     .showbar       <boo> whether show color bar.
 %
 % Created by Haiyang Jin (2022-Aug-19)
+
+if nargin < 1
+    fprintf('Usage: rdm_plotrdm(rdms, varargin):\n');
+end
 
 defaultOpts = struct( ...
     'condnames', '', ... % conditions names to show in matrix
