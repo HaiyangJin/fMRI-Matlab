@@ -2,7 +2,7 @@ function rdms = rdm_vec2rdm(vec, tri, chanceValue, Pceil)
 % rdms = rdm_vec2rdm(vec, tri, Pceil)
 %
 % (May not be useful) Convert a vector (which should be obtained from
-% RDM) to RDM.
+% RDM) to RDM. A good alternative is squareform().
 %
 % Inputs:
 %    vec         <num array> N x Q array. Each row is one participant and

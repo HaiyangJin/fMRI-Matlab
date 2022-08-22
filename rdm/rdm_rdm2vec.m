@@ -1,7 +1,8 @@
 function vec = rdm_rdm2vec(rdms, tri)
 % vec = rdm_rdm2vec(rdms, tri)
 %
-% Converts a RDM (P x P) into a row vector of (1+(P-1))*(P-1)/2 values.
+% Converts a RDM (P x P) into a row vector of (1+(P-1))*(P-1)/2 values. A
+% good alternative is squareform().
 %
 % Inputs:
 %    rdms        <num array> P x P x N array. P x P is a RDM for one
