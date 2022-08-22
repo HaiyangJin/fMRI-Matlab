@@ -9,8 +9,6 @@ function rdm_plotds(ds, varargin)
 % Varargin:
 %     Please see Varargin in rdm_plotrdm().
 %
-% Output
-%
 % Created by Haiyang Jin (2022-Aug-22)
 
 if nargin < 1
@@ -18,9 +16,9 @@ if nargin < 1
 end
 
 % convert ds.samples to RDM (matrix from vector)
-rdms = rdm_vec2rdm(ds.samples, 'lower', 0.5);
+rdms = rdm_vec2rdm(ds.samples, 0.5);
 
 % plot
-rdm_plotrdm(rdms, 'condnames', ds.a.conditions, 'titles', ds.sa.labels, varargin{:});
+rdm_plotrdm(rdms, 'condnames', ds.a.conditions, 'titles', ds.fa.labels, varargin{:});
 
 end

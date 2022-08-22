@@ -39,7 +39,7 @@ opts = fm_mergestruct(defaultOpts, varargin);
 
 % make sure rdms is RDM matrix
 assert(size(rdms,1)==size(rdms,2), ['{rdms} must be RDM matrix, ' ...
-    'not RDM vectors. [You may want to use rdm_vec2rdm.]']);
+    'not RDM vectors. [You may want to use rdm_vec2rdm().]']);
 
 N_cond = size(rdms, 1);
 N_rdms = size(rdms, 3);
