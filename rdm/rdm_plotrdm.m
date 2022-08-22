@@ -110,7 +110,12 @@ if opts.showbar
         subplot(opts.nrow, ncol, N_rdms+1); 
     end
     c = colorbar;
-    if ~isempty(opts.crange); caxis(opts.crange); end
+    if ~isempty(opts.crange) 
+        caxis(opts.crange); 
+    else
+        c.Ticks = [0, 1];
+        c.TickLabels = {'low', 'high'};
+    end
     colormap;
     c.FontSize = 15;
     axis off
