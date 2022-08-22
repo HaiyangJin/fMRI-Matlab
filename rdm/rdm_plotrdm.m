@@ -91,7 +91,10 @@ for i = 1:N_rdms
 
     % add row and col names
     ax = gca;
-    % Set where ticks will be and set TickLabels;
+    % Set where ticks will be 
+    yticks(1:N_cond);
+    xticks(1:N_cond);
+    % set TickLabels
     ax.XTickLabel = condnames;
     ax.XTickLabelRotation = 90;
     ax.YTickLabel = condnames;
