@@ -8,6 +8,7 @@ function rdm_plotrdm(rdms, varargin)
 %     
 % Varargin:
 %     .condnames     <str cell> strings to be displayed for conditions.
+%     .showvalue     <boo> whether show values in the matrix. Default to 0.
 %     .titles        <str cell> titles to be displayed for each RDM.
 %     .nrow          <int> number of rows to be displayed in subplot().
 %     .eachsize      <int vec> pixels of x and y dimension for plotting  
@@ -28,6 +29,7 @@ end
 
 defaultOpts = struct( ...
     'condnames', '', ... % conditions names to show in matrix
+    'showvalue', 0, ... % whether show values in the figure
     'titles', '', ... % for each (sub)plot
     'nrow', 1, ... % N row used in subplot()
     'eachsize', 400, ... % pixels (x and y) for each 
@@ -91,10 +93,26 @@ for i = 1:N_rdms
     subplot(opts.nrow, ncol, i);
     
     % plot the matrix
-    imagesc(rdms(:,:,i));
+    imagesc(rdms(:,:,i)); % maybe try heatmap()
     % add title
     title(titles{i}, 'FontSize', 24, 'FontWeight', 'Normal')
     if ~isempty(opts.crange); caxis(opts.crange); end
+
+    % show values if needed
+    if opts.showvalue
+        tmpvalues = rdms(:,:,i);
+        vals = tmpvalues(:);
+
+        [R, C] = ndgrid(1:size(tmpvalues,1), 1:size(tmpvalues,2));
+        R = R(:); C = C(:) - 1/4;
+
+        text(C, R, string(vals), 'color', 'w', 'FontSize', 14);
+
+%         mask = vals <= 0.5;
+%         text(C(mask), R(mask), string(vals(mask)), 'color', 'w')
+%         text(C(~mask), R(~mask), string(vals(~mask)), 'color', 'k')
+
+    end% opts.showvalue
 
     % add row and col names
     ax = gca;
@@ -106,7 +124,7 @@ for i = 1:N_rdms
     ax.XTickLabelRotation = 90;
     ax.YTickLabel = condnames;
 
-end
+end %for i 
 
 if opts.showbar
     if N_rdms > 1
