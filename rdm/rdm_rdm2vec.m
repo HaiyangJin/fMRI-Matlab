@@ -28,7 +28,7 @@ assert(ismember(ndims(rdms), [2,3]), '<rdms> should have 2 or 3 dimensions.');
 assert(P1==P2, 'The first two dimensions of <rdms> have to be the same');
 
 % empty array to save output later
-vec = NaN(N, nchoosek(P1));
+vec = NaN(nchoosek(P1, 2), N);
 
 for irdm = 1:N
     
