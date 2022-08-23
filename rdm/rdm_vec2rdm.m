@@ -1,4 +1,4 @@
-function rdms = rdm_vec2rdm(vec, chanceValue, Pceil)
+function rdms = rdm_vec2rdm(vec, diagValue, Pceil)
 % rdms = rdm_vec2rdm(vec, chanceValue, Pceil)
 %
 % (May not be useful) Convert a vector (which should be obtained from
@@ -8,7 +8,7 @@ function rdms = rdm_vec2rdm(vec, chanceValue, Pceil)
 %    vec         <num array> N x Q array. Each column is one RDM vector and
 %                 rows are for different pairs in RDM. 
 %                 Q = (1+(P-1))*(P-1)/2.
-%    chanceValue <num> the default chance value used to create the array.
+%    diagValue   <num> the default value to be displayed on the diagnoal.
 %                 Default is 0.
 %    Pceil       <int> [this is a weird setting] the possible maximum of P,
 %                 i.e., the first and second dimension in the output RDM.
@@ -26,8 +26,8 @@ if nargin < 1
     fprintf('Usage: rdms = rdm_vec2rdm(vec, chanceValue, Pceil);\n');
 end
 
-if ~exist('chanceValue', 'var') || isempty(chanceValue)
-    chanceValue = 0;
+if ~exist('diagValue', 'var') || isempty(diagValue)
+    diagValue = 0;
 end
 
 if ~exist('Pceil', 'var') || isempty(Pceil)
@@ -52,7 +52,7 @@ for irdm = 1:N
     therdm = squareform(vec(:, irdm));
 
     % set the diagnoal values
-    therdm(logical(eye(P))) = chanceValue;
+    therdm(logical(eye(P))) = diagValue;
 
     % save this rdm
     rdms(:,:,irdm) = therdm;
