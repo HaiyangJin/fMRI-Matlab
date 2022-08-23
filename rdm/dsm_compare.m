@@ -5,7 +5,7 @@ function ds_cmp = dsm_compare(ds_brain, ds_model, type)
 %
 % Inputs:
 %     ds_brain    <struct> brain RDMs. Each column in .samples is one brain
-%                  RDM (vector).
+%                  RDM (vector). The third dimension is the participant.
 %     ds_model    <struct> model RDMs. Eech column in .samples is one model
 %                  RDM (vector).
 %     type        <str> correlation to be used to compare RDMs. Default to
@@ -27,40 +27,39 @@ end %nargin
 assert(isequal(ds_brain.a.conditions, ds_model.a.conditions), ['The ' ...
     '{.a.conditions} in {ds_brain} and {ds_model} does not match.'])
 
+% make sure there are only two dimentions in ds_model.samples
+assert(ndims(ds_model.samples)<=2, ['{ds_models.samples} should only ' ...
+    'have two dimensions (not %d).'], ndims(ds_model.samples));
+
 if ~exist('type', 'var') || isempty(type)
     type = 'kendall_taua';
-end
-
-%% Compare RDMs
-N_models = length(ds_model.fa.labels);
-
-switch type
-    case 'kendall_taua'
-        
-        [tmp_model, tmp_brain] = ndgrid(1:N_models, 1:size(ds_brain.samples, 2));
-        out = arrayfun(@(x,y) rsa.stat.rankCorr_Kendall_taua( ...
-            ds_model.samples(:,x), ds_brain.samples(:,y)), ...
-            tmp_model(:), tmp_brain(:));
-
-        out = reshape(out, N_models, size(ds_brain.samples, 2));
-
-    case {'Kendall', 'Spearman', 'Pearson'}
-
-        out = corr(ds_model.samples, ds_brain.samples, 'type', type);
-
-    otherwise
-        error('Cannot identify the correaltion type (%s).', type);
-
-end %switch type
-
-% throw warnings for some methods
-if strcmp(type, 'Pearson')
+elseif strcmp(type, 'Pearson') % throw warnings for some methods
     warning('Pearson (instead of rank correlation) is used to compare models.');
 elseif strcmp(type, 'Kendall')
     warning('Kendall tau b (instead of tau a) is used to compare models.');
 end
 
-% make a copy of ds_brain (mainly use the .fa and .a)
+%% Compare RDMs
+
+N_models = size(ds_model.samples, 2);
+
+% create empty array to save output
+out = NaN(N_models, size(ds_brain.samples, 2), ...
+    size(ds_brain.samples, 3));
+
+% comapre model for each participant separately
+for iSubj = 1:size(ds_brain.samples, 3)
+
+    % create ds for this subj
+    ds_subj = ds_brain;
+    ds_subj.samples = ds_brain.samples(:,:,iSubj);
+
+    % compare models for each subject separately
+    out(:,:,iSubj) = compare_one_subj(ds_subj, ds_model, type);
+
+end %iSubj
+
+% make a copy of ds_brain (mainly use the .fa, .a, and .pa)
 ds_cmp = ds_brain;
 
 % obtain the .sa
@@ -73,3 +72,31 @@ ds_cmp.sa.labels = repmat({'rho'}, N_models, 1);
 ds_cmp.samples = out;
 
 end %function
+
+
+function outcorr = compare_one_subj(ds_brain, ds_model, type)
+
+N_models = size(ds_model.samples, 2);
+
+% use different method to compare models
+switch type
+
+    case 'kendall_taua'
+        
+        [tmp_model, tmp_brain] = ndgrid(1:N_models, 1:size(ds_brain.samples, 2));
+        out = arrayfun(@(x,y) rsa.stat.rankCorr_Kendall_taua( ...
+            ds_model.samples(:,x), ds_brain.samples(:,y)), ...
+            tmp_model(:), tmp_brain(:));
+
+        outcorr = reshape(out, N_models, size(ds_brain.samples, 2));
+
+    case {'Kendall', 'Spearman', 'Pearson'}
+
+        outcorr = corr(ds_model.samples, ds_brain.samples, 'type', type);
+
+    otherwise
+        error('Cannot identify the correaltion type (%s).', type);
+
+end %switch type
+
+end %compare_one_subj()

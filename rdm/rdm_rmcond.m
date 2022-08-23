@@ -37,7 +37,7 @@ old_p = nchoosek(tmp_cond, 2);
 updated_p = nchoosek(tmp_cond(mask), 2);
 
 % only keep samples for interested conditions
-ds.samples(~ismember(old_p, updated_p, 'rows'), :) = [];  
+ds.samples(~ismember(old_p, updated_p, 'rows'), :, :) = [];  
 
 end
 
