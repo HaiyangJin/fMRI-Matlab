@@ -17,11 +17,13 @@ function rdm_plotrdm(rdms, varargin)
 %     .cmap          <str> or <mat> colormap to be used.
 %     .crange        <num vec> range to be displayed in colorbar.
 %     .showbar       <boo> whether show color bar.
+%     .clabel        <str> the color bar label. Default to 'Dissimilarity'.
 %
 % Created by Haiyang Jin (2022-Aug-19)
 
 if nargin < 1
     fprintf('Usage: rdm_plotrdm(rdms, varargin):\n');
+    return
 end
 
 defaultOpts = struct( ...
@@ -32,7 +34,8 @@ defaultOpts = struct( ...
     'position', [], ...
     'cmap', 'jet', ...
     'crange', [], ...
-    'showbar', 1 ... % whether show colorbar
+    'showbar', 1, ... % whether show colorbar
+    'clabel', 'Dissimilarity' ...
     );
 
 opts = fm_mergestruct(defaultOpts, varargin);
@@ -116,8 +119,8 @@ if opts.showbar
         c.Ticks = [0, 1];
         c.TickLabels = {'low', 'high'};
     end
-    colormap;
-    c.FontSize = 15;
+    c.Label.String = opts.clabel;
+    c.FontSize = 18;
     axis off
     
 end
