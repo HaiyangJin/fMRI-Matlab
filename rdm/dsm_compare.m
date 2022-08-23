@@ -7,7 +7,8 @@ function ds_cmp = dsm_compare(ds_brain, ds_model, type)
 %     ds_brain    <struct> brain RDMs. Each column in .samples is one brain
 %                  RDM (vector). The third dimension is the participant.
 %     ds_model    <struct> model RDMs. Eech column in .samples is one model
-%                  RDM (vector).
+%                  RDM (vector). Default to the first RDM in
+%                  ds_brain.samples.
 %     type        <str> correlation to be used to compare RDMs. Default to
 %                  'kendall_taua' (from rsatoolbox). Other options are
 %                  methods avaiable in corr in matlab (statistics toolbox).
@@ -22,6 +23,15 @@ if nargin < 1
     fprintf('Usage: ds_cmp = dsm_compare(ds_brain, ds_model, type);\n');
     return
 end %nargin
+
+convert = 0;
+if ~exist('ds_model', 'var') || isempty(ds_model)
+    % default to the first RDM in 
+    ds_model = ds_brain;
+    ds_model.samples = ds_brain.samples(:,:,1);
+    ds_model.pa = [];
+    convert = 1;
+end
 
 % make sure both ds have the same .a.conditions
 assert(isequal(ds_brain.a.conditions, ds_model.a.conditions), ['The ' ...
@@ -55,18 +65,29 @@ for iSubj = 1:size(ds_brain.samples, 3)
     ds_subj.samples = ds_brain.samples(:,:,iSubj);
 
     % compare models for each subject separately
-    out(:,:,iSubj) = compare_one_subj(ds_subj, ds_model, type);
+    out(:,:,iSubj) = compare_separate(ds_subj, ds_model, type);
 
 end %iSubj
 
 % make a copy of ds_brain (mainly use the .fa, .a, and .pa)
 ds_cmp = ds_brain;
 
-% obtain the .sa
-ds_cmp.sa.model = ds_model.fa.labels';
-ds_cmp.sa.type = repmat({type}, N_models, 1);
-ds_cmp.sa.metric = repmat({'correlation'}, N_models, 1);
-ds_cmp.sa.labels = repmat({'rho'}, N_models, 1);
+if convert
+    % convert matrix to vec
+    out = rdm_rdm2vec(out);
+
+    ds_cmp.fa.labels = {'RDM'};
+
+else
+    % obtain the .sa
+    ds_cmp.sa.model = ds_model.fa.labels';
+    ds_cmp.sa.type = repmat({type}, N_models, 1);
+    ds_cmp.sa.metric = repmat({'correlation'}, N_models, 1);
+    ds_cmp.sa.labels = repmat({'rho'}, N_models, 1);
+
+    % update "condition" names
+    ds_cmp.a.conditions = ds_model.fa.labels;
+end
 
 % save the rho
 ds_cmp.samples = out;
@@ -74,7 +95,7 @@ ds_cmp.samples = out;
 end %function
 
 
-function outcorr = compare_one_subj(ds_brain, ds_model, type)
+function outcorr = compare_separate(ds_brain, ds_model, type)
 
 N_models = size(ds_model.samples, 2);
 
