@@ -1,5 +1,5 @@
-function ds_cmp = dsm_compare(ds_brain, ds_model, type)
-% ds_cmp = dsm_compare(ds_brain, ds_model, type)
+function ds_cmp = rdm_compare(ds_brain, ds_model, type)
+% ds_cmp = rdm_compare(ds_brain, ds_model, type)
 %
 % Compare brain RDM and model RDMs. 
 %
@@ -20,7 +20,7 @@ function ds_cmp = dsm_compare(ds_brain, ds_model, type)
 % Created by Haiyang Jin (2022-Aug-23)
 
 if nargin < 1
-    fprintf('Usage: ds_cmp = dsm_compare(ds_brain, ds_model, type);\n');
+    fprintf('Usage: ds_cmp = rdm_compare(ds_brain, ds_model, type);\n');
     return
 end %nargin
 
