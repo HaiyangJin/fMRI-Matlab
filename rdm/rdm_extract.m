@@ -1,5 +1,5 @@
-function ds = rdm_rmcond(ds, mask)
-% ds = rdm_rmcond(ds, mask)
+function ds = rdm_extract(ds, mask)
+% ds = rdm_extract(ds, mask)
 %
 % Remove certain conditions from ds. 
 %
@@ -13,7 +13,7 @@ function ds = rdm_rmcond(ds, mask)
 % Created by Haiyang Jin (2022-Aug-22)
 
 if nargin < 1
-    fprintf('Usage: ds = rdm_rmcond(ds, mask);\n');
+    fprintf('Usage: ds = rdm_extract(ds, mask);\n');
 end
 
 nCond = length(ds.a.conditions);
