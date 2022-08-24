@@ -1,5 +1,5 @@
-function ds = rdm_extract(ds, mask, dim)
-% ds = rdm_extract(ds, mask, dim)
+function ds = rdm_extract(ds, mask, dim, exclude)
+% ds = rdm_extract(ds, mask, dim, exclude)
 %
 % Extract specific RDMs from ds. 
 %
@@ -21,6 +21,8 @@ function ds = rdm_extract(ds, mask, dim)
 %                1 corresponds to different values in the vector RDM.
 %                   Usually this option should not be used (you may use -1
 %                   instead).
+%     exclude  <boo> whether to exclude the conditions included in {mask}.
+%               Default to 0. 
 %
 % Output:
 %     ds        <struct> extracted ds.
@@ -38,6 +40,10 @@ elseif dim == 1
     warning(['{mask} will be applied to Dimention 1. ' ...
         'Please make sure if it is what you want.'])
 end %dim
+
+if ~exist('exclude', 'var') || isempty(exclude)
+    exclude = 0;
+end
 
 % the length of masks
 N_masks = [length(ds.a.conditions), size(ds.samples, 1), ...
@@ -58,6 +64,10 @@ switch dim
             mask = ismember(ds.a.conditions, mask);
         else
             mask = logical(mask);
+        end
+
+        if exclude
+            mask = 1-mask;
         end
 
         % make sure the length of mask is correct
@@ -84,6 +94,10 @@ switch dim
             mask = logical(mask);
         end
 
+        if exclude
+            mask = 1-mask;
+        end
+
         % make sure the length of mask is correct
         nLabel = size(ds.samples, dim);
         assert(length(mask)==nLabel, ['The length of {mask} (%d) does not match' ...
@@ -103,6 +117,10 @@ switch dim
             mask = logical(mask);
         end
 
+        if exclude
+            mask = 1-mask;
+        end
+
         % make sure the length of mask is correct
         nSubj = size(ds.samples, dim);
         assert(length(mask)==nSubj, ['The length of {mask} (%d) does not match' ...
@@ -120,6 +138,10 @@ switch dim
             error('Please use boolean when {dim} is 1.')
         else
             mask = logical(mask);
+        end
+
+        if exclude
+            mask = 1-mask;
         end
 
         % make sure the length of mask is correct
