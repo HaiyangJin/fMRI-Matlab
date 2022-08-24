@@ -129,6 +129,7 @@ end %for i
 if opts.showbar
     if N_rdms > 1
         subplot(opts.nrow, ncol, N_rdms+1); 
+        axis off
     end
     c = colorbar;
     if ~isempty(opts.crange) 
@@ -139,7 +140,6 @@ if opts.showbar
     end
     c.Label.String = opts.clabel;
     c.FontSize = 18;
-    axis off
     
 end
 
