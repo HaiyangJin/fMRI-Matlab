@@ -30,6 +30,8 @@ if ~exist('ds_model', 'var') || isempty(ds_model)
     ds_model = ds_brain;
     ds_model.samples = ds_brain.samples(:,:,1);
     ds_model.pa = [];
+    ds_model.a.conditions = [ds_brain.fa.labels, ds_model.fa.labels];
+    ds_brain.a.conditions = [ds_brain.fa.labels, ds_model.fa.labels];
     convert = 1;
 end
 
@@ -76,7 +78,7 @@ if convert
     % convert matrix to vec
     out = rdm_rdm2vec(out);
 
-    ds_cmp.fa.labels = {'RDM'};
+    ds_cmp.fa.labels = {'Representational Similarity Matrix'};
 
 else
     % obtain the .sa
