@@ -18,6 +18,9 @@ function ds_cmp = rdm_compare(ds_brain, ds_model, type)
 %                  one brain RDM and each row is one model RDM. 
 %
 % Created by Haiyang Jin (2022-Aug-23)
+%
+% See also:
+% rdm_sigrank
 
 if nargin < 1
     fprintf('Usage: ds_cmp = rdm_compare(ds_brain, ds_model, type);\n');
@@ -82,11 +85,10 @@ if convert
 
 else
     % obtain the .sa
-    ds_cmp.sa.model = ds_model.fa.labels';
+    ds_cmp.sa.models = ds_model.fa.labels';
     ds_cmp.sa.type = repmat({type}, N_models, 1);
     ds_cmp.sa.metric = repmat({'correlation'}, N_models, 1);
     ds_cmp.sa.labels = repmat({'rho'}, N_models, 1);
-    ds_cmp.sa.models = ds_model.fa.labels';
 
     % remove "condition" names
     ds_cmp.a.conditions = [];
