@@ -1,5 +1,5 @@
-function ds_sigrank = rdm_sigrank(ds_cmp, sided)
-% ds_sigrank = rdm_sigrank(ds_cmp, sided)
+function ds_sigrank = rdm_signrank(ds_cmp, sided)
+% ds_sigrank = rdm_signrank(ds_cmp, sided)
 %
 % Perform sigrank tests. For "the relatedness of each candidate RDM to the 
 % reference RDM", one-sided test should be used (sided=1); For "Whether two
@@ -20,7 +20,7 @@ function ds_sigrank = rdm_sigrank(ds_cmp, sided)
 % Created by Haiyang Jin (2022-Aug-25)
 
 if nargin < 1
-    fprintf('Usage: ds_sigrank = rdm_sigrank(ds_cmp, sided);\n');
+    fprintf('Usage: ds_sigrank = rdm_signrank(ds_cmp, sided);\n');
     return
 end
 
