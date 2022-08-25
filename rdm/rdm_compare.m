@@ -30,8 +30,8 @@ if ~exist('ds_model', 'var') || isempty(ds_model)
     ds_model = ds_brain;
     ds_model.samples = ds_brain.samples(:,:,1);
     ds_model.pa = [];
-    ds_model.a.conditions = [ds_brain.fa.labels, ds_model.fa.labels];
-    ds_brain.a.conditions = [ds_brain.fa.labels, ds_model.fa.labels];
+    ds_model.a.conditions = [ds_brain.fa.labels, ds_model.fa.labels]';
+    ds_brain.a.conditions = [ds_brain.fa.labels, ds_model.fa.labels]';
     convert = 1;
 end
 
@@ -86,9 +86,11 @@ else
     ds_cmp.sa.type = repmat({type}, N_models, 1);
     ds_cmp.sa.metric = repmat({'correlation'}, N_models, 1);
     ds_cmp.sa.labels = repmat({'rho'}, N_models, 1);
+    ds_cmp.sa.models = ds_model.fa.labels';
 
-    % update "condition" names
-    ds_cmp.a.conditions = ds_model.fa.labels;
+    % remove "condition" names
+    ds_cmp.a.conditions = [];
+
 end
 
 % save the rho
