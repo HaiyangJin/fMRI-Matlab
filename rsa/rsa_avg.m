@@ -8,8 +8,8 @@ function ds_avg = rsa_avg(ds_rdm, transform, add, dim)
 %     transform   <func handle> function to be used to transform values
 %                  before averaging. Default to {identity}.
 %     add         <boo> whether only output the average RDM (default) or 
-%                  add average RDM before all participants'.  
-%     dim         <int> get the average along which dimension.
+%                  add average RDM before all participants'. Default to 0.
+%     dim         <int> get the average along which dimension. Default to 3.
 %     
 % Output:
 %     ds_rdm      <struct> output RDM ds.
@@ -34,9 +34,21 @@ if ~exist('dim', 'var') || isempty(dim)
 end
 
 % Calculate the average
+average = mean(transform(ds_rdm.samples), dim, 'omitnan');
+
+% convert the same correlation for all participants to one cell
+sample_cell = num2cell(ds_rdm.samples, dim);
+% remove nan
+sample_rmnan = cellfun(@(x) rmmissing(x(:)), sample_cell, 'uni', false);
+% descriptive 
+N = cellfun(@length, sample_rmnan);
+sd = cellfun(@std, sample_rmnan);
+se = sd./sqrt(N);
+
+% create ds_avg and save .samples
 ds_avg = ds_rdm;
-ds_avg.pa.labels = {'average'};
-ds_avg.samples = mean(transform(ds_rdm.samples), dim, 'omitnan');
+ds_avg.pa.labels = {'average', 'se', 'N'};
+ds_avg.samples = cat(3, average, se, N);
 
 % output
 if add
