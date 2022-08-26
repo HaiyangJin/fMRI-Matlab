@@ -1,5 +1,5 @@
-function cor = rdm_reliability(rdms, avgall, meanout)
-% cor = rdm_reliability(rdms, avgall, meanout)
+function cor = rsa_reliability(rdms, avgall, meanout)
+% cor = rsa_reliability(rdms, avgall, meanout)
 %
 % Calcuate the intersubject reliability by estimating the correlations
 % between each participant's RDM with the average RDM (with or without own
@@ -36,7 +36,7 @@ if ndims(rdms) == 3
         ' when there are 3 dimensions in <rdms>.'])
 
     % from 3d to 2d: save the lower left corner of rdms as one row vector
-    rdms = rdm_rdm2vec(rdms);
+    rdms = rsa_rdm2vec(rdms);
 elseif ndims(rdms) > 3
     error('The dimension of <rdms> should be 2 or 3.')
 end

@@ -1,5 +1,5 @@
-function ds_rdm = rdm_table2ds(rdmTable, tolatex)
-% ds_rdm = rdm_table2ds(rdmTable, tolatex)
+function ds_rdm = rsa_table2ds(rdmTable, tolatex)
+% ds_rdm = rsa_table2ds(rdmTable, tolatex)
 %
 % Convert MVPA table (got from fs_cosmo_cvdecode()) to RDM ds. [The
 % accuracy will be convert to 1-accuracy.]
@@ -15,7 +15,7 @@ function ds_rdm = rdm_table2ds(rdmTable, tolatex)
 % Created by Haiyang Jin (2022-Aug-25)
 
 if nargin < 1
-    fprintf('Usage: ds_rdm = rdm_table2ds(rdmTable, tolatex);\n');
+    fprintf('Usage: ds_rdm = rsa_table2ds(rdmTable, tolatex);\n');
     return
 end
 
@@ -74,7 +74,7 @@ if tolatex
 end
 
 %% Save ds_rdm
-ds_rdm = rdm_ds(samples, 'condlist', condList, ...
+ds_rdm = rsa_ds(samples, 'condlist', condList, ...
     'labellist', labelList, 'subjlist', subjList);
 
 end

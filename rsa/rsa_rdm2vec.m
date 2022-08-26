@@ -1,5 +1,5 @@
-function vec = rdm_rdm2vec(rdms)
-% vec = rdm_rdm2vec(rdms)
+function vec = rsa_rdm2vec(rdms)
+% vec = rsa_rdm2vec(rdms)
 %
 % Converts a RDM (P x P) into a vector of (1+(P-1))*(P-1)/2 values.
 %
@@ -15,10 +15,10 @@ function vec = rdm_rdm2vec(rdms)
 % Created by Haiyang Jin (2021-11-16)
 %
 % See also:
-% rdm_vec2rdm
+% rsa_vec2rdm
 
 if nargin < 1
-    fprintf('Usage: vec = rdm_rdm2vec(rdms);\n');
+    fprintf('Usage: vec = rsa_rdm2vec(rdms);\n');
 end
 
 assert(ismember(ndims(rdms), [2,3]), '<rdms> should have 2 or 3 dimensions.');

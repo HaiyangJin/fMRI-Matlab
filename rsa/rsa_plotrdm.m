@@ -1,5 +1,5 @@
-function rdm_plotrdm(rdms, varargin)
-% rdm_plotrdm(rdms, varargin)
+function rsa_plotrdm(rdms, varargin)
+% rsa_plotrdm(rdms, varargin)
 %
 % Quickly show the RDM (matrix).
 %
@@ -23,7 +23,7 @@ function rdm_plotrdm(rdms, varargin)
 % Created by Haiyang Jin (2022-Aug-19)
 
 if nargin < 1
-    fprintf('Usage: rdm_plotrdm(rdms, varargin):\n');
+    fprintf('Usage: rsa_plotrdm(rdms, varargin):\n');
     return
 end
 
@@ -44,7 +44,7 @@ opts = fm_mergestruct(defaultOpts, varargin);
 
 % make sure rdms is RDM matrix
 assert(size(rdms,1)==size(rdms,2), ['{rdms} must be RDM matrix, ' ...
-    'not RDM vectors. [You may want to use rdm_vec2rdm().]']);
+    'not RDM vectors. [You may want to use rsa_vec2rdm().]']);
 
 N_cond = size(rdms, 1);
 N_rdms = size(rdms, 3);

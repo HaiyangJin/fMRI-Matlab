@@ -1,5 +1,5 @@
-function ds = rdm_extract(ds, mask, dim, exclude)
-% ds = rdm_extract(ds, mask, dim, exclude)
+function ds = rsa_extract(ds, mask, dim, exclude)
+% ds = rsa_extract(ds, mask, dim, exclude)
 %
 % Extract specific RDMs from ds. 
 %
@@ -30,7 +30,7 @@ function ds = rdm_extract(ds, mask, dim, exclude)
 % Created by Haiyang Jin (2022-Aug-22)
 
 if nargin < 1
-    fprintf('Usage: ds = rdm_extract(ds, mask, dim);\n');
+    fprintf('Usage: ds = rsa_extract(ds, mask, dim);\n');
     return
 end %nargin
 

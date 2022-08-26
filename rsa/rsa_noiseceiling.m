@@ -1,5 +1,5 @@
-function noise = rdm_noiseceiling(rdms, meanout)
-% noise = rdm_noiseceiling(rdms, meanout)
+function noise = rsa_noiseceiling(rdms, meanout)
+% noise = rsa_noiseceiling(rdms, meanout)
 %
 % Calculate the noise ceiling for RDMs. The lower bound of the noise 
 % ceiling was estimated by calculating the Pearson correlation of the brain
@@ -36,6 +36,11 @@ function noise = rdm_noiseceiling(rdms, meanout)
 %
 % Created by Haiyang Jin (2021-11-15)
 
+if nargin < 1
+    fprintf('Usage: noise = rsa_noiseceiling(rdms, meanout);\n');
+    return
+end
+
 % output
 noise = NaN(1, 2);
 
@@ -59,7 +64,7 @@ end
 z_rdms = zscore(rdms, [], 1);
 
 % noise ceiling
-noise(1) = rdm_reliability(z_rdms, 0, meanout);
-noise(2) = rdm_reliability(z_rdms, 1, meanout);
+noise(1) = rsa_reliability(z_rdms, 0, meanout);
+noise(2) = rsa_reliability(z_rdms, 1, meanout);
 
 end

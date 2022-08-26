@@ -1,5 +1,5 @@
-function rdms = rdm_vec2rdm(vec, diagValue, Pceil)
-% rdms = rdm_vec2rdm(vec, chanceValue, Pceil)
+function rdms = rsa_vec2rdm(vec, diagValue, Pceil)
+% rdms = rsa_vec2rdm(vec, chanceValue, Pceil)
 %
 % (May not be useful) Convert a vector (which should be obtained from
 % RDM) to RDM.
@@ -20,10 +20,10 @@ function rdms = rdm_vec2rdm(vec, diagValue, Pceil)
 % Created by Haiyang Jin (2021-11-16)
 %
 % See also:
-% rdm_rdm2vec
+% rsa_rdm2vec
 
 if nargin < 1
-    fprintf('Usage: rdms = rdm_vec2rdm(vec, chanceValue, Pceil);\n');
+    fprintf('Usage: rdms = rsa_vec2rdm(vec, chanceValue, Pceil);\n');
 end
 
 if ~exist('diagValue', 'var') || isempty(diagValue)

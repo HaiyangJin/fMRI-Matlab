@@ -1,5 +1,5 @@
-function ds_avg = rdm_avg(ds_rdm, transform, add, dim)
-% ds_avg = rdm_avg(ds_rdm, transform, add, dim)
+function ds_avg = rsa_avg(ds_rdm, transform, add, dim)
+% ds_avg = rsa_avg(ds_rdm, transform, add, dim)
 % 
 % Get the average across participants.
 %
@@ -17,7 +17,7 @@ function ds_avg = rdm_avg(ds_rdm, transform, add, dim)
 % Created by Haiyang Jin (2022-Aug-24)
 
 if nargin < 1
-    fprintf('Usage: ds_avg = rdm_avg(ds_rdm, transform, add, dim);\n');
+    fprintf('Usage: ds_avg = rsa_avg(ds_rdm, transform, add, dim);\n');
     return
 end
 
@@ -41,7 +41,7 @@ ds_avg.samples = mean(transform(ds_rdm.samples), dim, 'omitnan');
 % output
 if add
     % concatenate both ds
-    ds_avg = rdm_stack({ds_avg, ds_rdm}, 3);
+    ds_avg = rsa_stack({ds_avg, ds_rdm}, 3);
 end
 
 end

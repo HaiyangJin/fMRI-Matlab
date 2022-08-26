@@ -1,5 +1,5 @@
-function ds_cmp = rdm_compare(ds_brain, ds_model, type)
-% ds_cmp = rdm_compare(ds_brain, ds_model, type)
+function ds_cmp = rsa_compare(ds_brain, ds_model, type)
+% ds_cmp = rsa_compare(ds_brain, ds_model, type)
 %
 % Compare brain RDM and model RDMs. 
 %
@@ -20,10 +20,10 @@ function ds_cmp = rdm_compare(ds_brain, ds_model, type)
 % Created by Haiyang Jin (2022-Aug-23)
 %
 % See also:
-% rdm_sigrank
+% rsa_sigrank
 
 if nargin < 1
-    fprintf('Usage: ds_cmp = rdm_compare(ds_brain, ds_model, type);\n');
+    fprintf('Usage: ds_cmp = rsa_compare(ds_brain, ds_model, type);\n');
     return
 end %nargin
 
@@ -79,7 +79,7 @@ ds_cmp = ds_brain;
 
 if convert
     % convert matrix to vec
-    out = rdm_rdm2vec(out);
+    out = rsa_rdm2vec(out);
 
     ds_cmp.fa.labels = {'Representational Similarity Matrix'};
 

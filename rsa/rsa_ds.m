@@ -1,5 +1,5 @@
-function ds_rdm = rdm_ds(samples, varargin)
-% ds_rdm = rdm_ds(samples, varargin)
+function ds_rdm = rsa_ds(samples, varargin)
+% ds_rdm = rsa_ds(samples, varargin)
 %
 % Create a new RDM (e.g., model RDM).
 %
@@ -20,7 +20,7 @@ function ds_rdm = rdm_ds(samples, varargin)
 % Created by Haiyang Jin (2022-Aug-24)
 
 if nargin < 1
-    fprintf('Usage: ds_rdm = rdm_ds(samples, varargin);\n');
+    fprintf('Usage: rsa_ds = rsa_ds(samples, varargin);\n');
     return
 end
 

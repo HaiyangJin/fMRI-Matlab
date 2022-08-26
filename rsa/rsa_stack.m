@@ -1,5 +1,5 @@
-function ds_out = rdm_stack(ds_cell, dim)
-% ds_out = rdm_stack(ds_cell, dim)
+function ds_out = rsa_stack(ds_cell, dim)
+% ds_out = rsa_stack(ds_cell, dim)
 %
 % Concatenate RDM ds along dim (2 or 3).
 %
@@ -7,7 +7,7 @@ function ds_out = rdm_stack(ds_cell, dim)
 %     ds_cell      <cell> a group of ds.
 %     dim          <int> Along which dimension to concatenate RDMs. Default
 %                   to 2: concatenate multiple RDM (e.g., brain and model
-%                   RDM) and compare them (e.g., use rdm_compare()). 
+%                   RDM) and compare them (e.g., use rsa_compare()). 
 %                   3: concatenate mulplte RDMs from different
 %                   participants. 
 %
@@ -17,10 +17,10 @@ function ds_out = rdm_stack(ds_cell, dim)
 % Created by Haiyang Jin.
 %
 % See also:
-% rdm_compare
+% rsa_compare
 
 if nargin < 1
-    fprintf('Usage: ds_out = rdm_stack(ds_cell, dim);\n');
+    fprintf('Usage: ds_out = rsa_stack(ds_cell, dim);\n');
     return
 end
 
