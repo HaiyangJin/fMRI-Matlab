@@ -70,7 +70,7 @@ for iSubj = 1:size(ds_brain.samples, 3)
     ds_subj.samples = ds_brain.samples(:,:,iSubj);
 
     % compare models for each subject separately
-    out(:,:,iSubj) = compare_separate(ds_subj, ds_model, type);
+    out(:,:,iSubj) = rsa_corr(ds_subj.samples, ds_model.samples, type);
 
 end %iSubj
 
@@ -99,31 +99,3 @@ end
 ds_cmp.samples = out;
 
 end %function
-
-
-function outcorr = compare_separate(ds_brain, ds_model, type)
-
-N_models = size(ds_model.samples, 2);
-
-% use different method to compare models
-switch type
-
-    case 'kendall_taua'
-        
-        [tmp_model, tmp_brain] = ndgrid(1:N_models, 1:size(ds_brain.samples, 2));
-        out = arrayfun(@(x,y) rsa.stat.rankCorr_Kendall_taua( ...
-            ds_model.samples(:,x), ds_brain.samples(:,y)), ...
-            tmp_model(:), tmp_brain(:));
-
-        outcorr = reshape(out, N_models, size(ds_brain.samples, 2));
-
-    case {'Kendall', 'Spearman', 'Pearson'}
-
-        outcorr = corr(ds_model.samples, ds_brain.samples, 'type', type);
-
-    otherwise
-        error('Cannot identify the correaltion type (%s).', type);
-
-end %switch type
-
-end %compare_one_subj()
