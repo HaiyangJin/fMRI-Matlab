@@ -1,5 +1,5 @@
-function rsa_plotds(ds, varargin)
-% rsa_plotds(ds, varargin)
+function fig = rsa_plotds(ds, varargin)
+% fig = rsa_plotds(ds, varargin)
 %
 % Use rsa_plotrdm() to plot RDM vectors in ds. 
 %
@@ -11,10 +11,13 @@ function rsa_plotds(ds, varargin)
 %                    to 0. 
 %     Please see Varargin in rsa_plotrdm().
 %
+% Output:
+%     fig      figure handle.
+%
 % Created by Haiyang Jin (2022-Aug-22)
 
 if nargin < 1
-    fprintf('Usage: rsa_plotds(ds, varargin);\n');
+    fprintf('Usage: fig = rsa_plotds(ds, varargin);\n');
 end
 
 defaultOptions = struct( ...
@@ -25,6 +28,6 @@ opts = fm_mergestruct(defaultOptions, varargin);
 rdms = rsa_vec2rdm(ds.samples, opts.diagvalue);
 
 % plot
-rsa_plotrdm(rdms, 'condnames', ds.a.conditions, 'titles', ds.fa.labels, varargin{:});
+fig = rsa_plotrdm(rdms, 'condnames', ds.a.conditions, 'titles', ds.fa.labels, varargin{:});
 
 end

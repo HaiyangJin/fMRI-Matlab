@@ -1,5 +1,5 @@
-function rsa_plotrdm(rdms, varargin)
-% rsa_plotrdm(rdms, varargin)
+function fig = rsa_plotrdm(rdms, varargin)
+% fig = rsa_plotrdm(rdms, varargin)
 %
 % Quickly show the RDM (matrix).
 %
@@ -20,10 +20,13 @@ function rsa_plotrdm(rdms, varargin)
 %     .showbar       <boo> whether show color bar.
 %     .clabel        <str> the color bar label. Default to 'Dissimilarity'.
 %
+% Output:
+%     fig            figure handle.
+%
 % Created by Haiyang Jin (2022-Aug-19)
 
 if nargin < 1
-    fprintf('Usage: rsa_plotrdm(rdms, varargin):\n');
+    fprintf('Usage: fig = rsa_plotrdm(rdms, varargin):\n');
     return
 end
 
@@ -80,7 +83,7 @@ end
 
 
 %% Plot RDM
-figure('DefaultAxesFontSize',14);
+fig = figure('DefaultAxesFontSize',14);
 set(gcf,'Position', opts.position);
 
 colormap(opts.cmap)
