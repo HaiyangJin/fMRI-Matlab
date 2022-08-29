@@ -16,6 +16,7 @@ function rsa_plot(cor, cor_se, N_subj, noiseceiling, varargin)
 %    'ptwo_mat'    <mat> pairwise comparisons between relatedness for each
 %                   pair. It is a matrix and the orders of conditions in x
 %                   and y should match that in cor (cor_se, etc.)
+%    
 %    'sortx'       <boo> whether sort the orders of columns (bars) based on
 %                   the {cor}. Default to 1.
 %    'modelnames'  <cell str> a list of model names to be displayed.
@@ -25,6 +26,11 @@ function rsa_plot(cor, cor_se, N_subj, noiseceiling, varargin)
 %    'correction'  <str> method to be used for multiple comparison
 %                   corrections. Default to 'FDR' (others are 'FWE' 
 %                   (Bonferroni) or 'none').
+%    'fig_handel'  <int> the figure handle of the figure to be plot on.
+%                   Default to 0.
+%    'subplot'     <int vec> [m,n,p] used in subplot(). Default to [].
+%    'subposi'     <num vec> the position of the subplot.
+%    'title'       <str> the figure title.
 %    'barfacecolor'<str> the color of bars. 
 %
 % Created by Haiyang Jin (2022-Aug-29)
@@ -42,6 +48,10 @@ defaultOpts = struct( ...
     'modelnames', '', ...
     'thresh', 0.05, ...
     'correction', 'FDR', ...
+    'fig_handle', [], ...
+    'subplot', [], ...
+    'subposi', [], ...
+    'title', '', ...
     'barfacecolor', '#56B4E9' ... % blue
     );
 opts = fm_mergestruct(defaultOpts, varargin);
@@ -77,9 +87,20 @@ end
 
 
 %% Start to plot
-figure;
-% adjust the area to show figure
-set(gca, 'OuterPosition', [0,0.2,1,0.8]);
+if ~isempty(opts.subplot) && ~isempty(opts.fig_handle)
+    set(0,'CurrentFigure', opts.fig_handle);
+
+    if ~isempty(opts.subposi)
+        % adjust the area to show figure
+        subplot('Position', opts.subposi);
+    else
+        subplot(opts.subplot(1), opts.subplot(2), opts.subplot(3));
+    end
+else
+    figure;
+    % adjust the area to show figure
+    set(gca, 'OuterPosition', [0,0.2,1,0.8]);
+end
 
 %% Bar plot
 bar(y, 'FaceColor', opts.barfacecolor, 'EdgeColor','none', 'ShowBaseLine', 'off');
@@ -187,5 +208,9 @@ end
 
 % add x-axis
 plot([.1, N_model+1], [0, 0], 'k','LineWidth',lw);
+
+if ~isempty(opts.title)
+    title(opts.title);
+end
 
 end
