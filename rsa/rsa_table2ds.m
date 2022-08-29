@@ -63,7 +63,7 @@ for iLabel = 1:nLabel
         assert(isequal(condPairs, theT.ClassifyPair), ['The condition ' ...
             'pairs do not seem to match for different conditions.'])
 
-        samples(:, iLabel, iSubj) = 1-theT.mean_ACC;
+        samples(:, iLabel, iSubj) = theT.mean_ACC;
 
     end %iSubj
 end %iLabel

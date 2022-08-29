@@ -8,7 +8,7 @@ function ds = rsa_extract(ds, mask, dim, exclude)
 %     mask      <boo> boolean to keep the ds.a.conditions. 
 %           or  <cell str> cell strings to be compared with the
 %                corresponding dimentions, depending on {dim}.
-%                when dim is -1, {mask} will be compared to {ds.a.conditions};
+%                when dim is 0, {mask} will be compared to {ds.a.conditions};
 %                when dim is 2, {mask} will be comppared to {ds.fa.labels};
 %                when dim is 3, {mask} will be compared to {ds.pa.labels};
 %     dim       <int> apply the {mask} to which dimension. Default to 0.
