@@ -1,4 +1,4 @@
-function ds_result = rsa_analysis(ds_subj, ds_model, nrow, varargin)
+function [ds_result, fig] = rsa_analysis(ds_subj, ds_model, nrow, varargin)
 % ds_result = rsa_analysis(ds_subj, ds_model, nrow, varargin)
 %
 % Perform statistical inferential analysis and plot.
@@ -47,7 +47,7 @@ ds_rank_one = rsa_signrank(ds_cmp_subj, 1);
 ds_rank_two = rsa_signrank(ds_cmp_subj, 2);
 
 % Descriptive: average and noise ceiling
-ds_avg = rsa_avg(ds_cmp_subj);
+ds_avg = rsa_avg(ds_cmp_subj, [], [], 3, 1);
 [ub, lb] = rsa_noiseceiling(ds_subj);
 
 % save output
@@ -75,7 +75,7 @@ x_row = .95 / ncol;
 y_col = .95 / nrow;
 
 %% Plotting
-f = figure('DefaultAxesFontSize',14);
+fig = figure('DefaultAxesFontSize',14);
 set(gcf,'Position', opts.position);
 
 % plot each subplot separately
@@ -89,16 +89,13 @@ for isub = 1:N_ref
     p_one_vec = ds_rank_one.samples(:, isub, 1);
     p_two_mat = rsa_vec2rdm(ds_rank_two.samples(:,isub,1), 1);
 
-%     rsa_plot(cor, cor_se, N_subj, noiseceiling, 'modelnames', modelnames, ...
-%         'pone_vec', p_one_vec, 'ptwo_mat', p_two_mat, 'subplot', [nrow, ncol, isub], ...
-%         'subposi', [opts.xstart+(mod(isub-1,ncol))*x_row, ...
-%         opts.ystart+(floor(isub/ncol))*y_col, ...
-%         x_row*opts.xratio, y_col*opts.yratio], ...
-%         'fig_handle', f, 'title', ds_subj.fa.labels{isub}, varargin{:});
-
     rsa_plot(cor, cor_se, N_subj, noiseceiling, 'modelnames', modelnames, ...
         'pone_vec', p_one_vec, 'ptwo_mat', p_two_mat, 'subplot', [nrow, ncol, isub], ...
-        'fig_handle', f, 'title', ds_subj.fa.labels{isub}, varargin{:});
+        'subposi', [opts.xstart+(mod(isub-1,ncol))*x_row, ...
+        opts.ystart+(floor(isub/ncol))*y_col, ...
+        x_row*opts.xratio, y_col*opts.yratio], ...
+        'fig_handle', fig, 'title', ds_subj.fa.labels{isub}, varargin{:});
+
 
 end
 

@@ -1,5 +1,5 @@
-function ds_avg = rsa_avg(ds_rdm, transform, add, dim)
-% ds_avg = rsa_avg(ds_rdm, transform, add, dim)
+function ds_avg = rsa_avg(ds_rdm, transform, add, dim, allinfo)
+% ds_avg = rsa_avg(ds_rdm, transform, add, dim, allinfo)
 % 
 % Get the average across participants.
 %
@@ -10,6 +10,8 @@ function ds_avg = rsa_avg(ds_rdm, transform, add, dim)
 %     add         <boo> whether only output the average RDM (default) or 
 %                  add average RDM before all participants'. Default to 0.
 %     dim         <int> get the average along which dimension. Default to 3.
+%     allinfo     <boo> whether get all information, including the mean, SE
+%                  and N. Default to 0, which only get the mean (average).
 %     
 % Output:
 %     ds_rdm      <struct> output RDM ds.
@@ -33,6 +35,10 @@ if ~exist('dim', 'var') || isempty(dim)
     dim = 3;
 end
 
+if ~exist('allinfo', 'var') || isempty(allinfo)
+    allinfo = 0;
+end
+
 % Calculate the average
 average = mean(transform(ds_rdm.samples), dim, 'omitnan');
 
@@ -47,8 +53,13 @@ se = sd./sqrt(N);
 
 % create ds_avg and save .samples
 ds_avg = ds_rdm;
-ds_avg.pa.labels = {'average', 'se', 'N'};
-ds_avg.samples = cat(3, average, se, N);
+if allinfo
+    ds_avg.pa.labels = {'average', 'se', 'N'};
+    ds_avg.samples = cat(3, average, se, N);
+else
+    ds_avg.pa.labels = {'average'};
+    ds_avg.samples = average;
+end %allinfo
 
 % output
 if add
