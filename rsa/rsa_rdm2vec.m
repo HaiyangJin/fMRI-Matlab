@@ -38,7 +38,7 @@ for irdm = 1:N
     therdm(logical(eye(P1))) = 0;
 
     % save the vec of this rdm
-    vec(:,1) = squareform(therdm);
+    vec(:,irdm) = squareform(therdm);
 
 end %irdm
 

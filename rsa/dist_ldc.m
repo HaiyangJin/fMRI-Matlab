@@ -1,5 +1,5 @@
-function dist = dist_ldc(vec_hyper, vec_test, residual1)
-% dist = dist_ldc(vec_hyper, vec_test, residual1)
+function dist = dist_ldc(vec_hyper, vec_test, residual_hyper)
+% dist = dist_ldc(vec_hyper, vec_test, residual_hyper)
 %
 % This function computes the representational distance with Linear
 % Discriminant Contrast (LDC). This function is built on RDMs_20180530.m in
@@ -21,9 +21,12 @@ function dist = dist_ldc(vec_hyper, vec_test, residual1)
 %                vec_test to compute the LDC distance.
 %    vec_test   <num array> 2 x Q x N; the two rows are the two vectors of
 %                one comparison pair. Q is the feature number of the ROI
-%                (e.g., voxel or vertex). Each of the thrid dimension is
-%                one comparison pair.
-%    residual1  <num mat> P X Q. (What is P? number of volume/TR?)
+%                (e.g., voxel or vertex). Each of the third dimension is
+%                one comparison pair (to be tested).
+%    residual_hyper  <num mat> P X Q. The residuals for {vec_hyper} after 
+%                fitting the model. P seems to be the number of TR, i.e., 
+%                data points collected. Q is the feature number of the ROI
+%                (e.g., voxel or vertex).
 %
 % Output:
 %    dist       <num mat> M x N. The LDC distances. Each row is one
@@ -56,11 +59,19 @@ function dist = dist_ldc(vec_hyper, vec_test, residual1)
 %   https://doi.org/10.1016/j.neuroimage.2015.12.012
 %
 % Created by Haiyang Jin (2021-11-09)
+%
+% See also:
+% rsa_ldc
+
+if nargin < 1
+    fprintf('Usage: dist = dist_ldc(vec_hyper, vec_test, residual_hyper);\n');
+    return
+end
 
 % Use the residuals compute the noise-covariance matrix
 % Shrink the estimate to a diagonal version
 % function is from RSA toolbox
-sigma = rsatoolbox_covdiag(residual1);
+sigma = rsatoolbox_covdiag(residual_hyper);
 
 dist = NaN(size(vec_hyper, 3), size(vec_test, 3));
 
