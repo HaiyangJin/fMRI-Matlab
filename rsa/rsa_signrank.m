@@ -96,7 +96,7 @@ function [p, h] = sigrank_pair(cmp_mat)
 
 combs = nchoosek(1:size(cmp_mat,1),2);
 
-[p, h] = arrayfun(@(x) signrank( ...
+[p, h] = arrayfun(@(x) tmp_signrank( ...
     cmp_mat(combs(x,1),:), ...
     cmp_mat(combs(x,2),:),'alpha',0.05,'method','exact'), ...
     1:size(combs,1));
@@ -105,3 +105,12 @@ p = p';
 h = h';
 
 end %sigrank_pair
+
+function [p, h, stats] = tmp_signrank(x,y,varargin)
+% fix a bug in signrank() where {h} could be double or logical
+% NOW force it to be logical
+
+[p, h, stats] = signrank(x,y,varargin{:});
+h = logical(h);
+
+end %tmp_signrank
