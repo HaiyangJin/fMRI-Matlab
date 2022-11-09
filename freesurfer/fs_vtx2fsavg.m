@@ -1,6 +1,9 @@
 function outpoints = fs_vtx2fsavg(vtxIdx, subjCode, surfFn)
 % outpoints = fs_vtx2fsavg(vtxIdx, subjCode, surfFn)
 %
+% Check the coordinates in fsaverage space for one vertex in self surface
+% space.
+%
 % Inputs:
 %    vtxIdx       <int vec> Px1; a list of vertex indices; it should be the 
 %                  vertex index in FreeSurfer + 1.
@@ -13,6 +16,9 @@ function outpoints = fs_vtx2fsavg(vtxIdx, subjCode, surfFn)
 %                  Talairach).
 %
 % Created by Haiyang Jin (2022-03-11)
+%
+% See also:
+% fs_vtx2mni
 
 if nargin < 1
     fprintf('Usage: outpoints = fs_vtx2fsavg(vtxIdx, subjCode, surfFn);\n');
