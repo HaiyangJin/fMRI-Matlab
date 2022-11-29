@@ -1,5 +1,5 @@
 function [clusterIdx, nCluster, iterNo] = sf_clusterlabel(labelMat, faces, fmin)
-% [clusterIdx, nCluster, iterNo] = sf_clusterlabel(labelFn, subjCode, fmin)
+% [clusterIdx, nCluster, iterNo] = sf_clusterlabel(labelMat, subjCode, fmin)
 %
 % This function assigns the vertices in one label into contiguous clusters.
 %
