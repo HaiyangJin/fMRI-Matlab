@@ -3,7 +3,7 @@ function fscmd = fv_drawlabel(subjCode, anaName, sigFile, labelname, varargin)
 %
 % This function uses "tksurfer" in FreeSurfer to draw label. You may want
 % to use fs_drawlabel().
-% 
+%
 % Inputs:
 %    subjCode         <str> subject code in $SUBJECTS_DIR.
 %    anaName          <str> the analysis name.
@@ -14,13 +14,13 @@ function fscmd = fv_drawlabel(subjCode, anaName, sigFile, labelname, varargin)
 %
 % Varargin:
 %    .fthresh         <str> or <num> the overlay threshold minimal value.
-%    .istk            <int> 1 for 'tksurfer' [note: not tksurfer-sess] and 
+%    .istk            <int> 1 for 'tksurfer' [note: not tksurfer-sess] and
 %                      0 for fv_surf(), which implements custom codes to
 %                      run freeview. For FS5 and FS6, default is 1. For
 %                      FS7, default is 0.
-%    .coordsurf       <str> the surface name for showing coordinates, 
+%    .coordsurf       <str> the surface name for showing coordinates,
 %                      default to 'white'.
-%    .distmetric      <str> method to be used to calculate the distance. 
+%    .distmetric      <str> method to be used to calculate the distance.
 %                      Default to 'geodesic' (or 'dijkstra').
 %    .addvalue        <boo> whether add the functional data/values used to
 %                      create the label when 'freeview' is used. Default is
@@ -35,7 +35,7 @@ function fscmd = fv_drawlabel(subjCode, anaName, sigFile, labelname, varargin)
 %
 % Tips:
 % To invert the display of overlay, set extracmd as '-invphaseflag 1'.
-% 
+%
 % Created by Haiyang Jin (10-Dec-2019)
 % Furture development should include defining the limits of p-values.
 %
@@ -80,58 +80,61 @@ surffn = [fm_2hemi(anaName) '.' opts.coordsurf];
 % get the reference coordinates
 [labelTemp, refcoord] = sf_roitemplate(labelname);
 
-% read the information of the temporary label
-labelMatTemp = fs_readlabel(labelTemp, subjCode);
-if isempty(labelMatTemp)
-    fs_label2label('fsaverage', labelTemp, subjCode, 'samename');
+if ~strcmp(labelTemp, 'na')
+    % read the information of the temporary label
     labelMatTemp = fs_readlabel(labelTemp, subjCode);
+    if isempty(labelMatTemp)
+        fs_label2label('fsaverage', labelTemp, subjCode, 'samename');
+        labelMatTemp = fs_readlabel(labelTemp, subjCode);
+    end
+
+    % update coordinates in labelMatTemp
+    labelMatTemp(:, 2:4) = coords(labelMatTemp(:,1), :);
+
+    % update values in labelMatTemp
+    vals = fm_readimg(sigFile);
+    labelMatTemp(:,5) = vals(labelMatTemp(:,1)); % add values
+
+    % approximation of the reference coordinates
+    [~, approI] = min(arrayfun(@(x) pdist2(refcoord, labelMatTemp(x, 2:4)), ...
+        1:size(labelMatTemp,1)));
+    refappro = labelMatTemp(approI, :);
+
+    % Get clusters for positive and negative separately
+    labelMatPosi = labelMatTemp;
+    labelMatNega = labelMatTemp;
+
+    labelMatPosi(labelMatPosi(:,5)<0, 5) = 0;
+    labelMatNega(labelMatNega(:,5)>0, 5) = 0;
+
+    clusterIdxPosi = sf_clusterlabel(labelMatPosi, faces, str2double(fthresh));
+    clusterIdxNega = sf_clusterlabel(labelMatNega, faces, str2double(fthresh));
+
+    % Gather information for positive
+    outPosi = maxminrow(labelMatPosi, clusterIdxPosi, refappro);
+    outPosi.Geo = round(sf_geodesic(coords, faces, labelMatTemp(:,1), ...
+        refappro(1,1), outPosi.VtxIdx, opts.distmetric), 1);
+    outPosi.Euc = round(arrayfun(@(x) pdist2(refcoord, outPosi.SelfCoords(x,:)), ...
+        1:size(outPosi, 1)), 1)';
+    outPosi.MNI = round(fs_fsavg2mni(fs_self2fsavg(outPosi.SelfCoords, subjCode)), 1);
+    outPosi.surface = repmat(surffn, size(outPosi,1), 1);
+
+    disp(sortrows(outPosi, 'Euc')); % disp positive
+
+    % Gather information for negative
+    outNega = maxminrow(labelMatNega, clusterIdxNega, refappro);
+    outNega.Geo = round(sf_geodesic(coords, faces, labelMatTemp(:,1), ...
+        refappro(1,1), outNega.VtxIdx, opts.distmetric), 1);
+    outNega.Euc = round(arrayfun(@(x) pdist2(refcoord, outNega.SelfCoords(x,:)), ...
+        1:size(outNega, 1)), 1)';
+    outNega.MNI = round(fs_fsavg2mni(fs_self2fsavg(outNega.SelfCoords, subjCode)), 1);
+    outNega.surface = repmat(surffn, size(outNega,1), 1);
+
+    disp(sortrows(outNega, 'Euc')); % disp negative
+
 end
 
-% update coordinates in labelMatTemp
-labelMatTemp(:, 2:4) = coords(labelMatTemp(:,1), :);
-
-% update values in labelMatTemp
-vals = fm_readimg(sigFile);
-labelMatTemp(:,5) = vals(labelMatTemp(:,1)); % add values
-
-% approximation of the reference coordinates
-[~, approI] = min(arrayfun(@(x) pdist2(refcoord, labelMatTemp(x, 2:4)), ...
-    1:size(labelMatTemp,1)));
-refappro = labelMatTemp(approI, :);
-
-% Get clusters for positive and negative separately
-labelMatPosi = labelMatTemp;
-labelMatNega = labelMatTemp;
-
-labelMatPosi(labelMatPosi(:,5)<0, 5) = 0;
-labelMatNega(labelMatNega(:,5)>0, 5) = 0;
-
-clusterIdxPosi = sf_clusterlabel(labelMatPosi, faces, str2double(fthresh));
-clusterIdxNega = sf_clusterlabel(labelMatNega, faces, str2double(fthresh));
-
-% Gather information for positive
-outPosi = maxminrow(labelMatPosi, clusterIdxPosi, refappro);
-outPosi.Geo = round(sf_geodesic(coords, faces, labelMatTemp(:,1), ...
-    refappro(1,1), outPosi.VtxIdx, opts.distmetric), 1);
-outPosi.Euc = round(arrayfun(@(x) pdist2(refcoord, outPosi.SelfCoords(x,:)), ...
-    1:size(outPosi, 1)), 1)';
-outPosi.MNI = round(fs_fsavg2mni(fs_self2fsavg(outPosi.SelfCoords, subjCode)), 1);
-outPosi.surface = repmat(surffn, size(outPosi,1), 1);
-
-disp(sortrows(outPosi, 'Euc')); % disp positive
-
-% Gather information for negative
-outNega = maxminrow(labelMatNega, clusterIdxNega, refappro);
-outNega.Geo = round(sf_geodesic(coords, faces, labelMatTemp(:,1), ...
-    refappro(1,1), outNega.VtxIdx, opts.distmetric), 1);
-outNega.Euc = round(arrayfun(@(x) pdist2(refcoord, outNega.SelfCoords(x,:)), ...
-    1:size(outNega, 1)), 1)';
-outNega.MNI = round(fs_fsavg2mni(fs_self2fsavg(outNega.SelfCoords, subjCode)), 1);
-outNega.surface = repmat(surffn, size(outNega,1), 1);
-
-disp(sortrows(outNega, 'Euc')); % disp negative
-
-%% Identiy labels 
+%% Identiy labels
 % create FreeSurfer command and run it
 titleStr = sprintf('%s==%s==%s', subjCode, labelname, anaName);
 

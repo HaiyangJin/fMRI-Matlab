@@ -31,7 +31,13 @@ load(fullfile(which('sf_roitemplate'), '..', '..', 'reflabels', ...
 % ROIs
 rois = lower(refTable.rois); 
 isroi = cellfun(@(x) contains(labelfn, x), rois);
-assert(sum(isroi)==1, 'Cannot idenitfy an unique ROI name.')
+if sum(isroi)==0
+    tempname = 'na';
+    refcoord = 0;
+    return;
+end
+
+assert(sum(isroi)>=1, 'Cannot idenitfy an unique ROI name.')
 theroi = rois{isroi};
 
 % hemi
