@@ -43,6 +43,8 @@ if nargin < 1
     return;
 end
 
+fprintf('\nThe label to be trimmed is %s...\n', labelFn);
+
 defaultOpts = struct(...
     'outpath', '', ...
     'surfdef', 'white', ...
@@ -101,18 +103,18 @@ threshstr = sprintf('f%2d', thresh*10);
 % detect the number of clusters after applying the new threshold
 [clusterNo, nCluster] = fs_clusterlabel(labelFn, subjCode, thresh);
 
-cluVtxCell = arrayfun(@(x) labelMat(clusterNo==x, :), 1:nCluster, 'uni', false);
+cluVtxCell = arrayfun(@(x) labelMat(clusterNo==x, 1), 1:nCluster, 'uni', false)';
 
 %% Visualize the candidate rois
 % save the label matrix based on the vertex indices for each cluster
-labelMatCell = cellfun(@(x) labelMat(ismember(labelMat(:, 1), x), 1:end), cluVtxCell, 'uni', false);
+labelMatCell = cellfun(@(x) labelMat(ismember(labelMat(:, 1), x(:)), :), cluVtxCell, 'uni', false);
 
 % get the number of cluster labels and 'ith'
 [nLabelClu, nTh] = size(labelMatCell);
 
 % create temporary label names
 % tempLabelFn = arrayfun(@(x) sprintf('%s.temp%d.label', erase(labelFn, '.label'), x), 1:nLabelClu, 'uni', false);
-tmpLabelFn = arrayfun(@(x) sprintf('%s.tmp%d.label', theHemi, x), 1:nLabelClu, 'uni', false);
+tmpLabelFn = arrayfun(@(x) sprintf('%s.tmp%d.label', theHemi, x), 1:nLabelClu, 'uni', false)';
 
 for iTh = 1:nTh
 
@@ -120,12 +122,12 @@ for iTh = 1:nTh
     fprintf('\nDisplaying the temporary labels... [%d/%d]\n', iTh, nTh);
 
     % Create temporary files with temporary label names
-    labelfile = cellfun(@(x,y) fs_mklabel(x, subjCode, y), labelMatCell(:, iTh), tmpLabelFn', 'uni', false);
+    labelfile = cellfun(@(x,y) fs_mklabel(x, subjCode, y), labelMatCell(:, iTh), tmpLabelFn, 'uni', false);
 
     if nLabelClu > 1
 
         % show all clusters together if there are more than one cluster
-        fs_cvn_print1st(sessCode, anaInfo, {[labelFn refLabel tmpLabelFn]}, outPath, ...
+        fs_cvn_print1st(sessCode, anaInfo, {[labelFn; refLabel; tmpLabelFn]}, outPath, ...
             'overlay', opts.overlay, ...
             'visualimg', 'on', 'waitbar', 0, 'gminfo', opts.gminfo, 'surfarea', opts.surfdef);
         %     waitfor(msgbox('Please checking all the sub-labels...'));
@@ -146,13 +148,13 @@ for iTh = 1:nTh
         allComb = nchoosek(1:nLabelClu, 2);
         allPairs = arrayfun(@(x) cluVtxCell(allComb(x, :), iTh), 1:size(allComb, 1), 'uni', false);
 
-        overlapVtx = cellfun(@(x) intersect(x{:}), allPairs, 'uni', false);
+        overlapVtx = cellfun(@(x) intersect(x{1}(:,1), x{2}(:,1)), allPairs, 'uni', false);
         isOverlap = ~cellfun(@isempty, overlapVtx);
 
         if opts.warnoverlap && any(isOverlap)
             for iOverlap = find(isOverlap)
                 % show overlapping between any pair of clusters
-                fs_cvn_print1st(sessCode, anaInfo, {[labelFn refLabel tmpLabelFn(allComb(iOverlap, :))]}, outPath, ...
+                fs_cvn_print1st(sessCode, anaInfo, {[labelFn; refLabel; tmpLabelFn(allComb(iOverlap, :))]}, outPath, ...
                     'overlay', opts.overlay, ...
                     'visualimg', 'on', 'waitbar', 0, 'gminfo', opts.gminfo, 'surfarea', opts.surfdef, opts.extraopt1st{:});
                 waitfor(msgbox('There is overlapping between sub-labels...', 'Overlapping...', 'warn'));
