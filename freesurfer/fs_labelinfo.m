@@ -132,6 +132,7 @@ if isempty(labelMat)
         Size = 0;
         MNI305 = {NaN};
         Talairach = {NaN};
+        MNI152 = {NaN};
         NVtxs = 0;
         fmin = NaN;
         
@@ -184,8 +185,10 @@ maxResp = arrayfun(@(x, y) x{1}(y, 5), matCell, maxIdx);
 RAS = arrayfun(@(x, y) x{1}(y, 2:4), matCell, maxIdx, 'uni', false);
 theMNI305 = cellfun(@(x) fs_self2fsavg(x, subjCode), RAS, 'uni', false);
 theTal = cellfun(@mni2tal, theMNI305, 'uni', false);
+theMNI152 = cellfun(@fs_fsavg2mni, theMNI305, 'uni', false);
 MNI305 = vertcat(theMNI305{:});
 Talairach = vertcat(theTal{:});
+MNI152 = vertcat(theMNI152{:});
 
 % label area (in mm^2)
 labelSize = cellfun(@(x) fs_labelarea(labelFn, subjCode, x(:, 1), surface),...
@@ -207,8 +210,10 @@ fmin = repmat(fmin0, numel(clusters), 1);
 % save gm information
 GlobalMax = repmat(gmTable.gm, numel(clusters), 1);
 MNI305_gm = repmat(gmTable.MNI305, numel(clusters), 1);
+MNI152_gm = repmat(fs_fsavg2mni(MNI305_gm), numel(clusters), 1);
 Tal_gm = repmat(gmTable.Talairach, numel(clusters), 1);
 
+% save the out information as table
 switch gmInfo
     case 1
         labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
@@ -217,9 +222,14 @@ switch gmInfo
         labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
             GlobalMax, MNI305, Talairach, Size, NVtxs, fmin, MNI305_gm, Tal_gm);
     case 0
-        % save the out information as table
         labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
             MNI305, Talairach, Size, NVtxs, fmin);
+    case 152
+        labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
+            MNI152, Size, NVtxs, fmin);
+    case '152gm'
+        labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
+            GlobalMax, MNI152_gm, Size, NVtxs, fmin);
 end
 
 end

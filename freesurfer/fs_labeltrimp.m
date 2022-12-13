@@ -23,6 +23,10 @@ function fs_labeltrimp(labelFn, sessCode, thresh, varargin)
 %                   '', i.e., no reference lables. Hemisphere information
 %                   in the reflabel will be udpated to match labelFn is
 %                   necessary.
+%    'gminfo'      <boo> 0: do not show global maxima information;
+%                   1 [default]: only show the global maxima information,
+%                   but not the maxresp; 2: show both global maxima and 
+%                   maxresp information.
 %    'warnoverlap' <boo> 1 [default]: dispaly if there are overlapping
 %                   between clusters; 0: do not dispaly. [This should not
 %                   happen.]
@@ -45,6 +49,7 @@ defaultOpts = struct(...
     'analysis', '', ...
     'overlay', '', ...
     'reflabel', '', ...
+    'gminfo', 0, ...
     'warnoverlap', 1, ...
     'extraopt1st', {{}} ...
     );
@@ -122,7 +127,7 @@ for iTh = 1:nTh
         % show all clusters together if there are more than one cluster
         fs_cvn_print1st(sessCode, anaInfo, {[labelFn refLabel tmpLabelFn]}, outPath, ...
             'overlay', opts.overlay, ...
-            'visualimg', 'on', 'waitbar', 0, 'gminfo', 0, 'surfarea', opts.surfdef);
+            'visualimg', 'on', 'waitbar', 0, 'gminfo', opts.gminfo, 'surfarea', opts.surfdef);
         %     waitfor(msgbox('Please checking all the sub-labels...'));
         % input the label names
         prompt = {'Please checking all the sub-labels...'};
@@ -149,7 +154,7 @@ for iTh = 1:nTh
                 % show overlapping between any pair of clusters
                 fs_cvn_print1st(sessCode, anaInfo, {[labelFn refLabel tmpLabelFn(allComb(iOverlap, :))]}, outPath, ...
                     'overlay', opts.overlay, ...
-                    'visualimg', 'on', 'waitbar', 0, 'gminfo', 0, 'surfarea', opts.surfdef, opts.extraopt1st{:});
+                    'visualimg', 'on', 'waitbar', 0, 'gminfo', opts.gminfo, 'surfarea', opts.surfdef, opts.extraopt1st{:});
                 waitfor(msgbox('There is overlapping between sub-labels...', 'Overlapping...', 'warn'));
                 close all;
             end
@@ -166,7 +171,7 @@ for iTh = 1:nTh
         % display this temporary cluster
         fs_cvn_print1st(sessCode, anaInfo, {[labelFn refLabel thisClusterLabel]}, outPath, ...
             'overlay', opts.overlay, ...
-            'visualimg', 'on', 'waitbar', 0, 'gminfo', 0, 'surfarea', opts.surfdef, opts.extraopt1st{:});
+            'visualimg', 'on', 'waitbar', 0, 'gminfo', opts.gminfo, 'surfarea', opts.surfdef, opts.extraopt1st{:});
 
         % input the label names
         prompt = {'Enter the label name for this cluster:'};
