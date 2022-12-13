@@ -81,6 +81,8 @@ surffn = [fm_2hemi(anaName) '.' opts.coordsurf];
 [labelTemp, refcoord] = sf_roitemplate(labelname);
 
 if ~strcmp(labelTemp, 'na')
+    format long g
+
     % read the information of the temporary label
     labelMatTemp = fs_readlabel(labelTemp, subjCode);
     if isempty(labelMatTemp)
@@ -132,6 +134,7 @@ if ~strcmp(labelTemp, 'na')
 
     disp(sortrows(outNega, 'Euc')); % disp negative
 
+    format shortG
 end
 
 %% Identiy labels

@@ -363,10 +363,18 @@ for iLabel = 1:nLabel
                 'bycluster', 1, 'fmin', fmin, 'gminfo', opts.gminfo, 'surf', opts.surfarea), ...
                 theLabelNames, 'uni', false);
             labelTable = vertcat(labelCell{:});
+            for iname = labelTable.Properties.VariableNames
+                if isa(labelTable{:, iname}, 'double')
+                    % only keep two digits
+                    labelTable{:, iname} = round(labelTable{:, iname}, 2);
+                end
+            end
             labelTable.Properties.VariableNames{3} = 'No';
             labelTable.SubjCode = [];
             labelTable.fmin = [];
+            format long g
             disp(labelTable);
+            format shortG
             
             if opts.showinfo || opts.shortinfo && ~all(isEmptyMat)
                 pos = get(fig, 'Position'); %// gives x left, y bottom, width, height
