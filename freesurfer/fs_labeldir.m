@@ -31,7 +31,7 @@ end
 % number of input label
 nLabelInput = numel(labelNames);
 
-labelDir = struct([]); % empty struct 
+labelDirCell = cell(nLabelInput, 1); % empty struct 
 
 % list files for each label input separately
 for iLabelInput = 1:nLabelInput
@@ -43,8 +43,10 @@ for iLabelInput = 1:nLabelInput
     tempDir = dir(fullfile(labelPath, thisLabel));
     
     % save information
-    labelDir = [labelDir; tempDir]; %#ok<AGROW>
+    labelDirCell{iLabelInput, 1} = tempDir; 
  
 end
+
+labelDir = vertcat(labelDirCell{:});
 
 end
