@@ -107,14 +107,16 @@ cluVtxCell = arrayfun(@(x) labelMat(clusterNo==x, 1), 1:nCluster, 'uni', false)'
 
 %% Visualize the candidate rois
 % save the label matrix based on the vertex indices for each cluster
-labelMatCell = cellfun(@(x) labelMat(ismember(labelMat(:, 1), x(:)), :), cluVtxCell, 'uni', false);
+labelMatCell = cellfun(@(x) labelMat(ismember(labelMat(:, 1), x(:)), :), ...
+    cluVtxCell, 'uni', false);
 
 % get the number of cluster labels and 'ith'
 [nLabelClu, nTh] = size(labelMatCell);
 
 % create temporary label names
 % tempLabelFn = arrayfun(@(x) sprintf('%s.temp%d.label', erase(labelFn, '.label'), x), 1:nLabelClu, 'uni', false);
-tmpLabelFn = arrayfun(@(x) sprintf('%s.tmp%d.label', theHemi, x), 1:nLabelClu, 'uni', false)';
+tmpLabelFn = arrayfun(@(x) sprintf('%s.tmp%d.label', theHemi, x), ...
+    1:nLabelClu, 'uni', false)';
 
 for iTh = 1:nTh
 
@@ -122,14 +124,16 @@ for iTh = 1:nTh
     fprintf('\nDisplaying the temporary labels... [%d/%d]\n', iTh, nTh);
 
     % Create temporary files with temporary label names
-    labelfile = cellfun(@(x,y) fs_mklabel(x, subjCode, y), labelMatCell(:, iTh), tmpLabelFn, 'uni', false);
+    labelfile = cellfun(@(x,y) fs_mklabel(x, subjCode, y), ...
+        labelMatCell(:, iTh), tmpLabelFn, 'uni', false);
 
     if nLabelClu > 1
 
         % show all clusters together if there are more than one cluster
         fs_cvn_print1st(sessCode, anaInfo, {[labelFn; refLabel; tmpLabelFn]}, outPath, ...
             'overlay', opts.overlay, ...
-            'visualimg', 'on', 'waitbar', 0, 'gminfo', opts.gminfo, 'surfarea', opts.surfdef);
+            'visualimg', 'on', 'waitbar', 0, 'gminfo', opts.gminfo, ...
+            'surfarea', opts.surfdef, opts.extraopt1st{:});
         %     waitfor(msgbox('Please checking all the sub-labels...'));
         % input the label names
         prompt = {'Please checking all the sub-labels...'};
@@ -154,10 +158,13 @@ for iTh = 1:nTh
         if opts.warnoverlap && any(isOverlap)
             for iOverlap = find(isOverlap)
                 % show overlapping between any pair of clusters
-                fs_cvn_print1st(sessCode, anaInfo, {[labelFn; refLabel; tmpLabelFn(allComb(iOverlap, :))]}, outPath, ...
+                fs_cvn_print1st(sessCode, anaInfo, {[labelFn; refLabel; ...
+                    tmpLabelFn(allComb(iOverlap, :))]}, outPath, ...
                     'overlay', opts.overlay, ...
-                    'visualimg', 'on', 'waitbar', 0, 'gminfo', opts.gminfo, 'surfarea', opts.surfdef, opts.extraopt1st{:});
-                waitfor(msgbox('There is overlapping between sub-labels...', 'Overlapping...', 'warn'));
+                    'visualimg', 'on', 'waitbar', 0, 'gminfo', opts.gminfo, ...
+                    'surfarea', opts.surfdef, opts.extraopt1st{:});
+                waitfor(msgbox('There is overlapping between sub-labels...', ...
+                    'Overlapping...', 'warn'));
                 close all;
             end
         end
@@ -173,7 +180,8 @@ for iTh = 1:nTh
         % display this temporary cluster
         fs_cvn_print1st(sessCode, anaInfo, {[labelFn refLabel thisClusterLabel]}, outPath, ...
             'overlay', opts.overlay, ...
-            'visualimg', 'on', 'waitbar', 0, 'gminfo', opts.gminfo, 'surfarea', opts.surfdef, opts.extraopt1st{:});
+            'visualimg', 'on', 'waitbar', 0, 'gminfo', opts.gminfo, ...
+            'surfarea', opts.surfdef, opts.extraopt1st{:});
 
         % input the label names
         prompt = {'Enter the label name for this cluster:'};
