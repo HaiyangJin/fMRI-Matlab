@@ -363,18 +363,20 @@ for iLabel = 1:nLabel
                 'bycluster', 1, 'fmin', fmin, 'gminfo', opts.gminfo, 'surf', opts.surfarea), ...
                 theLabelNames, 'uni', false);
             labelTable = vertcat(labelCell{:});
-            for iname = labelTable.Properties.VariableNames
-                if isa(labelTable{:, iname}, 'double')
-                    % only keep two digits
-                    labelTable{:, iname} = round(labelTable{:, iname}, 2);
+            if ~isempty(labelTable)
+                for iname = labelTable.Properties.VariableNames
+                    if isa(labelTable{:, iname}, 'double')
+                        % only keep two digits
+                        labelTable{:, iname} = round(labelTable{:, iname}, 2);
+                    end
                 end
+                labelTable.Properties.VariableNames{3} = 'No';
+                labelTable.SubjCode = [];
+                labelTable.fmin = [];
+                format long g
+                disp(labelTable);
+                format shortG
             end
-            labelTable.Properties.VariableNames{3} = 'No';
-            labelTable.SubjCode = [];
-            labelTable.fmin = [];
-            format long g
-            disp(labelTable);
-            format shortG
             
             if opts.showinfo || opts.shortinfo && ~all(isEmptyMat)
                 pos = get(fig, 'Position'); %// gives x left, y bottom, width, height
@@ -389,7 +391,7 @@ for iLabel = 1:nLabel
                 set(fig, 'Position', [pos(1:2) max(1250, pos(3)) pos(4)+pos4Extra]);
                 
                 % get the short version if needed
-                if opts.shortinfo
+                if opts.shortinfo && ~isempty(labelTable)
                     coorStr = {'MNI305', 'MNI305_gm'};
                     isCoorStr = ismember(coorStr, labelTable.Properties.VariableNames);
                     labelTable = labelTable(:, {'Label', coorStr{find(isCoorStr, 1, 'last')}, 'Size', 'NVtxs'}); %#ok<NASGU>
