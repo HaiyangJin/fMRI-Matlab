@@ -209,7 +209,7 @@ for iTh = 1:nTh
     end  % iTempLabel
 end  % iTh
 
-if toremove && exist('outPath', 'dir')
+if toremove && exist(outPath, 'dir')
     rmdir(outPath, 's');
 end
 
