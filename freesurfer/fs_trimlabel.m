@@ -192,7 +192,7 @@ defaultOpts = struct(...
     'savegm', 1, ...
     'gminfo', 0, ...
     'maxsize', 100, ...
-    'minsize', 20, ...
+    'minsize', 10, ...
     'lagnvtx', 100, ...
     'lagvalue', [], ...
     'maxiter', 20, ...
@@ -230,7 +230,7 @@ end
 if ~exist(outPath, 'dir'); mkdir(outPath); end
 
 if opts.showinfo
-    extraOpt = [{'annot', 'aparc', 'showinfo', 1, 'showpeak', 1}, extraOpt];
+    extraOpt = [{'annot', 'aparc', 'showinfo', 0, 'showpeak', 1}, extraOpt];
 end
 
 % use the local maxima saved before as 'startVtx' if needed
@@ -604,7 +604,7 @@ for iTh = 1:nTh
     fprintf('\nDisplaying the temporary labels... [%d/%d]\n', iTh, nTh);
 
     % Create temporary files with temporary label names
-    labelfile = cellfun(@(x,y) fs_mklabel(x, subjCode, y), labelMatCell(:, iTh), tmpLabelFn', 'uni', false);
+    labelfile = cellfun(@(x,y) fs_mklabel(x, subjCode, y), labelMatCell(:, nTh+1-iTh), tmpLabelFn', 'uni', false);
 
     if nLabelClu > 1
 
@@ -628,7 +628,7 @@ for iTh = 1:nTh
 
         % check if there are overlapping between any two clusters
         allComb = nchoosek(1:nLabelClu, 2);
-        allPairs = arrayfun(@(x) cluVtxCell(allComb(x, :), iTh), 1:size(allComb, 1), 'uni', false);
+        allPairs = arrayfun(@(x) cluVtxCell(allComb(x, :), nTh+1-iTh), 1:size(allComb, 1), 'uni', false);
 
         overlapVtx = cellfun(@(x) intersect(x{:}), allPairs, 'uni', false);
         isOverlap = ~cellfun(@isempty, overlapVtx);
@@ -653,8 +653,9 @@ for iTh = 1:nTh
         thisClusterLabel = tmpLabelFn{iTempLabel};
 
         % print gm info
-        thegm = gmCell(iTempLabel, iTh);
-        fprintf('The local maxima is %d.\n', thegm{1});
+        thegm = gmCell(iTempLabel, nTh+1-iTh);
+        fprintf(['\n=========================================================' ...
+            '\nThe local maxima is %d.\n'], thegm{1});
         if ischar(opts.surfdef) && opts.showgm
             gmcoord = fs_vtx2fsavg(thegm{1}, subjCode, [theHemi '.' opts.surfdef]);
             fprintf('Its MNI305 coordinates on %s are: %s\n', opts.surfdef, sprintf('%f %f %f', gmcoord(:)));
@@ -684,7 +685,11 @@ for iTh = 1:nTh
 
         % rename or remove the temporary label files
         if ~isempty(newlabelname)
-            if endsWith(newlabelname, {'remove', 'rm'})
+            if strcmp(newlabelname, 'skip')
+                % do not show all the following labels
+                delete(thisLabelFile);
+                break;
+            elseif endsWith(newlabelname, {'remove', 'rm'})
                 delete(thisLabelFile);
             elseif ~strcmp(newlabelname{1}, thisClusterLabel)
                 updateLabelFile = strrep(thisLabelFile, thisClusterLabel, newlabelname{1});

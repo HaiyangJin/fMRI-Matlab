@@ -398,7 +398,9 @@ for iLabel = 1:nLabel
                 end
                 
                 % Get the table in string form.
+                format long g
                 TString = evalc('disp(labelTable)');
+                format shortG
                 % Use TeX Markup for bold formatting and underscores.
                 TString = strrep(TString,'<strong>','\bf');
                 TString = strrep(TString,'</strong>','\rm');

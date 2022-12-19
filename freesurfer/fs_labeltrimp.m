@@ -199,7 +199,7 @@ for iTh = 1:nTh
             elseif endsWith(newlabelname, 'skip')
                 % do not show all the following labels
                 delete(thisLabelFile);
-                return;
+                break;
             elseif ~strcmp(newlabelname{1}, thisClusterLabel)
                 updateLabelFile = strrep(thisLabelFile, thisClusterLabel, newlabelname{1});
                 movefile(thisLabelFile, updateLabelFile);
