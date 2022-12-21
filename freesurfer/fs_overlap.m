@@ -16,7 +16,7 @@ function overlapT = fs_overlap(labels, subjList, varargin)
 %   .info           <str> which information to be used to calculate the
 %                    cluster overlapping. 'count': use the number of
 %                    vertices; 'area': use vertex areas from ?h.area; other
-%                    surface (e.g., 'white', 'pial', 'intermediate'): use
+%                    surface (e.g., 'white', 'pial', 'midthickness'): use
 %                    vertex areas calcualted from these surface.
 %   .outpath        <str> where to save the output file. Default is pwd.
 %
@@ -32,12 +32,8 @@ function overlapT = fs_overlap(labels, subjList, varargin)
 defaultOpts = struct(...
     'method', 'dice', ...
     'info', 'count', ...
-    'outpath', pwd);
+    'outpath', '');
 opts = fm_mergestruct(defaultOpts, varargin);
-
-% where to save the output 
-outPath = fullfile(opts.outpath, 'Reliability_ClusterOverlap');
-fm_mkdir(outPath);
 
 if ischar(subjList); subjList = {subjList}; end
 nSubj = numel(subjList);
@@ -73,7 +69,7 @@ for iSubj = 1:nSubj
                 cluster2 = size(vtxLabel2, 1);
                 overlap = size(overlapVer, 1);
 
-            case {'area', 'white', 'pial', 'intermediate'}
+            case {'area', 'white', 'pial', 'midthickness'}
                 % vertex areas from surface
                 areas = fs_vtxarea({vtxLabel1, vtxLabel2, overlapVer}, ...
                     subjCode, [hemi '.' opts.info]);
@@ -105,6 +101,12 @@ end % iSubj
 % save as table
 overlapT = struct2table(vertcat(overlapC{:}));
 overlapT = rmmissing(overlapT, 1); % remove empty rows
-writetable(overlapT, fullfile(outPath, 'ClusterOverlaps.csv'));
+
+% where to save the output 
+if ~isempty(opts.outpath)
+    outPath = fullfile(opts.outpath, 'Reliability_ClusterOverlap');
+    fm_mkdir(outPath);
+    writetable(overlapT, fullfile(outPath, 'ClusterOverlaps.csv'));
+end
 
 end
