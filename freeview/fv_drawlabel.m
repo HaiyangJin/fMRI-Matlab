@@ -78,61 +78,68 @@ surffn = [fm_2hemi(anaName) '.' opts.coordsurf];
 [coords, faces] = fs_readsurf(surffn, subjCode);
 
 % get the reference coordinates
-[labelTemp, refcoord] = sf_roitemplate(labelname);
+[labelTmp, refcoord] = sf_roitemplate(labelname);
 
-if ~strcmp(labelTemp, 'na')
+if ~strcmp(labelTmp, 'na')
     format long g
 
     % read the information of the temporary label
-    labelMatTemp = fs_readlabel(labelTemp, subjCode);
-    if isempty(labelMatTemp)
-        fs_label2label('fsaverage', labelTemp, subjCode, 'samename');
-        labelMatTemp = fs_readlabel(labelTemp, subjCode);
+    labelMatTmp = fs_readlabel(labelTmp, subjCode);
+    if isempty(labelMatTmp)
+
+        % convert the label from fsaverage if availabel
+        labelMatFsavg = fs_readlabel(labelTmp, 'fsaverage');
+        if ~isempty(labelMatFsavg)
+            fs_label2label('fsaverage', labelTmp, subjCode, 'samename');
+            labelMatTmp = fs_readlabel(labelTmp, subjCode);
+        end
     end
 
-    % update coordinates in labelMatTemp
-    labelMatTemp(:, 2:4) = coords(labelMatTemp(:,1), :);
+    if ~isempty(labelMatTmp)
+        % update coordinates in labelMatTep
+        labelMatTmp(:, 2:4) = coords(labelMatTmp(:,1), :);
 
-    % update values in labelMatTemp
-    vals = fm_readimg(sigFile);
-    labelMatTemp(:,5) = vals(labelMatTemp(:,1)); % add values
+        % update values in labelMatTemp
+        vals = fm_readimg(sigFile);
+        labelMatTmp(:,5) = vals(labelMatTmp(:,1)); % add values
 
-    % approximation of the reference coordinates
-    [~, approI] = min(arrayfun(@(x) pdist2(refcoord, labelMatTemp(x, 2:4)), ...
-        1:size(labelMatTemp,1)));
-    refappro = labelMatTemp(approI, :);
+        % approximation of the reference coordinates
+        [~, approI] = min(arrayfun(@(x) pdist2(refcoord, labelMatTmp(x, 2:4)), ...
+            1:size(labelMatTmp,1)));
+        refappro = labelMatTmp(approI, :);
 
-    % Get clusters for positive and negative separately
-    labelMatPosi = labelMatTemp;
-    labelMatNega = labelMatTemp;
+        % Get clusters for positive and negative separately
+        labelMatPosi = labelMatTmp;
+        labelMatNega = labelMatTmp;
 
-    labelMatPosi(labelMatPosi(:,5)<0, 5) = 0;
-    labelMatNega(labelMatNega(:,5)>0, 5) = 0;
+        labelMatPosi(labelMatPosi(:,5)<0, 5) = 0;
+        labelMatNega(labelMatNega(:,5)>0, 5) = 0;
 
-    clusterIdxPosi = sf_clusterlabel(labelMatPosi, faces, str2double(fthresh));
-    clusterIdxNega = sf_clusterlabel(labelMatNega, faces, str2double(fthresh));
+        clusterIdxPosi = sf_clusterlabel(labelMatPosi, faces, str2double(fthresh));
+        clusterIdxNega = sf_clusterlabel(labelMatNega, faces, str2double(fthresh));
 
-    % Gather information for positive
-    outPosi = maxminrow(labelMatPosi, clusterIdxPosi, refappro);
-    outPosi.Geo = round(sf_geodesic(coords, faces, labelMatTemp(:,1), ...
-        refappro(1,1), outPosi.VtxIdx, opts.distmetric), 1);
-    outPosi.Euc = round(arrayfun(@(x) pdist2(refcoord, outPosi.SelfCoords(x,:)), ...
-        1:size(outPosi, 1)), 1)';
-    outPosi.MNI = round(fs_fsavg2mni(fs_self2fsavg(outPosi.SelfCoords, subjCode)), 1);
-    outPosi.surface = repmat(surffn, size(outPosi,1), 1);
+        % Gather information for positive
+        outPosi = maxminrow(labelMatPosi, clusterIdxPosi, refappro);
+        outPosi.Geo = round(sf_geodesic(coords, faces, labelMatTmp(:,1), ...
+            refappro(1,1), outPosi.VtxIdx, opts.distmetric), 1);
+        outPosi.Euc = round(arrayfun(@(x) pdist2(refcoord, outPosi.SelfCoords(x,:)), ...
+            1:size(outPosi, 1)), 1)';
+        outPosi.MNI = round(fs_fsavg2mni(fs_self2fsavg(outPosi.SelfCoords, subjCode)), 1);
+        outPosi.surface = repmat(surffn, size(outPosi,1), 1);
 
-    disp(sortrows(outPosi, 'Euc')); % disp positive
+        disp(sortrows(outPosi, 'Euc')); % disp positive
 
-    % Gather information for negative
-    outNega = maxminrow(labelMatNega, clusterIdxNega, refappro);
-    outNega.Geo = round(sf_geodesic(coords, faces, labelMatTemp(:,1), ...
-        refappro(1,1), outNega.VtxIdx, opts.distmetric), 1);
-    outNega.Euc = round(arrayfun(@(x) pdist2(refcoord, outNega.SelfCoords(x,:)), ...
-        1:size(outNega, 1)), 1)';
-    outNega.MNI = round(fs_fsavg2mni(fs_self2fsavg(outNega.SelfCoords, subjCode)), 1);
-    outNega.surface = repmat(surffn, size(outNega,1), 1);
+        % Gather information for negative
+        outNega = maxminrow(labelMatNega, clusterIdxNega, refappro);
+        outNega.Geo = round(sf_geodesic(coords, faces, labelMatTmp(:,1), ...
+            refappro(1,1), outNega.VtxIdx, opts.distmetric), 1);
+        outNega.Euc = round(arrayfun(@(x) pdist2(refcoord, outNega.SelfCoords(x,:)), ...
+            1:size(outNega, 1)), 1)';
+        outNega.MNI = round(fs_fsavg2mni(fs_self2fsavg(outNega.SelfCoords, subjCode)), 1);
+        outNega.surface = repmat(surffn, size(outNega,1), 1);
 
-    disp(sortrows(outNega, 'Euc')); % disp negative
+        disp(sortrows(outNega, 'Euc')); % disp negative
+    end
 
     format shortG
 end
