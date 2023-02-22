@@ -4,15 +4,15 @@ function [d2bcmd, isnotok] = bids_dcm2bids(dcmSubj, outSubj, config, isSess, run
 % This function run dcm2bids for DICOM files. DICOM files should be saved
 % in a folder called "sourcedata" within bidsDir.
 %
-% Note: 
+% Note:
 %    1. dcm2bids will not set the correct    field in fmap json
-% files. Please check bids_fixfmap for details. 
+% files. Please check bids_fixfmap for details.
 %    2. the 'TaskName' needs to be set for functional runs, you may want to
 % use bids_fixfunc.
 %
 % Inputs:
-%    dcmSubj       <cell str> a list of subject folders saving DICOM files.                   
-%               OR <str> wildcard strings to match the subject folders 
+%    dcmSubj       <cell str> a list of subject folders saving DICOM files.
+%               OR <str> wildcard strings to match the subject folders
 %                   saving DICOM files.
 %    outSubj       <cell str> a list of output subject codes (e.g., {'X01',
 %                   'X02', ...}). It needs to have the same length as
@@ -100,7 +100,11 @@ cmdCell = cell(length(dsubjList),1);
 
 for iSubj = 1:length(dsubjList)
 
-    dsubjDir = fullfile(dcmDir, dsubjList{iSubj});
+    if ~startsWith(dsubjList{iSubj}, filesep)
+        dsubjDir = fullfile(dcmDir, dsubjList{iSubj});
+    else
+        dsubjDir = dsubjList{iSubj};
+    end
 
     dcmdir = dir(dsubjDir);
     dcmdir(ismember({dcmdir.name}, {'.', '..'}))= [];
