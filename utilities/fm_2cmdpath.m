@@ -28,7 +28,7 @@ defaultpairs = {...
     ' ', '\ ';
     '(', '\(';
     ')', '\)';
-    '~', '{$HOME}'};
+    '~', '$HOME'};
 reppairs = vertcat(defaultpairs, extrapairs);
 nRow = size(reppairs, 1);
 

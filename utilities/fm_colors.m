@@ -29,7 +29,7 @@ colors = [
     0, 1, 0;  % green
     .5, 0, 1;  % purple
     0, 1, 1;  % blue
-    repmat([0, 0, 0], 24, 1)];  % black
+    repmat([0, 0, 0], 124, 1)];  % black
 nColor = size(colors, 1);
 
 if ~exist('nOutColor', 'var') || isempty(nOutColor)

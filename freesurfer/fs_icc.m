@@ -11,7 +11,7 @@ function iccT = fs_icc(sessList, anaList, labelList, varargin)
 %     FreeSurfer session (e.g., 'Subj01' in $FUNCTIONALS_DIR). Within this
 %     session folder, differernt run files (e.g., 'loc_sess1.txt' which saves
 %     the run names in the first session) are used to indicate the runs from
-%     different fMRI sessions. [Recommended]
+%     different fMRI sessions.
 %
 % Inputs:
 %    sessList     <cell str> PxQ. P is the number of participant no matter
@@ -157,6 +157,6 @@ for iSess = 1:nSess
     end % iICC
 end % iSess
 
-iccT = struct2table(vertcat(icc_out{:}));
+iccT = struct2table(vertcat(icc_out{:}), 'AsArray', 1);
 
 end
