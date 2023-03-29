@@ -85,6 +85,8 @@ fscmd(cellfun(@isempty, fscmd)) = [];
 
 % save the outTable as a csv file
 outFn = 'labelInfo.csv';
-writetable(outTable, fullfile(outPath, outFn));
+if ~isempty(outTable)
+    writetable(outTable, fullfile(outPath, outFn));
+end
 
 end

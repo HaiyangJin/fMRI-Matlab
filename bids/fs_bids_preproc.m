@@ -142,7 +142,7 @@ bfuncInfoC = cellfun(@fp_fn2info, {bfuncdir.name}, 'uni', false);
 % stupid way to make bfuncInfoC have the same fieldnames
 bfuncInfo = fm_vmergestruct(bfuncInfoC{:});
 
-% % get the json filenames
+% get the json filenames
 jsonfns = cellfun(@(x) strrep(x, '.nii.gz', '.json'), {bfuncdir.name}, 'uni', false);
 [bfuncdir.jsname] = deal(jsonfns{:});
 % get the run series number
