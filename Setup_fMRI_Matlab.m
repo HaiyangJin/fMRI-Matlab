@@ -6,6 +6,6 @@ dirList([dirList.isdir]==0) = [];
 dirList(cellfun(@(x) startsWith(x, '.'), {dirList.name})) = []; 
 dirList(ismember({dirList.name}, {'documents', 'reflabels'})) = [];
 
-addpath(genpath(dirList));
+cellfun(@(x) addpath(genpath(x)), {dirList.name});
 
 end
