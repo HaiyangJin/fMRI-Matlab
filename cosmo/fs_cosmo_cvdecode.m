@@ -14,20 +14,19 @@ function mvpaTable = fs_cosmo_cvdecode(sessList, anaList, labelList, ...
 %    labelList       <cell str> a list of label names.
 %    classPairs      <cell str> a PxQ (usually Q is 2) cell matrix for the
 %                     pairs to be classified. Each row is one classfication
-%                     pair. It could be either the Condition names (i.e.,
-%                     the fifth column in the par file; recommended) or
-%                     Condition numbers (i.e., the second column in par
-%                     files).
-%                 or <cell> a 1xQ (usually Q is 2) cell matrix. Each cell
-%                     is another cell str, which includes all the condition
-%                     names to be grouped together. The new condition name
-%                     can be set manullay via .newnames. Note that if more
-%                     than one rows are provided, the results may not be
-%                     correct.
-%                    Suppose the condition names are '1', '2', '3' and '4'.
-%                     {'1', '2'} will decode 1 and 2, and {{'1', '2'},
-%                     {'3', '4'}} will decode the group of 1 and 2 versus
-%                     the group of 3 and 4.
+%                     pair. It should be the Condition names (e.g.,
+%                     the fifth column in the par file).
+%                 or <cell of cell str> a 1xQ (usually Q is 2) cell matrix. 
+%                     Each cell is another cell str, which includes all the
+%                     condition names to be grouped together. The new 
+%                     condition name can be set manullay via .newnames.
+%                     Note that if more than one rows are provided, the 
+%                     results may not be correct. 
+%                    Example: Suppose the condition names are 'a', 'b', 
+%                     'c' and 'd'. 
+%                     {'a', 'b'} will decode 'a' and 'b';
+%                     {{'a', 'b'}, {'c', 'd'}} will decode the group of 1 
+%                     and 2 versus the group of 3 and 4.
 %
 % Varargin:
 %    .method         <str> decode method: 'classify' (default; 
@@ -113,13 +112,9 @@ dsopts.classifier = [];
 dsopts.classopt = [];
 
 % convert classPairs to char if needed
+assert(iscell(classPairs), 'classPairs has to be a cell.')
 labelPairs = [];
-if isnumeric(classPairs)
-    classPairs = arrayfun(@num2str, classPairs, 'uni', false);
-elseif iscell(classPairs) && any(cellfun(@isnumeric, classPairs), 'all')
-    thenum = cellfun(@isnumeric, classPairs);
-    classPairs(thenum) = cellfun(@num2str, classPairs(thenum), 'uni', false);
-elseif iscell(classPairs) && iscell(classPairs{1,1})
+if iscell(classPairs) && iscell(classPairs{1,1})
     % multiple conditions vs. multiple conditions
     if isempty(opts.newnames)
         newnames = cellfun(@(x) sprintf('%s&', x{:}), classPairs, 'uni', false);
