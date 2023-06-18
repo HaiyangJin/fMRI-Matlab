@@ -24,7 +24,7 @@ function [d2bcmd, isnotok] = bids_dcm2bids(dcmSubj, outSubj, config, isSess, run
 %                   when outSubj is 'Test', the subjcode will be
 %                   'sub-Test01', 'sub-Test02'.
 %    config        <str> the config file to deal with dicoms. The default
-%                   config file is <bidsDir>/codes/bids_convert.json .
+%                   config file is <bidsDir>/code/bids_convert.json .
 %    isSess        <boo> If there are multiple subdir within dcmSubj
 %                   dir. Whether these dirctories are sessions (or runs).
 %                   Default is 0 (i.e., runs). Note that if run folders are
@@ -57,7 +57,7 @@ if ~exist('bidsDir', 'var') || isempty(bidsDir)
 end
 
 if ~exist('config', 'var') || isempty(config)
-    config = fullfile(bidsDir, 'codes', 'bids_convert.json');
+    config = fullfile(bidsDir, 'code', 'bids_convert.json');
 end
 % make sure the config file exist
 assert(logical(exist(config, 'file')), 'Cannot find the config file:\n%s', config);

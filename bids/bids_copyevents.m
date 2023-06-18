@@ -49,7 +49,7 @@ if ~exist('ses', 'var') || isempty(ses)
 elseif isnumeric(ses)
     ses = num2str(ses);
 end
-if ~startsWith(ses, 'ses-')
+if ~isempty(ses) && ~startsWith(ses, 'ses-')
     ses = sprintf('ses-%s', ses);
 end
 

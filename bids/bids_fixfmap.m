@@ -1,10 +1,13 @@
 function bids_fixfmap(intendList, subjList, fmapwc, bidsDir)
 % bids_fixfmap(intendList, subjList, fmapwc, bidsDir)
 %
+% This does not seem to be needed now, as the issue has been fixed in
+% `dcm2bids`.
+%
 % bids_dcm2bids does not set "intendedFor" in fmap json appropriately (if
 % more than 1 func run are available). The run information is missing. This
 % function assigns all the func runs in <bidsDir>/<subjCode>/(sess)/funcs
-% to "intendedFor" of fmap json files.
+% to "intendedFor" of fmap json files. 
 %
 % Inputs:
 %    intendList        <cell str> a list of files to be assigned to
