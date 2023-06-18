@@ -2,6 +2,7 @@ function [fpcmd, status] = fp_fmriprep(subjCode, varargin)
 % [fpcmd, status] = fp_fmriprep(subjCode, varargin)
 %
 % Run fmriprep with 'fmriprep-docker'. 
+% To update `fmriprep-docker`: pip install --user --upgrade fmriprep-docker
 % 
 % Inputs:
 %    subjCode       <str> the subject code (folder) within opts.bidsdir.
@@ -18,12 +19,16 @@ function [fpcmd, status] = fp_fmriprep(subjCode, varargin)
 %                    options are [{91k,170k}].
 %    .nthreads      <int> number of threads. Default is 8.
 %    .maxnthreads   <int> maximum number of threads per-process. Default is
-%                    8.
-%    .wd            <str> working directory. Default is '', i.e., not
-%                    including this argument.
+%                    4.
+%    .wd            <str> working directory. Default to a folder called 
+%                    '*_work/', which is at the same location as `bidsDir`
+%                    and '*' is the last level of `bidsDir` folder name.
+%                    For example, if the `bidsDir` is 'path/to/bidsDir',
+%                    the working directory will be 'path/to/bidsDir_work'.
 %    .ignore        <str> steps to be ignored in fmriprep. Available
 %                    options are 'fieldmaps,slicetiming,sbref'.
 %    .runcmd        <boo> whether to run the command. Default is 1.
+%    .path2fmriprep <str> path to `fmriprep_docker` command. Default to ''.
 %    .bidsdir       <str> where the BIDS folder is. Default is bids_dir().
 %    .extracmd      <str> any other options available in fmriprep. Setting
 %                    in 'extracmd' will replace all the above settings.
@@ -48,10 +53,11 @@ defaultOpts = struct(...
     'outspace', 'fsnative fsaverage6 fsaverage T1w MNI152NLin2009cAsym', ... 
     'cifti', '91k', ... --cifti-output 
     'nthreads', 8, ... % above 8 does not seem to help (further)
-    'maxnthreads', 8, ... % maximum number of threads per-process
+    'maxnthreads', 4, ... % maximum number of threads per-process
     'wd', '', ...
     'ignore', '', ... % {fieldmaps,slicetiming,sbref}
     'runcmd', 1, ...
+    'path2fmriprep', '', ...
     'bidsdir', bids_dir(), ...
     'extracmd', '' ...
     );
@@ -79,9 +85,18 @@ if ~contains(opts.extracmd, '--cifti-output')
 end
 
 if ~contains(opts.extracmd, '--fs-license-file')
-    extracell{3, 1} = sprintf('--fs-license-file %s', opts.fslicense);
+    extracell{3, 1} = sprintf(['--fs-license-file %s ' ...
+        '--fs-subjects-dir %s/derivatives/freesurfer/'], ...
+        opts.fslicense, opts.bidsdir);
 end
 
+if isempty(opts.wd)
+    if endsWith(opts.bidsdir, filesep)
+        opts.wd = [opts.bidsdir(1:end-1) '_work'];
+    else
+        opts.wd = [opts.bidsdir '_work'];
+    end
+end
 if ~isempty(opts.wd) && ~contains(opts.extracmd, '-w')
     fm_mkdir(fullfile(opts.wd, subjCode));
     extracell{4, 1} = sprintf('-w %s', opts.wd);
@@ -102,9 +117,9 @@ end
 extracmd = sprintf(' %s', extracell{:});
 
 %% The whole fmriprep-docker command
-fpcmd = sprintf(['fmriprep-docker %s %s/derivatives participant ' ...
+fpcmd = sprintf(['%sfmriprep-docker %s %s/derivatives/fmriprep/ participant ' ...
     '--participant-label %s %s '], ...
-    opts.bidsdir, opts.bidsdir, subjCode, extracmd);
+    opts.path2fmriprep, opts.bidsdir, opts.bidsdir, subjCode, extracmd);
 
 if opts.runcmd
     % run commands
