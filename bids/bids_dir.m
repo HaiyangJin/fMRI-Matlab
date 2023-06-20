@@ -46,6 +46,9 @@ if isfped
     % set $SUBJECTS_DIR
     fsstruDir = fullfile(bidsDir, 'derivatives', 'freesurfer');
     fs_subjdir(fsstruDir, '', 1);
+
+    samsrfDir = fullfile(bidsDir, 'derivatives', 'samsrf');
+    fs_samsrf_setupdir(samsrfDir);
 end
 
 end
