@@ -23,7 +23,13 @@ function fscmd = fs_bids_preproc(subjCode, varargin)
 %                   subjCode (in bidsDir) by default.
 %    .fssubjcode   <str> the corresponding FreeSurfer subject code, which
 %                   will be saved as subjectname in the session folder.
-%    .bidsdir      <str> the BIDS directory. Default is bids_dir().
+%    .bidsdir      <str> the BIDS directory. Default is bids_dir(). For
+%                   example, to extract data from fmriprep output, set
+%                   `.bidsdir` to 'path/to/derivatives/fmriprep'.
+%    .funcwc       <str> wildcard to identify functional data files to be
+%                   copied to `.funcdir` folder. Default to
+%                   '*.bold.nii.gz'. It should not include subject or
+%                   session information (which will be added automatically).
 %    .funcdir      <str> $FUNCTIONALS_DIR in FreeSurfer. Default is 
 %                   <bidsDir>/derivatives/functionals.
 %
@@ -49,6 +55,7 @@ defaultOpts = struct( ...
     'fssesscode', subjCode, ...
     'fssubjcode', subjCode, ...
     'bidsdir', bids_dir(), ...
+    'funcwc', '*bold.nii.gz', ... it should not include subject or session information
     'funcdir', '');
 opts = fm_mergestruct(defaultOpts, varargin{:});
 
@@ -76,7 +83,7 @@ sessdir = dir(fullfile(bsubjDir, 'ses-*'));
 fssessList = {opts.fssesscode};
 if isempty(sessdir)
     % if there is only one session
-    bfuncdir = {dir(fullfile(bsubjDir, 'func', '*bold.nii.gz'))};
+    bfuncdir = {dir(fullfile(bsubjDir, 'func', opts.funcwc))};
 
 else
     % if there are multiple sessions
@@ -84,7 +91,7 @@ else
 
     % all func files in all sessions
     bfuncdir = cellfun(@(x) dir(fullfile(bsubjDir, x, 'func', ...
-        sprintf('%s_%s*bold.nii.gz', subjCode, x))), sessList, 'uni', false);
+        sprintf('%s_%s%s', subjCode, x, opts.funcwc))), sessList, 'uni', false);
     bfuncdir = bfuncdir(:);
 
     if opts.combinesess
@@ -97,7 +104,8 @@ else
     end
 end
 
-assert(~isempty(bfuncdir), 'Cannot find any functional data.')
+assert(any(cellfun(@(x) ~isempty(x), bfuncdir)), ...
+    'Cannot find any matched functional data with "(%s)".', opts.funcwc)
 
 %% Conduct analysis for each FS-FAST session separately
 fscmdc = cell(size(bfuncdir, 1), 1);
@@ -149,7 +157,13 @@ jsonfns = cellfun(@(x) strrep(x, '.nii.gz', '.json'), {bfuncdir.name}, 'uni', fa
 vals = cellfun(@(x) jsondecode(fileread(x)), ...
     fullfile({bfuncdir.folder}, {bfuncdir.jsname}), 'uni', false);
 runCodeList = vertcat(vals{:});
-[bfuncInfo.sn] = runCodeList.SeriesNumber;
+if isfield(runCodeList, 'SeriesNumber')
+    [bfuncInfo.sn] = runCodeList.SeriesNumber;
+else
+    warning('Custom Series Number is used as the run folder names...');
+    tmpSeriesNumber = num2cell(1:length(bfuncInfo));
+    [bfuncInfo.sn] = tmpSeriesNumber{:};
+end
 
 % add dummy ses if there are no session info
 if ~isfield(bfuncInfo, 'ses') || ~opts.combinesess
@@ -174,7 +188,7 @@ cellfun(@copyfile, sources, targets);
 %     fullfile(targets, 'f.nii.gz'));
 % save the original filenames of f.nii.gz
 cellfun(@fm_mkfile, fullfile(boldDir, runCodeList, 'f.bidsname'), ...
-    {bfuncdir.name}', 'uni', false);
+    sources, 'uni', false);
 
 % save the run information
 RunCode = runCodeList;
