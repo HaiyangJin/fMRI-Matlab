@@ -27,6 +27,7 @@ function [fpcmd, status] = fp_fmriprep(subjCode, varargin)
 %                    the working directory will be 'path/to/bidsDir_work'.
 %    .ignore        <str> steps to be ignored in fmriprep. Available
 %                    options are 'fieldmaps,slicetiming,sbref'.
+%    .bidsfilter    <str> file for --bids-filter-file. Default to 0.
 %    .runcmd        <boo> whether to run the command. Default is 1.
 %    .path2fmriprep <str> path to `fmriprep_docker` command. Default to ''.
 %    .bidsdir       <str> where the BIDS folder is. Default is bids_dir().
@@ -56,6 +57,7 @@ defaultOpts = struct(...
     'maxnthreads', 4, ... % maximum number of threads per-process
     'wd', '', ...
     'ignore', '', ... % {fieldmaps,slicetiming,sbref}
+    'bidsfilter', '', ...
     'runcmd', 1, ...
     'path2fmriprep', '', ...
     'bidsdir', bids_dir(), ...
@@ -74,7 +76,7 @@ assert(logical(exist(fullfile(opts.bidsdir, subjCode), 'dir')), ...
     'Cannot find subject (%s) in %s', subjCode, opts.bidsdir);
 
 %% Other options
-extracell = cell(6, 1);
+extracell = cell(10, 1);
 
 if ~contains(opts.extracmd, '--output-space')
     extracell{1, 1} = sprintf('--output-space %s', opts.outspace);
@@ -106,12 +108,16 @@ if ~isempty(opts.ignore) && ~contains(opts.extracmd, '--ignore')
     extracell{5, 1} = ['--ignore ' opts.ignore];
 end
 
+if ~isempty(opts.bidsfilter) && ~contains(opts.extracmd, '--bids-filter-file')
+    extracell{6, 1} = ['--bids-filter-file ' opts.bidsfilter];
+end
+
 if opts.nthreads > 0 && ~contains(opts.extracmd, '--nthreads')
-    extracell{6, 1} = sprintf('--nthreads %d', opts.nthreads);
+    extracell{7, 1} = sprintf('--nthreads %d', opts.nthreads);
 end
 
 if opts.maxnthreads > 0 && ~contains(opts.extracmd, '--omp-nthreads')
-    extracell{7, 1} = sprintf('--omp-nthreads %d', opts.maxnthreads);
+    extracell{8, 1} = sprintf('--omp-nthreads %d', opts.maxnthreads);
 end
 
 extracmd = sprintf(' %s', extracell{:});
