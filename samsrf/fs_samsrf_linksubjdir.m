@@ -68,7 +68,7 @@ if force % && toLink
 end
 
 % run the function
-cellfun(tmpfunc, tmpSrc, tmpTrg);
+cellfun(tmpfunc, fm_2cmdpath(tmpSrc), tmpTrg);
 
 end
 

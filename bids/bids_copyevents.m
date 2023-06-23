@@ -76,7 +76,12 @@ for iwd = 1:nwd
     % copy event files
     cellfun(@(x,y) copyfile(x,y), sources, targets, 'uni', false);
 
-    copycells{iwd, 1} = {sourcedir.name}';
+    % sort the source list by run number
+    tmpsrc = {sourcedir.name}';
+    tmpsrcinfo = cellfun(@fp_fn2info, tmpsrc);
+    [~, orderIdx] = sort(str2double({tmpsrcinfo.run}));
+
+    copycells{iwd, 1} = tmpsrc(orderIdx);
     copycellt{iwd, 1} = targetevents';
 end
 
