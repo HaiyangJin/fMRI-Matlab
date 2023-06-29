@@ -29,8 +29,4 @@ end
 newdirs = fullfile(samsrfDir, sessCode, {'anatomy', 'apertures', 'prf'});
 cellfun(@fm_mkdir, newdirs);
 
-% make the anatomy file from $SUBJECTS_DIR files
-fs_samsrf_mkanatomy(subjCode, sessCode, 'lh', samsrfDir)
-fs_samsrf_mkanatomy(subjCode, sessCode, 'rh', samsrfDir);
-
 end
