@@ -69,7 +69,7 @@ assert(logical(exist(dcmDir, 'dir')), 'Cannot find sourcedata/ in %s', bidsDir);
 % deal with the list of subject codes for dicom files
 if ischar(dcmSubj)
     if ~endsWith(dcmSubj, '*'); dcmSubj=[dcmSubj '*'];end
-    dSubjdir = dir(fullfile(dcmDir, [dcmSubj]));
+    dSubjdir = dir(fullfile(dcmDir, dcmSubj));
     dsubjList = {dSubjdir.name};
 elseif iscell(dcmSubj)
     dsubjList = dcmSubj;

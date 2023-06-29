@@ -48,7 +48,7 @@ if isfped
     fs_subjdir(fsstruDir, '', 1);
 
     samsrfDir = fullfile(bidsDir, 'derivatives', 'samsrf');
-    fs_samsrf_setupdir(samsrfDir);
+    fs_samsrfdir(samsrfDir);
 end
 
 end
