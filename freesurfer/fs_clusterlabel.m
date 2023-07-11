@@ -45,8 +45,14 @@ end
 if size(labelMat, 2) >= 5 && ~isempty(fmin)
     % all values have to be the same direction
     values = labelMat(:, 5);
-    assert(all(values>=0)||all(values<=0), ...
-        'Values have to be all positive or all negative.');
+    if ~(all(values>=0)||all(values<=0))
+        if ischar(labelFn)
+            error(['Values have to be all positive or all negative.' ...
+                '\n  Subject code: %s\n  Label: %s\n'], subjCode, labelFn);
+        else
+            error('Values have to be all positive or all negative.');
+        end
+    end
     
     % find vertices larger than fmin
     isCluster = abs(values) >= abs(fmin);
