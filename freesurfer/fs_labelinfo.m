@@ -18,9 +18,9 @@ function labelTable = fs_labelinfo(labelList, subjList, varargin)
 %    'fmin'          <num> The (absolute) minimum value for vertices to
 %                     be used for summarizing information. Default is 0,
 %                     i.e., all vertices will be used.
-%    'gminfo'        <boo> 1 [default]: only show gm coordinate 
+%    'gminfo'        <boo> 1 [default]: only show gm coordinate
 %                     information (but not he maxresp) 2: additionally show
-%                     global maxima information (also show maxresp); 0: do 
+%                     global maxima information (also show maxresp); 0: do
 %                     not show gm information.
 %    'surf'          <str> or <cell> see fs_labelarea().
 %    'isndgrid'      <boo> 1 [default]: all the combinations of
@@ -31,7 +31,7 @@ function labelTable = fs_labelinfo(labelList, subjList, varargin)
 %                     etc...
 %    'saveall'       <b00> 0 [default]: only save information for the
 %                     available labels. 1: save information for all labels
-%                     files. For unavaiable labels, their information is 
+%                     files. For unavaiable labels, their information is
 %                     saved as empty or NaN.
 %    'strudir'       <str> $SUBJECTS_DIR.
 %
@@ -71,7 +71,7 @@ defaultOpts = struct(...
     'isndgrid', 1, ...
     'saveall', 0, ...
     'strudir', getenv('SUBJECTS_DIR') ...
-);
+    );
 
 opts = fm_mergestruct(defaultOpts, varargin{:});
 byCluster = opts.bycluster;
@@ -95,20 +95,68 @@ end
 
 if isndgrid
     % all the possible combinations
-    [tempList, tempSubj] = ndgrid(labelList, subjList);
+    [tmpList, tmpSubj] = ndgrid(labelList, subjList);
 else
     assert(numel(labelList) == numel(subjList), ['The number of labels '...
         'has to be the same as that of subjects when ''ndgrid'' is not used.']);
-    tempList = labelList;
-    tempSubj = subjList;
+    tmpList = labelList;
+    tmpSubj = subjList;
 end
 
-% read the label information
-labelInfoCell = cellfun(@(x, y) labelinfo(x, y, byCluster, fmin, gmInfo, ...
-    opts.surf, saveAll, opts.strudir),...
-    tempList(:), tempSubj(:), 'uni', false);
+tmpList = tmpList(:);
+tmpSubj = tmpSubj(:);
+
+% wait bar
+steps = size(tmpList,1);
+
+labelInfoCell = cell(steps,1);
+
+try % try parallel processing
+
+    % set up progress bar
+    D1 = parallel.pool.DataQueue;
+    h = waitbar(0, 'Preparing for the analysis. Please wait ...');
+    afterEach(D1, @nUpdateWaitbar);
+    p = 1;
+
+    % pre-set some variable
+    surf = opts.surf;
+    struDir = opts.strudir;
+
+    % read the label information
+    parfor i = 1:steps
+
+        labelInfoCell{i,1} = labelinfo(tmpList{i}, tmpSubj{i}, byCluster, fmin, gmInfo, ...
+            surf, saveAll, struDir);
+
+        send(D1, i);
+    end
+
+    close(h);
+
+catch
+    sprintf('\nNon-parallel processing starts...\n')
+    h_non = waitbar(0,'Please wait...');
+    % read the label information
+    for i = 1:steps
+
+        labelInfoCell{i,1} = labelinfo(tmpList{i}, tmpSubj{i}, byCluster, fmin, gmInfo, ...
+            opts.surf, saveAll, opts.strudir);
+
+        % update progress bar
+        waitbar(i / steps, ...
+            sprintf('SubjCode: %s  Label: %s', tmpSubj{i}, tmpList{i}));
+    end
+    close(h_non);
+
+end
 
 labelTable = vertcat(labelInfoCell{:});
+
+    function nUpdateWaitbar(~)
+    waitbar(p/steps, h, sprintf('%.2f%% completed...', p/steps*100));
+    p = p + 1;
+    end
 
 end
 
@@ -135,16 +183,16 @@ if isempty(labelMat)
         MNI152 = {NaN};
         NVtxs = 0;
         fmin = NaN;
-        
+
         labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
             Size, MNI305, Talairach, NVtxs, fmin);
-        
+
         % gmTable
         GlobalMax = NaN;
         MNI305_gm = {NaN};
         Tal_gm = {NaN};
         gmTable = table(GlobalMax, MNI305_gm, Tal_gm);
-        
+
         if gmInfo
             labelInfo = horzcat(labelInfo, gmTable);
         end
@@ -154,7 +202,7 @@ if isempty(labelMat)
     return;
 end
 
-% read the global maxima 
+% read the global maxima
 gmTable = fs_labelgm(labelFn, subjCode);
 
 % regard it as reference label if nCluster is 0
@@ -165,7 +213,7 @@ if nCluster == 0
     nCluster = 1;
     labelname = [labelname '_ref'];
 else
-    
+
 end
 
 % output by cluster if needed
