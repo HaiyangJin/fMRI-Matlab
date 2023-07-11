@@ -1,10 +1,13 @@
+# Matlab Assistant for Surface-based fMRI Analysis
+
 [DOI: 10.17605/OSF.IO/D76FM](https://osf.io/d76fm/)
 
 (Working in progress...) \
-Last updated: 2021-11-16
+Last updated: 2023
 
 <!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
+- [Matlab Assistant for Surface-based fMRI Analysis](#matlab-assistant-for-surface-based-fmri-analysis)
 - [Introduction](#introduction)
   - [Dependency](#dependency)
 - [Preparations](#preparations)
@@ -25,8 +28,7 @@ Last updated: 2021-11-16
   - [Quality assurance of recon-all results](#quality-assurance-of-recon-all-results)
   - [Check other results](#check-other-results)
 - [How-to](#how-to)
-- [Future work](#future-work)
-- [Q&A](#qa)
+- [Q\&A](#qa)
 
 <!-- /TOC -->
 
@@ -163,9 +165,6 @@ labels files | `fs_cvn_print1st()`
 - [How to trim a label file with some restrictions (e.g., 100 vertices)?](documents/trim_label.md)
 - [How to visualize label files (i.e., ROIs)?](documents/visual_label.md)
 - [How to visualize activation maps?](documents/visual_activation.md)
-
-# Future work
-- [ ] Making videos.
 
 # Q&A
 - **How to run linux commands via Matlab?** \

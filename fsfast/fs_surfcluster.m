@@ -34,6 +34,9 @@ function [labelTable, fscmd] = fs_surfcluster(sessCode, anaName,...
 %      .NVtxs          <int> number of vertices in this label.
 %
 % Created by Haiyang Jin (18-Nov-2019)
+%
+% See also:
+% fs_surflabel
 
 if nargin < 1
     fprintf(['Usage: [labelTable, fscmd] = fs_surfcluster(sessCode, anaName,' ...

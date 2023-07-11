@@ -9,16 +9,19 @@ function [outTable, fscmd] = fs_surflabel(sessList, labelList, anaList, surffn, 
 %    anaList         <cell str> a list of analysis names. This will be
 %                     used to read the corresponding sig.nii.gz.
 %    surffn          <str> the surface to be used. Default is 'white'.
-%    thmin           <nume> the minimal threshold. Default is [], which
+%    thmin           <num> the minimal threshold. Default is [], which
 %                     will use the default in fs_surfcluster.m (i.e.,1.3).
 %    outPath         <str> where the outputs are saved.
 %
 % Output:
 %    outTable        <table> information about all the available label file
 %                     information.
-%    fscmd           <cell string> all the FreeSurfer commands used.
+%    fscmd           <cell str> all the FreeSurfer commands used.
 %
 % Created by Haiyang Jin (26-Apr-2020)
+%
+% See also:
+% fs_surfcluster
 
 if ~exist('surffn', 'var') || isempty(surffn)
     surffn = 'white';

@@ -154,7 +154,7 @@ end
 labelTable = vertcat(labelInfoCell{:});
 
     function nUpdateWaitbar(~)
-    waitbar(p/steps, h, sprintf('%.2f%% completed...', p/steps*100));
+    waitbar(p/steps, h, sprintf('fs\\_labelinfo()\n%.2f%% completed...', p/steps*100));
     p = p + 1;
     end
 
@@ -191,10 +191,28 @@ if isempty(labelMat)
         GlobalMax = NaN;
         MNI305_gm = {NaN};
         Tal_gm = {NaN};
-        gmTable = table(GlobalMax, MNI305_gm, Tal_gm);
+        MNI152_gm = {NaN};
 
-        if gmInfo
-            labelInfo = horzcat(labelInfo, gmTable);
+        % save the out information as table
+        switch gmInfo
+            case 1
+                labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
+                    GlobalMax, MNI305_gm, Tal_gm, Size, NVtxs, fmin);
+            case 2
+                labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
+                    GlobalMax, MNI305, Talairach, Size, NVtxs, fmin, MNI305_gm, Tal_gm);
+            case 0
+                labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
+                    MNI305, Talairach, Size, NVtxs, fmin);
+            case 152
+                labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
+                    MNI152, Size, NVtxs, fmin);
+            case '152gm'
+                labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
+                    GlobalMax, MNI152_gm, Size, NVtxs, fmin);
+            case 'all'
+                labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
+                    GlobalMax, MNI305_gm, Tal_gm, Size, NVtxs, fmin, MNI305, Talairach, MNI152);
         end
     else
         labelInfo = [];
@@ -278,6 +296,9 @@ switch gmInfo
     case '152gm'
         labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
             GlobalMax, MNI152_gm, Size, NVtxs, fmin);
+    case 'all'
+        labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
+            GlobalMax, MNI305_gm, Tal_gm, Size, NVtxs, fmin, MNI305, Talairach, MNI152);
 end
 
 end
