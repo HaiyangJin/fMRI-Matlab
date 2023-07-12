@@ -103,24 +103,25 @@ isnotok = system(fscmd);
 assert(~isnotok, 'FreeSurfer commands (mri_surfcluster) failed.');
 
 %% load the output file from mri_surfcluster
-tempcell = importdata(outFile, ' ', 36);
+tmpcell = importdata(outFile, ' ', 36);
 
-tempdata = tempcell.data;
-ClusterNo = tempdata(:, 1);
-Max = tempdata(:, 2);
-VtxMax = tempdata(:, 3)+1; % the Matlab vertex index
-Size = tempdata(:, 4);
-MNI305 = tempdata(:, 5:7);
-NVtxs = tempdata(:, 8);
+tmpdata = tmpcell.data;
+ClusterNo = tmpdata(:, 1);
+Max = tmpdata(:, 2);
+VtxMax = tmpdata(:, 3)+1; % the Matlab vertex index
+Size = tmpdata(:, 4);
+MNI305 = tmpdata(:, 5:7);
+NVtxs = tmpdata(:, 8);
 
 % save inputs
 nCluster = numel(ClusterNo);
 SubjCode = repmat({subjCode}, nCluster, 1);
 Analysis = repmat({anaName}, nCluster, 1);
+Surface = repmat({surffn}, nCluster, 1);
 [~, fn, ext] = fileparts(labelFn);
 Label = repmat({[fn ext]}, nCluster, 1);
 
 % save the out information as table
-labelTable = table(SubjCode, Analysis, Label, ClusterNo, Max, VtxMax, Size, MNI305, NVtxs);
+labelTable = table(SubjCode, Analysis, Label, ClusterNo, Max, VtxMax, Size, MNI305, NVtxs, Surface);
 
 end

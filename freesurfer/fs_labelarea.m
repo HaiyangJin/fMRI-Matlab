@@ -14,7 +14,7 @@ function labelarea = fs_labelarea(labelFn, subjCode, vtxIdx, surface)
 %                     area will be calculated. [not the row number in this
 %                     label file.]
 %    surface         <str> surface without hemisphere information, which
-%                     will be obtained from [labelFn].
+%                     will be obtained from `labelFn`.
 %
 % Output:
 %    labelarea       <num> the label area in mm^2.

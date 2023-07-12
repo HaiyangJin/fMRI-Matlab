@@ -22,7 +22,8 @@ function labelTable = fs_labelinfo(labelList, subjList, varargin)
 %                     information (but not he maxresp) 2: additionally show
 %                     global maxima information (also show maxresp); 0: do
 %                     not show gm information.
-%    'surf'          <str> or <cell> see fs_labelarea().
+%    'surf'          <str> surface name which does not include hemisphere
+%                     information. Default to 'white'.
 %    'isndgrid'      <boo> 1 [default]: all the combinations of
 %                     labelList and subjList will be created, i.e.,
 %                     summarize all labels in labelList for each subject
@@ -67,7 +68,7 @@ defaultOpts = struct(...
     'bycluster', 1, ...
     'fmin', 0, ...
     'gminfo', 1, ...
-    'surf', [], ...
+    'surf', 'white', ...
     'isndgrid', 1, ...
     'saveall', 0, ...
     'strudir', getenv('SUBJECTS_DIR') ...
@@ -135,7 +136,7 @@ try % try parallel processing
     close(h);
 
 catch
-    sprintf('\nNon-parallel processing starts...\n')
+    fprintf('\nNon-parallel processing starts...\n')
     h_non = waitbar(0,'Please wait...');
     % read the label information
     for i = 1:steps
@@ -170,6 +171,8 @@ function labelInfo = labelinfo(labelFn, subjCode, byCluster, fmin0, ...
 % read the label file
 labelMat = fs_readlabel(labelFn, subjCode, struDir);
 
+
+Surface = {surface};
 if isempty(labelMat)
     if saveall
         SubjCode = {subjCode};
@@ -197,28 +200,32 @@ if isempty(labelMat)
         switch gmInfo
             case 1
                 labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
-                    GlobalMax, MNI305_gm, Tal_gm, Size, NVtxs, fmin);
+                    GlobalMax, MNI305_gm, Tal_gm, Size, NVtxs, fmin, Surface);
             case 2
                 labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
-                    GlobalMax, MNI305, Talairach, Size, NVtxs, fmin, MNI305_gm, Tal_gm);
+                    GlobalMax, MNI305, Talairach, Size, NVtxs, fmin, MNI305_gm, Tal_gm, Surface);
             case 0
                 labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
-                    MNI305, Talairach, Size, NVtxs, fmin);
+                    MNI305, Talairach, Size, NVtxs, fmin, Surface);
             case 152
                 labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
-                    MNI152, Size, NVtxs, fmin);
+                    MNI152, Size, NVtxs, fmin, Surface);
             case '152gm'
                 labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
-                    GlobalMax, MNI152_gm, Size, NVtxs, fmin);
+                    GlobalMax, MNI152_gm, Size, NVtxs, fmin, Surface);
             case 'all'
                 labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
-                    GlobalMax, MNI305_gm, Tal_gm, Size, NVtxs, fmin, MNI305, Talairach, MNI152);
+                    GlobalMax, MNI305_gm, Tal_gm, Size, NVtxs, fmin, MNI305, Talairach, MNI152, Surface);
         end
     else
         labelInfo = [];
     end
     return;
 end
+
+% update coordinats with `surface` if not empty
+surfmat = fs_readsurf([fm_2hemi(labelFn) '.' surface], subjCode);
+labelMat(:,2:4) = surfmat(labelMat(:,1), :);
 
 % read the global maxima
 gmTable = fs_labelgm(labelFn, subjCode);
@@ -283,22 +290,22 @@ Tal_gm = repmat(gmTable.Talairach, numel(clusters), 1);
 switch gmInfo
     case 1
         labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
-            GlobalMax, MNI305_gm, Tal_gm, Size, NVtxs, fmin);
+            GlobalMax, MNI305_gm, Tal_gm, Size, NVtxs, fmin, Surface);
     case 2
         labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
-            GlobalMax, MNI305, Talairach, Size, NVtxs, fmin, MNI305_gm, Tal_gm);
+            GlobalMax, MNI305, Talairach, Size, NVtxs, fmin, MNI305_gm, Tal_gm, Surface);
     case 0
         labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
-            MNI305, Talairach, Size, NVtxs, fmin);
+            MNI305, Talairach, Size, NVtxs, fmin, Surface);
     case 152
         labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
-            MNI152, Size, NVtxs, fmin);
+            MNI152, Size, NVtxs, fmin, Surface);
     case '152gm'
         labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
-            GlobalMax, MNI152_gm, Size, NVtxs, fmin);
+            GlobalMax, MNI152_gm, Size, NVtxs, fmin, Surface);
     case 'all'
         labelInfo = table(SubjCode, Label, ClusterNo, Max, VtxMax, ...
-            GlobalMax, MNI305_gm, Tal_gm, Size, NVtxs, fmin, MNI305, Talairach, MNI152);
+            GlobalMax, MNI305_gm, Tal_gm, Size, NVtxs, fmin, MNI305, Talairach, MNI152, Surface);
 end
 
 end
