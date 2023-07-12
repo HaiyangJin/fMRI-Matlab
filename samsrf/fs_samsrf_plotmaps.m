@@ -1,5 +1,5 @@
-function prfcf_plotmaps_one(prfFnList, rois, maps, outpath)
-% prfcf_plotmaps_one(prfFnList, rois, maps, outpath)
+function fs_samsrf_plotmaps(prfFnList, rois, maps, labels, outpath)
+% fs_samsrf_plotmaps(prfFnList, rois, maps, labels, outpath)
 %
 % Plots the prf ftting results.
 %
@@ -10,15 +10,23 @@ function prfcf_plotmaps_one(prfFnList, rois, maps, outpath)
 %    maps             <cell str> maps to be dispalyed, e.g., 'R^2',
 %                      'Sigma', etc. Default to {'R^2', 'Sigma', 'Polar',
 %                      'Eccentricity'};
+%    labels           <cell str> labels to be displayed. Default to some
+%                      label files, e.g., roi.lh.f13.face-vs-object.ofa.label.
+%                      If you do not know what this label file refers to,
+%                      you probably should set your own lable names. But
+%                      the label names have to include the hemisphere
+%                      information (e.g., 'lh'), which will be upated to
+%                      match the Srf file automatically.
 %    outpath          <str> path to save the output figures. Default to
 %                      pwd().
 %
-% Created by Haiyang Jin (2023-June-30)
+% Created by Haiyang Jin (2023-July-1)
 
 %% Deal with inputs
 if ischar(prfFnList); prfFnList = {prfFnList}; end
 N_prf = length(prfFnList);
 
+% camera angle
 if ~exist('rois', 'var') || isempty(rois)
     rois = {'evc', 'ffa'};
 elseif ischar(rois)
@@ -26,10 +34,21 @@ elseif ischar(rois)
 end
 N_region = length(rois);
 
+% maps to be displayed
 if ~exist('maps', 'var') || isempty(maps)
     maps = {'R^2', 'Sigma', 'Polar', 'Eccentricity'};
 end
 N_maps = length(maps);
+
+% labels to be displayed
+if ~exist('labels', 'var') || isempty(labels)
+    evc = {'lh.V1.label', 'lh.V2.label', 'lh.V3.label'};
+    ffa = cellfun(@(x) sprintf('roi.lh.f13.face-vs-object.%s.label', x), ...
+        {'ofa', 'ffa1', 'ffa2', 'atl'}, 'uni', false);
+    labels = fullfile('..', 'label', horzcat(evc, ffa));
+elseif ischar(labels)
+    labels = {labels};
+end
 
 if ~exist('outpath', 'var') || isempty(outpath)
     outpath = pwd;
@@ -44,8 +63,7 @@ tiledlayout(N_prf*N_region, N_maps);
 % all Prf files and all rois
 [tmpprflist, tmpregion] = ndgrid(prfFnList, rois);
 % make sub-plots
-cellfun(@(x,y) plot_maps(x, y, maps), tmpprflist(:), tmpregion(:), 'uni', false);
-
+cellfun(@(x,y) plot_maps(x, y, maps, labels), tmpprflist(:), tmpregion(:), 'uni', false);
 
 %% Save the plot
 % make the file name
@@ -71,8 +89,11 @@ saveas(f, fname, 'png');
 
 end % function prfcf_plotprf
 
-%% Sub-functions
-function plot_maps(prfFname, rois, maps)
+
+
+
+%% Local-function
+function plot_maps(prfFname, rois, maps, labels)
 % prfFname    <str> the file name of the Srf file.
 % rois        <str> the region to be displayed: 'evc' or 'ffa'.
 % maps        <cell str> maps to be displayed.
@@ -99,6 +120,11 @@ camviews = {[-2.1 -32.5 1.5], [2.2 -37.4 1.5];      % early visual cortex
 camview = camviews{rois, 2-isleft};
 meshes = {'sphere', 'inflated'};
 
+% update the hemisphere in label file names
+labelboth = cellfun(@(x) strrep(x, {'rh', 'lh'}, {'lh', 'rh'}), labels, 'uni', false);
+labelboth = vertcat(labelboth{:});
+labellist = labelboth(:, 2-strcmp(Srf.Hemisphere, 'lh'));
+
 %% Make plots
 % change current working directory to prf/
 oldpath = pwd;
@@ -114,11 +140,6 @@ if isfield(Srf, 'Y')
 else
     R2Thrsh = 0;
 end
-
-% labels
-labels = cellfun(@(x) sprintf('roi.%s.f13.face-vs-object.%s.label', Srf.Hemisphere, x), ...
-    {'ofa', 'ffa1', 'ffa2', 'atl'}, 'uni', false);
-labellist = fullfile('..', 'label', labels);
 
 % plot for each map
 N_maps = length(maps);
@@ -172,4 +193,4 @@ end
 % change back to the original directory
 cd(oldpath);
 
-end %function plot_prf
+end %local function plot_prf

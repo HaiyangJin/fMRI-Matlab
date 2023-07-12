@@ -1,8 +1,25 @@
-function prfcf_vfcoverage_one(prfFnList, labels, clipping, cblim, outpath)
+function fs_samsrf_vfcoverage(prfFnList, labels, clipping, cblim, outpath)
+% fs_samsrf_vfcoverage(prfFnList, labels, clipping, cblim, outpath)
+%
 % Plot the visual field coverage for ROIs.
 %
-% prfFnList     <cell str> a list of pRF result files.
-% labels        <str cell> labels for ROIs.
+% Inputs:
+%    prfFnList        <cell str> a list of Srf files to be displayed.
+%    labels           <cell str> labels to be displayed. Default to some
+%                      label files, e.g., roi.lh.f13.face-vs-object.ofa.label.
+%                      If you do not know what this label file refers to,
+%                      you probably should set your own lable names. But
+%                      the label names have to include the hemisphere
+%                      information (e.g., 'lh'), which will be upated to
+%                      match the Srf file automatically.
+%    clipping         <num> the same color will be displayed for area whose
+%                      values are above this. More see samsrf_vfcoverage(). 
+%    cblim            <num vec> colorbar limits. Default to defaults in
+%                      samsrf_vfcoverage(). 
+%    outpath          <str> path to save the output figures. Default to
+%                      pwd().
+%
+% Created by Haiyang Jin (2023-July-1)
 
 if ischar(prfFnList) && contains(prfFnList, '*')
     prflist = dir(prfFnList);
@@ -14,11 +31,14 @@ assert(~isempty(prfFnList), 'Cannot find any pRF files...');
 N_prf = length(prfFnList);
 
 if ~exist('labels', 'var') || isempty(labels)
-    labels = [];
-    N_label = 4;
-else
-    N_label = length(labels);
+    evc = {'lh.V1.label', 'lh.V2.label', 'lh.V3.label'};
+    ffa = cellfun(@(x) sprintf('roi.lh.f13.face-vs-object.%s.label', x), ...
+        {'ofa', 'ffa1', 'ffa2', 'atl'}, 'uni', false);
+    labels = fullfile('..', 'label', horzcat(evc, ffa));
+elseif ischar(labels)
+    labels = {labels};
 end
+N_label = length(labels);
 
 if ~exist('clipping', 'var') || isempty(clipping)
     clipping = Inf;
@@ -64,6 +84,9 @@ saveas(f, fname, 'png');
 
 end
 
+
+
+%% Local function
 function vf_coverage(prfFname, labels, clipping, cblim)
 % prfFname    <str> pRF result file.
 % labels      <cell> labels for ROIs.
@@ -86,16 +109,17 @@ if ~exist('Srf', 'var')
 end
 
 % default labels
-if isempty(labels)
-    % default label files
-    labelFns = cellfun(@(x) sprintf('roi.%s.f13.face-vs-object.%s', Srf.Hemisphere, x), ...
-        {'ofa', 'ffa1', 'ffa2', 'atl'}, 'uni', false);
-    labels = fullfile('..', 'label', labelFns);
-
-elseif isnuermic(labels)
+if isscalar(labels)
     % when labels are vertex indices
     labelFns = arrayfun(@(x) sprintf('roi_%d', x), 1:length(labels), 'uni', false);
     labels = mat2cell(labels, size(labels,1));
+else
+    % update the hemisphere information
+    labelboth = cellfun(@(x) strrep(x, {'rh', 'lh'}, {'lh', 'rh'}), labels, 'uni', false);
+    labelboth = vertcat(labelboth{:});
+    labels = labelboth(:, 2-strcmp(Srf.Hemisphere, 'lh'));
+    labels(cellfun(@(x) ~exist(x, 'file'), labels)) = [];
+    [~, labelFns] = cellfun(@fileparts, labels, 'uni', false);
 end
 N_label = length(labels);
 
@@ -103,7 +127,7 @@ N_label = length(labels);
 for i=1:N_label
 
     nexttile;
-    samsrf_vfcoverage(Srf, 9.3, labels{i}, 0.05, clipping);
+    samsrf_vfcoverage(Srf, 9.3, strrep(labels{i}, '.label', ''), 0.05, clipping);
     title(labelFns{i})
 
     if ~isempty(cblim)

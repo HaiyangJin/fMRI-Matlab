@@ -1,5 +1,5 @@
-function prfFnList = prfcf_listprfs(prf_wc)
-% prfFnList = prfcf_listprfs(prf_wc)
+function prfFnList = fs_samsrf_listprfs(prf_wc)
+% prfFnList = fs_samsrf_listprfs(prf_wc)
 %
 % Inputs:
 %     prf_wc      <str> wildcard to identify the pRF file(s). If prf_wc 
