@@ -2,7 +2,7 @@ function prfFnList = fs_samsrf_listprfs(prf_wc)
 % prfFnList = fs_samsrf_listprfs(prf_wc)
 %
 % Inputs:
-%     prf_wc      <str> wildcard to identify the pRF file(s). If prf_wc 
+%     prf_wc      <cell str> wildcard to identify the pRF file(s). If prf_wc 
 %                  contains '=vs=', the strings will be split by '=vs=' and
 %                  the differnt strings will be used to identify pRF files,
 %                  which will be put in one cell together. In this case, 
@@ -13,6 +13,20 @@ function prfFnList = fs_samsrf_listprfs(prf_wc)
 %                   files.
 %
 % Created by Haiyang Jin (2023-July-01)
+
+% ensure a cell
+if ischar(prf_wc); prf_wc = {prf_wc}; end
+
+% idenity pRF files for each wildcard
+prfFnCell = cellfun(@list_prffiles, prf_wc, 'uni', false);
+prfFnList = vertcat(prfFnCell{:});
+
+end
+
+
+
+%% Local function
+function prfFnList = list_prffiles(prf_wc)
 
 if ~contains(prf_wc, '=vs=')
 
@@ -57,4 +71,8 @@ else
     % together
 
 end
+
+% ensure a column vec cell
+prfFnList = prfFnList(:);
+
 end
