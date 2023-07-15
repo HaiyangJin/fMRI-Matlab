@@ -22,14 +22,17 @@ if ischar(prfFnList); prfFnList = {prfFnList}; end
 N_prf = length(prfFnList);
 
 if ~exist('labels', 'var') || isempty(labels)
-    evc = {'lh.V1.label', 'lh.V2.label', 'lh.V3.label'};
+    evc = cellfun(@(x) sprintf('lh_%s.label', x), ...
+        {'V1', 'V2', 'V3', 'V4'}, ... {'V1', 'V2', 'V2d', 'V2v', 'V3', 'V3A', 'V3B', 'V3d', 'V3v', 'V4'}
+        'uni', false); 
     ffa = cellfun(@(x) sprintf('roi.lh.f13.face-vs-object.%s.label', x), ...
         {'ofa', 'ffa1', 'ffa2', 'atl'}, 'uni', false);
     labels = fullfile('..', 'label', horzcat(evc, ffa));
 elseif ischar(labels)
     labels = {labels};
 end
-N_label = length(labels);
+N_label_row = min(length(labels), 4);
+N_label_col = ceil(length(labels)/N_label_row);
 
 if ~exist('outpath', 'var') || isempty(outpath)
     outpath = pwd;
@@ -38,8 +41,8 @@ fm_mkdir(outpath);
 
 %% Plot
 % make a new figure
-f = figure('Position', [1, 1, 500*N_label, 500*N_prf]);
-tiledlayout(N_prf, N_label);
+f = figure('Position', [1, 1, 500*N_label_row, 500*N_prf*N_label_col]);
+tiledlayout(N_prf*N_label_col, N_label_row);
 
 % all Prf files and all labels
 [tmpregion, tmpprflist] = ndgrid(labels, prfFnList);
@@ -113,7 +116,7 @@ theinfo = fp_fn2info(fn);
 theinfo = rmfield(theinfo, 'task'); % remove task name
 updatedfn = fp_info2fn(theinfo);
 title(strrep(updatedfn, '_', '\_'));
-subtitle(subtitlestr)
+subtitle(strrep(subtitlestr, '_', '\_'));
 set(findall(gcf,'-property','FontSize'),'FontSize',16)
 
 xlim(theax, [0 10]);

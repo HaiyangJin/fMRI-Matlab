@@ -42,7 +42,9 @@ N_maps = length(maps);
 
 % labels to be displayed
 if ~exist('labels', 'var') || isempty(labels)
-    evc = {'lh.V1.label', 'lh.V2.label', 'lh.V3.label'};
+    evc = cellfun(@(x) sprintf('lh_%s.label', x), ...
+        {'V1', 'V2', 'V3', 'V4'}, ... {'V1', 'V2', 'V2d', 'V2v', 'V3', 'V3A', 'V3B', 'V3d', 'V3v', 'V4'}
+        'uni', false); 
     ffa = cellfun(@(x) sprintf('roi.lh.f13.face-vs-object.%s.label', x), ...
         {'ofa', 'ffa1', 'ffa2', 'atl'}, 'uni', false);
     labels = fullfile('..', 'label', horzcat(evc, ffa));

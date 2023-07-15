@@ -31,14 +31,17 @@ assert(~isempty(prfFnList), 'Cannot find any pRF files...');
 N_prf = length(prfFnList);
 
 if ~exist('labels', 'var') || isempty(labels)
-    evc = {'lh.V1.label', 'lh.V2.label', 'lh.V3.label'};
+    evc = cellfun(@(x) sprintf('lh_%s.label', x), ...
+        {'V1', 'V2', 'V3', 'V4'}, ... {'V1', 'V2', 'V2d', 'V2v', 'V3', 'V3A', 'V3B', 'V3d', 'V3v', 'V4'}
+        'uni', false); 
     ffa = cellfun(@(x) sprintf('roi.lh.f13.face-vs-object.%s.label', x), ...
         {'ofa', 'ffa1', 'ffa2', 'atl'}, 'uni', false);
     labels = fullfile('..', 'label', horzcat(evc, ffa));
 elseif ischar(labels)
     labels = {labels};
 end
-N_label = length(labels);
+N_label_row = min(length(labels), 4);
+N_label_col = ceil(length(labels)/N_label_row);
 
 if ~exist('clipping', 'var') || isempty(clipping)
     clipping = Inf;
@@ -54,8 +57,8 @@ end
 fm_mkdir(outpath);
 
 %% Make a new figure
-f = figure('Position', [1, 1, 500*N_label, 500*N_prf]);
-tiledlayout(N_prf, N_label);
+f = figure('Position', [1, 1, 500*N_label_row, 500*N_prf*N_label_col]);
+tiledlayout(N_prf*N_label_col, N_label_row);
 
 % make plot
 cellfun(@(x) vf_coverage(x, labels, clipping, cblim), prfFnList, 'uni', false);
@@ -128,7 +131,7 @@ for i=1:N_label
 
     nexttile;
     samsrf_vfcoverage(Srf, 9.3, strrep(labels{i}, '.label', ''), 0.05, clipping);
-    title(labelFns{i})
+    title(strrep(labelFns{i}, '_', '\_'));
 
     if ~isempty(cblim)
         clim(cblim);             % set colorbar limits
