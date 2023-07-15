@@ -78,16 +78,33 @@ end
 %% Local function
 function plot_params(prfFname, label)
 
+global prfFname_backup Srf_backup
+
 % ensure the Srf file exists
 [prfpath, fn] = fileparts(prfFname);
 if ~endsWith(prfpath, 'prf')
     warning('The prf result file does not seem to be in a "prf/" folder.')
 end
-% load the variables
-load(prfFname, 'Srf');
-if ~exist('Srf', 'var')
-    warning('%s does not contain Srf...', prfFname);
-    return
+
+if ~isempty(prfFname_backup) && ~isempty(Srf_backup) ...
+        && strcmp(prfFname_backup, prfFname)
+
+    % load Srf from backup
+    fprintf('Load backup Srf...\n');
+    Srf = Srf_backup;
+
+else
+
+    % load the variables
+    load(prfFname, 'Srf');
+    if ~exist('Srf', 'var')
+        warning('%s does not contain Srf...', prfFname);
+        return
+    end
+
+    % backup the info
+    Srf_backup = Srf;
+    prfFname_backup = prfFname;
 end
 
 % update the hemisphere information
