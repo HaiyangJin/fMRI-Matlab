@@ -1,5 +1,5 @@
-function fs_samsrf_plotmaps(prfFnList, rois, maps, labels, outpath)
-% fs_samsrf_plotmaps(prfFnList, rois, maps, labels, outpath)
+function fs_samsrf_plotmaps(prfFnList, rois, maps, labels, outpath, showfig)
+% fs_samsrf_plotmaps(prfFnList, rois, maps, labels, outpath, showfig)
 %
 % Plots the prf ftting results.
 %
@@ -19,6 +19,7 @@ function fs_samsrf_plotmaps(prfFnList, rois, maps, labels, outpath)
 %                      match the Srf file automatically.
 %    outpath          <str> path to save the output figures. Default to
 %                      pwd().
+%    showfig          <bool> whether to show the figure, default to true.
 %
 % Created by Haiyang Jin (2023-July-1)
 
@@ -57,9 +58,15 @@ if ~exist('outpath', 'var') || isempty(outpath)
 end
 fm_mkdir(outpath);
 
+if ~exist('showfig', 'var') || isempty(showfig)
+    showfig = true;
+end
+showfigs = {'on', 'off'};
+
 %% Plot
 % make a new figure
-f = figure('Position', [1, 1, 500*N_maps, 500*N_prf*N_region]);
+f = figure('Position', [1, 1, 500*N_maps, 500*N_prf*N_region], ...
+    'Visible', showfigs{2-showfig});
 tiledlayout(N_prf*N_region, N_maps);
 
 % all Prf files and all rois

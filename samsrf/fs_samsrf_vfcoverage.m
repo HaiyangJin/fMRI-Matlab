@@ -1,5 +1,5 @@
-function fs_samsrf_vfcoverage(prfFnList, labels, clipping, cblim, outpath)
-% fs_samsrf_vfcoverage(prfFnList, labels, clipping, cblim, outpath)
+function fs_samsrf_vfcoverage(prfFnList, labels, clipping, cblim, outpath, showfig)
+% fs_samsrf_vfcoverage(prfFnList, labels, clipping, cblim, outpath, showfig)
 %
 % Plot the visual field coverage for ROIs.
 %
@@ -18,6 +18,7 @@ function fs_samsrf_vfcoverage(prfFnList, labels, clipping, cblim, outpath)
 %                      samsrf_vfcoverage(). 
 %    outpath          <str> path to save the output figures. Default to
 %                      pwd().
+%    showfig          <bool> whether to show the figure, default to true.
 %
 % Created by Haiyang Jin (2023-July-1)
 
@@ -56,8 +57,14 @@ if ~exist('outpath', 'var') || isempty(outpath)
 end
 fm_mkdir(outpath);
 
+if ~exist('showfig', 'var') || isempty(showfig)
+    showfig = true;
+end
+showfigs = {'on', 'off'};
+
 %% Make a new figure
-f = figure('Position', [1, 1, 500*N_label_row, 500*N_prf*N_label_col]);
+f = figure('Position', [1, 1, 500*N_label_row, 500*N_prf*N_label_col], ...
+    'Visible', showfigs{2-showfig});
 tiledlayout(N_prf*N_label_col, N_label_row);
 
 % make plot

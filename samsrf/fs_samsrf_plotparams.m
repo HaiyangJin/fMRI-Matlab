@@ -1,5 +1,5 @@
-function fs_samsrf_plotparams(prfFnList, labels, outpath)
-% fs_samsrf_plotparams(prfFnList, labels, outpath)
+function fs_samsrf_plotparams(prfFnList, labels, outpath, showfig)
+% fs_samsrf_plotparams(prfFnList, labels, outpath, showfig)
 %
 % Plot Sigma against Eccentricity (will make it more flexible later).
 %
@@ -14,6 +14,7 @@ function fs_samsrf_plotparams(prfFnList, labels, outpath)
 %                      match the Srf file automatically.
 %    outpath          <str> path to save the output figures. Default to
 %                      pwd().
+%    showfig          <bool> whether to show the figure, default to true.
 %
 % Created by Haiyang Jin (2023-July-1)
 
@@ -39,9 +40,15 @@ if ~exist('outpath', 'var') || isempty(outpath)
 end
 fm_mkdir(outpath);
 
+if ~exist('showfig', 'var') || isempty(showfig)
+    showfig = true;
+end
+showfigs = {'on', 'off'};
+
 %% Plot
 % make a new figure
-f = figure('Position', [1, 1, 500*N_label_row, 500*N_prf*N_label_col]);
+f = figure('Position', [1, 1, 500*N_label_row, 500*N_prf*N_label_col], ...
+    'Visible', showfigs{2-showfig});
 tiledlayout(N_prf*N_label_col, N_label_row);
 
 % all Prf files and all labels
