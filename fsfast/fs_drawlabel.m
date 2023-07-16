@@ -23,8 +23,8 @@ function fscmd = fs_drawlabel(sessList, anaList, conList, varargin)
 %    .distmetric    <str> method to be used to calculate the distance. 
 %                    Default to 'geodesic' (or 'dijkstra').
 %    .addvalue      <boo> whether add the functional data/values used to
-%                    create the label. Default is 1.
-%    .extracmd      <str> extra commands (cmd). Default is ''.
+%                    create the label. Default to true.
+%    .extracmd      <str> extra commands (cmd). Default to ''.
 %    .runcmd        <boo> 1: run FreeSurfer commands; 0: do not run
 %                    but only output FreeSurfer commands. 
 %
@@ -41,7 +41,7 @@ function fscmd = fs_drawlabel(sessList, anaList, conList, varargin)
 %    fscmd          <string> FreeSurfer commands used.
 %    a label saved in the label/ folder within $SUBJECTS_DIR
 %
-% Created by Haiyang Jin (10-Dec-2019)
+% Created by Haiyang Jin (2019-Dec-10)
 
 if nargin < 3
     fprintf('Usage: fscmd = fs_drawlabel(sessList, anaList, conList, varargin);\n');
@@ -76,6 +76,19 @@ end
 if ischar(opts.extrastr)
     opts.extrastr = {opts.extrastr};
 end
+%%% clean the extra strings %%%
+% add variable name
+hasname = cellfun(@(x) contains(x, '-'), opts.extrastr);
+opts.extrastr(~hasname) = cellfun(@(x) sprintf('_custom-%s', x), ...
+    opts.extrastr(~hasname), 'uni', false);
+% remove '_' at the end
+endunderscore = cellfun(@(x) endsWith(x, '_'), opts.extrastr);
+opts.extrastr(endunderscore) = cellfun(@(x) x(1:end-1), ...
+    opts.extrastr(endunderscore), 'uni', false);
+% ensure starts with '_'
+startunderscore = cellfun(@(x) startsWith(x, '_'), opts.extrastr);
+opts.extrastr(~startunderscore) = cellfun(@(x) ['_' x], ...
+    opts.extrastr(~startunderscore), 'uni', false);
 
 %% Draw labels for all participants for both hemispheres
 % create all the combinations
@@ -88,15 +101,11 @@ con = theCon(:);
 thresh = theThresh(:);
 extraStr = theExtra(:);
 
-% add '.' at the end if necessary
-notdot = cellfun(@(x) ~endsWith(x, '.') & ~isempty(x), extraStr);
-extraStr(notdot) = cellfun(@(x) [x '.'], extraStr(notdot), 'uni', false);
-
 % obtain necessary information
 hemi = cellfun(@fm_2hemi, ana, 'uni', false);
 subjCode = fs_subjcode(sess, 1);
 sigFile = fullfile(getenv('FUNCTIONALS_DIR'), sess, 'bold', ana, con, 'sig.nii.gz');
-labelName = cellfun(@(x1, x2, x3, x4) sprintf('roi.%s.f%d.%s.%slabel', ...
+labelName = cellfun(@(x1, x2, x3, x4) sprintf('hemi-%s_type-f%d_cont-%s%s_froi.label', ...
     x1, x2*10, x3, x4), hemi, thresh, con, extraStr, 'uni', false);
 
 % create labels

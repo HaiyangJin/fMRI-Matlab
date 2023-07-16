@@ -20,8 +20,11 @@ function dataTable = fs_samsrf_prf2csv(prf_wc, labels, allvtx)
 % Created by Haiyang Jin (2023-July-1)
 
 if ~exist('labels', 'var') || isempty(labels)
-    evc = {'lh.V1.label', 'lh.V2.label', 'lh.V3.label'};
-    ffa = cellfun(@(x) sprintf('roi.lh.f13.face-vs-object.%s.label', x), ...
+    evc = cellfun(@(x) sprintf('lh_%s.label', x), ...
+        {'V1', 'V2', 'V3', 'V4'}, ... {'V1', 'V2', 'V2d', 'V2v', 'V3', 'V3A', 'V3B', 'V3d', 'V3v', 'V4'}
+        'uni', false); 
+    % 'roi.lh.f13.face-vs-object.%s.label'
+    ffa = cellfun(@(x) sprintf('hemi-lh_type-f13_cont-face=vs=object_roi-%s_froi.label', x), ...
         {'ofa', 'ffa1', 'ffa2', 'atl'}, 'uni', false);
     labels = fullfile('..', 'label', horzcat(evc, ffa));
 elseif ischar(labels)

@@ -35,7 +35,8 @@ if ~exist('labels', 'var') || isempty(labels)
     evc = cellfun(@(x) sprintf('lh_%s.label', x), ...
         {'V1', 'V2', 'V3', 'V4'}, ... {'V1', 'V2', 'V2d', 'V2v', 'V3', 'V3A', 'V3B', 'V3d', 'V3v', 'V4'}
         'uni', false); 
-    ffa = cellfun(@(x) sprintf('roi.lh.f13.face-vs-object.%s.label', x), ...
+    % 'roi.lh.f13.face-vs-object.%s.label'
+    ffa = cellfun(@(x) sprintf('hemi-lh_type-f13_cont-face=vs=object_roi-%s_froi.label', x), ...
         {'ofa', 'ffa1', 'ffa2', 'atl'}, 'uni', false);
     labels = fullfile('..', 'label', horzcat(evc, ffa));
 elseif ischar(labels)
@@ -105,7 +106,15 @@ function vf_coverage(prfFname, labels, clipping, cblim)
 % clipping    <num> see samsrf_vfcoverage()
 % cblim       <num> color bar limits
 
-prfPath = fileparts(prfFname);
+% ensure the Srf file exists
+[prfPath, fn] = fileparts(prfFname);
+if ~endsWith(prfPath, 'prf')
+    warning('The prf result file does not seem to be in a "prf/" folder.')
+end
+
+theinfo = fp_fn2info(fn);
+theinfo = rmfield(theinfo, 'task'); % remove task name
+updatedfn = fp_info2fn(theinfo);
 
 % change working directory if needed
 if ~isempty(prfPath)
@@ -140,7 +149,19 @@ for i=1:N_label
 
     nexttile;
     samsrf_vfcoverage(Srf, 9.3, strrep(labels{i}, '.label', ''), 0.05, clipping);
-    title(strrep(labelFns{i}, '_', '\_'));
+
+    % process the label name
+    info = fp_fn2info(labelFns{i});
+    if isfield(info, 'hemi')
+        % shorten the label name
+        values = cellfun(@(x) info.(x), fieldnames(info), 'uni', false);
+        labelFn = strjoin(values(1:end-1), '_');
+    else
+        labelFn = labelFns{i};
+    end
+
+    title(strrep(updatedfn, '_', '\_'));
+    subtitle(strrep(labelFn, '_', '\_'));
 
     if ~isempty(cblim)
         clim(cblim);             % set colorbar limits

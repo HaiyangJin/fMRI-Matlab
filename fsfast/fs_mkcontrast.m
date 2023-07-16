@@ -38,7 +38,7 @@ function [conStruct, fscmd] = fs_mkcontrast(anaList, conditions, contrasts, meth
 % Output:
 %    conStruct         <struct> a contrast structure which has three
 %                       fieldnames. (analysisName: the ananlysis name;
-%                       contrastName: the contrast name in format of a-vs-b;
+%                       contrastName: the contrast name in format of a=vs=b;
 %                       contrastCode: the commands to be used in FreeSurfer).
 %                       conStruct will also be saved as the Matlab
 %                       file and its name will be the initials of all the
@@ -61,30 +61,30 @@ function [conStruct, fscmd] = fs_mkcontrast(anaList, conditions, contrasts, meth
 % Example:
 % anaList = {'main_sm5.lh', 'main_sm5.rh'}; % [obtained from fs_mkanalysis.m]
 % contrasts = {
-%     'face_1', 'base';
+%     'face1', 'base';
 %     'face', 'object';
 %     'fa', 'obj';
 %     'face2', {'object', 'word'};
 %     {'o', 'w'}, 'f';
 %     {'f', 'o', 'w'}, ''};
 % conditions = {
-%     'face_1';
+%     'face1';
 %     'face2';
 %     'word';
 %     'object'}; % can be obtained from fs_par2cond.m.
 % method = 1;  % startsWith
-% conStruct = fs_mkcontrast(anaList, contrasts, conditions, method, 0);
+% conStruct = fs_mkcontrast(anaList, conditions, contrasts, method, 0);
 %
 % Outputs of this example:
 % Contrast names and codes are:
-%     'face_1-vs-baseline'      ' -a 1'                                       'startsWith'
-%     'face-vs-object'          ' -a 1 -a 2 -c 4'                             'startsWith'
-%     'fa-vs-obj'               ' -a 1 -a 2 -c 4'                             'startsWith'
-%     'face2-vs-object-word'    ' -a 2 -c 3 -c 4'                             'startsWith'
-%     'o-w-vs-f'                ' -a 3 -a 4 -c 1 -c 2'                        'startsWith'
-%     'f-o-w-vs-all'            ' -a 1 -a 2 -a 3 -a 4 -c 1 -c 2 -c 3 -c 4'    'startsWith'
+%     'face1=vs=baseline'       ' -a 1'                                       'startsWith'
+%     'face=vs=object'          ' -a 1 -a 2 -c 4'                             'startsWith'
+%     'fa=vs=obj'               ' -a 1 -a 2 -c 4'                             'startsWith'
+%     'face2=vs=object-word'    ' -a 2 -c 3 -c 4'                             'startsWith'
+%     'o+w=vs=f'                ' -a 3 -a 4 -c 1 -c 2'                        'startsWith'
+%     'f+o+w=vs=all'            ' -a 1 -a 2 -a 3 -a 4 -c 1 -c 2 -c 3 -c 4'    'startsWith'
 %
-% Created by Haiyang Jin (19-Dec-2019)
+% Created by Haiyang Jin (2019-Dec-19)
 %
 % See also:
 % [fs_mkanalysis;] fs_selxavg3
@@ -162,7 +162,7 @@ for iCon = 1:nContrast
         actCon = thisCon(1);
     end
     % first part of contrast name
-    contrNameAct = sprintf(['%s' repmat('-%s', 1, numel(actCon)-1) '-vs-'], actCon{:});
+    contrNameAct = sprintf(['%s' repmat('+%s', 1, numel(actCon)-1) '=vs='], actCon{:});
     % first part of contrast code
     contrCodeAct = sprintf(['-a %d' repmat(' -a %d', 1, nLevels(1)-1)], conditionNum{1});
     
@@ -179,7 +179,7 @@ for iCon = 1:nContrast
             baseCon = thisCon(2);
         end
         % second part of contrast name
-        contrNameCon = sprintf(['%s' repmat('-%s', 1,numel(baseCon)-1)], baseCon{:});
+        contrNameCon = sprintf(['%s' repmat('+%s', 1,numel(baseCon)-1)], baseCon{:});
         if isempty(contrNameCon) && nLevels(2) == numel(conditions)
             contrNameCon = 'all';
         end

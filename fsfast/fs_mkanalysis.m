@@ -95,6 +95,9 @@ end
 if ~isempty(opts.ananame)
     assert(nRunfn == 1, ['The length of runFn has to be 1 when custom ' ...
         'analysis name is used.']);
+    if ~startsWith(opts.ananame, 'ana-')
+        opts.ananame = ['ana-' opts.ananame];
+    end
 end
 
 % empty cell for saving analysis names
@@ -126,7 +129,7 @@ for iRun = 1:nRunfn
         clear anaName
 
         if ~isempty(opts.ananame)
-            analysisName = [opts.ananame '.' hemi];
+            analysisName = [opts.ananame '_hemi-' hemi];
         end
         
         % save the analysis names into the cell

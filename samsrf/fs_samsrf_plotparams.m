@@ -26,7 +26,8 @@ if ~exist('labels', 'var') || isempty(labels)
     evc = cellfun(@(x) sprintf('lh_%s.label', x), ...
         {'V1', 'V2', 'V3', 'V4'}, ... {'V1', 'V2', 'V2d', 'V2v', 'V3', 'V3A', 'V3B', 'V3d', 'V3v', 'V4'}
         'uni', false); 
-    ffa = cellfun(@(x) sprintf('roi.lh.f13.face-vs-object.%s.label', x), ...
+    % 'roi.lh.f13.face-vs-object.%s.label'
+    ffa = cellfun(@(x) sprintf('hemi-lh_type-f13_cont-face=vs=object_roi-%s_froi.label', x), ...
         {'ofa', 'ffa1', 'ffa2', 'atl'}, 'uni', false);
     labels = fullfile('..', 'label', horzcat(evc, ffa));
 elseif ischar(labels)
@@ -121,15 +122,24 @@ for i = 1:N_label
 
     thislable = labels{i};
 
+    % process the label name
+    info = fp_fn2info(thislable);
+    if isfield(info, 'hemi')
+        % shorten the label name
+        values = cellfun(@(x) info.(x), fieldnames(info), 'uni', false);
+        labelFn = strjoin(values(1:end-1), '_');
+    else
+        labelFn = labelFns{i};
+    end
+    
     if exist(thislable, 'file')
         samsrf_plot(Srf, sigma, Srf, 'Eccentricity', 0:10, strrep(thislable, '.label', ''));
-        subtitlestr = [labelFns{i}, '.label'];
+        subtitlestr = labelFn;
     else
-        subtitlestr = [labelFns{i}, '.label (N.A.)'];
+        subtitlestr = [labelFn, ' (N.A.)'];
     end
 
     % add title and sub-title
-    
     title(strrep(updatedfn, '_', '\_'));
     subtitle(strrep(subtitlestr, '_', '\_'));
     set(findall(gcf,'-property','FontSize'),'FontSize',16)

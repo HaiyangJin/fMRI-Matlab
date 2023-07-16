@@ -1,9 +1,9 @@
 function contrast = fm_2contrast(fnList, delimiter, conSign)
-% contrast = fm_2contrast(fnList, [delimiter='.', conSign='-vs-'])
+% contrast = fm_2contrast(fnList, [delimiter='.', conSign='=vs='])
 %
 % This function obtains the contrast name from the strings (e.g., a label 
-% name when the label name is something like roi.lh.f13.f-vs-o.*label). It
-% will obtain the strings around '-vs-'.
+% name when the label name is something like roi.lh.f13.f=vs=o.*label). It
+% will obtain the strings around '=vs='.
 %
 % Input:
 %    fnList          <string> OR <cell string> a list of strings.
@@ -13,7 +13,7 @@ function contrast = fm_2contrast(fnList, delimiter, conSign)
 %                     contrast from label name. filesep can be used to
 %                     obtain contrast name from a path.
 %    conSign         <string> contrast sign, i.e., the unique strings in
-%                     the contrast names. Default is '-vs-'.  
+%                     the contrast names. Default is '=vs='.  
 %
 % Output:
 %    contrast        <cell string> or <string> a cell of contrast names.
@@ -29,21 +29,22 @@ end
 
 if ~exist('delimiter', 'var') || isempty(delimiter)
     % defualt is for extracting contrast from label names
-    delimiter = '.'; 
+    delimiter = '_'; 
 end
 
 if ~exist('conSign', 'var') || isempty(conSign)
-    conSign = '-vs-';
+    conSign = '=vs=';
 end
 
 % split the fnList by delimiter
 strsCell = cellfun(@(x) strsplit(x, delimiter), fnList, 'uni', false);
 
-% find the string containts '-vs-'
+% find the string containts '=vs='
 isVs = cellfun(@(x) contains(x, conSign), strsCell, 'uni', false);
 
-% only keep the strings containing '-vs-'
+% only keep the strings containing '=vs='
 contrastCell = cellfun(@(x, y) x{y}, strsCell, isVs, 'uni', false);
+contrastCell = cellfun(@(x) strrep(x, 'cont-', ''), contrastCell, 'uni', false);
 
 if back2char
     contrast = contrastCell{1};
