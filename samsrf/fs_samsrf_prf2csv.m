@@ -44,7 +44,9 @@ dataTable = vertcat(dataCell{:});
 dataTable.ext = [];
 
 %% Save CSV
-writetable(dataTable, sprintf('pRF_parameters_%s.csv', char(datetime('now', 'Format', 'yyyyMMddHHmm'))));
+if nargout == 0
+    writetable(dataTable, sprintf('pRF_parameters_%s.csv', char(datetime('now', 'Format', 'yyyyMMddHHmm'))));
+end
 
 end
 
