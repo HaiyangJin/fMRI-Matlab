@@ -92,6 +92,8 @@ set(f, 'Name', fn);
 fname = fullfile(outpath, fn);
 saveas(f, fname, 'png');
 
+if ~showfig; close(f); end
+
 end
 
 

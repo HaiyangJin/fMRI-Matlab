@@ -51,10 +51,8 @@ f = figure('Position', [1, 1, 500*N_label_row, 500*N_prf*N_label_col], ...
     'Visible', showfigs{2-showfig});
 tiledlayout(N_prf*N_label_col, N_label_row);
 
-% all Prf files and all labels
-[tmpregion, tmpprflist] = ndgrid(labels, prfFnList);
 % make sub-plots
-cellfun(@(x,y) plot_params(x, y), tmpprflist(:), tmpregion(:), 'uni', false);
+cellfun(@(x,y) plot_params(x, labels), prfFnList, 'uni', false);
 
 %% Save the plot
 % make the file name
@@ -71,55 +69,41 @@ set(f, 'Name', fn);
 fname = fullfile(outpath, fn);
 saveas(f, fname, 'png');
 
+if ~showfig; close(f); end
+
 end
 
 
 
 %% Local function
-function plot_params(prfFname, label)
-
-global prfFname_backup Srf_backup
+function plot_params(prfFname, labels)
 
 % ensure the Srf file exists
 [prfpath, fn] = fileparts(prfFname);
 if ~endsWith(prfpath, 'prf')
     warning('The prf result file does not seem to be in a "prf/" folder.')
 end
-
-if ~isempty(prfFname_backup) && ~isempty(Srf_backup) ...
-        && strcmp(prfFname_backup, prfFname)
-
-    % load Srf from backup
-    fprintf('Load backup Srf...\n');
-    Srf = Srf_backup;
-
-else
-
-    % load the variables
-    load(prfFname, 'Srf');
-    if ~exist('Srf', 'var')
-        warning('%s does not contain Srf...', prfFname);
-        return
-    end
-
-    % backup the info
-    Srf_backup = Srf;
-    prfFname_backup = prfFname;
+% load the variables
+load(prfFname, 'Srf');
+if ~exist('Srf', 'var')
+    warning('%s does not contain Srf...', prfFname);
+    return
 end
+theinfo = fp_fn2info(fn);
+theinfo = rmfield(theinfo, 'task'); % remove task name
+updatedfn = fp_info2fn(theinfo);
 
 % update the hemisphere information
-labelboth = strrep(label, {'rh', 'lh'}, {'lh', 'rh'});
-label = labelboth{1, 2-strcmp(Srf.Hemisphere, 'lh')};
-[~, labelname, ext] = fileparts(label);
+labelboth = cellfun(@(x) strrep(x, {'rh', 'lh'}, {'lh', 'rh'}), labels, 'uni', false);
+labelboth = vertcat(labelboth{:});
+labels = labelboth(:, 2-strcmp(Srf.Hemisphere, 'lh'));
+[~, labelFns] = cellfun(@fileparts, labels, 'uni', false);
+N_label = length(labels);
 
 %% Make plots
 % change current working directory to prf/
 oldpath = pwd;
 cd(prfpath);
-
-% each sub-plot
-theax = nexttile;
-theax.FontSize = 18;
 
 % use 'SigmaN' for Css
 if ismember('Exponent', Srf.Values)
@@ -128,23 +112,32 @@ else
     sigma = 'Sigma';
 end
 
-if exist(label, 'file')
-    samsrf_plot(Srf, sigma, Srf, 'Eccentricity', 0:10, strrep(label, '.label', ''));
-    subtitlestr = [labelname, ext];
-else
-    subtitlestr = [labelname, ext, ' (N.A.)'];
+% sub-plot for each label/ROI
+for i = 1:N_label
+
+    % each sub-plot
+    theax = nexttile;
+    theax.FontSize = 18;
+
+    thislable = labels{i};
+
+    if exist(thislable, 'file')
+        samsrf_plot(Srf, sigma, Srf, 'Eccentricity', 0:10, strrep(thislable, '.label', ''));
+        subtitlestr = [labelFns{i}, '.label'];
+    else
+        subtitlestr = [labelFns{i}, '.label (N.A.)'];
+    end
+
+    % add title and sub-title
+    
+    title(strrep(updatedfn, '_', '\_'));
+    subtitle(strrep(subtitlestr, '_', '\_'));
+    set(findall(gcf,'-property','FontSize'),'FontSize',16)
+
+    xlim(theax, [0 10]);
+    ylim(theax, [0, 18]);
+
 end
-
-% add title and sub-title
-theinfo = fp_fn2info(fn);
-theinfo = rmfield(theinfo, 'task'); % remove task name
-updatedfn = fp_info2fn(theinfo);
-title(strrep(updatedfn, '_', '\_'));
-subtitle(strrep(subtitlestr, '_', '\_'));
-set(findall(gcf,'-property','FontSize'),'FontSize',16)
-
-xlim(theax, [0 10]);
-ylim(theax, [0, 18]);
 
 % change back to the original directory
 cd(oldpath);

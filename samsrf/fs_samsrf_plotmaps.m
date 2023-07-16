@@ -96,6 +96,8 @@ set(f, 'Name', fn);
 fname = fullfile(outpath, [upper(region_str) '_' fn]);
 saveas(f, fname, 'png');
 
+if ~showfig; close(f); end
+
 end % function prfcf_plotprf
 
 
