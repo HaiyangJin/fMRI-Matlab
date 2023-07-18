@@ -1,5 +1,5 @@
-function fs_samsrf_plotmaps(prfFnList, rois, maps, labels, outpath, showfig)
-% fs_samsrf_plotmaps(prfFnList, rois, maps, labels, outpath, showfig)
+function fs_samsrf_plotmaps(prfFnList, rois, maps, labels, thresh, outpath, showfig)
+% fs_samsrf_plotmaps(prfFnList, rois, maps, labels, thresh, outpath, showfig)
 %
 % Plots the prf ftting results.
 %
@@ -17,6 +17,7 @@ function fs_samsrf_plotmaps(prfFnList, rois, maps, labels, outpath, showfig)
 %                      the label names have to include the hemisphere
 %                      information (e.g., 'lh'), which will be upated to
 %                      match the Srf file automatically.
+%    thresh           <num vec> 
 %    outpath          <str> path to save the output figures. Default to
 %                      pwd().
 %    showfig          <bool> whether to show the figure, default to true.
@@ -64,6 +65,18 @@ if ~exist('showfig', 'var') || isempty(showfig)
 end
 showfigs = {'on', 'off'};
 
+%% Threshold for all pRF
+if ~exist('thresh', 'var') || isempty(thresh)
+    threshs = NaN(N_prf, 4);
+    for isrf = 1:N_prf
+        thisSrf = load(prfFnList{isrf}, 'Srf');
+        threshs(isrf, :) = cal_thresh(thisSrf.Srf);
+    end
+
+    thresh = max(threshs, [], 1);
+    thresh(1) = min(threshs(:,1));
+end
+
 %% Plot
 % make a new figure
 f = figure('Position', [1, 1, 500*N_maps, 500*N_prf*N_region], ...
@@ -73,7 +86,7 @@ tiledlayout(N_prf*N_region, N_maps);
 % all Prf files and all rois
 [tmpprflist, tmpregion] = ndgrid(prfFnList, rois);
 % make sub-plots
-cellfun(@(x,y) plot_maps(x, y, maps, labels), tmpprflist(:), tmpregion(:), 'uni', false);
+cellfun(@(x,y) plot_maps(x, y, maps, labels, thresh), tmpprflist(:), tmpregion(:), 'uni', false);
 
 %% Save the plot
 % make the file name
@@ -105,10 +118,16 @@ end % function prfcf_plotprf
 
 
 %% Local-function
-function plot_maps(prfFname, rois, maps, labels)
+function plot_maps(prfFname, rois, maps, labels, thresh)
 % prfFname    <str> the file name of the Srf file.
 % rois        <str> the region to be displayed: 'evc' or 'ffa'.
-% maps        <cell str> maps to be displayed.
+% maps        <cell str> maps to be displayed, e.g., 'Sigma'.
+% labels      <cell str> labels to be displayed.
+% thresh      <num vec> thresholds for the maps.
+%               thresh(1): thresohld for R^2
+%               thresh(2): (maximum) thresholds for 'Eccentricity'
+%               thresh(3): (maximum) thresholds for {'x0', 'y0', 'Sigma', 'Sigma1'}
+%               thresh(4): (maximum) thresholds for others.
 
 % ensure the Srf file exists
 [prfpath, fn] = fileparts(prfFname);
@@ -137,21 +156,26 @@ labelboth = cellfun(@(x) strrep(x, {'rh', 'lh'}, {'lh', 'rh'}), labels, 'uni', f
 labelboth = vertcat(labelboth{:});
 labellist = labelboth(:, 2-strcmp(Srf.Hemisphere, 'lh'));
 
+% ensure the length of `thresh` is 4
+thresh_default = NaN(1, 4);
+if ~exist('thresh', 'var') || isempty(thresh)
+    thresh = thresh_default;
+elseif length(thresh)<5
+    thresh_default(1:length(thresh)) = thresh;
+    thresh = thresh_default;
+end
+
 %% Make plots
 % change current working directory to prf/
 oldpath = pwd;
 cd(prfpath);
 
-% threshold for R^2 (default in DisplayMaps)
-if isfield(Srf, 'Y')
-    % If time course is saved
-    Pval = 0.0001;
-    Tval = tinv(1 - Pval/2, size(Srf.Y,1)-2); % t-statistic for this p-value
-    R = sign(Tval) .* (abs(Tval) ./ sqrt(size(Srf.Y,1)-2 + Tval.^2)); % Convert t-testistic into correlation coefficient
-    R2Thrsh = R.^2; % Variance explained
-else
-    R2Thrsh = 0;
-end
+% Calculate default threshold (default in DisplayMaps)
+threshs = cal_thresh(Srf);
+R2Thrsh = threshs(1);
+SrfData75 = threshs(2);
+SrfData95 = threshs(3);
+SrfData99 = threshs(4);
 
 % plot for each map
 N_maps = length(maps);
@@ -165,23 +189,35 @@ for imap = 1:N_maps
     end
 
     % set the threshold for this map
-    Thrsh = NaN(1,5);
-    Thrsh(1) = R2Thrsh;
+    Thrsh = NaN(1, 5);
+    if isempty(thresh(1)) || isnan(thresh(1))
+        Thrsh(1) = R2Thrsh;
+    else
+        Thrsh(1) = thresh(1); % custom threshold
+    end
     switch thismap
         case 'R^2'
             Thrsh(2:3) = [0 1];
         case {'Polar', 'Phase'}
             Thrsh(2:3) = [0 0];
         case 'Eccentricity'
-            % Eccentricity
-            MapData = sqrt(Srf.Data(2,:).^2 + Srf.Data(3,:).^2);
-            Thrsh(2:3) = [0 prctile(MapData(MapData > 0), 95)];
+            if isempty(thresh(2)) || isnan(thresh(2))
+                Thrsh(2:3) = [0 SrfData95];
+            else
+                Thrsh(2:3) = [0 thresh(2)];
+            end
         case {'x0', 'y0', 'Sigma', 'Sigma1'}
-            MapData = sqrt(Srf.Data(2,:).^2 + Srf.Data(3,:).^2);
-            Thrsh(2:3) = [0 prctile(MapData(MapData > 0), 75)];
+            if isempty(thresh(3)) || isnan(thresh(3))
+                Thrsh(2:3) = [0 SrfData75];
+            else
+                Thrsh(2:3) = [0 thresh(3)];
+            end
         otherwise
-            MapData = sqrt(Srf.Data(2,:).^2 + Srf.Data(3,:).^2);
-            Thrsh(2:3) = [0 prctile(MapData(MapData > 0), 99)];
+            if isempty(thresh(4)) || isnan(thresh(4))
+                Thrsh(2:3) = [0 SrfData99];
+            else
+                Thrsh(2:3) = [0 thresh(4)];
+            end
     end
     % more thresholds
     Thrsh(4:5) = [0, Inf];
