@@ -32,6 +32,8 @@ function iccT = fs_icc(sessList, anaList, labelList, varargin)
 %                  columns are the output of ICC(). More see ICC().
 %
 % Varargin:
+%    .isicc       <boo> whether to use ICC (default). Althernative (when 0)
+%                  to Pearson correlations.
 %
 % %%%% for fs_cosmo_sessdsmulti() %%%%
 %     .across      <boo> more see fs_cosmo_sessdsmulti().
@@ -39,7 +41,7 @@ function iccT = fs_icc(sessList, anaList, labelList, varargin)
 %     .datafn      <str> the file to be read.
 %
 % %%%% for ICC() %%%%
-%     .type, .alpha, .r0    in-arguments for ICC. see help fule for
+%     .type, .alpha, .r0    in-arguments for ICC. see help file for
 %     stat_icc().
 %
 % %%%% fs_cosmo_cvsl() %%%%
@@ -57,6 +59,7 @@ function iccT = fs_icc(sessList, anaList, labelList, varargin)
 % Created by Haiyang Jin (2022-Jan-06)
 
 defaultOpts = struct(...
+    'isicc', 1, ...
     'runwise', 0, ...
     'datafn', 'beta.nii.gz', ...
     'across', 1, ...
@@ -129,21 +132,33 @@ for iSess = 1:nSess
                 if strcmp(labelList{iLabel}, 'slicc')
                     % searchlight ICC
                     [co, fa] = fs_readsurf([fm_2hemi(theAna{1}) '.white'], fs_subjcode(theSess));
-                    
+
                     fs_cosmo_cvsl(ds_con, conditions(iCon), {co, fa}, theSess{1}, theAna{1}, ...
                         'measure', @cosmo_slicc, ...
                         'classopt', {'type', opts.type, 'alpha', opts.alpha, 'r0', opts.r0});
                     tmp = struct;
 
                 else
-                    % ICC for one pair of samples
-                    [tmp.r, tmp.LB, tmp.UB, tmp.F, tmp.df1, tmp.df2, tmp.p] =  ...
-                        stat_icc(ds_con.samples', opts.type, opts.alpha, opts.r0);
+                    if opts.isicc
+                        % ICC for one pair of samples
+                        [tmp.r, tmp.LB, tmp.UB, tmp.F, tmp.df1, tmp.df2, tmp.p] =  ...
+                            stat_icc(ds_con.samples', opts.type, opts.alpha, opts.r0);
 
-                    % save ICC type information
-                    tmp.type = opts.type;
-                    tmp.alpha = opts.alpha;
-                    tmp.r0 = opts.r0;
+                        % save ICC type information
+                        tmp.type = opts.type;
+                        tmp.alpha = opts.alpha;
+                        tmp.r0 = opts.r0;
+
+                    else
+                        assert(size(ds_con.samples', 2)==2, 'The measurement can only be 2.');
+
+                        [tmpr,tmpp,tmpLB,tmpUB] = corrcoef(ds_con.samples');
+                        tmp.r = tmpr(1,2);
+                        tmp.p = tmpp(1,2);
+                        tmp.LB = tmpLB(1,2);
+                        tmp.UB = tmpUB(1,2);
+
+                    end
 
                 end
 
