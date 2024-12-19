@@ -25,7 +25,6 @@ function dtTable = fs_cosmo_readdata(sessList, anaList, varargin)
 %    'runwise'      <boo> 0 [default]: load the data analyzed by
 %                    combining all runs; 1: load the data analyzed for
 %                    each run separately.
-
 %    'extraopt'     <cell> extra options for .
 %
 % Output:
@@ -70,6 +69,8 @@ ana = tempAna(:);
 % save the condition information as a table
 condTable = vertcat(condCell{:});
 condTable.Analysis = ana;
+condTable.nVtxHemi = condTable.nVertices;
+condTable.nVertices = []; 
 
 % empty cell for saving data table
 uniCell = cell(nLabel, 1);
@@ -86,22 +87,26 @@ for iLabel = 1:nLabel
     the_ds = ds_cell(matchHemi, :);
     
     % create roi masks with the labels
-    roiMask = cellfun(@(x, y) fs_label2mask(thisLabel, x, numel(y.samples))', ...
-        fs_subjcode(theCondTable.SessCode), the_ds, 'uni', false);
+    if ~isempty(thisLabel)
+        roiMask = cellfun(@(x, y) fs_label2mask(thisLabel, x, numel(y.samples))', ...
+            fs_subjcode(theCondTable.SessCode, 1), the_ds, 'uni', false);
+    else
+        roiMask = cellfun(@(x) true(size(x.samples, 2), 1), the_ds, 'uni', false);
+    end
     
     % apply roi masks and compute the mean
-    dataTCell = cellfun(@(x, y) ds2table(x, y, calMean, runwise), the_ds, roiMask, 'uni', false);
+    dataTCell = cellfun(@(x, y) ds2table(x, y, calMean, opts.runwise), the_ds, roiMask, 'uni', false);
     
     % repeat condition information to match dataTCell
     condTCell = arrayfun(@(x) repmat(theCondTable(x, :), size(dataTCell{x, 1}, 1), 1), 1:sum(matchHemi), 'uni', false)';
     
     % combine data and condition information
-    tempTable = horzcat(vertcat(condTCell{:}), vertcat(dataTCell{:}));
+    tmpTable = horzcat(vertcat(condTCell{:}), vertcat(dataTCell{:}));
     % add label names
-    tempTable.Label = repmat({thisLabel}, size(tempTable, 1), 1);
+    tmpTable.Label = repmat({thisLabel}, size(tmpTable, 1), 1);
     
     % save the data for this label
-    uniCell{iLabel, 1} = tempTable;
+    uniCell{iLabel, 1} = tmpTable;
     
 end
 
@@ -122,6 +127,8 @@ function outT = ds2table(ds, roi, calMean, runwise)
 % read ds samples with roi
 Response = ds.samples(:, roi);
 
+nVertices = repmat(sum(roi), size(Response, 1), 1);
+
 % calculate the mean if needed
 if calMean
     Response = mean(Response, 2);
@@ -136,9 +143,9 @@ Condition = ds.sa.labels;
 if runwise
     Chunk = ds.sa.chunks;
     Target = ds.sa.targets;
-    outT = table(Chunk, Condition, Target, Response);
+    outT = table(nVertices, Chunk, Condition, Target, Response);
 else
-    outT = table(Condition, Response);
+    outT = table(nVertices, Condition, Response);
 end
 
 end
