@@ -116,8 +116,10 @@ if ~exist(outDir, 'dir'); mkdir(outDir); end
 dcmdir = dir(fullfile(thisDir, '*.dcm'));
 % copy the single DICOM file if it exists
 if ~isempty(dcmdir)
-    copyfile(fullfile(dcmdir.folder, dcmdir.name), ...
-        fullfile(outDir, dcmdir.name));
+    % copyfile(fullfile(dcmdir.folder, dcmdir.name), ...
+    %     fullfile(outDir, dcmdir.name));
+    system(sprintf('cp %s %s', fullfile(dcmdir.folder, dcmdir.name), ...
+        fullfile(outDir, dcmdir.name)));
 end
 
 % identify zip DICOM file
