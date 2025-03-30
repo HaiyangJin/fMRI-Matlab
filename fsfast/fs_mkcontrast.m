@@ -162,7 +162,7 @@ for iCon = 1:nContrast
         actCon = thisCon(1);
     end
     % first part of contrast name
-    contrNameAct = sprintf(['%s' repmat('+%s', 1, numel(actCon)-1) '=vs='], actCon{:});
+    contrNameAct = sprintf(['%s' repmat('+%s', 1, numel(actCon)-1) '-vs-'], actCon{:});
     % first part of contrast code
     contrCodeAct = sprintf(['-a %d' repmat(' -a %d', 1, nLevels(1)-1)], conditionNum{1});
     
