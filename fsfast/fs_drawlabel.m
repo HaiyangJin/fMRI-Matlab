@@ -105,8 +105,8 @@ extraStr = theExtra(:);
 hemi = cellfun(@fm_2hemi, ana, 'uni', false);
 subjCode = fs_subjcode(sess, 1);
 sigFile = fullfile(getenv('FUNCTIONALS_DIR'), sess, 'bold', ana, con, 'sig.nii.gz');
-labelName = cellfun(@(x1, x2, x3, x4) sprintf('hemi-%s_type-f%d_cont-%s%s_froi.label', ...
-    x1, x2*10, x3, x4), hemi, thresh, con, extraStr, 'uni', false);
+labelName = cellfun(@(x1, x2, x3, x4) sprintf('cont-%s_hemi-%s%s_type-f%d_froi.label', ...
+    x1, x2, x3, x4*10), strrep(con, '-', '='), hemi, extraStr, thresh, 'uni', false);
 
 % create labels
 fscmdCell = cellfun(@(x1, x2, x3, x4, x5) fv_drawlabel(x1, x2, x3, x4, ...
