@@ -38,6 +38,11 @@ contents4save(isNum) = cellfun(@num2str, contents4save(isNum), 'uni', false);
 % traspose the contents to be saved
 transcontent = contents4save';
 
+% make it compatible with Windows
+if ispc
+    transcontent = cellfun(@(x) strrep(x, '\', '\\'), transcontent, 'uni', false);
+end
+
 fprintf(fid, sprintf(allFormat, transcontent{:}));
 
 fclose(fid);
