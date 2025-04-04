@@ -53,7 +53,7 @@ end
 fname = [fname ext];
 
 % strings after the first '.' are regarded as extension
-idx = regexp(fname, '\.');
+idx = regexp(fname, '\.', 'once');
 ext = fname(idx:end);
 
 %% Gather information
