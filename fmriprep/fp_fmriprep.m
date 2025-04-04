@@ -34,6 +34,8 @@ function [fpcmd, status] = fp_fmriprep(subjCode, varargin)
 %    .extracmd      <str> any other options available in fmriprep. Setting
 %                    in 'extracmd' will replace all the above settings.
 %                    More see: https://fmriprep.org/en/stable/usage.html
+%    .relapath     <boo> whether to use relative path for bidsDir in
+%                   d2bcmd. Default to 0. 
 %
 % Output:
 %    fpcmd          <str> fmriprep-docker commands. 
@@ -50,7 +52,7 @@ function [fpcmd, status] = fp_fmriprep(subjCode, varargin)
 %% Deal with inputs
 % default settings
 defaultOpts = struct(...
-    'fslicense', '$HOME/Documents/license.txt', ...
+    'fslicense', '', ...
     'outspace', 'fsnative fsaverage6 fsaverage T1w MNI152NLin2009cAsym', ... 
     'cifti', '91k', ... --cifti-output 
     'nthreads', 8, ... % above 8 does not seem to help (further)
@@ -61,9 +63,18 @@ defaultOpts = struct(...
     'runcmd', 1, ...
     'path2fmriprep', '', ...
     'bidsdir', bids_dir(), ...
-    'extracmd', '' ...
+    'extracmd', '', ...
+    'relapath', 0 ...
     );
 opts = fm_mergestruct(defaultOpts, varargin{:});
+
+if endsWith(opts.bidsdir, filesep)
+    opts.bidsdir = opts.bidsdir(1:end-1);
+end
+
+if isempty(opts.fslicense)
+    opts.fslicense = fullfile(opts.bidsdir, 'code', 'license.txt');
+end
 
 if ~exist('subjCode', 'var') || isempty(subjCode)
     error('Please input the subject code.');
@@ -93,11 +104,8 @@ if ~contains(opts.extracmd, '--fs-license-file')
 end
 
 if isempty(opts.wd)
-    if endsWith(opts.bidsdir, filesep)
-        opts.wd = [opts.bidsdir(1:end-1) '_work'];
-    else
-        opts.wd = [opts.bidsdir '_work'];
-    end
+    [~,f] = fileparts(opts.bidsdir);
+    opts.wd = fullfile(opts.bidsdir, '..', [f '_work']);
 end
 if ~isempty(opts.wd) && ~contains(opts.extracmd, '-w')
     fm_mkdir(fullfile(opts.wd, subjCode));
@@ -126,6 +134,11 @@ extracmd = sprintf(' %s', extracell{:});
 fpcmd = sprintf(['%sfmriprep-docker %s %s/derivatives/fmriprep/ participant ' ...
     '--participant-label %s %s '], ...
     opts.path2fmriprep, opts.bidsdir, opts.bidsdir, subjCode, extracmd);
+
+% use relative path if needed
+if opts.relapath
+    fpcmd = strrep(fpcmd, opts.bidsdir, '.');
+end
 
 if opts.runcmd
     % run commands

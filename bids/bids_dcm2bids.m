@@ -25,9 +25,9 @@ function [d2bcmd, isnotok] = bids_dcm2bids(dcmSubj, outSubj, varargin)
 %                   'sub-Test01', 'sub-Test02'.
 %
 % Varargin:
-%    config        <str> the config file to deal with dicoms. The default
+%    .config       <str> the config file to deal with dicoms. The default
 %                   config file is <bidsDir>/code/bids_convert.json .
-%    isSess        <boo> If there are multiple subdir within dcmSubj
+%    .isSess       <boo> If there are multiple subdir within dcmSubj
 %                   dir. Whether these dirctories are sessions (or runs).
 %                   Default is 0 (i.e., runs). Note that if run folders are
 %                   mistaken as session folders, each run will be saved as
@@ -36,9 +36,11 @@ function [d2bcmd, isnotok] = bids_dcm2bids(dcmSubj, outSubj, varargin)
 %                   special usage of isSess is: when isSess is not 0 and
 %                   there is only one folder withi9n subdir, isSess will be
 %                   used as the session code.
-%    docker        <boo> the docker version to be used, default to '3.2.0'
-%    runcmd        <boo> Whether to run the commands. Default is 1.
-%    bidsDir       <str> the BIDS directory. Default is bids_dir().
+%    .docker       <boo> the docker version to be used, default to '3.2.0'
+%    .runcmd       <boo> Whether to run the commands. Default is 1.
+%    .bidsDir      <str> the BIDS directory. Default is bids_dir().
+%    .relapath     <boo> whether to use relative path for bidsDir in
+%                   d2bcmd. Default to 0. 
 %
 % Outputs:
 %    d2bcmd        <cell str> dcm2bids commands.
@@ -60,7 +62,8 @@ defaultOpts = struct(...
     'issess', 0, ...
     'docker', '3.2.0', ...
     'runcmd', 1, ...
-    'bidsdir', bids_dir() ...
+    'bidsdir', bids_dir(), ...
+    'relapath', 0 ...
     );
 opts = fm_mergestruct(defaultOpts, varargin);
 
@@ -184,6 +187,13 @@ for iSubj = 1:length(dsubjList)
 end
 
 d2bcmd = vertcat(cmdCell{:});
+
+% use relative path if needed
+if opts.relapath
+    d2bcmd = cellfun(@(x) strrep(x, fm_2cmdpath(bidsDir), '.'), ...
+        d2bcmd, 'uni', false);
+end
+
 % run cmd
 [~, isnotok] = fm_runcmd(d2bcmd, runcmd);
 
