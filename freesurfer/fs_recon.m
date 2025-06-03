@@ -71,6 +71,10 @@ end
 fscmd = sprintf('recon-all -s %s %s %s%s %s -all', ...
     subjCode, sprintf(' -i %s', t1list{:}), t2cmd, hicmd, extracmd);
 
+if ispc
+    fscmd = fm_2wslcmd(fscmd);
+end
+
 % display the recon-all command
 fprintf('\n%s \n', fscmd);
 [fscmd, isnotok] = fm_runcmd(fscmd, runcmd);

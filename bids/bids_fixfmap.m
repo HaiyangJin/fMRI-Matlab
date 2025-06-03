@@ -111,6 +111,7 @@ for ifmap = 1:length(fmapdir)
     str = strrep(str, ',"', sprintf(',\n"'));
     str = strrep(str, '[{', sprintf('[\n{\n'));
     str = strrep(str, '}]', sprintf('\n}\n]'));
+    str = strrep(str, '\\', sprintf('/'));
 
     fid = fopen(thisfname,'w');
     fwrite(fid,str);

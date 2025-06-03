@@ -194,6 +194,10 @@ if opts.relapath
         d2bcmd, 'uni', false);
 end
 
+if ispc
+    d2bcmd = fm_2wslcmd(d2bcmd);
+end
+
 % run cmd
 [~, isnotok] = fm_runcmd(d2bcmd, runcmd);
 
