@@ -112,51 +112,65 @@ steps = size(tmpList,1);
 
 labelInfoCell = cell(steps,1);
 
-try % try parallel processing
+if steps > 20
 
-    % set up progress bar
-    D1 = parallel.pool.DataQueue;
-    h = waitbar(0, 'Preparing for the analysis. Please wait ...');
-    afterEach(D1, @nUpdateWaitbar);
-    p = 1;
+    try % try parallel processing
 
-    % pre-set some variable
-    surf = opts.surf;
-    struDir = opts.strudir;
+        % set up progress bar
+        D1 = parallel.pool.DataQueue;
+        h = waitbar(0, 'Preparing for the analysis. Please wait ...');
+        afterEach(D1, @nUpdateWaitbar);
+        p = 1;
 
-    % read the label information
-    parfor i = 1:steps
+        % pre-set some variable
+        surf = opts.surf;
+        struDir = opts.strudir;
 
-        labelInfoCell{i,1} = labelinfo(tmpList{i}, tmpSubj{i}, byCluster, fmin, gmInfo, ...
-            surf, saveAll, struDir);
+        % read the label information
+        parfor i = 1:steps
 
-        send(D1, i);
+            labelInfoCell{i,1} = labelinfo(tmpList{i}, tmpSubj{i}, byCluster, fmin, gmInfo, ...
+                surf, saveAll, struDir);
+
+            send(D1, i);
+        end
+
+        close(h);
+
+    catch
+
+        fprintf('\nNon-parallel processing starts...\n')
+        h_non = waitbar(0,'Please wait...');
+        % read the label information
+        for i = 1:steps
+
+            labelInfoCell{i,1} = labelinfo(tmpList{i}, tmpSubj{i}, byCluster, fmin, gmInfo, ...
+                opts.surf, saveAll, opts.strudir);
+
+            % update progress bar
+            waitbar(i / steps, h_non, ...
+                sprintf('SubjCode: %s  Label: %s', tmpSubj{i}, tmpList{i}));
+        end
+        close(h_non);
+
     end
 
-    close(h);
+else
 
-catch
-    fprintf('\nNon-parallel processing starts...\n')
-    h_non = waitbar(0,'Please wait...');
     % read the label information
     for i = 1:steps
-
         labelInfoCell{i,1} = labelinfo(tmpList{i}, tmpSubj{i}, byCluster, fmin, gmInfo, ...
             opts.surf, saveAll, opts.strudir);
-
-        % update progress bar
-        waitbar(i / steps, ...
-            sprintf('SubjCode: %s  Label: %s', tmpSubj{i}, tmpList{i}));
     end
-    close(h_non);
 
 end
+
 
 labelTable = vertcat(labelInfoCell{:});
 
     function nUpdateWaitbar(~)
-    waitbar(p/steps, h, sprintf('fs\\_labelinfo()\n%.2f%% completed...', p/steps*100));
-    p = p + 1;
+        waitbar(p/steps, h, sprintf('fs\\_labelinfo()\n%.2f%% completed...', p/steps*100));
+        p = p + 1;
     end
 
 end

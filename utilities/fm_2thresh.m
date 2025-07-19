@@ -18,7 +18,11 @@ if ~exist('toNumeric', 'var') || isempty(toNumeric)
 end
 
 % identify 'f*'
-thresh = regexp(filename, '\.f\d*\.', 'match');
+if contains(filename, '=vs=')
+    thresh = regexp(filename, '-f\d+_', 'match');
+else
+    thresh = regexp(filename, '\.f\d*\.', 'match');
+end
 
 if toNumeric && ~isempty(thresh)
     fthresh = thresh{1}(2:end-1);

@@ -27,22 +27,36 @@ if ischar(fnList)
     back2char = 1;
 end
 
+% label format
+lformat = 0;
+if all(cellfun(@(x) contains(x, '=vs='), fnList, 'uni', true))
+    lformat = 1;
+end
+
 if ~exist('delimiter', 'var') || isempty(delimiter)
     % defualt is for extracting contrast from label names
-    delimiter = '_'; 
+    if lformat
+        delimiter = '_';
+    else
+        delimiter = '.';
+    end
 end
 
 if ~exist('conSign', 'var') || isempty(conSign)
-    conSign = '=vs=';
+    if lformat
+        conSign = '=vs=';
+    else
+        conSign = '-vs-';
+    end
 end
 
 % split the fnList by delimiter
 strsCell = cellfun(@(x) strsplit(x, delimiter), fnList, 'uni', false);
 
-% find the string containts '=vs='
+% find the string containts '=vs=' or '-vs-'
 isVs = cellfun(@(x) contains(x, conSign), strsCell, 'uni', false);
 
-% only keep the strings containing '=vs='
+% only keep the strings containing '=vs=' or '-vs-'
 contrastCell = cellfun(@(x, y) x{y}, strsCell, isVs, 'uni', false);
 contrastCell = cellfun(@(x) strrep(x, 'cont-', ''), contrastCell, 'uni', false);
 

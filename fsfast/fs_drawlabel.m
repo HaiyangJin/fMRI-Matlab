@@ -24,6 +24,10 @@ function fscmd = fs_drawlabel(sessList, anaList, conList, varargin)
 %                    Default to 'geodesic' (or 'dijkstra').
 %    .addvalue      <boo> whether add the functional data/values used to
 %                    create the label. Default to true.
+%    .lformat       <int> The label format to be used. 1: the BIDS format,
+%                    e.g., 'hemi-rh_type-f30_cont-face=vs=object_roi-ofa.froi.label'.; 
+%                    0: the "old" format, e.g., 'roi.rh.f30.face-vs-object.ofa.label'.
+%                    Default to 0.
 %    .extracmd      <str> extra commands (cmd). Default to ''.
 %    .runcmd        <boo> 1: run FreeSurfer commands; 0: do not run
 %                    but only output FreeSurfer commands. 
@@ -64,6 +68,7 @@ defaultOpts = struct( ...
     'coordsurf', 'white', ...
     'distmetric', 'geodesic', ...
     'addvalue', 1, ...
+    'lformat', 0, ...
     'extracmd', '', ...
     'runcmd', 1);
 opts = fm_mergestruct(defaultOpts, varargin{:});
@@ -77,18 +82,25 @@ if ischar(opts.extrastr)
     opts.extrastr = {opts.extrastr};
 end
 %%% clean the extra strings %%%
-% add variable name
-hasname = cellfun(@(x) contains(x, '-'), opts.extrastr);
-opts.extrastr(~hasname) = cellfun(@(x) sprintf('_custom-%s', x), ...
-    opts.extrastr(~hasname), 'uni', false);
-% remove '_' at the end
-endunderscore = cellfun(@(x) endsWith(x, '_'), opts.extrastr);
-opts.extrastr(endunderscore) = cellfun(@(x) x(1:end-1), ...
-    opts.extrastr(endunderscore), 'uni', false);
-% ensure starts with '_'
-startunderscore = cellfun(@(x) startsWith(x, '_'), opts.extrastr);
-opts.extrastr(~startunderscore) = cellfun(@(x) ['_' x], ...
-    opts.extrastr(~startunderscore), 'uni', false);
+switch opts.lformat
+    case {1, 'bids'}
+        % add variable name
+        hasname = cellfun(@(x) contains(x, '-'), opts.extrastr);
+        opts.extrastr(~hasname) = cellfun(@(x) sprintf('_custom-%s', x), ...
+            opts.extrastr(~hasname), 'uni', false);
+        % remove '_' at the end
+        endunderscore = cellfun(@(x) endsWith(x, '_'), opts.extrastr);
+        opts.extrastr(endunderscore) = cellfun(@(x) x(1:end-1), ...
+            opts.extrastr(endunderscore), 'uni', false);
+        % ensure starts with '_'
+        startunderscore = cellfun(@(x) startsWith(x, '_'), opts.extrastr);
+        opts.extrastr(~startunderscore) = cellfun(@(x) ['_' x], ...
+            opts.extrastr(~startunderscore), 'uni', false);
+    case {0, 'old'}
+        hasdot = cellfun(@(x) startsWith(x, '.'), opts.extrastr);
+        opts.extrastr(~hasdot) = cellfun(@(x) ['.', x], ...
+            opts.extrastr(~hasdot), 'uni', false);
+end
 
 %% Draw labels for all participants for both hemispheres
 % create all the combinations
@@ -105,8 +117,15 @@ extraStr = theExtra(:);
 hemi = cellfun(@fm_2hemi, ana, 'uni', false);
 subjCode = fs_subjcode(sess, 1);
 sigFile = fullfile(getenv('FUNCTIONALS_DIR'), sess, 'bold', ana, con, 'sig.nii.gz');
-labelName = cellfun(@(x1, x2, x3, x4) sprintf('cont-%s_hemi-%s%s_type-f%d_froi.label', ...
-    x1, x2, x3, x4*10), strrep(con, '-', '='), hemi, extraStr, thresh, 'uni', false);
+
+switch opts.lformat 
+    case {1, 'bids'}
+        labelName = cellfun(@(x1, x2, x3, x4) sprintf('hemi-%s_type-f%d_cont-%s%s_froi.label', ...
+            x1, x2*10, x3, x4), hemi, thresh, strrep(con, '-', '='), extraStr, 'uni', false);
+    case {0, 'old'} 
+        labelName = cellfun(@(x1, x2, x3, x4) sprintf('roi.%s.f%d.%s%s.label', ...
+            x1, x2*10, x3, x4), hemi, thresh, con, extraStr, 'uni', false);
+end
 
 % create labels
 fscmdCell = cellfun(@(x1, x2, x3, x4, x5) fv_drawlabel(x1, x2, x3, x4, ...
