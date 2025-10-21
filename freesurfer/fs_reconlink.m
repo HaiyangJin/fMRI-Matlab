@@ -1,14 +1,18 @@
-function [cmdlist, isnotok] = fs_reconlink(subjList, trglist, rmtrg, runcmd, struDir)
-% [cmdlist, isnotok] = fs_reconlink(subjList, trglist, rmtrg, runcmd, struDir)
+function [cmdlist, isnotok] = fs_reconlink(subjList, trglist, isLink, rmtrg, runcmd, struDir)
+% [cmdlist, isnotok] = fs_reconlink(subjList, trglist, isLink, rmtrg, runcmd, struDir)
 %
 % Since FreeSurfer 7.4.1 (or nearby), it use soft link to build connections
 % between old and new file names (e.g., ?h.pial -> ?h.pial.T2). However,
-% this link information may be lost after copying. This function re-build
-% the links.
+% this link information may be lost after copying (the link also does not 
+% work on exFat format hard disk; you would see the error message in
+% recon-all). This function re-builds the links (default) or copy 
+% ?h.pial.T2 to ?h.pial.
 %
 % Inputs:
 %    subjList       <cell str> a list of subjCode.
 %    trglist        <cell str> a list of link files to be created.
+%    isLink         <boo> whether to re-build the link (1) or copy 
+%                    ?h.pial.T2 to ?h.pial (0). Default to 1.
 %    rmtrg          <boo> whether to remove the target (link) if it exists.
 %                    Default to 1.
 %    runcmd         <boo> whether to run the cmd. Default to 1.
@@ -20,7 +24,7 @@ function [cmdlist, isnotok] = fs_reconlink(subjList, trglist, rmtrg, runcmd, str
 % Created by Haiyang Jin (2025-July-16)
 
 if nargin < 1
-    fprintf('Usage: [cmdlist, isnotok] = fs_reconlink(subjList, trglist, rmtrg, runcmd, struDir);\n');
+    fprintf('Usage: [cmdlist, isnotok] = fs_reconlink(subjList, trglist, isLink, rmtrg, runcmd, struDir);\n');
     return;
 end
 
@@ -30,6 +34,10 @@ end
 
 if ~exist('struDir', 'var') || isempty(struDir)
     struDir = getenv('SUBJECTS_DIR');
+end
+
+if ~exist('isLink', 'var') || isempty(isLink)
+    isLink = 1;
 end
 
 if ~exist('rmtrg', 'var') || isempty(rmtrg)
@@ -70,8 +78,13 @@ srclists = fm_fullfile(struDir, subjList, 'surf', srclist);
 trglists = fm_fullfile(struDir, subjList, 'surf', trglist);
 
 % make the command
-cmdlist = cellfun(@(x,y) sprintf('ln -s %s %s', x, y), ...
-    srclists, trglists, 'uni', false);
+if isLink
+    cmdlist = cellfun(@(x,y) sprintf('ln -s %s %s', x, y), ...
+        srclists, trglists, 'uni', false);
+else
+    cmdlist = cellfun(@(x,y) sprintf('cp %s %s', x, y), ...
+        srclists, trglists, 'uni', false);
+end
 
 %% Run the command
 % remove the target link (if exists)
